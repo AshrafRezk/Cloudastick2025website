@@ -1,6 +1,6 @@
 [build]
   # Build command for Vite React app
-  command = "npm run build"
+  command = "npm ci && npm run build"
   
   # Directory to publish (Vite's default output directory)
   publish = "dist"
@@ -10,6 +10,8 @@
   NODE_VERSION = "18"
   # Ensure proper base path
   NODE_ENV = "production"
+  # Ensure npm installs all dependencies
+  NPM_FLAGS = "--production=false"
 
 # Redirect rules for SPA (Single Page Application)
 [[redirects]]
