@@ -14,6 +14,8 @@
   FRAMEWORK = "vite"
   # Clear any potential cache issues
   CI = "true"
+  # Ensure all dependencies are installed
+  NPM_FLAGS = "--production=false"
 
 # Redirect rules for SPA (Single Page Application)
 [[redirects]]
