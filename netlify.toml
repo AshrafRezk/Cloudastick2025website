@@ -8,8 +8,15 @@
 [build.environment]
   # Node.js version
   NODE_VERSION = "18"
+  # Ensure proper base path
+  NODE_ENV = "production"
 
 # Redirect rules for SPA (Single Page Application)
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
