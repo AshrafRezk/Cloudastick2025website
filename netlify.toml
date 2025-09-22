@@ -1,6 +1,6 @@
 [build]
   # Build command for Vite React app
-  command = "npm ci && npx vite build"
+  command = "npm ci && npm run build:clean"
   
   # Directory to publish (Vite's default output directory)
   publish = "dist"
@@ -12,6 +12,8 @@
   NODE_ENV = "production"
   # Explicitly set framework to prevent auto-detection issues
   FRAMEWORK = "vite"
+  # Clear any potential cache issues
+  CI = "true"
 
 # Redirect rules for SPA (Single Page Application)
 [[redirects]]
