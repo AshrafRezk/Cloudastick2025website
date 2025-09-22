@@ -12,6 +12,8 @@
   NODE_ENV = "production"
   # Ensure npm installs all dependencies
   NPM_FLAGS = "--production=false"
+  # Explicitly set framework to prevent auto-detection issues
+  FRAMEWORK = "vite"
 
 # Redirect rules for SPA (Single Page Application)
 [[redirects]]
