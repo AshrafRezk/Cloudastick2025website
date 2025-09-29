@@ -1,4 +1,5 @@
 
+import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   ArrowRight, BarChart3, Users, Zap, ChevronLeft, ChevronRight,
@@ -354,8 +355,12 @@ const Home = () => {
                         className="w-full h-full rounded-full object-cover"
                       />
                     </div>
-                    <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-brand-primary rounded-full flex items-center justify-center">
-                      <Users className="w-3 h-3 text-white" />
+                    {/* Role-specific icons */}
+                    <div className="absolute -top-1 -right-1 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                      {React.createElement(member.icons[0], { className: "w-3 h-3 text-gray-700" })}
+                    </div>
+                    <div className="absolute -bottom-1 -left-1 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                      {React.createElement(member.icons[1], { className: "w-3 h-3 text-gray-700" })}
                     </div>
                   </div>
                   <h3 className="text-sm font-semibold text-foreground group-hover:text-brand-primary transition-colors">

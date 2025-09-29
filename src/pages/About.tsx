@@ -1,4 +1,5 @@
 
+import React from "react";
 import { motion } from "framer-motion";
 import { 
   Heart, Zap, Users, Eye, Shield, Target, Award, TrendingUp,
@@ -419,11 +420,11 @@ const About = () => {
                       
                       {/* Role-specific icons */}
                       <div className="absolute -top-2 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                        <member.icons[0] className="w-4 h-4 text-gray-700" />
+                        {React.createElement(member.icons[0], { className: "w-4 h-4 text-gray-700" })}
                       </div>
                       
                       <div className="absolute -bottom-2 -left-2 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                        <member.icons[1] className="w-4 h-4 text-gray-700" />
+                        {React.createElement(member.icons[1], { className: "w-4 h-4 text-gray-700" })}
                       </div>
                     </div>
                   </div>
