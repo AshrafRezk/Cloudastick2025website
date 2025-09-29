@@ -200,10 +200,10 @@ When asked, keep responses **clear, concise, and professional** as if addressing
                       className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
                       <div className={`flex items-start space-x-2 max-w-[80%] ${message.sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        <div className={`${message.sender === 'user' ? 'w-8 h-8' : 'w-10 h-10'} rounded-full flex items-center justify-center ${
                           message.sender === 'user' 
                             ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white' 
-                            : 'bg-gray-100 text-gray-600 overflow-hidden p-0.5'
+                            : 'bg-gray-100 text-gray-600 overflow-hidden p-1'
                         }`}>
                           {message.sender === 'user' ? (
                             <User className="w-4 h-4" />
@@ -240,7 +240,7 @@ When asked, keep responses **clear, concise, and professional** as if addressing
                       className="flex justify-start"
                     >
                       <div className="flex items-start space-x-2">
-                        <div className="w-8 h-8 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center overflow-hidden p-0.5">
+                        <div className="w-10 h-10 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center overflow-hidden p-1">
                           <img 
                             src="/Assets/Cloudiator800*800.png" 
                             alt="Cloudiator" 
@@ -271,7 +271,7 @@ When asked, keep responses **clear, concise, and professional** as if addressing
                       onChange={(e) => setInputText(e.target.value)}
                       onKeyPress={handleKeyPress}
                       placeholder="Ask me about Cloudastick..."
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-gray-800 placeholder-gray-500"
                       disabled={isLoading}
                     />
                     <motion.button
