@@ -83,7 +83,7 @@ const Learn = () => {
               The Cloudastick Education Portal
             </h1>
             <h2 className="text-2xl md:text-4xl font-light mb-8 text-foreground">
-              is under construction
+              is under maintenance for 2026 updates
             </h2>
             <p className="text-lg md:text-xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
               We're building something amazing for our valued customers. Get ready for comprehensive 
