@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import Cloudiator from "./Cloudiator";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -114,6 +115,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       <main className="pt-16">
         {children}
       </main>
+
+      {/* Cloudiator Chatbot */}
+      <Cloudiator />
     </div>
   );
 };
