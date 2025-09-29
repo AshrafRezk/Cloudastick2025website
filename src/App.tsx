@@ -12,6 +12,7 @@ import Services from "./pages/Services";
 import Clients from "./pages/Clients";
 import Feedback from "./pages/Feedback";
 import Contact from "./pages/Contact";
+import Learn from "./pages/Learn";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,6 +42,7 @@ const App = () => (
             <Route path="/clients" element={<Clients />} />
             <Route path="/feedback" element={<Feedback />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/learn" element={<Learn />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>
