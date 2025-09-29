@@ -78,11 +78,11 @@ When asked, keep responses **clear, concise, and professional** as if addressing
       };
 
       console.log('🤖 Cloudiator Debug - Starting API call');
-      console.log('📤 Request URL:', '/api/cloudiator');
+      console.log('📤 Request URL:', '/.netlify/functions/cloudiator');
       console.log('📤 Request Payload:', requestPayload);
       console.log('📤 User Input:', inputText.trim());
 
-      const response = await fetch('/api/cloudiator', {
+      const response = await fetch('/.netlify/functions/cloudiator', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
