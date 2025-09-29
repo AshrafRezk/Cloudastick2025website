@@ -5,7 +5,7 @@ import {
   ArrowRight, BarChart3, Users, Zap, ChevronLeft, ChevronRight,
   Code, Palette, Users2, Headphones, Wrench, MessageSquare, 
   Settings, UserCheck, Briefcase, Lightbulb, 
-  Globe, Database, Shield as ShieldIcon, Star, Target, Award
+  Globe, Database, Shield as ShieldIcon, Star, Target, Award, TrendingUp
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
