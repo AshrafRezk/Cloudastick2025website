@@ -18,119 +18,135 @@ const Home = () => {
   const [currentMemberIndex, setCurrentMemberIndex] = useState(0);
   const [isAutoPlaying] = useState(true);
 
-  // Team members data for hero visuals - Ordered as requested with role-specific icons
+  // Team members data for hero visuals - Ordered as requested with role-specific icons and descriptions
   const teamMembers = [
     { 
       id: 5, name: "Mina Michel", role: "Founder of Cloudastick Systems", 
       image: "/Assets/Company Members/Mina_Michel_Founder_of_Cloudastick_Systems.png",
       icons: [Star, Lightbulb],
       hoverElements: ["Vision", "Leadership"],
-      color: "from-yellow-400 to-orange-500"
+      color: "from-yellow-400 to-orange-500",
+      description: "Leading Cloudastick's vision as a trusted Salesforce partner, Mina drives innovation in the ecosystem while building lasting relationships with clients across the Middle East and Africa."
     },
     { 
       id: 9, name: "Mireille Rafik", role: "Marketing Cloud Consultant", 
       image: "/Assets/Company Members/Mireille_Rafik_Marketing_Cloud_Consultant.png",
       icons: [MessageSquare, BarChart3],
       hoverElements: ["Campaigns", "Analytics"],
-      color: "from-pink-400 to-purple-500"
+      color: "from-pink-400 to-purple-500",
+      description: "Specializing in Salesforce Marketing Cloud, Mireille helps businesses create personalized customer journeys and drive engagement through data-driven marketing automation strategies."
     },
     { 
       id: 12, name: "Omar El Borae", role: "Customer Success Manager", 
       image: "/Assets/Company Members/Omar_El_Borae_Customer_Success_Manager.png",
       icons: [Headphones, UserCheck],
       hoverElements: ["Support", "Success"],
-      color: "from-green-400 to-teal-500"
+      color: "from-green-400 to-teal-500",
+      description: "Ensuring customer success in the Salesforce ecosystem, Omar works closely with clients to maximize their platform investment and achieve their business transformation goals."
     },
     { 
       id: 10, name: "Carine Felix", role: "Brand and People Experience Specialist", 
       image: "/Assets/Company Members/Carine_Felix_Brand_and_People_Experience_Specialist.png",
       icons: [Palette, Users2],
       hoverElements: ["Brand", "Culture"],
-      color: "from-purple-400 to-pink-500"
+      color: "from-purple-400 to-pink-500",
+      description: "Shaping Cloudastick's culture and brand experience, Carine ensures our Salesforce partner services reflect our commitment to excellence and human-centered approach."
     },
     { 
       id: 6, name: "Luay Aladin", role: "Salesforce Consultant", 
       image: "/Assets/Company Members/Luay_Aladin_Salesforce_Consultant.png",
       icons: [Code, Settings],
       hoverElements: ["Development", "Configuration"],
-      color: "from-blue-400 to-cyan-500"
+      color: "from-blue-400 to-cyan-500",
+      description: "Expert in Salesforce development and configuration, Luay delivers custom solutions that extend the platform's capabilities to meet unique business requirements."
     },
     { 
       id: 11, name: "Shady Thomas", role: "Salesforce Consultant", 
       image: "/Assets/Company Members/Shady_Thomas_Salesforce_Consultant.png",
       icons: [Wrench, Database],
       hoverElements: ["Integration", "Data"],
-      color: "from-indigo-400 to-blue-500"
+      color: "from-indigo-400 to-blue-500",
+      description: "Specializing in Salesforce integrations and data management, Shady connects disparate systems and ensures seamless data flow across the entire business ecosystem."
     },
     { 
       id: 3, name: "Ashraf Rezk", role: "Head of Tech", 
       image: "/Assets/Company Members/Ashraf_Rezk_Head_of_Tech.png",
       icons: [ShieldIcon, Globe],
       hoverElements: ["Security", "Architecture"],
-      color: "from-red-400 to-orange-500"
+      color: "from-red-400 to-orange-500",
+      description: "Leading Cloudastick's technical strategy, Ashraf ensures our Salesforce implementations follow best practices for security, scalability, and enterprise architecture."
     },
     { 
       id: 2, name: "Martin Ashraf", role: "Salesforce Consultant", 
       image: "/Assets/Company Members/Martin_Ashraf_Salesforce_Consultant.png",
       icons: [Target, TrendingUp],
       hoverElements: ["Strategy", "Growth"],
-      color: "from-emerald-400 to-green-500"
+      color: "from-emerald-400 to-green-500",
+      description: "Focused on strategic Salesforce implementations, Martin helps businesses align their CRM strategy with growth objectives and optimize their sales processes."
     },
     { 
       id: 14, name: "Ahmed Salah", role: "Salesforce Consultant", 
       image: "/Assets/Company Members/Ahmed_Salah_Salesforce_Consultant.png",
       icons: [Award, Briefcase],
       hoverElements: ["Excellence", "Delivery"],
-      color: "from-amber-400 to-yellow-500"
+      color: "from-amber-400 to-yellow-500",
+      description: "Delivering excellence in Salesforce consulting, Ahmed ensures every implementation meets the highest standards of quality and delivers measurable business value."
     },
     { 
       id: 16, name: "Maheen Imran", role: "Salesforce Consultant", 
       image: "/Assets/Company Members/Maheen_Imran_Salesforce_Consultant.png",
       icons: [Users, Zap],
       hoverElements: ["Collaboration", "Innovation"],
-      color: "from-cyan-400 to-blue-500"
+      color: "from-cyan-400 to-blue-500",
+      description: "Driving innovation through collaborative Salesforce solutions, Maheen works with cross-functional teams to deliver transformative customer experiences."
     },
     { 
       id: 1, name: "Fady Maged", role: "Salesforce Consultant", 
       image: "/Assets/Company Members/Fady_Maged_Salesforce_Consultant.png",
       icons: [Code, BarChart3],
       hoverElements: ["Development", "Analytics"],
-      color: "from-violet-400 to-purple-500"
+      color: "from-violet-400 to-purple-500",
+      description: "Combining development expertise with analytics insights, Fady creates powerful Salesforce solutions that provide actionable business intelligence and reporting."
     },
     { 
       id: 4, name: "Andrew Osama", role: "Salesforce Consultant", 
       image: "/Assets/Company Members/Andrew_Osama_Salesforce_Consultant.png",
       icons: [Settings, Wrench],
       hoverElements: ["Configuration", "Customization"],
-      color: "from-teal-400 to-cyan-500"
+      color: "from-teal-400 to-cyan-500",
+      description: "Expert in Salesforce configuration and customization, Andrew tailors the platform to fit unique business processes and workflow requirements."
     },
     { 
       id: 7, name: "Abdullah", role: "Salesforce Consultant", 
       image: "/Assets/Company Members/Abdullah_Salesforce_Consultant.png",
       icons: [Database, Globe],
       hoverElements: ["Data Management", "Integration"],
-      color: "from-orange-400 to-red-500"
+      color: "from-orange-400 to-red-500",
+      description: "Specializing in data management and global integrations, Abdullah ensures seamless connectivity between Salesforce and enterprise systems worldwide."
     },
     { 
       id: 8, name: "Farida Esam", role: "Marketing Cloud Consultant", 
       image: "/Assets/Company Members/Farida_Esam_Marketing_Cloud_Consultant.png",
       icons: [MessageSquare, BarChart3],
       hoverElements: ["Email Marketing", "Campaigns"],
-      color: "from-rose-400 to-pink-500"
+      color: "from-rose-400 to-pink-500",
+      description: "Focused on Marketing Cloud excellence, Farida designs and executes sophisticated email marketing campaigns that drive customer engagement and ROI."
     },
     { 
       id: 13, name: "Andrea Makary", role: "Technical Architect", 
       image: "/Assets/Company Members/Andrea_Makary_Technical_Architect.png",
       icons: [ShieldIcon, Globe],
       hoverElements: ["Architecture", "Security"],
-      color: "from-slate-400 to-gray-500"
+      color: "from-slate-400 to-gray-500",
+      description: "Designing enterprise-grade Salesforce architectures, Andrea ensures scalable, secure, and maintainable solutions that support long-term business growth."
     },
     { 
       id: 15, name: "Mariam Mamdouh", role: "Project Manager", 
       image: "/Assets/Company Members/Mariam_Mamdouh_Project_Manager.png",
       icons: [Briefcase, Target],
       hoverElements: ["Project Delivery", "Timeline"],
-      color: "from-lime-400 to-green-500"
+      color: "from-lime-400 to-green-500",
+      description: "Ensuring successful project delivery, Mariam coordinates complex Salesforce implementations while maintaining timelines, budgets, and stakeholder satisfaction."
     }
   ];
 
@@ -196,7 +212,7 @@ const Home = () => {
                     {currentMember.role}
                   </h2>
                   <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl leading-relaxed">
-                    From complex integrations to innovative solutions, our team delivers personalized Salesforce expertise that transforms your business.
+                    {currentMember.description}
                   </p>
                 </motion.div>
               </AnimatePresence>
