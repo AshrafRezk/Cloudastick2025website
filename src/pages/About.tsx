@@ -1,50 +1,187 @@
 
 import { motion } from "framer-motion";
-import { Target, Users, Award, TrendingUp } from "lucide-react";
+import { 
+  Heart, Zap, Users, Eye, Shield, Target, Award, TrendingUp,
+  Code, Palette, Users2, Headphones, Wrench, MessageSquare, 
+  BarChart3, Settings, UserCheck, Briefcase, Lightbulb, 
+  Globe, Database, Shield as ShieldIcon, Star
+} from "lucide-react";
 import AnimatedSection from "../components/AnimatedSection";
 
-// Team member images - using company members from public folder with correct mapping
+// Team member images with role-specific icons and hover elements
   const teamMembers = [
-    { name: "Mina Michel", role: "Founder of Cloudastick Systems", image: "/Assets/Company Members/Mina_Michel_Founder_of_Cloudastick_Systems.png" },
-    { name: "Mireille Rafik", role: "Marketing Cloud Consultant", image: "/Assets/Company Members/Mireille_Rafik_Marketing_Cloud_Consultant.png" },
-    { name: "Omar El Borae", role: "Customer Success Manager", image: "/Assets/Company Members/Omar_El_Borae_Customer_Success_Manager.png" },
-    { name: "Carine Felix", role: "Brand and People Experience Specialist", image: "/Assets/Company Members/Carine_Felix_Brand_and_People_Experience_Specialist.png" },
-    { name: "Luay Aladin", role: "Salesforce Consultant", image: "/Assets/Company Members/Luay_Aladin_Salesforce_Consultant.png" },
-    { name: "Shady Thomas", role: "Salesforce Consultant", image: "/Assets/Company Members/Shady_Thomas_Salesforce_Consultant.png" },
-    { name: "Ashraf Rezk", role: "Head of Tech", image: "/Assets/Company Members/Ashraf_Rezk_Head_of_Tech.png" },
-    { name: "Martin Ashraf", role: "Salesforce Consultant", image: "/Assets/Company Members/Martin_Ashraf_Salesforce_Consultant.png" },
-    { name: "Ahmed Salah", role: "Salesforce Consultant", image: "/Assets/Company Members/Ahmed_Salah_Salesforce_Consultant.png" },
-    { name: "Maheen Imran", role: "Salesforce Consultant", image: "/Assets/Company Members/Maheen_Imran_Salesforce_Consultant.png" },
-    { name: "Fady Maged", role: "Salesforce Consultant", image: "/Assets/Company Members/Fady_Maged_Salesforce_Consultant.png" },
-    { name: "Andrew Osama", role: "Salesforce Consultant", image: "/Assets/Company Members/Andrew_Osama_Salesforce_Consultant.png" },
-    { name: "Abdullah", role: "Salesforce Consultant", image: "/Assets/Company Members/Abdullah_Salesforce_Consultant.png" },
-    { name: "Farida Esam", role: "Marketing Cloud Consultant", image: "/Assets/Company Members/Farida_Esam_Marketing_Cloud_Consultant.png" },
-    { name: "Andrea Makary", role: "Technical Architect", image: "/Assets/Company Members/Andrea_Makary_Technical_Architect.png" },
-    { name: "Mariam Mamdouh", role: "Project Manager", image: "/Assets/Company Members/Mariam_Mamdouh_Project_Manager.png" }
+    { 
+      name: "Mina Michel", 
+      role: "Founder of Cloudastick Systems", 
+      image: "/Assets/Company Members/Mina_Michel_Founder_of_Cloudastick_Systems.png",
+      icons: [Star, Lightbulb],
+      hoverElements: ["Vision", "Leadership"],
+      color: "from-yellow-400 to-orange-500"
+    },
+    { 
+      name: "Mireille Rafik", 
+      role: "Marketing Cloud Consultant", 
+      image: "/Assets/Company Members/Mireille_Rafik_Marketing_Cloud_Consultant.png",
+      icons: [MessageSquare, BarChart3],
+      hoverElements: ["Campaigns", "Analytics"],
+      color: "from-pink-400 to-purple-500"
+    },
+    { 
+      name: "Omar El Borae", 
+      role: "Customer Success Manager", 
+      image: "/Assets/Company Members/Omar_El_Borae_Customer_Success_Manager.png",
+      icons: [Headphones, UserCheck],
+      hoverElements: ["Support", "Success"],
+      color: "from-green-400 to-teal-500"
+    },
+    { 
+      name: "Carine Felix", 
+      role: "Brand and People Experience Specialist", 
+      image: "/Assets/Company Members/Carine_Felix_Brand_and_People_Experience_Specialist.png",
+      icons: [Palette, Users2],
+      hoverElements: ["Brand", "Culture"],
+      color: "from-purple-400 to-pink-500"
+    },
+    { 
+      name: "Luay Aladin", 
+      role: "Salesforce Consultant", 
+      image: "/Assets/Company Members/Luay_Aladin_Salesforce_Consultant.png",
+      icons: [Code, Settings],
+      hoverElements: ["Development", "Configuration"],
+      color: "from-blue-400 to-cyan-500"
+    },
+    { 
+      name: "Shady Thomas", 
+      role: "Salesforce Consultant", 
+      image: "/Assets/Company Members/Shady_Thomas_Salesforce_Consultant.png",
+      icons: [Wrench, Database],
+      hoverElements: ["Integration", "Data"],
+      color: "from-indigo-400 to-blue-500"
+    },
+    { 
+      name: "Ashraf Rezk", 
+      role: "Head of Tech", 
+      image: "/Assets/Company Members/Ashraf_Rezk_Head_of_Tech.png",
+      icons: [ShieldIcon, Globe],
+      hoverElements: ["Security", "Architecture"],
+      color: "from-red-400 to-orange-500"
+    },
+    { 
+      name: "Martin Ashraf", 
+      role: "Salesforce Consultant", 
+      image: "/Assets/Company Members/Martin_Ashraf_Salesforce_Consultant.png",
+      icons: [Target, TrendingUp],
+      hoverElements: ["Strategy", "Growth"],
+      color: "from-emerald-400 to-green-500"
+    },
+    { 
+      name: "Ahmed Salah", 
+      role: "Salesforce Consultant", 
+      image: "/Assets/Company Members/Ahmed_Salah_Salesforce_Consultant.png",
+      icons: [Award, Briefcase],
+      hoverElements: ["Excellence", "Delivery"],
+      color: "from-amber-400 to-yellow-500"
+    },
+    { 
+      name: "Maheen Imran", 
+      role: "Salesforce Consultant", 
+      image: "/Assets/Company Members/Maheen_Imran_Salesforce_Consultant.png",
+      icons: [Users, Zap],
+      hoverElements: ["Collaboration", "Innovation"],
+      color: "from-cyan-400 to-blue-500"
+    },
+    { 
+      name: "Fady Maged", 
+      role: "Salesforce Consultant", 
+      image: "/Assets/Company Members/Fady_Maged_Salesforce_Consultant.png",
+      icons: [Code, BarChart3],
+      hoverElements: ["Development", "Analytics"],
+      color: "from-violet-400 to-purple-500"
+    },
+    { 
+      name: "Andrew Osama", 
+      role: "Salesforce Consultant", 
+      image: "/Assets/Company Members/Andrew_Osama_Salesforce_Consultant.png",
+      icons: [Settings, Wrench],
+      hoverElements: ["Configuration", "Customization"],
+      color: "from-teal-400 to-cyan-500"
+    },
+    { 
+      name: "Abdullah", 
+      role: "Salesforce Consultant", 
+      image: "/Assets/Company Members/Abdullah_Salesforce_Consultant.png",
+      icons: [Database, Globe],
+      hoverElements: ["Data Management", "Integration"],
+      color: "from-orange-400 to-red-500"
+    },
+    { 
+      name: "Farida Esam", 
+      role: "Marketing Cloud Consultant", 
+      image: "/Assets/Company Members/Farida_Esam_Marketing_Cloud_Consultant.png",
+      icons: [MessageSquare, BarChart3],
+      hoverElements: ["Email Marketing", "Campaigns"],
+      color: "from-rose-400 to-pink-500"
+    },
+    { 
+      name: "Andrea Makary", 
+      role: "Technical Architect", 
+      image: "/Assets/Company Members/Andrea_Makary_Technical_Architect.png",
+      icons: [ShieldIcon, Globe],
+      hoverElements: ["Architecture", "Security"],
+      color: "from-slate-400 to-gray-500"
+    },
+    { 
+      name: "Mariam Mamdouh", 
+      role: "Project Manager", 
+      image: "/Assets/Company Members/Mariam_Mamdouh_Project_Manager.png",
+      icons: [Briefcase, Target],
+      hoverElements: ["Project Delivery", "Timeline"],
+      color: "from-lime-400 to-green-500"
+    }
   ];
 
 const About = () => {
   const values = [
     {
-      icon: Target,
-      title: "Mission",
-      description: "To provide tailored CRM solutions that drive business growth and enhance customer relationships.",
+      icon: Heart,
+      title: "Reverence",
+      description: "We begin with respect. We respect the craft of technology and consulting, striving for excellence in every detail. We respect each other's views, knowing that diverse perspectives strengthen our solutions. We respect everyone in the Salesforce ecosystem including healthy competition because it drives us all forward. Most importantly, we deeply respect our customers, treating their trust as our greatest responsibility.",
+      color: "from-red-500 to-pink-500",
+      bgColor: "bg-red-50",
+      iconColor: "text-red-600"
+    },
+    {
+      icon: Zap,
+      title: "Efficiency",
+      description: "We believe in doing things right and doing them smart. Efficiency means removing waste, optimizing processes, and ensuring our clients see measurable value from every engagement.",
+      color: "from-yellow-500 to-orange-500",
+      bgColor: "bg-yellow-50",
+      iconColor: "text-yellow-600"
     },
     {
       icon: Users,
-      title: "Team",
-      description: "Industry specialists with deep expertise in Salesforce and business transformation.",
+      title: "Inclusion",
+      description: "We practice strategic inclusivity, every member, partner, and client is part of the same Cloudastick boat, moving forward together. We welcome and celebrate diverse operational ideas, skills, and viewpoints not only as a matter of fairness, but as a deliberate strategy to fuel creativity, strengthen collaboration, and ensure collective success.",
+      color: "from-blue-500 to-cyan-500",
+      bgColor: "bg-blue-50",
+      iconColor: "text-blue-600"
     },
     {
-      icon: Award,
-      title: "Excellence",
-      description: "Committed to delivering exceptional results and exceeding client expectations.",
+      icon: Eye,
+      title: "Transparency",
+      description: "We commit to clarity at every level. Internally, we practice open communication about all matters to ensure alignment and trust. Externally, we engage in proactive communication with our customers, keeping everyone in the know, anticipating questions, and ensuring there are no surprises.",
+      color: "from-green-500 to-emerald-500",
+      bgColor: "bg-green-50",
+      iconColor: "text-green-600"
     },
     {
-      icon: TrendingUp,
-      title: "Growth",
-      description: "Helping businesses scale and optimize their operations with intelligent solutions.",
-    },
+      icon: Shield,
+      title: "Consistency",
+      description: "We maintain and commit to what we do. At Cloudastick, we don't just start initiatives, we see them through to completion. Our consistency is about perseverance, reliability, and honoring our commitments, ensuring that what we promise is what we deliver, every time.",
+      color: "from-purple-500 to-indigo-500",
+      bgColor: "bg-purple-50",
+      iconColor: "text-purple-600"
+    }
   ];
 
   return (
@@ -183,30 +320,58 @@ const About = () => {
               Our Values
             </h2>
             <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-              Built on a foundation of expertise, innovation, and client success.
+              The principles that guide everything we do at Cloudastick.
             </p>
           </AnimatedSection>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {values.map((value, index) => (
               <AnimatedSection
                 key={value.title}
-                delay={index * 0.1}
+                delay={index * 0.15}
                 className="group"
               >
                 <motion.div
-                  whileHover={{ y: -10 }}
-                  className="text-center p-6 rounded-xl bg-gray-800/80 border border-gray-700 hover:border-cyan-500/50 transition-all duration-300"
+                  whileHover={{ 
+                    y: -15,
+                    scale: 1.02,
+                    transition: { duration: 0.3 }
+                  }}
+                  className={`text-center p-8 rounded-2xl ${value.bgColor} border-2 border-transparent hover:border-opacity-50 transition-all duration-500 shadow-lg hover:shadow-2xl`}
                 >
-                  <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                    <value.icon className="w-8 h-8 text-white" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-white mb-3">
+                  <motion.div
+                    whileHover={{ 
+                      rotate: 360,
+                      scale: 1.1,
+                      transition: { duration: 0.6 }
+                    }}
+                    className={`w-20 h-20 bg-gradient-to-br ${value.color} rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg`}
+                  >
+                    <value.icon className={`w-10 h-10 ${value.iconColor}`} />
+                  </motion.div>
+                  
+                  <motion.h3 
+                    className="text-2xl font-bold text-gray-800 mb-4"
+                    whileHover={{ scale: 1.05 }}
+                  >
                     {value.title}
-                  </h3>
-                  <p className="text-gray-400 text-sm">
+                  </motion.h3>
+                  
+                  <motion.p 
+                    className="text-gray-600 leading-relaxed text-sm"
+                    initial={{ opacity: 0.8 }}
+                    whileHover={{ opacity: 1 }}
+                  >
                     {value.description}
-                  </p>
+                  </motion.p>
+                  
+                  {/* Decorative element */}
+                  <motion.div
+                    className={`w-full h-1 bg-gradient-to-r ${value.color} rounded-full mt-6`}
+                    initial={{ scaleX: 0 }}
+                    whileInView={{ scaleX: 1 }}
+                    transition={{ duration: 0.8, delay: index * 0.1 }}
+                  />
                 </motion.div>
               </AnimatedSection>
             ))}
@@ -234,24 +399,70 @@ const About = () => {
                 className="group"
               >
                 <motion.div
-                  whileHover={{ y: -10, scale: 1.02 }}
-                  className="bg-card/80 rounded-2xl p-4 border border-border hover:border-brand-primary/50 transition-all duration-300 text-center"
+                  whileHover={{ y: -15, scale: 1.05 }}
+                  className="bg-card/80 rounded-2xl p-6 border border-border hover:border-brand-primary/50 transition-all duration-500 text-center relative overflow-hidden"
                 >
+                  {/* Background gradient on hover */}
+                  <motion.div
+                    className={`absolute inset-0 bg-gradient-to-br ${member.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}
+                    initial={{ opacity: 0 }}
+                    whileHover={{ opacity: 0.1 }}
+                  />
+                  
                   <div className="relative mb-4">
-                    <div className="w-20 h-20 mx-auto rounded-full overflow-hidden border-2 border-brand-primary/30 group-hover:border-brand-primary transition-colors duration-300">
+                    <div className="w-24 h-24 mx-auto rounded-full overflow-hidden border-3 border-brand-primary/30 group-hover:border-brand-primary transition-all duration-500 relative">
                       <img 
                         src={member.image} 
                         alt={member.name}
                         className="w-full h-full object-cover"
                       />
+                      
+                      {/* Role-specific icons */}
+                      <div className="absolute -top-2 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                        <member.icons[0] className="w-4 h-4 text-gray-700" />
+                      </div>
+                      
+                      <div className="absolute -bottom-2 -left-2 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                        <member.icons[1] className="w-4 h-4 text-gray-700" />
+                      </div>
                     </div>
                   </div>
+                  
                   <h3 className="text-lg font-semibold text-white mb-1 group-hover:text-cyan-300 transition-colors duration-300">
                     {member.name}
                   </h3>
-                  <p className="text-cyan-400 text-sm mb-2 font-medium">
+                  
+                  <p className="text-cyan-400 text-sm mb-3 font-medium">
                     {member.role}
                   </p>
+                  
+                  {/* Hover elements */}
+                  <motion.div
+                    className="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                    initial={{ opacity: 0, y: 10 }}
+                    whileHover={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {member.hoverElements.map((element, idx) => (
+                      <motion.span
+                        key={element}
+                        className={`px-2 py-1 text-xs font-medium rounded-full bg-gradient-to-r ${member.color} text-white shadow-sm`}
+                        initial={{ scale: 0 }}
+                        whileHover={{ scale: 1 }}
+                        transition={{ duration: 0.2, delay: idx * 0.1 }}
+                      >
+                        {element}
+                      </motion.span>
+                    ))}
+                  </motion.div>
+                  
+                  {/* Decorative line */}
+                  <motion.div
+                    className={`w-full h-0.5 bg-gradient-to-r ${member.color} rounded-full mt-4`}
+                    initial={{ scaleX: 0 }}
+                    whileInView={{ scaleX: 1 }}
+                    transition={{ duration: 0.8, delay: index * 0.1 }}
+                  />
                 </motion.div>
               </AnimatedSection>
             ))}

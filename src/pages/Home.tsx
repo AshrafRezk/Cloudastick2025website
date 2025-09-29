@@ -1,6 +1,11 @@
 
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, BarChart3, Users, Zap, ChevronLeft, ChevronRight } from "lucide-react";
+import { 
+  ArrowRight, BarChart3, Users, Zap, ChevronLeft, ChevronRight,
+  Code, Palette, Users2, Headphones, Wrench, MessageSquare, 
+  Settings, UserCheck, Briefcase, Lightbulb, 
+  Globe, Database, Shield as ShieldIcon, Star, Target, Award
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import AnimatedSection from "../components/AnimatedSection";
@@ -12,24 +17,120 @@ const Home = () => {
   const [currentMemberIndex, setCurrentMemberIndex] = useState(0);
   const [isAutoPlaying] = useState(true);
 
-  // Team members data for hero visuals - Ordered as requested
+  // Team members data for hero visuals - Ordered as requested with role-specific icons
   const teamMembers = [
-    { id: 5, name: "Mina Michel", role: "Founder of Cloudastick Systems", image: "/Assets/Company Members/Mina_Michel_Founder_of_Cloudastick_Systems.png" },
-    { id: 9, name: "Mireille Rafik", role: "Marketing Cloud Consultant", image: "/Assets/Company Members/Mireille_Rafik_Marketing_Cloud_Consultant.png" },
-    { id: 12, name: "Omar El Borae", role: "Customer Success Manager", image: "/Assets/Company Members/Omar_El_Borae_Customer_Success_Manager.png" },
-    { id: 10, name: "Carine Felix", role: "Brand and People Experience Specialist", image: "/Assets/Company Members/Carine_Felix_Brand_and_People_Experience_Specialist.png" },
-    { id: 6, name: "Luay Aladin", role: "Salesforce Consultant", image: "/Assets/Company Members/Luay_Aladin_Salesforce_Consultant.png" },
-    { id: 11, name: "Shady Thomas", role: "Salesforce Consultant", image: "/Assets/Company Members/Shady_Thomas_Salesforce_Consultant.png" },
-    { id: 3, name: "Ashraf Rezk", role: "Head of Tech", image: "/Assets/Company Members/Ashraf_Rezk_Head_of_Tech.png" },
-    { id: 2, name: "Martin Ashraf", role: "Salesforce Consultant", image: "/Assets/Company Members/Martin_Ashraf_Salesforce_Consultant.png" },
-    { id: 14, name: "Ahmed Salah", role: "Salesforce Consultant", image: "/Assets/Company Members/Ahmed_Salah_Salesforce_Consultant.png" },
-    { id: 16, name: "Maheen Imran", role: "Salesforce Consultant", image: "/Assets/Company Members/Maheen_Imran_Salesforce_Consultant.png" },
-    { id: 1, name: "Fady Maged", role: "Salesforce Consultant", image: "/Assets/Company Members/Fady_Maged_Salesforce_Consultant.png" },
-    { id: 4, name: "Andrew Osama", role: "Salesforce Consultant", image: "/Assets/Company Members/Andrew_Osama_Salesforce_Consultant.png" },
-    { id: 7, name: "Abdullah", role: "Salesforce Consultant", image: "/Assets/Company Members/Abdullah_Salesforce_Consultant.png" },
-    { id: 8, name: "Farida Esam", role: "Marketing Cloud Consultant", image: "/Assets/Company Members/Farida_Esam_Marketing_Cloud_Consultant.png" },
-    { id: 13, name: "Andrea Makary", role: "Technical Architect", image: "/Assets/Company Members/Andrea_Makary_Technical_Architect.png" },
-    { id: 15, name: "Mariam Mamdouh", role: "Project Manager", image: "/Assets/Company Members/Mariam_Mamdouh_Project_Manager.png" }
+    { 
+      id: 5, name: "Mina Michel", role: "Founder of Cloudastick Systems", 
+      image: "/Assets/Company Members/Mina_Michel_Founder_of_Cloudastick_Systems.png",
+      icons: [Star, Lightbulb],
+      hoverElements: ["Vision", "Leadership"],
+      color: "from-yellow-400 to-orange-500"
+    },
+    { 
+      id: 9, name: "Mireille Rafik", role: "Marketing Cloud Consultant", 
+      image: "/Assets/Company Members/Mireille_Rafik_Marketing_Cloud_Consultant.png",
+      icons: [MessageSquare, BarChart3],
+      hoverElements: ["Campaigns", "Analytics"],
+      color: "from-pink-400 to-purple-500"
+    },
+    { 
+      id: 12, name: "Omar El Borae", role: "Customer Success Manager", 
+      image: "/Assets/Company Members/Omar_El_Borae_Customer_Success_Manager.png",
+      icons: [Headphones, UserCheck],
+      hoverElements: ["Support", "Success"],
+      color: "from-green-400 to-teal-500"
+    },
+    { 
+      id: 10, name: "Carine Felix", role: "Brand and People Experience Specialist", 
+      image: "/Assets/Company Members/Carine_Felix_Brand_and_People_Experience_Specialist.png",
+      icons: [Palette, Users2],
+      hoverElements: ["Brand", "Culture"],
+      color: "from-purple-400 to-pink-500"
+    },
+    { 
+      id: 6, name: "Luay Aladin", role: "Salesforce Consultant", 
+      image: "/Assets/Company Members/Luay_Aladin_Salesforce_Consultant.png",
+      icons: [Code, Settings],
+      hoverElements: ["Development", "Configuration"],
+      color: "from-blue-400 to-cyan-500"
+    },
+    { 
+      id: 11, name: "Shady Thomas", role: "Salesforce Consultant", 
+      image: "/Assets/Company Members/Shady_Thomas_Salesforce_Consultant.png",
+      icons: [Wrench, Database],
+      hoverElements: ["Integration", "Data"],
+      color: "from-indigo-400 to-blue-500"
+    },
+    { 
+      id: 3, name: "Ashraf Rezk", role: "Head of Tech", 
+      image: "/Assets/Company Members/Ashraf_Rezk_Head_of_Tech.png",
+      icons: [ShieldIcon, Globe],
+      hoverElements: ["Security", "Architecture"],
+      color: "from-red-400 to-orange-500"
+    },
+    { 
+      id: 2, name: "Martin Ashraf", role: "Salesforce Consultant", 
+      image: "/Assets/Company Members/Martin_Ashraf_Salesforce_Consultant.png",
+      icons: [Target, TrendingUp],
+      hoverElements: ["Strategy", "Growth"],
+      color: "from-emerald-400 to-green-500"
+    },
+    { 
+      id: 14, name: "Ahmed Salah", role: "Salesforce Consultant", 
+      image: "/Assets/Company Members/Ahmed_Salah_Salesforce_Consultant.png",
+      icons: [Award, Briefcase],
+      hoverElements: ["Excellence", "Delivery"],
+      color: "from-amber-400 to-yellow-500"
+    },
+    { 
+      id: 16, name: "Maheen Imran", role: "Salesforce Consultant", 
+      image: "/Assets/Company Members/Maheen_Imran_Salesforce_Consultant.png",
+      icons: [Users, Zap],
+      hoverElements: ["Collaboration", "Innovation"],
+      color: "from-cyan-400 to-blue-500"
+    },
+    { 
+      id: 1, name: "Fady Maged", role: "Salesforce Consultant", 
+      image: "/Assets/Company Members/Fady_Maged_Salesforce_Consultant.png",
+      icons: [Code, BarChart3],
+      hoverElements: ["Development", "Analytics"],
+      color: "from-violet-400 to-purple-500"
+    },
+    { 
+      id: 4, name: "Andrew Osama", role: "Salesforce Consultant", 
+      image: "/Assets/Company Members/Andrew_Osama_Salesforce_Consultant.png",
+      icons: [Settings, Wrench],
+      hoverElements: ["Configuration", "Customization"],
+      color: "from-teal-400 to-cyan-500"
+    },
+    { 
+      id: 7, name: "Abdullah", role: "Salesforce Consultant", 
+      image: "/Assets/Company Members/Abdullah_Salesforce_Consultant.png",
+      icons: [Database, Globe],
+      hoverElements: ["Data Management", "Integration"],
+      color: "from-orange-400 to-red-500"
+    },
+    { 
+      id: 8, name: "Farida Esam", role: "Marketing Cloud Consultant", 
+      image: "/Assets/Company Members/Farida_Esam_Marketing_Cloud_Consultant.png",
+      icons: [MessageSquare, BarChart3],
+      hoverElements: ["Email Marketing", "Campaigns"],
+      color: "from-rose-400 to-pink-500"
+    },
+    { 
+      id: 13, name: "Andrea Makary", role: "Technical Architect", 
+      image: "/Assets/Company Members/Andrea_Makary_Technical_Architect.png",
+      icons: [ShieldIcon, Globe],
+      hoverElements: ["Architecture", "Security"],
+      color: "from-slate-400 to-gray-500"
+    },
+    { 
+      id: 15, name: "Mariam Mamdouh", role: "Project Manager", 
+      image: "/Assets/Company Members/Mariam_Mamdouh_Project_Manager.png",
+      icons: [Briefcase, Target],
+      hoverElements: ["Project Delivery", "Timeline"],
+      color: "from-lime-400 to-green-500"
+    }
   ];
 
   // Auto-cycling logic
