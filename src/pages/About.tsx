@@ -4,11 +4,24 @@ import { Target, Users, Award, TrendingUp } from "lucide-react";
 import AnimatedSection from "../components/AnimatedSection";
 
 // Team member images - using company members from public folder with correct mapping
-const teamMembers = [
-  { name: "Luay Aladin", role: "Salesforce Consultant", image: "/Assets/Company Members/6.svg" },
-  { name: "Carine Felix", role: "Brand and People Experience Specialist", image: "/Assets/Company Members/15.svg" },
-  { name: "Maheen Imran", role: "Salesforce Consultant", image: "/Assets/Company Members/20.svg" }
-];
+  const teamMembers = [
+    { name: "Mireille Rafik", role: "Marketing Cloud Consultant", image: "/Assets/Company Members/Optimized/11.png" },
+    { name: "Carine Felix", role: "Brand and People Experience Specialist", image: "/Assets/Company Members/Optimized/12.png" },
+    { name: "Mina Michel", role: "Founder of Cloudastick Systems", image: "/Assets/Company Members/Optimized/5.png" },
+    { name: "Omar El Borae", role: "Customer Success Manager", image: "/Assets/Company Members/Optimized/14.png" },
+    { name: "Ashraf Rezk", role: "Head of Tech", image: "/Assets/Company Members/Optimized/3.png" },
+    { name: "Shady Thomas", role: "Salesforce Consultant", image: "/Assets/Company Members/Optimized/13.png" },
+    { name: "Fady Maged", role: "Salesforce Consultant", image: "/Assets/Company Members/Optimized/1.png" },
+    { name: "Martin Ashraf", role: "Salesforce Consultant", image: "/Assets/Company Members/Optimized/2.png" },
+    { name: "Andrew Osama", role: "Salesforce Consultant", image: "/Assets/Company Members/Optimized/4.png" },
+    { name: "Luay Aladin", role: "Salesforce Consultant", image: "/Assets/Company Members/Optimized/6.png" },
+    { name: "Abdullah", role: "Salesforce Consultant", image: "/Assets/Company Members/Optimized/8.png" },
+    { name: "Farida Esam", role: "Marketing Cloud Consultant", image: "/Assets/Company Members/Optimized/10.png" },
+    { name: "Andrea Makary", role: "Technical Architect", image: "/Assets/Company Members/Optimized/16.png" },
+    { name: "Ahmed Salah", role: "Salesforce Consultant", image: "/Assets/Company Members/Optimized/18.png" },
+    { name: "Mariam Mamdouh", role: "Project Manager", image: "/Assets/Company Members/Optimized/19.png" },
+    { name: "Maheen Imran", role: "Salesforce Consultant", image: "/Assets/Company Members/Optimized/20.png" }
+  ];
 
 const About = () => {
   const values = [
