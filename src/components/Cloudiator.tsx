@@ -73,27 +73,13 @@ Always answer questions about:
 
 When asked, keep responses **clear, concise, and professional** as if addressing executives.`;
 
-      const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyDste_qQbBdw9bhJwotis99mLGlhePbjUE', {
+      const response = await fetch('/api/cloudiator', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: `${systemPrompt}\n\nUser question: ${inputText.trim()}`
-                }
-              ]
-            }
-          ],
-          generationConfig: {
-            temperature: 0.4,
-            maxOutputTokens: 512,
-            topP: 0.8,
-            topK: 10
-          }
+          prompt: `${systemPrompt}\n\nUser question: ${inputText.trim()}`
         }),
       });
 
@@ -103,11 +89,11 @@ When asked, keep responses **clear, concise, and professional** as if addressing
 
       const data = await response.json();
       
-      if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+      if (!data.response) {
         throw new Error('Invalid response from API');
       }
 
-      const botResponse = data.candidates[0].content.parts[0].text;
+      const botResponse = data.response;
       
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
