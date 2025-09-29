@@ -73,27 +73,42 @@ Always answer questions about:
 
 When asked, keep responses **clear, concise, and professional** as if addressing executives.`;
 
+      const requestPayload = {
+        prompt: `${systemPrompt}\n\nUser question: ${inputText.trim()}`
+      };
+
+      console.log('🤖 Cloudiator Debug - Starting API call');
+      console.log('📤 Request URL:', '/api/cloudiator');
+      console.log('📤 Request Payload:', requestPayload);
+      console.log('📤 User Input:', inputText.trim());
+
       const response = await fetch('/api/cloudiator', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          prompt: `${systemPrompt}\n\nUser question: ${inputText.trim()}`
-        }),
+        body: JSON.stringify(requestPayload),
       });
 
+      console.log('📥 Response Status:', response.status);
+      console.log('📥 Response Headers:', Object.fromEntries(response.headers.entries()));
+
       if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
+        const errorText = await response.text();
+        console.error('❌ API Error Response:', errorText);
+        throw new Error(`API error: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
+      console.log('📥 Response Data:', data);
       
       if (!data.response) {
-        throw new Error('Invalid response from API');
+        console.error('❌ Invalid Response Structure:', data);
+        throw new Error('Invalid response from API - missing response field');
       }
 
       const botResponse = data.response;
+      console.log('✅ Bot Response:', botResponse);
       
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -104,15 +119,21 @@ When asked, keep responses **clear, concise, and professional** as if addressing
 
       setMessages(prev => [...prev, botMessage]);
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error('❌ Cloudiator Error Details:');
+      console.error('Error Type:', typeof error);
+      console.error('Error Message:', error.message);
+      console.error('Error Stack:', error.stack);
+      console.error('Full Error Object:', error);
+      
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: "I apologize, but I'm experiencing technical difficulties. Please try again in a moment or contact our team directly.",
+        text: `I apologize, but I'm experiencing technical difficulties. Error: ${error.message}. Please try again in a moment or contact our team directly.`,
         sender: 'bot',
         timestamp: new Date()
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
+      console.log('🏁 Cloudiator API call completed');
       setIsLoading(false);
     }
   };
