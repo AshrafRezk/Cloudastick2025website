@@ -12,7 +12,7 @@ const Home = () => {
   const [currentMemberIndex, setCurrentMemberIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
-  // Team members data for hero visuals - Correct mapping
+  // Team members data for hero visuals - Only include existing files
   const teamMembers = [
     { id: 1, name: "Fady Maged", role: "Salesforce Consultant", image: "/Assets/Company Members/1.svg" },
     { id: 2, name: "Martin Ashraf", role: "Salesforce Consultant", image: "/Assets/Company Members/2.svg" },
@@ -20,16 +20,19 @@ const Home = () => {
     { id: 4, name: "Andrew Osama", role: "Salesforce Consultant", image: "/Assets/Company Members/4.svg" },
     { id: 5, name: "Mina Michel", role: "CEO and Founder of Cloudastick Systems", image: "/Assets/Company Members/5.svg" },
     { id: 6, name: "Luay Aladin", role: "Salesforce Consultant", image: "/Assets/Company Members/6.svg" },
+    { id: 7, name: "Team Member 7", role: "Salesforce Consultant", image: "/Assets/Company Members/7.svg" },
     { id: 8, name: "Abdullah", role: "Salesforce Consultant", image: "/Assets/Company Members/8.svg" },
+    { id: 9, name: "Team Member 9", role: "Salesforce Consultant", image: "/Assets/Company Members/9.svg" },
     { id: 10, name: "Farida Essam", role: "Public Relations Associate", image: "/Assets/Company Members/10.svg" },
     { id: 11, name: "Mireille Rafik", role: "Marketing Consultant", image: "/Assets/Company Members/11.svg" },
     { id: 12, name: "Carine Felix", role: "Brand and People Experience Specialist", image: "/Assets/Company Members/12.svg" },
     { id: 13, name: "Shady Thomas", role: "Salesforce Consultant", image: "/Assets/Company Members/13.svg" },
     { id: 14, name: "Omar El Borae", role: "Customer Success Manager", image: "/Assets/Company Members/14.svg" },
+    { id: 15, name: "Team Member 15", role: "Salesforce Consultant", image: "/Assets/Company Members/15.svg" },
     { id: 16, name: "Andrea", role: "Salesforce Technical Architect", image: "/Assets/Company Members/16.svg" },
-    { id: 17, name: "Ahmed Saleh", role: "Salesforce Consultant", image: "/Assets/Company Members/17.svg" },
     { id: 18, name: "Mariam Mamdouh", role: "Project Manager", image: "/Assets/Company Members/18.svg" },
-    { id: 19, name: "Maheen", role: "Salesforce Consultant", image: "/Assets/Company Members/19.svg" }
+    { id: 19, name: "Maheen", role: "Salesforce Consultant", image: "/Assets/Company Members/19.svg" },
+    { id: 20, name: "Team Member 20", role: "Salesforce Consultant", image: "/Assets/Company Members/20.svg" }
   ];
 
   // Auto-cycling logic
