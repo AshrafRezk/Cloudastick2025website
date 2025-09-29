@@ -301,63 +301,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Team Showcase Section */}
-      <section className="py-16 bg-gradient-to-r from-brand-primary/5 to-brand-secondary/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <AnimatedSection className="text-center mb-12">
-            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-              Our diverse team of Salesforce specialists brings years of experience and a human-centered approach to every project.
-            </p>
-          </AnimatedSection>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-            {teamMembers.slice(0, 12).map((member, index) => (
-              <AnimatedSection
-                key={member.id}
-                delay={index * 0.1}
-                className="group"
-              >
-                <motion.div
-                  whileHover={{ y: -5, scale: 1.05 }}
-                  className="text-center cursor-pointer"
-                >
-                  <div className="relative mb-3">
-                    <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-brand-primary/20 to-brand-secondary/20 backdrop-blur-sm border border-brand-primary/30 p-1 shadow-lg group-hover:shadow-brand-primary/20 transition-all duration-300">
-                      <img 
-                        src={member.image} 
-                        alt={member.name}
-                        className="w-full h-full rounded-full object-cover"
-                      />
-                    </div>
-                    {/* Role-specific icons */}
-                    <div className="absolute -top-1 -right-1 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                      {React.createElement(member.icons[0], { className: "w-3 h-3 text-gray-700" })}
-                    </div>
-                    <div className="absolute -bottom-1 -left-1 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                      {React.createElement(member.icons[1], { className: "w-3 h-3 text-gray-700" })}
-                    </div>
-                  </div>
-                  <h3 className="text-sm font-semibold text-foreground group-hover:text-brand-primary transition-colors">
-                    {member.name}
-                  </h3>
-                  <p className="text-xs text-muted-foreground">
-                    {member.role}
-                  </p>
-                </motion.div>
-              </AnimatedSection>
-            ))}
-          </div>
-
-          <AnimatedSection className="text-center mt-12">
-            <Link to="/about">
-              <Button variant="outline" size="lg">
-                Meet the Full Team
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-          </AnimatedSection>
-        </div>
-      </section>
 
       {/* Features Section */}
       <section className="py-20 bg-muted/50">
