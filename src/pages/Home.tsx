@@ -2,7 +2,7 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  ArrowRight, BarChart3, Users, Zap, ChevronLeft, ChevronRight,
+  ArrowRight, BarChart3, Users, Zap,
   Code, Palette, Users2, Headphones, Wrench, MessageSquare, 
   Settings, UserCheck, Briefcase, Lightbulb, 
   Globe, Database, Shield as ShieldIcon, Star, Target, Award, TrendingUp
@@ -144,14 +144,6 @@ const Home = () => {
     }
   }, [isAutoPlaying, teamMembers.length]);
 
-  // Navigation functions
-  const nextMember = () => {
-    setCurrentMemberIndex((prevIndex) => (prevIndex + 1) % teamMembers.length);
-  };
-
-  const prevMember = () => {
-    setCurrentMemberIndex((prevIndex) => (prevIndex - 1 + teamMembers.length) % teamMembers.length);
-  };
 
 
   const currentMember = teamMembers[currentMemberIndex];
@@ -253,7 +245,7 @@ const Home = () => {
                       />
                     </div>
                     
-                    {/* Floating elements around the image */}
+                    {/* Role-specific floating icons */}
                     <motion.div
                       className="absolute -top-4 -right-4 w-16 h-16 bg-brand-primary rounded-full flex items-center justify-center shadow-lg"
                       animate={{ 
@@ -266,7 +258,7 @@ const Home = () => {
                         ease: "easeInOut" 
                       }}
                     >
-                      <Users className="w-8 h-8 text-white" />
+                      {React.createElement(currentMember.icons[0], { className: "w-8 h-8 text-white" })}
                     </motion.div>
                     
                     <motion.div
@@ -282,7 +274,7 @@ const Home = () => {
                         delay: 1
                       }}
                     >
-                      <Zap className="w-6 h-6 text-white" />
+                      {React.createElement(currentMember.icons[1], { className: "w-6 h-6 text-white" })}
                     </motion.div>
                   </motion.div>
                 </AnimatePresence>
@@ -290,37 +282,6 @@ const Home = () => {
             </motion.div>
           </div>
 
-          {/* Navigation Controls */}
-          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex items-center gap-4">
-            <button
-              onClick={prevMember}
-              className="p-3 rounded-full bg-background/80 backdrop-blur-sm border border-brand-primary/30 hover:bg-brand-primary/10 transition-all duration-300"
-            >
-              <ChevronLeft className="w-5 h-5 text-brand-primary" />
-            </button>
-            
-            <button
-              onClick={nextMember}
-              className="p-3 rounded-full bg-background/80 backdrop-blur-sm border border-brand-primary/30 hover:bg-brand-primary/10 transition-all duration-300"
-            >
-              <ChevronRight className="w-5 h-5 text-brand-primary" />
-            </button>
-          </div>
-
-          {/* Progress Indicators */}
-          <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 flex gap-2">
-            {teamMembers.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentMemberIndex(index)}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                  index === currentMemberIndex
-                    ? "bg-brand-primary scale-125"
-                    : "bg-muted hover:bg-muted-foreground"
-                }`}
-              />
-            ))}
-          </div>
         </div>
       </section>
 
@@ -328,9 +289,6 @@ const Home = () => {
       <section className="py-16 bg-gradient-to-r from-brand-primary/5 to-brand-secondary/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <AnimatedSection className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Meet the Experts Behind Your Success
-            </h2>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
               Our diverse team of Salesforce specialists brings years of experience and a human-centered approach to every project.
             </p>
