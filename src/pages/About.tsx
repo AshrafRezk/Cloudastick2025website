@@ -9,21 +9,21 @@ const teamMembers = [
   { name: "Martin Ashraf", role: "Salesforce Consultant", image: "/Assets/Company Members/2.svg" },
   { name: "Ashraf Rezk", role: "Head of Tech", image: "/Assets/Company Members/3.svg" },
   { name: "Andrew Osama", role: "Salesforce Consultant", image: "/Assets/Company Members/4.svg" },
-  { name: "Mina Michel", role: "CEO and Founder of Cloudastick Systems", image: "/Assets/Company Members/5.svg" },
+  { name: "Mina Michel", role: "Founder of Cloudastick Systems", image: "/Assets/Company Members/5.svg" },
   { name: "Luay Aladin", role: "Salesforce Consultant", image: "/Assets/Company Members/6.svg" },
-  { name: "Team Member 7", role: "Salesforce Consultant", image: "/Assets/Company Members/7.svg" },
+  { name: "Luay Aladin", role: "Salesforce Consultant", image: "/Assets/Company Members/7.svg" },
   { name: "Abdullah", role: "Salesforce Consultant", image: "/Assets/Company Members/8.svg" },
-  { name: "Team Member 9", role: "Salesforce Consultant", image: "/Assets/Company Members/9.svg" },
-  { name: "Farida Essam", role: "Public Relations Associate", image: "/Assets/Company Members/10.svg" },
-  { name: "Mireille Rafik", role: "Marketing Consultant", image: "/Assets/Company Members/11.svg" },
+  { name: "Luay Aladin", role: "Salesforce Consultant", image: "/Assets/Company Members/9.svg" },
+  { name: "Farida Esam", role: "Marketing Cloud Consultant", image: "/Assets/Company Members/10.svg" },
+  { name: "Mireille Rafik", role: "Marketing Cloud Consultant", image: "/Assets/Company Members/11.svg" },
   { name: "Carine Felix", role: "Brand and People Experience Specialist", image: "/Assets/Company Members/12.svg" },
   { name: "Shady Thomas", role: "Salesforce Consultant", image: "/Assets/Company Members/13.svg" },
   { name: "Omar El Borae", role: "Customer Success Manager", image: "/Assets/Company Members/14.svg" },
-  { name: "Team Member 15", role: "Salesforce Consultant", image: "/Assets/Company Members/15.svg" },
-  { name: "Andrea", role: "Salesforce Technical Architect", image: "/Assets/Company Members/16.svg" },
-  { name: "Mariam Mamdouh", role: "Project Manager", image: "/Assets/Company Members/18.svg" },
-  { name: "Maheen", role: "Salesforce Consultant", image: "/Assets/Company Members/19.svg" },
-  { name: "Team Member 20", role: "Salesforce Consultant", image: "/Assets/Company Members/20.svg" }
+  { name: "Carine Felix", role: "Brand and People Experience Specialist", image: "/Assets/Company Members/15.svg" },
+  { name: "Andrea Makary", role: "Technical Architect", image: "/Assets/Company Members/16.svg" },
+  { name: "Ahmed Salah", role: "Salesforce Consultant", image: "/Assets/Company Members/18.svg" },
+  { name: "Mariam Mamdouh", role: "Project Manager", image: "/Assets/Company Members/19.svg" },
+  { name: "Maheen Imran", role: "Salesforce Consultant", image: "/Assets/Company Members/20.svg" }
 ];
 
 const About = () => {

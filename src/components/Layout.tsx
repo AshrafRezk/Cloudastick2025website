@@ -33,7 +33,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 className="flex items-center space-x-3"
               >
                 <img 
-                  src="/Assets/Company Logos/white logo for dark backgrounds.webp" 
+                  src="/Assets/Company Logos/white-logo-dark.webp" 
                   alt="Cloudastick Logo" 
                   className="h-8 w-auto"
                 />
