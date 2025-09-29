@@ -174,8 +174,12 @@ When asked, keep responses **clear, concise, and professional** as if addressing
             {/* Header */}
             <div className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white p-4 rounded-t-2xl flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                  <Bot className="w-5 h-5" />
+                <div className="w-8 h-8 rounded-full overflow-hidden bg-white/20 flex items-center justify-center">
+                  <img 
+                    src="/Assets/Cloudiator800*800.png" 
+                    alt="Cloudiator" 
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <div>
                   <h3 className="font-bold text-lg">Cloudiator</h3>
@@ -213,9 +217,17 @@ When asked, keep responses **clear, concise, and professional** as if addressing
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
                           message.sender === 'user' 
                             ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white' 
-                            : 'bg-gray-100 text-gray-600'
+                            : 'bg-gray-100 text-gray-600 overflow-hidden'
                         }`}>
-                          {message.sender === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+                          {message.sender === 'user' ? (
+                            <User className="w-4 h-4" />
+                          ) : (
+                            <img 
+                              src="/Assets/Cloudiator800*800.png" 
+                              alt="Cloudiator" 
+                              className="w-full h-full object-cover"
+                            />
+                          )}
                         </div>
                         <div className={`rounded-2xl px-4 py-2 ${
                           message.sender === 'user'
@@ -240,8 +252,12 @@ When asked, keep responses **clear, concise, and professional** as if addressing
                       className="flex justify-start"
                     >
                       <div className="flex items-start space-x-2">
-                        <div className="w-8 h-8 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center">
-                          <Bot className="w-4 h-4" />
+                        <div className="w-8 h-8 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center overflow-hidden">
+                          <img 
+                            src="/Assets/Cloudiator800*800.png" 
+                            alt="Cloudiator" 
+                            className="w-full h-full object-cover"
+                          />
                         </div>
                         <div className="bg-gray-100 rounded-2xl px-4 py-2">
                           <div className="flex space-x-1">
