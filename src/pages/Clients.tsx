@@ -119,7 +119,7 @@ const Clients = () => {
     if (isPlaying) {
       const interval = setInterval(() => {
         setCurrentSection((prev) => (prev + 1) % clientSections.length);
-      }, 8000);
+      }, 6000); // Reduced from 8000ms to 6000ms for better pacing
       return () => clearInterval(interval);
     }
   }, [isPlaying, clientSections.length]);
@@ -178,32 +178,24 @@ const Clients = () => {
                   key={currentSection}
                   initial={{ 
                     opacity: 0, 
-                    scale: 0.8,
-                    rotateY: 45,
-                    z: -100
+                    y: 50,
+                    scale: 0.95
                   }}
                   animate={{ 
                     opacity: 1, 
-                    scale: 1,
-                    rotateY: 0,
-                    z: 0
+                    y: 0,
+                    scale: 1
                   }}
                   exit={{ 
                     opacity: 0, 
-                    scale: 1.2,
-                    rotateY: -45,
-                    z: 100
+                    y: -50,
+                    scale: 1.05
                   }}
                   transition={{ 
-                    duration: 1.2, 
-                    ease: [0.25, 0.1, 0.25, 1],
-                    staggerChildren: 0.1
+                    duration: 0.8, 
+                    ease: "easeInOut"
                   }}
                   className="absolute inset-0 bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-sm border border-gray-700/50"
-                  style={{
-                    transformStyle: 'preserve-3d',
-                    perspective: '1000px'
-                  }}
                 >
                   {/* Content */}
                   <div className="relative z-10 h-full flex flex-col justify-center items-center px-8 md:px-12">
@@ -223,44 +215,49 @@ const Clients = () => {
 
                     {/* Logos Grid */}
                     <motion.div 
-                      className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 md:gap-12 max-w-6xl mx-auto"
-                      initial={{ opacity: 0, y: 30 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.6, duration: 0.8 }}
+                      className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 max-w-5xl mx-auto"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.4, duration: 0.6 }}
                     >
                       {clientSections[currentSection].logos.map((logo, index) => (
                         <motion.div
                           key={logo.name}
-                          initial={{ opacity: 0, scale: 0.8, y: 20 }}
-                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
                           transition={{ 
-                            delay: 0.8 + index * 0.1, 
-                            duration: 0.6,
-                            ease: [0.25, 0.1, 0.25, 1]
+                            delay: 0.6 + index * 0.1, 
+                            duration: 0.5,
+                            ease: "easeOut"
                           }}
-                          className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-white/20 hover:bg-white/20 transition-all duration-300 group"
+                          whileHover={{ 
+                            y: -8, 
+                            scale: 1.05,
+                            transition: { duration: 0.2 }
+                          }}
+                          className="bg-white/10 backdrop-blur-sm rounded-xl p-4 md:p-6 border border-white/20 hover:bg-white/20 hover:border-cyan-400/50 transition-all duration-300 group cursor-pointer"
                         >
-                          <div className="text-center space-y-3">
-                            <div className="flex justify-center mb-2 group-hover:scale-110 transition-transform">
+                          <div className="text-center space-y-2">
+                            <div className="flex justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
                               {(() => {
                                 const IconComponent = iconMap[logo.iconType as keyof typeof iconMap];
                                 return IconComponent ? (
-                                  <IconComponent className="w-12 h-12 text-brand-primary" />
+                                  <IconComponent className="w-10 h-10 md:w-12 md:h-12 text-cyan-400 group-hover:text-cyan-300 transition-colors" />
                                 ) : (
-                                  <Building2 className="w-12 h-12 text-brand-primary" />
+                                  <Building2 className="w-10 h-10 md:w-12 md:h-12 text-cyan-400 group-hover:text-cyan-300 transition-colors" />
                                 );
                               })()}
                             </div>
-                            <div className="text-white font-bold text-lg md:text-xl group-hover:text-cyan-400 transition-colors">
+                            <div className="text-white font-bold text-base md:text-lg group-hover:text-cyan-300 transition-colors">
                               {logo.text}
                             </div>
                             {logo.subtitle && (
-                              <div className="text-gray-300 text-sm md:text-base">
+                              <div className="text-gray-300 text-xs md:text-sm">
                                 {logo.subtitle}
                               </div>
                             )}
                             {logo.location && (
-                              <div className="text-gray-400 text-xs md:text-sm">
+                              <div className="text-gray-400 text-xs">
                                 {logo.location}
                               </div>
                             )}
@@ -288,44 +285,46 @@ const Clients = () => {
             </div>
 
             {/* Navigation Controls */}
-            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex items-center space-x-6 z-20">
-              <Button
-                variant="outline"
-                size="sm"
+            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex items-center space-x-4 z-20">
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={prevSection}
-                className="p-3 bg-gray-800/80 border-gray-600 hover:bg-gray-700 text-white backdrop-blur-sm"
+                className="p-3 bg-gray-800/90 border border-gray-600 hover:bg-gray-700 hover:border-cyan-400 text-white backdrop-blur-sm rounded-full transition-all duration-300 shadow-lg"
               >
                 <ChevronLeft className="w-5 h-5" />
-              </Button>
+              </motion.button>
               
-              <Button
-                variant="outline"
-                size="sm"
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={togglePlayPause}
-                className="p-3 bg-gray-800/80 border-gray-600 hover:bg-gray-700 text-white backdrop-blur-sm"
+                className="p-3 bg-gray-800/90 border border-gray-600 hover:bg-gray-700 hover:border-cyan-400 text-white backdrop-blur-sm rounded-full transition-all duration-300 shadow-lg"
               >
                 {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
-              </Button>
+              </motion.button>
               
-              <Button
-                variant="outline"
-                size="sm"
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={nextSection}
-                className="p-3 bg-gray-800/80 border-gray-600 hover:bg-gray-700 text-white backdrop-blur-sm"
+                className="p-3 bg-gray-800/90 border border-gray-600 hover:bg-gray-700 hover:border-cyan-400 text-white backdrop-blur-sm rounded-full transition-all duration-300 shadow-lg"
               >
                 <ChevronRight className="w-5 h-5" />
-              </Button>
+              </motion.button>
             </div>
 
             {/* Indicators */}
-            <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 flex space-x-3 z-20">
+            <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
               {clientSections.map((_, index) => (
-                <button
+                <motion.button
                   key={index}
+                  whileHover={{ scale: 1.2 }}
+                  whileTap={{ scale: 0.9 }}
                   onClick={() => setCurrentSection(index)}
-                  className={`w-3 h-3 rounded-full transition-all duration-500 ${
+                  className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
                     index === currentSection 
-                      ? "bg-cyan-400 shadow-lg shadow-cyan-400/50" 
+                      ? "bg-cyan-400 shadow-lg shadow-cyan-400/50 scale-125" 
                       : "bg-gray-600 hover:bg-gray-500"
                   }`}
                 />
