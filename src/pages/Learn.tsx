@@ -151,6 +151,93 @@ const Learn = () => {
         </div>
       </section>
 
+      {/* Certified People Hero Section */}
+      <section className="py-20 bg-gradient-to-r from-brand-primary/10 to-brand-secondary/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <AnimatedSection className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Our Certified Success Stories
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+              See how our customers have successfully achieved their Salesforce certifications 
+              and transformed their businesses with our comprehensive training programs.
+            </p>
+          </AnimatedSection>
+
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <AnimatedSection delay={0.1} className="group">
+              <motion.div
+                whileHover={{ y: -5, scale: 1.02 }}
+                className="bg-card/80 backdrop-blur-sm rounded-xl p-8 border border-border hover:border-brand-primary/30 transition-all duration-300"
+              >
+                <div className="relative mb-6">
+                  <div className="w-full h-64 rounded-lg overflow-hidden border border-brand-primary/20">
+                    <img 
+                      src="/Assets/Certified People/Moumen from Soueast automotive certification.png" 
+                      alt="Moumen from Soueast Automotive Certification"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="absolute -top-2 -right-2 w-12 h-12 bg-brand-primary rounded-full flex items-center justify-center shadow-lg">
+                    <Award className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+                <h3 className="text-xl font-semibold text-foreground mb-2">
+                  Moumen from Soueast Automotive
+                </h3>
+                <p className="text-muted-foreground">
+                  Successfully completed Salesforce certification and enhanced their automotive business processes.
+                </p>
+              </motion.div>
+            </AnimatedSection>
+
+            <AnimatedSection delay={0.2} className="group">
+              <motion.div
+                whileHover={{ y: -5, scale: 1.02 }}
+                className="bg-card/80 backdrop-blur-sm rounded-xl p-8 border border-border hover:border-brand-primary/30 transition-all duration-300"
+              >
+                <div className="relative mb-6">
+                  <div className="w-full h-64 rounded-lg overflow-hidden border border-brand-primary/20">
+                    <img 
+                      src="/Assets/Certified People/Hadeel and Target HR Manpower team certificed on salesforce.png" 
+                      alt="Hadeel and Target HR Manpower Team Certification"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="absolute -top-2 -right-2 w-12 h-12 bg-brand-primary rounded-full flex items-center justify-center shadow-lg">
+                    <Users className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+                <h3 className="text-xl font-semibold text-foreground mb-2">
+                  Target HR Manpower Team
+                </h3>
+                <p className="text-muted-foreground">
+                  Hadeel and the entire team achieved Salesforce certification, revolutionizing their HR processes.
+                </p>
+              </motion.div>
+            </AnimatedSection>
+          </div>
+
+          <AnimatedSection className="text-center mt-12">
+            <div className="bg-gradient-to-r from-brand-primary/20 to-brand-secondary/20 rounded-xl p-8 border border-brand-primary/30">
+              <h3 className="text-2xl font-bold text-foreground mb-4">
+                Ready to Join Our Success Stories?
+              </h3>
+              <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
+                Be the next success story. Our certification program is designed to help you and your team 
+                achieve Salesforce excellence and drive real business results.
+              </p>
+              <Link to="/contact">
+                <Button variant="primary" size="lg">
+                  Start Your Certification Journey
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+            </div>
+          </AnimatedSection>
+        </div>
+      </section>
+
       {/* Features Preview Section */}
       <section className="py-20 bg-gradient-to-r from-brand-primary/5 to-brand-secondary/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
