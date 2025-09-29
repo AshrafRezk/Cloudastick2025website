@@ -73,7 +73,7 @@ Always answer questions about:
 
 When asked, keep responses **clear, concise, and professional** as if addressing executives.`;
 
-      const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyA_j4rVok3GJBr6RzguXLajxyivHR-yRJY', {
+      const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyDste_qQbBdw9bhJwotis99mLGlhePbjUE', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
