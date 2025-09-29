@@ -1,6 +1,6 @@
 
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, BarChart3, Users, Zap, ChevronLeft, ChevronRight, Play, Pause } from "lucide-react";
+import { ArrowRight, BarChart3, Users, Zap, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import AnimatedSection from "../components/AnimatedSection";
@@ -10,24 +10,24 @@ import BlogShifter from "../components/BlogShifter";
 const Home = () => {
   // State for animated hero
   const [currentMemberIndex, setCurrentMemberIndex] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [isAutoPlaying] = useState(true);
 
-  // Team members data for hero visuals - Correct mapping
+  // Team members data for hero visuals - Ordered as requested
   const teamMembers = [
+    { id: 11, name: "Mireille Rafik", role: "Marketing Cloud Consultant", image: "/Assets/Company Members/11.svg" },
+    { id: 12, name: "Carine Felix", role: "Brand and People Experience Specialist", image: "/Assets/Company Members/12.svg" },
+    { id: 5, name: "Mina Michel", role: "Founder of Cloudastick Systems", image: "/Assets/Company Members/5.svg" },
+    { id: 14, name: "Omar El Borae", role: "Customer Success Manager", image: "/Assets/Company Members/14.svg" },
+    { id: 3, name: "Ashraf Rezk", role: "Head of Tech", image: "/Assets/Company Members/3.svg" },
+    { id: 13, name: "Shady Thomas", role: "Salesforce Consultant", image: "/Assets/Company Members/13.svg" },
     { id: 1, name: "Fady Maged", role: "Salesforce Consultant", image: "/Assets/Company Members/1.svg" },
     { id: 2, name: "Martin Ashraf", role: "Salesforce Consultant", image: "/Assets/Company Members/2.svg" },
-    { id: 3, name: "Ashraf Rezk", role: "Head of Tech", image: "/Assets/Company Members/3.svg" },
     { id: 4, name: "Andrew Osama", role: "Salesforce Consultant", image: "/Assets/Company Members/4.svg" },
-    { id: 5, name: "Mina Michel", role: "Founder of Cloudastick Systems", image: "/Assets/Company Members/5.svg" },
     { id: 6, name: "Luay Aladin", role: "Salesforce Consultant", image: "/Assets/Company Members/6.svg" },
     { id: 7, name: "Luay Aladin", role: "Salesforce Consultant", image: "/Assets/Company Members/7.svg" },
     { id: 8, name: "Abdullah", role: "Salesforce Consultant", image: "/Assets/Company Members/8.svg" },
     { id: 9, name: "Luay Aladin", role: "Salesforce Consultant", image: "/Assets/Company Members/9.svg" },
     { id: 10, name: "Farida Esam", role: "Marketing Cloud Consultant", image: "/Assets/Company Members/10.svg" },
-    { id: 11, name: "Mireille Rafik", role: "Marketing Cloud Consultant", image: "/Assets/Company Members/11.svg" },
-    { id: 12, name: "Carine Felix", role: "Brand and People Experience Specialist", image: "/Assets/Company Members/12.svg" },
-    { id: 13, name: "Shady Thomas", role: "Salesforce Consultant", image: "/Assets/Company Members/13.svg" },
-    { id: 14, name: "Omar El Borae", role: "Customer Success Manager", image: "/Assets/Company Members/14.svg" },
     { id: 15, name: "Carine Felix", role: "Brand and People Experience Specialist", image: "/Assets/Company Members/15.svg" },
     { id: 16, name: "Andrea Makary", role: "Technical Architect", image: "/Assets/Company Members/16.svg" },
     { id: 18, name: "Ahmed Salah", role: "Salesforce Consultant", image: "/Assets/Company Members/18.svg" },
@@ -54,9 +54,6 @@ const Home = () => {
     setCurrentMemberIndex((prevIndex) => (prevIndex - 1 + teamMembers.length) % teamMembers.length);
   };
 
-  const toggleAutoPlay = () => {
-    setIsAutoPlaying(!isAutoPlaying);
-  };
 
   const currentMember = teamMembers[currentMemberIndex];
 
@@ -201,17 +198,6 @@ const Home = () => {
               className="p-3 rounded-full bg-background/80 backdrop-blur-sm border border-brand-primary/30 hover:bg-brand-primary/10 transition-all duration-300"
             >
               <ChevronLeft className="w-5 h-5 text-brand-primary" />
-            </button>
-            
-            <button
-              onClick={toggleAutoPlay}
-              className="p-3 rounded-full bg-background/80 backdrop-blur-sm border border-brand-primary/30 hover:bg-brand-primary/10 transition-all duration-300"
-            >
-              {isAutoPlaying ? (
-                <Pause className="w-5 h-5 text-brand-primary" />
-              ) : (
-                <Play className="w-5 h-5 text-brand-primary" />
-              )}
             </button>
             
             <button
