@@ -12,25 +12,24 @@ const Home = () => {
   const [currentMemberIndex, setCurrentMemberIndex] = useState(0);
   const [isAutoPlaying] = useState(true);
 
-  // Team members data for hero visuals - Using working SVG files and fallbacks for large ones
+  // Team members data for hero visuals - Using renamed PNG images with descriptive names
   const teamMembers = [
-    { id: 11, name: "Mireille Rafik", role: "Marketing Cloud Consultant", image: "/Assets/Company Members/11.svg" },
-    { id: 12, name: "Carine Felix", role: "Brand and People Experience Specialist", image: "/Assets/Company Members/11.svg" }, // Fallback for large 12.svg
-    { id: 5, name: "Mina Michel", role: "Founder of Cloudastick Systems", image: "/Assets/Company Members/5.svg" },
-    { id: 14, name: "Omar El Borae", role: "Customer Success Manager", image: "/Assets/Company Members/14.svg" },
-    { id: 3, name: "Ashraf Rezk", role: "Head of Tech", image: "/Assets/Company Members/11.svg" }, // Fallback for large 3.svg
-    { id: 13, name: "Shady Thomas", role: "Salesforce Consultant", image: "/Assets/Company Members/11.svg" }, // Fallback for large 13.svg
-    { id: 1, name: "Fady Maged", role: "Salesforce Consultant", image: "/Assets/Company Members/1.svg" },
-    { id: 2, name: "Martin Ashraf", role: "Salesforce Consultant", image: "/Assets/Company Members/2.svg" },
-    { id: 4, name: "Andrew Osama", role: "Salesforce Consultant", image: "/Assets/Company Members/4.svg" },
-    { id: 6, name: "Luay Aladin", role: "Salesforce Consultant", image: "/Assets/Company Members/6.svg" },
-    { id: 8, name: "Abdullah", role: "Salesforce Consultant", image: "/Assets/Company Members/8.svg" },
-    { id: 10, name: "Farida Esam", role: "Marketing Cloud Consultant", image: "/Assets/Company Members/10.svg" },
-    { id: 15, name: "Carine Felix", role: "Brand and People Experience Specialist", image: "/Assets/Company Members/11.svg" }, // Fallback for large 15.svg
-    { id: 16, name: "Andrea Makary", role: "Technical Architect", image: "/Assets/Company Members/16.svg" },
-    { id: 18, name: "Ahmed Salah", role: "Salesforce Consultant", image: "/Assets/Company Members/18.svg" },
-    { id: 19, name: "Mariam Mamdouh", role: "Project Manager", image: "/Assets/Company Members/19.svg" },
-    { id: 20, name: "Maheen Imran", role: "Salesforce Consultant", image: "/Assets/Company Members/20.svg" }
+    { id: 1, name: "Fady Maged", role: "Salesforce Consultant", image: "/Assets/Company Members/Fady_Maged_Salesforce_Consultant.png" },
+    { id: 2, name: "Martin Ashraf", role: "Salesforce Consultant", image: "/Assets/Company Members/Martin_Ashraf_Salesforce_Consultant.png" },
+    { id: 3, name: "Ashraf Rezk", role: "Head of Tech", image: "/Assets/Company Members/Ashraf_Rezk_Head_of_Tech.png" },
+    { id: 4, name: "Andrew Osama", role: "Salesforce Consultant", image: "/Assets/Company Members/Andrew_Osama_Salesforce_Consultant.png" },
+    { id: 5, name: "Mina Michel", role: "Founder of Cloudastick Systems", image: "/Assets/Company Members/Mina_Michel_Founder_of_Cloudastick_Systems.png" },
+    { id: 6, name: "Luay Aladin", role: "Salesforce Consultant", image: "/Assets/Company Members/Luay_Aladin_Salesforce_Consultant.png" },
+    { id: 7, name: "Abdullah", role: "Salesforce Consultant", image: "/Assets/Company Members/Abdullah_Salesforce_Consultant.png" },
+    { id: 8, name: "Farida Esam", role: "Marketing Cloud Consultant", image: "/Assets/Company Members/Farida_Esam_Marketing_Cloud_Consultant.png" },
+    { id: 9, name: "Mireille Rafik", role: "Marketing Cloud Consultant", image: "/Assets/Company Members/Mireille_Rafik_Marketing_Cloud_Consultant.png" },
+    { id: 10, name: "Carine Felix", role: "Brand and People Experience Specialist", image: "/Assets/Company Members/Carine_Felix_Brand_and_People_Experience_Specialist.png" },
+    { id: 11, name: "Shady Thomas", role: "Salesforce Consultant", image: "/Assets/Company Members/Shady_Thomas_Salesforce_Consultant.png" },
+    { id: 12, name: "Omar El Borae", role: "Customer Success Manager", image: "/Assets/Company Members/Omar_El_Borae_Customer_Success_Manager.png" },
+    { id: 13, name: "Andrea Makary", role: "Technical Architect", image: "/Assets/Company Members/Andrea_Makary_Technical_Architect.png" },
+    { id: 14, name: "Ahmed Salah", role: "Salesforce Consultant", image: "/Assets/Company Members/Ahmed_Salah_Salesforce_Consultant.png" },
+    { id: 15, name: "Mariam Mamdouh", role: "Project Manager", image: "/Assets/Company Members/Mariam_Mamdouh_Project_Manager.png" },
+    { id: 16, name: "Maheen Imran", role: "Salesforce Consultant", image: "/Assets/Company Members/Maheen_Imran_Salesforce_Consultant.png" }
   ];
 
   // Auto-cycling logic
