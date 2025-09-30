@@ -31,8 +31,7 @@ const ProductCarousel = () => {
     align: "center",
     slidesToScroll: 1,
     skipSnaps: false,
-    dragFree: false,
-    containScroll: "trimSnaps"
+    dragFree: false
   });
   
   const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
@@ -282,7 +281,7 @@ const ProductCarousel = () => {
     }
   ];
 
-  // Auto-rotation functionality
+  // Simple auto-rotation
   useEffect(() => {
     if (!emblaApi) return;
 
@@ -364,17 +363,10 @@ const ProductCarousel = () => {
                 >
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
-                    animate={{ 
-                      opacity: 1, 
-                      y: 0,
-                      scale: currentSlideIndex === index ? 1.05 : 0.95,
-                    }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ 
                       duration: 0.6, 
-                      delay: index * 0.1,
-                      type: "spring",
-                      stiffness: 100,
-                      damping: 15
+                      delay: index * 0.1
                     }}
                     className="relative group"
                   >
@@ -487,17 +479,10 @@ const ProductCarousel = () => {
                 >
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
-                    animate={{ 
-                      opacity: 1, 
-                      y: 0,
-                      scale: currentSlideIndex === index ? 1.05 : 0.95,
-                    }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ 
                       duration: 0.6, 
-                      delay: index * 0.1,
-                      type: "spring",
-                      stiffness: 100,
-                      damping: 15
+                      delay: index * 0.1
                     }}
                     className="relative group"
                   >

@@ -12,16 +12,6 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
   useEffect(() => {
     // Start the startup sequence
     const startSequence = async () => {
-      try {
-        // Play background music
-        if (audioRef.current) {
-          audioRef.current.volume = 0.3; // Set volume to 30%
-          await audioRef.current.play();
-        }
-      } catch (error) {
-        console.log('Audio autoplay prevented by browser');
-      }
-
       // Show logo for 3 seconds, then fade out
       setTimeout(() => {
         setIsVisible(false);
@@ -34,6 +24,18 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
     startSequence();
   }, [onComplete]);
 
+  // Handle audio play on user interaction
+  const handleUserInteraction = async () => {
+    try {
+      if (audioRef.current) {
+        audioRef.current.volume = 0.3;
+        await audioRef.current.play();
+      }
+    } catch (error) {
+      console.log('Audio play failed:', error);
+    }
+  };
+
   return (
     <AnimatePresence>
       {isVisible && (
@@ -41,7 +43,8 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.5 }}
-          className="fixed inset-0 z-50 bg-black flex items-center justify-center"
+          className="fixed inset-0 z-50 bg-black flex items-center justify-center cursor-pointer"
+          onClick={handleUserInteraction}
         >
           {/* Background Music */}
           <audio
@@ -65,7 +68,7 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
             className="text-center"
           >
             <img 
-              src="/Assets/Company Logos/white logo for dark backgrounds.webp" 
+              src="/Assets/Company Logos/white-logo-dark.webp" 
               alt="Cloudastick Logo"
               className="w-32 h-32 object-contain mx-auto"
             />
