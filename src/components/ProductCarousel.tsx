@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import useEmblaCarousel from "embla-carousel-react";
-import { TrendingUp, Users, Zap, Shield, BarChart3, MessageSquare, Database, ShoppingCart, Wrench, Headphones, Cloud, Brain, CreditCard, Globe, Smartphone, Leaf, Building, GraduationCap, Monitor, ChevronLeft, ChevronRight } from "lucide-react";
+import { TrendingUp, Users, Zap, Shield, BarChart3, MessageSquare, Database, ShoppingCart, Wrench, Headphones, Cloud, Brain, CreditCard, Globe, Smartphone, Leaf, Building, GraduationCap, Monitor } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
 
 interface Product {
@@ -27,16 +27,15 @@ interface Product {
 const ProductCarousel = () => {
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     loop: true, 
-    align: "center",
+    align: "start",
     slidesToScroll: 1,
     skipSnaps: false,
-    dragFree: false
+    dragFree: false,
+    containScroll: "trimSnaps"
   });
   
   const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
-  const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
 
   const products: Product[] = [
     {
@@ -271,55 +270,28 @@ const ProductCarousel = () => {
     }
   ];
 
-  // Navigation functions
-  const scrollPrev = useCallback(() => {
-    if (emblaApi) emblaApi.scrollPrev();
-  }, [emblaApi]);
-
-  const scrollNext = useCallback(() => {
-    if (emblaApi) emblaApi.scrollNext();
-  }, [emblaApi]);
-
-  const scrollTo = useCallback((index: number) => {
-    if (emblaApi) emblaApi.scrollTo(index);
-  }, [emblaApi]);
-
-  // Auto-rotation
+  // Auto-scroll functionality
   useEffect(() => {
     if (!emblaApi) return;
 
-    const autoRotate = () => {
+    const autoScroll = () => {
       if (isAutoPlaying && !hoveredProduct) {
         emblaApi.scrollNext();
       }
     };
 
-    const interval = setInterval(autoRotate, 4000);
+    const interval = setInterval(autoScroll, 3000); // Auto-scroll every 3 seconds
     return () => clearInterval(interval);
   }, [emblaApi, isAutoPlaying, hoveredProduct]);
 
-  // Track current slide and scroll snaps
-  useEffect(() => {
-    if (!emblaApi) return;
+  // Handle mouse enter/leave for auto-scroll control
+  const handleMouseEnter = useCallback(() => {
+    setIsAutoPlaying(false);
+  }, []);
 
-    const onSelect = () => {
-      setCurrentSlideIndex(emblaApi.selectedScrollSnap());
-    };
-
-    const onInit = () => {
-      setScrollSnaps(emblaApi.scrollSnapList());
-    };
-
-    emblaApi.on('select', onSelect);
-    emblaApi.on('init', onInit);
-    emblaApi.on('reInit', onInit);
-
-    return () => {
-      emblaApi.off('select', onSelect);
-      emblaApi.off('init', onInit);
-      emblaApi.off('reInit', onInit);
-    };
-  }, [emblaApi]);
+  const handleMouseLeave = useCallback(() => {
+    setIsAutoPlaying(true);
+  }, []);
 
   return (
     <section className="py-20 bg-gradient-to-br from-background via-muted/30 to-background">
@@ -334,58 +306,17 @@ const ProductCarousel = () => {
         </AnimatedSection>
 
         <div className="relative">
-          {/* Navigation Arrows */}
-          <button
-            onClick={scrollPrev}
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-all duration-300"
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </button>
-          
-          <button
-            onClick={scrollNext}
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-all duration-300"
-          >
-            <ChevronRight className="w-6 h-6" />
-          </button>
+          {/* Edge Fade Effects */}
+          <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
 
-          {/* Progress Indicators - Clickable Dots */}
-          <div className="flex justify-center mb-8">
-            <div className="flex gap-2">
-              {scrollSnaps.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => scrollTo(index)}
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    currentSlideIndex === index 
-                      ? 'bg-brand-primary w-8' 
-                      : 'bg-muted-foreground/30 w-2 hover:bg-muted-foreground/50'
-                  }`}
-                >
-                  <motion.div
-                    animate={{
-                      scale: currentSlideIndex === index ? 1.2 : 1,
-                      opacity: currentSlideIndex === index ? 1 : 0.5
-                    }}
-                    transition={{ duration: 0.3 }}
-                    className="w-full h-full rounded-full"
-                  />
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Carousel Container */}
+          {/* Embla Carousel Container */}
           <div 
-            className="overflow-hidden relative" 
+            className="overflow-hidden" 
             ref={emblaRef}
-            onMouseEnter={() => setIsAutoPlaying(false)}
-            onMouseLeave={() => setIsAutoPlaying(true)}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
           >
-            {/* Edge Fade Effects */}
-            <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
-            <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
-            
             <div className="flex gap-6">
               {/* First set for infinite loop */}
               {products.map((product, index) => (
