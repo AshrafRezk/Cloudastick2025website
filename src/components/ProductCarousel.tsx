@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import useEmblaCarousel from "embla-carousel-react";
-import { TrendingUp, Users, Zap, Shield, BarChart3, MessageSquare, Database, ShoppingCart, Wrench, Headphones, Cloud, Brain, CreditCard, Globe, Smartphone, Leaf, Building, GraduationCap, Monitor } from "lucide-react";
+import { TrendingUp, Users, Zap, Shield, BarChart3, MessageSquare, Database, ShoppingCart, Wrench, Headphones, Cloud, Brain, CreditCard, Globe, Smartphone, Leaf, Building, GraduationCap, Monitor, ChevronLeft, ChevronRight } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
 
 interface Product {
@@ -19,7 +19,6 @@ interface Product {
     specialization: string;
     certifications: string[];
     successStories: string;
-    industryFocus: string;
   };
   category: string;
   icon: React.ComponentType<{ className?: string }>;
@@ -37,6 +36,7 @@ const ProductCarousel = () => {
   const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
 
   const products: Product[] = [
     {
@@ -57,8 +57,7 @@ const ProductCarousel = () => {
       cloudastickExpertise: {
         specialization: "End-to-end CRM implementation and optimization",
         certifications: ["Salesforce Certified Administrator", "Sales Cloud Consultant"],
-        successStories: "Implemented for 50+ companies across MENA region",
-        industryFocus: "Real Estate, Insurance, Manufacturing"
+        successStories: "Implemented for 50+ companies across MENA region"
       },
       category: "CRM Platform",
       icon: Users
@@ -81,8 +80,7 @@ const ProductCarousel = () => {
       cloudastickExpertise: {
         specialization: "Marketing automation and customer journey optimization",
         certifications: ["Marketing Cloud Email Specialist", "Marketing Cloud Consultant"],
-        successStories: "Delivered 200% ROI for retail clients",
-        industryFocus: "Retail, E-commerce, Hospitality"
+        successStories: "Delivered 200% ROI for retail clients"
       },
       category: "Marketing Automation",
       icon: BarChart3
@@ -105,8 +103,7 @@ const ProductCarousel = () => {
       cloudastickExpertise: {
         specialization: "Customer service transformation and AI integration",
         certifications: ["Service Cloud Consultant", "Field Service Lightning Specialist"],
-        successStories: "Achieved 95% customer satisfaction for telecom clients",
-        industryFocus: "Telecommunications, Healthcare, Financial Services"
+        successStories: "Achieved 95% customer satisfaction for telecom clients"
       },
       category: "Customer Service",
       icon: Headphones
@@ -129,8 +126,7 @@ const ProductCarousel = () => {
       cloudastickExpertise: {
         specialization: "Digital experience design and community management",
         certifications: ["Experience Cloud Consultant", "Community Cloud Consultant"],
-        successStories: "Built 20+ successful digital communities",
-        industryFocus: "Education, Non-profit, Technology"
+        successStories: "Built 20+ successful digital communities"
       },
       category: "Digital Experience",
       icon: Globe
@@ -153,8 +149,7 @@ const ProductCarousel = () => {
       cloudastickExpertise: {
         specialization: "Revenue operations and subscription billing optimization",
         certifications: ["Revenue Cloud Specialist", "CPQ Specialist"],
-        successStories: "Streamlined billing for 30+ subscription businesses",
-        industryFocus: "SaaS, Media, Telecommunications"
+        successStories: "Streamlined billing for 30+ subscription businesses"
       },
       category: "Revenue Management",
       icon: CreditCard
@@ -177,8 +172,7 @@ const ProductCarousel = () => {
       cloudastickExpertise: {
         specialization: "Data architecture and customer data platform implementation",
         certifications: ["Data Cloud Specialist", "Tableau CRM Specialist"],
-        successStories: "Unified data for 25+ enterprise clients",
-        industryFocus: "Financial Services, Retail, Healthcare"
+        successStories: "Unified data for 25+ enterprise clients"
       },
       category: "Data Platform",
       icon: Database
@@ -201,8 +195,7 @@ const ProductCarousel = () => {
       cloudastickExpertise: {
         specialization: "AI strategy and implementation across Salesforce ecosystem",
         certifications: ["Einstein Analytics Specialist", "AI Associate"],
-        successStories: "Deployed AI solutions for 15+ companies",
-        industryFocus: "Technology, Financial Services, Manufacturing"
+        successStories: "Deployed AI solutions for 15+ companies"
       },
       category: "Artificial Intelligence",
       icon: Brain
@@ -225,8 +218,7 @@ const ProductCarousel = () => {
       cloudastickExpertise: {
         specialization: "API strategy and enterprise integration architecture",
         certifications: ["MuleSoft Certified Developer", "MuleSoft Certified Architect"],
-        successStories: "Integrated 100+ systems for enterprise clients",
-        industryFocus: "Banking, Insurance, Government"
+        successStories: "Integrated 100+ systems for enterprise clients"
       },
       category: "Integration Platform",
       icon: Zap
@@ -249,8 +241,7 @@ const ProductCarousel = () => {
       cloudastickExpertise: {
         specialization: "Data visualization and business intelligence strategy",
         certifications: ["Tableau Desktop Specialist", "Tableau Server Specialist"],
-        successStories: "Created 200+ dashboards for business users",
-        industryFocus: "Healthcare, Education, Retail"
+        successStories: "Created 200+ dashboards for business users"
       },
       category: "Analytics Platform",
       icon: BarChart3
@@ -273,15 +264,27 @@ const ProductCarousel = () => {
       cloudastickExpertise: {
         specialization: "Workflow automation and team collaboration optimization",
         certifications: ["Slack Certified Admin", "Slack Certified Developer"],
-        successStories: "Implemented for 40+ remote and hybrid teams",
-        industryFocus: "Technology, Consulting, Media"
+        successStories: "Implemented for 40+ remote and hybrid teams"
       },
       category: "Collaboration Platform",
       icon: MessageSquare
     }
   ];
 
-  // Simple auto-rotation
+  // Navigation functions
+  const scrollPrev = useCallback(() => {
+    if (emblaApi) emblaApi.scrollPrev();
+  }, [emblaApi]);
+
+  const scrollNext = useCallback(() => {
+    if (emblaApi) emblaApi.scrollNext();
+  }, [emblaApi]);
+
+  const scrollTo = useCallback((index: number) => {
+    if (emblaApi) emblaApi.scrollTo(index);
+  }, [emblaApi]);
+
+  // Auto-rotation
   useEffect(() => {
     if (!emblaApi) return;
 
@@ -295,7 +298,7 @@ const ProductCarousel = () => {
     return () => clearInterval(interval);
   }, [emblaApi, isAutoPlaying, hoveredProduct]);
 
-  // Track current slide
+  // Track current slide and scroll snaps
   useEffect(() => {
     if (!emblaApi) return;
 
@@ -303,8 +306,19 @@ const ProductCarousel = () => {
       setCurrentSlideIndex(emblaApi.selectedScrollSnap());
     };
 
+    const onInit = () => {
+      setScrollSnaps(emblaApi.scrollSnapList());
+    };
+
     emblaApi.on('select', onSelect);
-    return () => emblaApi.off('select', onSelect);
+    emblaApi.on('init', onInit);
+    emblaApi.on('reInit', onInit);
+
+    return () => {
+      emblaApi.off('select', onSelect);
+      emblaApi.off('init', onInit);
+      emblaApi.off('reInit', onInit);
+    };
   }, [emblaApi]);
 
   return (
@@ -320,23 +334,43 @@ const ProductCarousel = () => {
         </AnimatedSection>
 
         <div className="relative">
-          {/* Progress Indicators */}
+          {/* Navigation Arrows */}
+          <button
+            onClick={scrollPrev}
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-all duration-300"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          
+          <button
+            onClick={scrollNext}
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-all duration-300"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+
+          {/* Progress Indicators - Clickable Dots */}
           <div className="flex justify-center mb-8">
             <div className="flex gap-2">
-              {products.slice(0, 8).map((_, index) => (
-                <motion.div
+              {scrollSnaps.map((_, index) => (
+                <button
                   key={index}
+                  onClick={() => scrollTo(index)}
                   className={`h-2 rounded-full transition-all duration-300 ${
                     currentSlideIndex === index 
                       ? 'bg-brand-primary w-8' 
-                      : 'bg-muted-foreground/30 w-2'
+                      : 'bg-muted-foreground/30 w-2 hover:bg-muted-foreground/50'
                   }`}
-                  animate={{
-                    scale: currentSlideIndex === index ? 1.2 : 1,
-                    opacity: currentSlideIndex === index ? 1 : 0.5
-                  }}
-                  transition={{ duration: 0.3 }}
-                />
+                >
+                  <motion.div
+                    animate={{
+                      scale: currentSlideIndex === index ? 1.2 : 1,
+                      opacity: currentSlideIndex === index ? 1 : 0.5
+                    }}
+                    transition={{ duration: 0.3 }}
+                    className="w-full h-full rounded-full"
+                  />
+                </button>
               ))}
             </div>
           </div>
@@ -406,7 +440,7 @@ const ProductCarousel = () => {
                       </div>
                     </div>
 
-                    {/* Hover Overlay - Simplified */}
+                    {/* Hover Overlay - Concise */}
                     <AnimatePresence>
                       {hoveredProduct === product.id && (
                         <motion.div
@@ -416,7 +450,7 @@ const ProductCarousel = () => {
                           transition={{ duration: 0.3 }}
                           className="absolute inset-0 bg-slate-900/95 backdrop-blur-md border-2 border-brand-primary/70 rounded-2xl p-4 shadow-2xl shadow-brand-primary/30 z-30"
                         >
-                          <div className="h-full flex flex-col space-y-4 overflow-y-auto">
+                          <div className="h-full flex flex-col justify-between">
                             {/* Business Value Section */}
                             <div>
                               <div className="flex items-center gap-2 mb-3">
@@ -428,7 +462,7 @@ const ProductCarousel = () => {
                               <p className="text-sm text-cyan-300 font-semibold mb-3 leading-relaxed">
                                 {product.businessValue.primaryBenefit}
                               </p>
-                              <ul className="space-y-2">
+                              <ul className="space-y-1">
                                 {product.businessValue.keyOutcomes.map((outcome, idx) => (
                                   <li key={idx} className="flex items-start gap-2 text-xs text-gray-100 leading-relaxed">
                                     <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full mt-1.5 flex-shrink-0" />
@@ -438,7 +472,7 @@ const ProductCarousel = () => {
                               </ul>
                             </div>
 
-                            {/* Cloudastick Expertise Section */}
+                            {/* Cloudastick Expertise Section - Concise */}
                             <div>
                               <div className="flex items-center gap-2 mb-3">
                                 <product.icon className="w-5 h-5 text-blue-400" />
@@ -454,10 +488,6 @@ const ProductCarousel = () => {
                                 <div>
                                   <span className="text-gray-400 font-medium">Success Stories:</span>
                                   <p className="text-white font-semibold mt-1 leading-relaxed">{product.cloudastickExpertise.successStories}</p>
-                                </div>
-                                <div>
-                                  <span className="text-gray-400 font-medium">Industry Focus:</span>
-                                  <p className="text-white font-semibold mt-1 leading-relaxed">{product.cloudastickExpertise.industryFocus}</p>
                                 </div>
                               </div>
                             </div>
@@ -522,7 +552,7 @@ const ProductCarousel = () => {
                       </div>
                     </div>
 
-                    {/* Hover Overlay - Simplified */}
+                    {/* Hover Overlay - Concise */}
                     <AnimatePresence>
                       {hoveredProduct === product.id && (
                         <motion.div
@@ -532,7 +562,7 @@ const ProductCarousel = () => {
                           transition={{ duration: 0.3 }}
                           className="absolute inset-0 bg-slate-900/95 backdrop-blur-md border-2 border-brand-primary/70 rounded-2xl p-4 shadow-2xl shadow-brand-primary/30 z-30"
                         >
-                          <div className="h-full flex flex-col space-y-4 overflow-y-auto">
+                          <div className="h-full flex flex-col justify-between">
                             {/* Business Value Section */}
                             <div>
                               <div className="flex items-center gap-2 mb-3">
@@ -544,7 +574,7 @@ const ProductCarousel = () => {
                               <p className="text-sm text-cyan-300 font-semibold mb-3 leading-relaxed">
                                 {product.businessValue.primaryBenefit}
                               </p>
-                              <ul className="space-y-2">
+                              <ul className="space-y-1">
                                 {product.businessValue.keyOutcomes.map((outcome, idx) => (
                                   <li key={idx} className="flex items-start gap-2 text-xs text-gray-100 leading-relaxed">
                                     <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full mt-1.5 flex-shrink-0" />
@@ -554,7 +584,7 @@ const ProductCarousel = () => {
                               </ul>
                             </div>
 
-                            {/* Cloudastick Expertise Section */}
+                            {/* Cloudastick Expertise Section - Concise */}
                             <div>
                               <div className="flex items-center gap-2 mb-3">
                                 <product.icon className="w-5 h-5 text-blue-400" />
@@ -570,10 +600,6 @@ const ProductCarousel = () => {
                                 <div>
                                   <span className="text-gray-400 font-medium">Success Stories:</span>
                                   <p className="text-white font-semibold mt-1 leading-relaxed">{product.cloudastickExpertise.successStories}</p>
-                                </div>
-                                <div>
-                                  <span className="text-gray-400 font-medium">Industry Focus:</span>
-                                  <p className="text-white font-semibold mt-1 leading-relaxed">{product.cloudastickExpertise.industryFocus}</p>
                                 </div>
                               </div>
                             </div>
