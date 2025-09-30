@@ -50,6 +50,15 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
     };
   }, []);
 
+  // Ensure video starts playing
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.play().catch((error) => {
+        console.log('Video autoplay prevented:', error);
+      });
+    }
+  }, []);
+
   // Handle the start button click
   const handleStartExperience = async () => {
     setIsStarted(true);
@@ -134,10 +143,11 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
               loop
               muted
               playsInline
-              className="absolute inset-0 w-full h-full object-cover opacity-30"
+              className="absolute inset-0 w-full h-full object-cover opacity-40"
+              onLoadedData={() => console.log('✅ Video loaded successfully')}
+              onError={(e) => console.log('❌ Video failed to load:', e)}
             >
               <source src="/Assets/scyscrapers.mp4" type="video/mp4" />
-              Your browser does not support the video tag.
             </video>
 
             {/* Dark Overlay */}
@@ -241,7 +251,7 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
                     />
                   </motion.div>
 
-                  {/* Professional Prompt */}
+                  {/* Minimal Prompt */}
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -250,22 +260,15 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
                       delay: 0.6,
                       ease: "easeOut"
                     }}
-                    className="space-y-4"
+                    className="space-y-8"
                   >
-                    <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
-                      Welcome to Cloudastick
-                    </h1>
-                    <p className="text-lg md:text-xl text-white/80 mb-8 max-w-md mx-auto">
-                      Your trusted Salesforce partner for digital transformation
-                    </p>
-                    
                     <motion.button
                       onClick={handleStartExperience}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-8 py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 border border-cyan-400/30"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="bg-white/10 backdrop-blur-sm border border-white/20 text-white px-6 py-3 rounded-full font-light text-sm hover:bg-white/20 transition-all duration-300"
                     >
-                      Begin Your Cloudastick Journey
+                      Start
                     </motion.button>
                   </motion.div>
                 </motion.div>
