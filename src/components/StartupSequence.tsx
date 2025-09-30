@@ -12,7 +12,9 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
   const [audioStarted, setAudioStarted] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [showAura, setShowAura] = useState(false);
+  const [isStarted, setIsStarted] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   // Create persistent audio element that survives component unmount
   useEffect(() => {
@@ -48,20 +50,21 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
     };
   }, []);
 
-  useEffect(() => {
-    // Start the startup sequence
-    const startSequence = async () => {
-      // Show logo for 3 seconds, then fade out
+  // Handle the start button click
+  const handleStartExperience = async () => {
+    setIsStarted(true);
+    
+    // Start audio
+    await playAudio();
+    
+    // Start the startup sequence after a brief delay
+    setTimeout(() => {
+      setIsVisible(false);
       setTimeout(() => {
-        setIsVisible(false);
-        setTimeout(() => {
-          onComplete();
-        }, 500);
-      }, 3000);
-    };
-
-    startSequence();
-  }, [onComplete]);
+        onComplete();
+      }, 500);
+    }, 2000); // Show logo for 2 seconds after button click
+  };
 
   // Play audio on first interaction (click or mouse hover)
   const playAudio = async () => {
@@ -93,24 +96,15 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
       x: e.clientX - rect.left,
       y: e.clientY - rect.top
     });
-    
-    // Start audio on mouse hover
-    playAudio();
   };
 
   // Handle mouse enter/leave for aura visibility
   const handleMouseEnter = () => {
     setShowAura(true);
-    playAudio();
   };
 
   const handleMouseLeave = () => {
     setShowAura(false);
-  };
-
-  // Handle click interaction
-  const handleClick = () => {
-    playAudio();
   };
 
   return (
@@ -128,12 +122,26 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
-            className="fixed inset-0 z-50 bg-black flex items-center justify-center cursor-pointer"
-            onClick={handleClick}
+            className="fixed inset-0 z-50 flex items-center justify-center relative overflow-hidden"
             onMouseMove={handleMouseMove}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
+            {/* Video Background */}
+            <video
+              ref={videoRef}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="absolute inset-0 w-full h-full object-cover opacity-30"
+            >
+              <source src="/Assets/scyscrapers.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+
+            {/* Dark Overlay */}
+            <div className="absolute inset-0 bg-black/60"></div>
             {/* Mouse Aura Effect */}
             {showAura && (
               <motion.div
@@ -203,23 +211,82 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
               </>
             )}
 
-            {/* Simple Logo Display */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ 
-                duration: 1,
-                ease: "easeOut"
-              }}
-              className="text-center relative z-10"
-            >
-              <img 
-                src="/Assets/Company Logos/white-logo-dark.webp" 
-                alt="Cloudastick Logo"
-                className="w-32 h-32 object-contain mx-auto"
-              />
-            </motion.div>
+            {/* Content Area */}
+            <div className="text-center relative z-10">
+              {!isStarted ? (
+                /* Start Experience Button */
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ 
+                    duration: 1,
+                    ease: "easeOut"
+                  }}
+                  className="space-y-8"
+                >
+                  {/* Logo */}
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ 
+                      duration: 1,
+                      delay: 0.3,
+                      ease: "easeOut"
+                    }}
+                  >
+                    <img 
+                      src="/Assets/Company Logos/white-logo-dark.webp" 
+                      alt="Cloudastick Logo"
+                      className="w-24 h-24 object-contain mx-auto mb-6"
+                    />
+                  </motion.div>
+
+                  {/* Professional Prompt */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ 
+                      duration: 0.8,
+                      delay: 0.6,
+                      ease: "easeOut"
+                    }}
+                    className="space-y-4"
+                  >
+                    <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+                      Welcome to Cloudastick
+                    </h1>
+                    <p className="text-lg md:text-xl text-white/80 mb-8 max-w-md mx-auto">
+                      Your trusted Salesforce partner for digital transformation
+                    </p>
+                    
+                    <motion.button
+                      onClick={handleStartExperience}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-8 py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 border border-cyan-400/30"
+                    >
+                      Begin Your Cloudastick Journey
+                    </motion.button>
+                  </motion.div>
+                </motion.div>
+              ) : (
+                /* Logo Display After Start */
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ 
+                    duration: 1,
+                    ease: "easeOut"
+                  }}
+                >
+                  <img 
+                    src="/Assets/Company Logos/white-logo-dark.webp" 
+                    alt="Cloudastick Logo"
+                    className="w-32 h-32 object-contain mx-auto"
+                  />
+                </motion.div>
+              )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
