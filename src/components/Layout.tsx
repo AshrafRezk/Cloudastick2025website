@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
-import Cloudiator from "./Cloudiator";
+import Mira from "./Mira";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -116,8 +116,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         {children}
       </main>
 
-      {/* Cloudiator Chatbot */}
-      <Cloudiator />
+      {/* Mira Chatbot */}
+      <Mira />
     </div>
   );
 };

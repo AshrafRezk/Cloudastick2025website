@@ -7,7 +7,8 @@ import {
   Bot, 
   User,
   Minimize2,
-  Maximize2
+  Maximize2,
+  Globe
 } from 'lucide-react';
 
 interface Message {
@@ -15,17 +16,20 @@ interface Message {
   text: string;
   sender: 'user' | 'bot';
   timestamp: Date;
+  language?: 'en' | 'ar';
 }
 
-const Cloudiator = () => {
+const Mira = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [currentLanguage, setCurrentLanguage] = useState<'en' | 'ar'>('en');
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hello! I'm Cloudiator, powered by Agent Force. I'm here to help you learn about Cloudastick Systems and our Salesforce expertise. How can I assist you today?",
+      text: "Ahlan wa sahlan! I'm Mira, your friendly guide here at Cloudastick Systems. I can walk you through our Salesforce solutions, share success stories, or connect you with our team. Would you like me to continue in English or العربي المصري? 🌸",
       sender: 'bot',
-      timestamp: new Date()
+      timestamp: new Date(),
+      language: 'en'
     }
   ]);
   const [inputText, setInputText] = useState('');
@@ -54,7 +58,8 @@ const Cloudiator = () => {
       id: Date.now().toString(),
       text: inputText.trim(),
       sender: 'user',
-      timestamp: new Date()
+      timestamp: new Date(),
+      language: currentLanguage
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -62,7 +67,20 @@ const Cloudiator = () => {
     setIsLoading(true);
 
     try {
-      const systemPrompt = `You are Cloudiator, powered by Agent Force, representing Cloudastick Systems. Cloudastick is a Salesforce Crest (Gold) Partner with expertise in Sales Cloud, Service Cloud, Marketing Cloud, Experience Cloud, and integrations with SAP, Oracle, NetSuite, Paymob, and Geidea. We serve industries like Real Estate, Insurance, Manufacturing, Travel & Tourism, and Education.
+      const systemPrompt = `You are Mira, a friendly, bilingual digital guide for Cloudastick Systems. You are approachable, professional, and culturally tuned.
+
+PERSONALITY:
+- Warm, conversational, lightly hospitable
+- Bilingual: English + Egyptian Arabic (عامية مصرية)
+- Explains Salesforce clearly, avoids jargon
+- Culturally tuned - switches to Egyptian Arabic for friendliness
+- Flexible tone - starts casual, can get formal with executives
+- References warmth of Arabic culture (coffee/tea, hosting, guiding)
+
+LANGUAGE PREFERENCE: ${currentLanguage === 'ar' ? 'Respond in Egyptian Arabic (عامية مصرية) - keep it friendly and colloquial, not formal فصحى. Keep technical terms like "Sales Cloud, CRM" in English but wrap them in Arabic sentences.' : 'Respond in English - professional but warm and approachable.'}
+
+ABOUT CLOUDASTICK:
+Cloudastick is a Salesforce Crest (Gold) Partner with expertise in Sales Cloud, Service Cloud, Marketing Cloud, Experience Cloud, and integrations with SAP, Oracle, NetSuite, Paymob, and Geidea. We serve industries like Real Estate, Insurance, Manufacturing, Travel & Tourism, and Education.
 
 Always answer questions about:
 - Who Cloudastick is (company profile)
@@ -71,16 +89,17 @@ Always answer questions about:
 - Our premium boutique consultancy positioning (like Accenture/PwC but agile and regional)
 - Proposals, governance, KPIs, and project management approaches
 
-When asked, keep responses **clear, concise, and professional** as if addressing executives.`;
+Keep responses clear, concise, and professional while maintaining your warm, hospitable personality.`;
 
       const requestPayload = {
         prompt: `${systemPrompt}\n\nUser question: ${inputText.trim()}`
       };
 
-      console.log('🤖 Cloudiator Debug - Starting API call');
+      console.log('🤖 Mira Debug - Starting API call');
       console.log('📤 Request URL:', '/.netlify/functions/cloudiator');
       console.log('📤 Request Payload:', requestPayload);
       console.log('📤 User Input:', inputText.trim());
+      console.log('🌍 Current Language:', currentLanguage);
 
       const response = await fetch('/.netlify/functions/cloudiator', {
         method: 'POST',
@@ -114,12 +133,13 @@ When asked, keep responses **clear, concise, and professional** as if addressing
         id: (Date.now() + 1).toString(),
         text: botResponse,
         sender: 'bot',
-        timestamp: new Date()
+        timestamp: new Date(),
+        language: currentLanguage
       };
 
       setMessages(prev => [...prev, botMessage]);
     } catch (error) {
-      console.error('❌ Cloudiator Error Details:');
+      console.error('❌ Mira Error Details:');
       console.error('Error Type:', typeof error);
       console.error('Error Message:', error.message);
       console.error('Error Stack:', error.stack);
@@ -127,13 +147,16 @@ When asked, keep responses **clear, concise, and professional** as if addressing
       
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: `I apologize, but I'm experiencing technical difficulties. Error: ${error.message}. Please try again in a moment or contact our team directly.`,
+        text: currentLanguage === 'ar' 
+          ? `أعتذر، بس في مشكلة تقنية. Error: ${error.message}. جرب تاني بعد شوية أو تواصل مع فريقنا مباشرة.`
+          : `I apologize, but I'm experiencing technical difficulties. Error: ${error.message}. Please try again in a moment or contact our team directly.`,
         sender: 'bot',
-        timestamp: new Date()
+        timestamp: new Date(),
+        language: currentLanguage
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
-      console.log('🏁 Cloudiator API call completed');
+      console.log('🏁 Mira API call completed');
       setIsLoading(false);
     }
   };
@@ -183,17 +206,26 @@ When asked, keep responses **clear, concise, and professional** as if addressing
               <div className="flex items-center space-x-3">
                 <div className="w-8 h-8 rounded-full overflow-hidden bg-white/20 flex items-center justify-center p-0.5">
                   <img 
-                    src="/Assets/Cloudiator800*800.png" 
-                    alt="Cloudiator" 
+                    src="/Assets/Mira800*800.png" 
+                    alt="Mira" 
                     className="w-full h-full object-contain rounded-full"
                   />
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg">Cloudiator</h3>
-                  <p className="text-xs text-cyan-100">powered by Agent Force</p>
+                  <h3 className="font-bold text-lg">Mira</h3>
+                  <p className="text-xs text-cyan-100">
+                    Cloudastick's Digital Guide • {currentLanguage === 'ar' ? '🇪🇬 عربي' : '🇬🇧 English'}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => setCurrentLanguage(currentLanguage === 'en' ? 'ar' : 'en')}
+                  className="p-1 hover:bg-white/20 rounded transition-colors"
+                  title="Switch Language"
+                >
+                  <Globe className="w-4 h-4" />
+                </button>
                 <button
                   onClick={() => setIsMinimized(!isMinimized)}
                   className="p-1 hover:bg-white/20 rounded transition-colors"
@@ -230,8 +262,8 @@ When asked, keep responses **clear, concise, and professional** as if addressing
                             <User className="w-4 h-4" />
                           ) : (
                             <img 
-                              src="/Assets/Cloudiator800*800.png" 
-                              alt="Cloudiator" 
+                              src="/Assets/Mira800*800.png" 
+                              alt="Mira" 
                               className="w-full h-full object-contain rounded-full"
                             />
                           )}
@@ -263,8 +295,8 @@ When asked, keep responses **clear, concise, and professional** as if addressing
                       <div className="flex items-start space-x-2">
                         <div className="w-10 h-10 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center overflow-hidden p-1">
                           <img 
-                            src="/Assets/Cloudiator800*800.png" 
-                            alt="Cloudiator" 
+                            src="/Assets/Mira800*800.png" 
+                            alt="Mira" 
                             className="w-full h-full object-contain rounded-full"
                           />
                         </div>
@@ -291,7 +323,7 @@ When asked, keep responses **clear, concise, and professional** as if addressing
                       value={inputText}
                       onChange={(e) => setInputText(e.target.value)}
                       onKeyPress={handleKeyPress}
-                      placeholder="Ask me about Cloudastick..."
+                      placeholder={currentLanguage === 'ar' ? "اسألني عن Cloudastick..." : "Ask me about Cloudastick..."}
                       className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-gray-800 placeholder-gray-500"
                       disabled={isLoading}
                     />
@@ -315,4 +347,4 @@ When asked, keep responses **clear, concise, and professional** as if addressing
   );
 };
 
-export default Cloudiator;
+export default Mira;
