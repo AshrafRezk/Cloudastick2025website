@@ -28,13 +28,14 @@ interface Product {
 const ProductCarousel = () => {
   const [emblaRef, emblaApi] = useEmblaCarousel({ 
     loop: true, 
-    align: "start",
+    align: "center",
     slidesToScroll: 1,
     skipSnaps: false,
-    dragFree: true,
+    dragFree: false, // Enable snapping for Material 3 behavior
+    containScroll: "trimSnaps",
     breakpoints: {
-      "(min-width: 768px)": { slidesToScroll: 2 },
-      "(min-width: 1024px)": { slidesToScroll: 3 }
+      "(min-width: 768px)": { slidesToScroll: 1, align: "center" },
+      "(min-width: 1024px)": { slidesToScroll: 1, align: "center" }
     }
   });
   const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
@@ -43,6 +44,8 @@ const ProductCarousel = () => {
   const [isMouseOverCarousel, setIsMouseOverCarousel] = useState(false);
   const [scrollDirection, setScrollDirection] = useState<'left' | 'right' | null>(null);
   const [scrollSpeed, setScrollSpeed] = useState(1); // 1 = normal, 2 = fast, 0.5 = slow
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [isScrolling, setIsScrolling] = useState(false);
 
   const products: Product[] = [
     {
@@ -512,6 +515,28 @@ const ProductCarousel = () => {
     };
   }, [emblaApi, continuousScroll, directionalScroll]);
 
+  // Material 3 scroll tracking and effects
+  useEffect(() => {
+    if (!emblaApi) return;
+
+    const onSelect = () => {
+      setCurrentSlideIndex(emblaApi.selectedScrollSnap());
+      setIsScrolling(false);
+    };
+
+    const onScroll = () => {
+      setIsScrolling(true);
+    };
+
+    emblaApi.on('select', onSelect);
+    emblaApi.on('scroll', onScroll);
+
+    return () => {
+      emblaApi.off('select', onSelect);
+      emblaApi.off('scroll', onScroll);
+    };
+  }, [emblaApi]);
+
   return (
     <section className="py-20 bg-gradient-to-br from-background via-muted/30 to-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -525,9 +550,30 @@ const ProductCarousel = () => {
         </AnimatedSection>
 
         <div className="relative">
+          {/* Material 3 Progress Indicators */}
+          <div className="flex justify-center mb-8">
+            <div className="flex gap-2">
+              {products.slice(0, 8).map((_, index) => (
+                <motion.div
+                  key={index}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    currentSlideIndex === index 
+                      ? 'bg-brand-primary w-8' 
+                      : 'bg-muted-foreground/30 w-2'
+                  }`}
+                  animate={{
+                    scale: currentSlideIndex === index ? 1.2 : 1,
+                    opacity: currentSlideIndex === index ? 1 : 0.5
+                  }}
+                  transition={{ duration: 0.3 }}
+                />
+              ))}
+            </div>
+          </div>
+
           {/* Carousel Container with Mouse/Touch Controls */}
           <div 
-            className="overflow-hidden cursor-grab active:cursor-grabbing" 
+            className="overflow-hidden cursor-grab active:cursor-grabbing relative" 
             ref={emblaRef}
             onMouseMove={handleMouseMove}
             onTouchMove={handleTouchMove}
@@ -538,6 +584,9 @@ const ProductCarousel = () => {
               setScrollSpeed(1);
             }}
           >
+            {/* Material 3 Edge Fade Effects */}
+            <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
             <div className="flex gap-6">
               {/* First set of products for infinite loop */}
               {products.map((product, index) => (
@@ -549,45 +598,140 @@ const ProductCarousel = () => {
                 >
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    animate={{ 
+                      opacity: 1, 
+                      y: 0,
+                      scale: currentSlideIndex === index ? 1.05 : 0.95,
+                      rotateY: currentSlideIndex === index ? 0 : 5,
+                    }}
+                    transition={{ 
+                      duration: 0.6, 
+                      delay: index * 0.1,
+                      type: "spring",
+                      stiffness: 100,
+                      damping: 15
+                    }}
                     className="relative group"
+                    style={{
+                      transformStyle: "preserve-3d",
+                      perspective: "1000px"
+                    }}
                   >
-                    {/* Product Card */}
-                    <div className="bg-card/80 backdrop-blur-sm border border-border rounded-2xl p-8 h-96 flex flex-col justify-between hover:border-brand-primary/50 transition-all duration-300 hover:shadow-2xl hover:shadow-brand-primary/10">
-                      {/* Product Header */}
-                      <div className="text-center">
-                        <div className="w-20 h-20 mx-auto mb-4 bg-muted/50 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    {/* Product Card with Material 3 Dynamic Shape */}
+                    <motion.div 
+                      className="bg-card/80 backdrop-blur-sm border border-border p-8 h-96 flex flex-col justify-between hover:border-brand-primary/50 transition-all duration-500 hover:shadow-2xl hover:shadow-brand-primary/10"
+                      animate={{
+                        borderRadius: currentSlideIndex === index ? "2rem" : "1.5rem",
+                        boxShadow: currentSlideIndex === index 
+                          ? "0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(59, 130, 246, 0.1)" 
+                          : "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05)",
+                        transform: currentSlideIndex === index 
+                          ? "translateZ(20px) rotateX(0deg)" 
+                          : "translateZ(0px) rotateX(5deg)"
+                      }}
+                      transition={{
+                        duration: 0.4,
+                        ease: "easeOut"
+                      }}
+                    >
+                      {/* Product Header with Parallax Effect */}
+                      <motion.div 
+                        className="text-center"
+                        animate={{
+                          y: currentSlideIndex === index ? 0 : 10,
+                          opacity: currentSlideIndex === index ? 1 : 0.8
+                        }}
+                        transition={{
+                          duration: 0.3,
+                          delay: 0.1
+                        }}
+                      >
+                        <motion.div 
+                          className="w-20 h-20 mx-auto mb-4 bg-muted/50 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300"
+                          animate={{
+                            scale: currentSlideIndex === index ? 1.1 : 1,
+                            rotateZ: currentSlideIndex === index ? 0 : 2
+                          }}
+                          transition={{
+                            duration: 0.4,
+                            type: "spring",
+                            stiffness: 200
+                          }}
+                        >
                           <img 
                             src={product.logo} 
                             alt={product.name}
                             className="w-12 h-12 object-contain"
                           />
-                        </div>
-                        <h3 className="text-xl font-semibold text-foreground mb-2">
+                        </motion.div>
+                        <motion.h3 
+                          className="text-xl font-semibold text-foreground mb-2"
+                          animate={{
+                            y: currentSlideIndex === index ? 0 : 5,
+                            scale: currentSlideIndex === index ? 1.05 : 1
+                          }}
+                          transition={{ duration: 0.3, delay: 0.2 }}
+                        >
                           {product.name}
-                        </h3>
-                        <p className="text-sm text-muted-foreground mb-2">
+                        </motion.h3>
+                        <motion.p 
+                          className="text-sm text-muted-foreground mb-2"
+                          animate={{
+                            y: currentSlideIndex === index ? 0 : 3,
+                            opacity: currentSlideIndex === index ? 1 : 0.7
+                          }}
+                          transition={{ duration: 0.3, delay: 0.3 }}
+                        >
                           {product.category}
-                        </p>
-                        <p className="text-sm text-muted-foreground leading-relaxed">
+                        </motion.p>
+                        <motion.p 
+                          className="text-sm text-muted-foreground leading-relaxed"
+                          animate={{
+                            y: currentSlideIndex === index ? 0 : 2,
+                            opacity: currentSlideIndex === index ? 1 : 0.6
+                          }}
+                          transition={{ duration: 0.3, delay: 0.4 }}
+                        >
                           {product.description}
-                        </p>
-                      </div>
+                        </motion.p>
+                      </motion.div>
 
-                      {/* Business Value Badge */}
-                      <div className="text-center">
-                        <div className="inline-flex items-center gap-2 bg-gradient-to-r from-brand-primary/20 to-brand-secondary/20 border border-brand-primary/30 rounded-full px-4 py-2">
+                      {/* Business Value Badge with Parallax */}
+                      <motion.div 
+                        className="text-center"
+                        animate={{
+                          y: currentSlideIndex === index ? 0 : -5,
+                          opacity: currentSlideIndex === index ? 1 : 0.8
+                        }}
+                        transition={{ duration: 0.3, delay: 0.5 }}
+                      >
+                        <motion.div 
+                          className="inline-flex items-center gap-2 bg-gradient-to-r from-brand-primary/20 to-brand-secondary/20 border border-brand-primary/30 rounded-full px-4 py-2"
+                          animate={{
+                            scale: currentSlideIndex === index ? 1.05 : 1,
+                            boxShadow: currentSlideIndex === index 
+                              ? "0 8px 25px -5px rgba(59, 130, 246, 0.3)" 
+                              : "0 4px 15px -5px rgba(59, 130, 246, 0.1)"
+                          }}
+                          transition={{ duration: 0.4, delay: 0.6 }}
+                        >
                           <TrendingUp className="w-4 h-4 text-brand-primary" />
                           <span className="text-sm font-semibold text-brand-primary">
                             {product.businessValue.costSavings}
                           </span>
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1">
+                        </motion.div>
+                        <motion.p 
+                          className="text-xs text-muted-foreground mt-1"
+                          animate={{
+                            y: currentSlideIndex === index ? 0 : 2,
+                            opacity: currentSlideIndex === index ? 1 : 0.6
+                          }}
+                          transition={{ duration: 0.3, delay: 0.7 }}
+                        >
                           {product.businessValue.timeframe}
-                        </p>
-                      </div>
-                    </div>
+                        </motion.p>
+                      </motion.div>
+                    </motion.div>
 
                     {/* Hover Overlay */}
                     <AnimatePresence>
