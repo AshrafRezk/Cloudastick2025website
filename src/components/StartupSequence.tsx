@@ -7,6 +7,8 @@ interface StartupSequenceProps {
 
 const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
   const [isVisible, setIsVisible] = useState(true);
+  const [audioLoaded, setAudioLoaded] = useState(false);
+  const [audioError, setAudioError] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
@@ -24,11 +26,34 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
     startSequence();
   }, [onComplete]);
 
+  // Keep audio playing even after startup sequence ends
+  useEffect(() => {
+    return () => {
+      // Don't stop audio when component unmounts - let it finish naturally
+      // The audio will continue playing in the background
+    };
+  }, []);
+
+  // Handle audio loading and errors
+  const handleAudioLoad = () => {
+    setAudioLoaded(true);
+  };
+
+  const handleAudioError = () => {
+    console.log('Audio failed to load - likely blocked by ad blocker');
+    setAudioError(true);
+  };
+
   // Handle audio play on user interaction
   const handleUserInteraction = async () => {
+    if (audioError || !audioLoaded) {
+      console.log('Audio not available - continuing without sound');
+      return;
+    }
+
     try {
       if (audioRef.current) {
-        audioRef.current.volume = 0.3;
+        audioRef.current.volume = 0.2; // Lower volume to be less intrusive
         await audioRef.current.play();
       }
     } catch (error) {
@@ -49,8 +74,11 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
           {/* Background Music */}
           <audio
             ref={audioRef}
-            loop
-            preload="auto"
+            preload="none"
+            onLoadedData={handleAudioLoad}
+            onError={handleAudioError}
+            onCanPlayThrough={handleAudioLoad}
+            onEnded={() => console.log('Audio track finished playing')}
           >
             <source src="/Assets/cloudastickwebsiteloadmusic.mp3" type="audio/mpeg" />
             Your browser does not support the audio element.
@@ -72,6 +100,29 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
               alt="Cloudastick Logo"
               className="w-32 h-32 object-contain mx-auto"
             />
+            
+            {/* Audio Status Indicator */}
+            {audioLoaded && !audioError && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.5, duration: 0.5 }}
+                className="mt-4 text-white/60 text-sm"
+              >
+                Click to enable audio
+              </motion.div>
+            )}
+            
+            {audioError && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.5, duration: 0.5 }}
+                className="mt-4 text-white/40 text-xs"
+              >
+                Audio blocked by browser settings
+              </motion.div>
+            )}
           </motion.div>
         </motion.div>
       )}
