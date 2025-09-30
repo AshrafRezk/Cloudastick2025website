@@ -12,6 +12,7 @@ import { useState, useEffect } from "react";
 import AnimatedSection from "../components/AnimatedSection";
 import Button from "../components/Button";
 import BlogShifter from "../components/BlogShifter";
+import ProductCarousel from "../components/ProductCarousel";
 
 const Home = () => {
   // State for animated hero
@@ -301,6 +302,8 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Product Carousel Section */}
+      <ProductCarousel />
 
       {/* Features Section */}
       <section className="py-20 bg-muted/50">
