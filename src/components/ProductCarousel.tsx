@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight, TrendingUp, Users, Zap, Shield, BarChart3, MessageSquare, Database, ShoppingCart, Wrench, Headphones, Cloud, Brain, CreditCard, Globe, Smartphone, Leaf, Building } from "lucide-react";
@@ -36,6 +36,7 @@ const ProductCarousel = () => {
     }
   });
   const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
   const products: Product[] = [
     {
@@ -400,12 +401,55 @@ const ProductCarousel = () => {
     }
   ];
 
+  // Auto-scroll functionality
+  const autoScroll = useCallback(() => {
+    if (emblaApi && isAutoPlaying) {
+      emblaApi.scrollNext();
+    }
+  }, [emblaApi, isAutoPlaying]);
+
+  // Set up auto-scroll interval
+  useEffect(() => {
+    if (!emblaApi) return;
+
+    const interval = setInterval(autoScroll, 4000); // Auto-scroll every 4 seconds
+
+    // Pause auto-scroll when user hovers over a product
+    const handleMouseEnter = () => setIsAutoPlaying(false);
+    const handleMouseLeave = () => setIsAutoPlaying(true);
+
+    // Add event listeners to pause/resume auto-scroll
+    const emblaContainer = emblaApi.containerNode();
+    if (emblaContainer) {
+      emblaContainer.addEventListener('mouseenter', handleMouseEnter);
+      emblaContainer.addEventListener('mouseleave', handleMouseLeave);
+    }
+
+    return () => {
+      clearInterval(interval);
+      if (emblaContainer) {
+        emblaContainer.removeEventListener('mouseenter', handleMouseEnter);
+        emblaContainer.removeEventListener('mouseleave', handleMouseLeave);
+      }
+    };
+  }, [emblaApi, autoScroll]);
+
   const scrollPrev = () => {
-    if (emblaApi) emblaApi.scrollPrev();
+    if (emblaApi) {
+      setIsAutoPlaying(false); // Pause auto-scroll when user interacts
+      emblaApi.scrollPrev();
+      // Resume auto-scroll after 8 seconds
+      setTimeout(() => setIsAutoPlaying(true), 8000);
+    }
   };
 
   const scrollNext = () => {
-    if (emblaApi) emblaApi.scrollNext();
+    if (emblaApi) {
+      setIsAutoPlaying(false); // Pause auto-scroll when user interacts
+      emblaApi.scrollNext();
+      // Resume auto-scroll after 8 seconds
+      setTimeout(() => setIsAutoPlaying(true), 8000);
+    }
   };
 
   return (
@@ -415,9 +459,13 @@ const ProductCarousel = () => {
           <h2 className="text-4xl font-bold text-foreground mb-6">
             Salesforce Ecosystem Expertise
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-4">
             Discover how our certified expertise in the Salesforce ecosystem can drive measurable ROI for your business
           </p>
+          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+            <div className={`w-2 h-2 rounded-full ${isAutoPlaying ? 'bg-brand-primary animate-pulse' : 'bg-muted-foreground'}`}></div>
+            <span>{isAutoPlaying ? 'Auto-scrolling' : 'Paused'}</span>
+          </div>
         </AnimatedSection>
 
         <div className="relative">
@@ -440,7 +488,7 @@ const ProductCarousel = () => {
 
           {/* Carousel Container */}
           <div className="overflow-hidden" ref={emblaRef}>
-            <div className="flex gap-6">
+            <div className="flex gap-6 transition-transform duration-500 ease-in-out">
               {products.map((product, index) => (
                 <div
                   key={product.id}
