@@ -432,22 +432,22 @@ const ProductCarousel = () => {
 
   // Continuous slow motion functionality
   const continuousScroll = useCallback(() => {
-    if (emblaApi && isAutoPlaying && !hoveredProduct) {
+    if (emblaApi && isAutoPlaying) {
       // Always scroll right for continuous motion
       emblaApi.scrollNext();
     }
-  }, [emblaApi, isAutoPlaying, hoveredProduct]);
+  }, [emblaApi, isAutoPlaying]);
 
   // Directional speedup functionality
   const directionalScroll = useCallback(() => {
-    if (emblaApi && scrollDirection && !hoveredProduct) {
+    if (emblaApi && scrollDirection) {
       if (scrollDirection === 'left') {
         emblaApi.scrollPrev();
       } else if (scrollDirection === 'right') {
         emblaApi.scrollNext();
       }
     }
-  }, [emblaApi, scrollDirection, hoveredProduct]);
+  }, [emblaApi, scrollDirection]);
 
   // Mouse-based direction and speed control
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
@@ -593,8 +593,14 @@ const ProductCarousel = () => {
                 <div
                   key={`${product.id}-1`}
                   className="flex-none w-80 md:w-96"
-                  onMouseEnter={() => setHoveredProduct(product.id)}
-                  onMouseLeave={() => setHoveredProduct(null)}
+                  onMouseEnter={() => {
+                    setHoveredProduct(product.id);
+                    setIsAutoPlaying(false);
+                  }}
+                  onMouseLeave={() => {
+                    setHoveredProduct(null);
+                    setIsAutoPlaying(true);
+                  }}
                 >
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -741,14 +747,18 @@ const ProductCarousel = () => {
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: 20 }}
                           transition={{ duration: 0.3 }}
-                          className="absolute inset-0 bg-slate-900/98 backdrop-blur-md border-2 border-brand-primary/70 rounded-2xl p-6 shadow-2xl shadow-brand-primary/30 z-20"
+                          className="absolute inset-0 bg-slate-900/98 backdrop-blur-md border-2 border-brand-primary/70 rounded-2xl p-6 shadow-2xl shadow-brand-primary/30 z-30 overflow-hidden"
+                          style={{
+                            backdropFilter: "blur(12px)",
+                            WebkitBackdropFilter: "blur(12px)"
+                          }}
                         >
-                          <div className="h-full flex flex-col justify-between">
+                          <div className="h-full flex flex-col justify-between overflow-y-auto">
                             {/* Business Value Details */}
                             <div>
                               <div className="flex items-center gap-2 mb-4">
                                 <TrendingUp className="w-6 h-6 text-cyan-400" />
-                                <h4 className="text-xl font-bold text-white">
+                                <h4 className="text-xl font-bold text-white drop-shadow-sm">
                                   Business Value
                                 </h4>
                               </div>
@@ -757,7 +767,7 @@ const ProductCarousel = () => {
                               </p>
                               <ul className="space-y-3 mb-6">
                                 {product.businessValue.keyOutcomes.map((outcome, idx) => (
-                                  <li key={idx} className="flex items-start gap-3 text-sm text-gray-200 leading-relaxed">
+                                  <li key={idx} className="flex items-start gap-3 text-sm text-gray-100 leading-relaxed">
                                     <div className="w-2 h-2 bg-cyan-400 rounded-full mt-2 flex-shrink-0" />
                                     {outcome}
                                   </li>
@@ -769,22 +779,22 @@ const ProductCarousel = () => {
                             <div>
                               <div className="flex items-center gap-2 mb-4">
                                 <product.icon className="w-6 h-6 text-blue-400" />
-                                <h4 className="text-xl font-bold text-white">
+                                <h4 className="text-xl font-bold text-white drop-shadow-sm">
                                   Cloudastick Expertise
                                 </h4>
                               </div>
                               <div className="space-y-3 text-sm">
                                 <div>
                                   <span className="text-gray-400 font-medium">Specialization:</span>
-                                  <p className="text-white font-semibold mt-1 leading-relaxed">{product.cloudastickExpertise.specialization}</p>
+                                  <p className="text-white drop-shadow-sm font-semibold mt-1 leading-relaxed">{product.cloudastickExpertise.specialization}</p>
                                 </div>
                                 <div>
                                   <span className="text-gray-400 font-medium">Success Stories:</span>
-                                  <p className="text-white font-semibold mt-1 leading-relaxed">{product.cloudastickExpertise.successStories}</p>
+                                  <p className="text-white drop-shadow-sm font-semibold mt-1 leading-relaxed">{product.cloudastickExpertise.successStories}</p>
                                 </div>
                                 <div>
                                   <span className="text-gray-400 font-medium">Industry Focus:</span>
-                                  <p className="text-white font-semibold mt-1 leading-relaxed">{product.cloudastickExpertise.industryFocus}</p>
+                                  <p className="text-white drop-shadow-sm font-semibold mt-1 leading-relaxed">{product.cloudastickExpertise.industryFocus}</p>
                                 </div>
                                 <div>
                                   <span className="text-gray-400 font-medium">Certifications:</span>
@@ -811,8 +821,14 @@ const ProductCarousel = () => {
                 <div
                   key={`${product.id}-2`}
                   className="flex-none w-80 md:w-96"
-                  onMouseEnter={() => setHoveredProduct(product.id)}
-                  onMouseLeave={() => setHoveredProduct(null)}
+                  onMouseEnter={() => {
+                    setHoveredProduct(product.id);
+                    setIsAutoPlaying(false);
+                  }}
+                  onMouseLeave={() => {
+                    setHoveredProduct(null);
+                    setIsAutoPlaying(true);
+                  }}
                 >
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -871,7 +887,7 @@ const ProductCarousel = () => {
                             <div>
                               <div className="flex items-center gap-2 mb-4">
                                 <TrendingUp className="w-6 h-6 text-cyan-400" />
-                                <h4 className="text-xl font-bold text-white">
+                                <h4 className="text-xl font-bold text-white drop-shadow-sm">
                                   Business Value
                                 </h4>
                               </div>
@@ -880,7 +896,7 @@ const ProductCarousel = () => {
                               </p>
                               <ul className="space-y-3 mb-6">
                                 {product.businessValue.keyOutcomes.map((outcome, idx) => (
-                                  <li key={idx} className="flex items-start gap-3 text-sm text-gray-200 leading-relaxed">
+                                  <li key={idx} className="flex items-start gap-3 text-sm text-gray-100 leading-relaxed">
                                     <div className="w-2 h-2 bg-cyan-400 rounded-full mt-2 flex-shrink-0" />
                                     {outcome}
                                   </li>
@@ -892,22 +908,22 @@ const ProductCarousel = () => {
                             <div>
                               <div className="flex items-center gap-2 mb-4">
                                 <product.icon className="w-6 h-6 text-blue-400" />
-                                <h4 className="text-xl font-bold text-white">
+                                <h4 className="text-xl font-bold text-white drop-shadow-sm">
                                   Cloudastick Expertise
                                 </h4>
                               </div>
                               <div className="space-y-3 text-sm">
                                 <div>
                                   <span className="text-gray-400 font-medium">Specialization:</span>
-                                  <p className="text-white font-semibold mt-1 leading-relaxed">{product.cloudastickExpertise.specialization}</p>
+                                  <p className="text-white drop-shadow-sm font-semibold mt-1 leading-relaxed">{product.cloudastickExpertise.specialization}</p>
                                 </div>
                                 <div>
                                   <span className="text-gray-400 font-medium">Success Stories:</span>
-                                  <p className="text-white font-semibold mt-1 leading-relaxed">{product.cloudastickExpertise.successStories}</p>
+                                  <p className="text-white drop-shadow-sm font-semibold mt-1 leading-relaxed">{product.cloudastickExpertise.successStories}</p>
                                 </div>
                                 <div>
                                   <span className="text-gray-400 font-medium">Industry Focus:</span>
-                                  <p className="text-white font-semibold mt-1 leading-relaxed">{product.cloudastickExpertise.industryFocus}</p>
+                                  <p className="text-white drop-shadow-sm font-semibold mt-1 leading-relaxed">{product.cloudastickExpertise.industryFocus}</p>
                                 </div>
                                 <div>
                                   <span className="text-gray-400 font-medium">Certifications:</span>
@@ -940,7 +956,7 @@ const ProductCarousel = () => {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="bg-gradient-to-r from-brand-primary to-brand-secondary text-white px-8 py-3 rounded-full font-semibold hover:shadow-lg hover:shadow-brand-primary/25 transition-all duration-300"
+            className="bg-gradient-to-r from-brand-primary to-brand-secondary text-white drop-shadow-sm px-8 py-3 rounded-full font-semibold hover:shadow-lg hover:shadow-brand-primary/25 transition-all duration-300"
           >
             Get Expert Consultation
           </motion.button>
