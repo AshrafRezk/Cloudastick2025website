@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import useEmblaCarousel from "embla-carousel-react";
-import { ChevronLeft, ChevronRight, TrendingUp, Users, Zap, Shield, BarChart3, MessageSquare, Database, ShoppingCart, Wrench, Headphones, Cloud, Brain, CreditCard, Globe, Smartphone } from "lucide-react";
+import { ChevronLeft, ChevronRight, TrendingUp, Users, Zap, Shield, BarChart3, MessageSquare, Database, ShoppingCart, Wrench, Headphones, Cloud, Brain, CreditCard, Globe, Smartphone, Leaf, Building } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
 
 interface Product {
@@ -159,41 +159,41 @@ const ProductCarousel = () => {
       icon: Brain
     },
     {
-      id: "cpq-billing",
-      name: "CPQ & Billing",
+      id: "revenue-cloud",
+      name: "Revenue Cloud",
       logo: "/Assets/Product Logos/salesforce.png",
-      description: "Configure, Price, Quote and Billing automation platform",
+      description: "Unified revenue management platform combining CPQ, Billing, and Partner Relationship Management",
       businessValue: {
-        primaryBenefit: "Streamline quote-to-cash processes and reduce errors",
+        primaryBenefit: "Streamline entire quote-to-cash process with unified revenue management",
         timeframe: "within 7 months",
-        keyOutcomes: ["Reduce quote generation time by 70%", "Increase quote accuracy by 95%", "Accelerate deal closure by 40%"],
-        costSavings: "Save $90K+ annually in manual quoting processes"
+        keyOutcomes: ["Reduce quote generation time by 70%", "Increase quote accuracy by 95%", "Accelerate deal closure by 40%", "Improve partner revenue by 35%"],
+        costSavings: "Save $120K+ annually in revenue operations"
       },
       cloudastickExpertise: {
-        specialization: "Quote-to-Cash Optimization & Billing Automation",
-        certifications: ["CPQ Specialist", "Billing Specialist"],
-        successStories: "Optimized 12+ complex quoting and billing processes",
-        industryFocus: "Manufacturing, Technology, Professional Services"
+        specialization: "Revenue Operations & Quote-to-Cash Optimization",
+        certifications: ["Revenue Cloud Specialist", "CPQ Specialist", "Billing Specialist"],
+        successStories: "Transformed 15+ revenue operations across industries",
+        industryFocus: "Manufacturing, Technology, Professional Services, Channel Partners"
       },
-      category: "Quote-to-Cash",
+      category: "Revenue Management",
       icon: CreditCard
     },
     {
       id: "field-service",
-      name: "Field Service",
+      name: "Field Service Lightning",
       logo: "/Assets/Product Logos/salesforce.png",
-      description: "Mobile workforce management and field service optimization",
+      description: "AI-powered mobile workforce management and field service optimization",
       businessValue: {
-        primaryBenefit: "Optimize field operations and improve service delivery",
+        primaryBenefit: "Optimize field operations and improve service delivery with AI",
         timeframe: "within 9 months",
-        keyOutcomes: ["Reduce service call time by 35%", "Increase first-time fix rates by 50%", "Optimize technician scheduling"],
+        keyOutcomes: ["Reduce service call time by 35%", "Increase first-time fix rates by 50%", "Optimize technician scheduling", "Predict maintenance needs with AI"],
         costSavings: "Save $75K+ annually in field service operations"
       },
       cloudastickExpertise: {
-        specialization: "Field Service Optimization & Mobile Workforce Management",
-        certifications: ["Field Service Lightning Specialist"],
-        successStories: "Transformed 10+ field service operations",
-        industryFocus: "Utilities, Manufacturing, Healthcare"
+        specialization: "Field Service Optimization & AI-Powered Workforce Management",
+        certifications: ["Field Service Lightning Specialist", "Einstein Analytics Specialist"],
+        successStories: "Transformed 10+ field service operations with AI insights",
+        industryFocus: "Utilities, Manufacturing, Healthcare, Telecommunications"
       },
       category: "Field Service Management",
       icon: Wrench
@@ -260,20 +260,20 @@ const ProductCarousel = () => {
     },
     {
       id: "platform-cloud",
-      name: "Platform Cloud",
+      name: "Salesforce Platform",
       logo: "/Assets/Product Logos/salesforce.png",
-      description: "Low-code platform for building custom applications",
+      description: "Low-code platform for building custom applications and digital experiences",
       businessValue: {
         primaryBenefit: "Build custom applications faster with low-code development",
         timeframe: "within 5 months",
-        keyOutcomes: ["Reduce app development time by 60%", "Enable citizen developers", "Accelerate digital transformation"],
+        keyOutcomes: ["Reduce app development time by 60%", "Enable citizen developers", "Accelerate digital transformation", "Create unified digital experiences"],
         costSavings: "Save $150K+ in custom application development"
       },
       cloudastickExpertise: {
         specialization: "Low-Code Development & Custom Application Architecture",
-        certifications: ["Platform Developer I & II", "Platform App Builder"],
-        successStories: "Built 30+ custom applications for various industries",
-        industryFocus: "Technology, Healthcare, Financial Services"
+        certifications: ["Platform Developer I & II", "Platform App Builder", "Experience Cloud Consultant"],
+        successStories: "Built 30+ custom applications and digital experiences",
+        industryFocus: "Technology, Healthcare, Financial Services, Government"
       },
       category: "Application Platform",
       icon: Globe
@@ -337,6 +337,46 @@ const ProductCarousel = () => {
       },
       category: "DevOps Platform",
       icon: Shield
+    },
+    {
+      id: "experience-cloud",
+      name: "Experience Cloud",
+      logo: "/Assets/Product Logos/salesforce.png",
+      description: "Build branded digital experiences for customers, partners, and employees",
+      businessValue: {
+        primaryBenefit: "Create unified digital experiences that drive engagement",
+        timeframe: "within 6 months",
+        keyOutcomes: ["Increase customer engagement by 45%", "Reduce support tickets by 30%", "Improve partner collaboration", "Enable self-service portals"],
+        costSavings: "Save $60K+ annually in portal development"
+      },
+      cloudastickExpertise: {
+        specialization: "Digital Experience Design & Community Management",
+        certifications: ["Experience Cloud Consultant", "Community Cloud Consultant"],
+        successStories: "Built 20+ digital experiences and communities",
+        industryFocus: "Technology, Healthcare, Financial Services, Education"
+      },
+      category: "Digital Experience",
+      icon: Globe
+    },
+    {
+      id: "net-zero-cloud",
+      name: "Net Zero Cloud",
+      logo: "/Assets/Product Logos/salesforce.png",
+      description: "Sustainability management platform for tracking and reducing carbon footprint",
+      businessValue: {
+        primaryBenefit: "Drive sustainability goals and meet ESG compliance requirements",
+        timeframe: "within 8 months",
+        keyOutcomes: ["Reduce carbon footprint by 25%", "Improve ESG reporting accuracy", "Meet sustainability targets", "Enhance brand reputation"],
+        costSavings: "Avoid $50K+ in ESG compliance costs"
+      },
+      cloudastickExpertise: {
+        specialization: "Sustainability Strategy & ESG Implementation",
+        certifications: ["Net Zero Cloud Specialist", "Sustainability Consultant"],
+        successStories: "Helped 8+ organizations achieve sustainability goals",
+        industryFocus: "Manufacturing, Energy, Technology, Government"
+      },
+      category: "Sustainability Management",
+      icon: Leaf
     },
     {
       id: "quip",
