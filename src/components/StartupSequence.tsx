@@ -36,30 +36,63 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
 
   // Handle audio loading and errors
   const handleAudioLoad = () => {
+    console.log('✅ Audio loaded successfully');
     setAudioLoaded(true);
   };
 
-  const handleAudioError = () => {
-    console.log('Audio failed to load - likely blocked by ad blocker');
+  const handleAudioError = (e: any) => {
+    console.log('❌ Audio failed to load:', e);
+    console.log('Audio src:', audioRef.current?.src);
     setAudioError(true);
   };
 
-  // Handle audio play on user interaction
-  const handleUserInteraction = async () => {
+  // Auto-play audio after a brief delay
+  const playAudio = async () => {
     if (audioError || !audioLoaded) {
-      console.log('Audio not available - continuing without sound');
+      console.log('⚠️ Audio not available - continuing without sound');
       return;
     }
 
     try {
       if (audioRef.current) {
+        console.log('🎵 Attempting to play audio...');
         audioRef.current.volume = 0.2; // Lower volume to be less intrusive
         await audioRef.current.play();
+        console.log('✅ Audio started playing successfully');
       }
     } catch (error) {
-      console.log('Audio play failed:', error);
+      console.log('❌ Audio play failed:', error);
     }
   };
+
+  // Handle audio play on user interaction
+  const handleUserInteraction = async () => {
+    await playAudio();
+  };
+
+  // Auto-play audio after component mounts and audio loads
+  useEffect(() => {
+    if (audioLoaded && !audioError) {
+      // Small delay to ensure smooth startup
+      const timer = setTimeout(() => {
+        playAudio();
+      }, 1500); // Play after 1.5 seconds
+
+      return () => clearTimeout(timer);
+    }
+  }, [audioLoaded, audioError]);
+
+  // Fallback: try to load audio manually after a delay
+  useEffect(() => {
+    const fallbackTimer = setTimeout(() => {
+      if (!audioLoaded && !audioError && audioRef.current) {
+        console.log('🔄 Fallback: manually loading audio...');
+        audioRef.current.load();
+      }
+    }, 2000); // Try after 2 seconds if not loaded
+
+    return () => clearTimeout(fallbackTimer);
+  }, [audioLoaded, audioError]);
 
   return (
     <AnimatePresence>
@@ -74,11 +107,12 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
           {/* Background Music */}
           <audio
             ref={audioRef}
-            preload="none"
+            preload="metadata"
             onLoadedData={handleAudioLoad}
             onError={handleAudioError}
             onCanPlayThrough={handleAudioLoad}
-            onEnded={() => console.log('Audio track finished playing')}
+            onLoadStart={() => console.log('🔄 Audio loading started')}
+            onEnded={() => console.log('🎵 Audio track finished playing')}
           >
             <source src="/Assets/cloudastickwebsiteloadmusic.mp3" type="audio/mpeg" />
             Your browser does not support the audio element.
