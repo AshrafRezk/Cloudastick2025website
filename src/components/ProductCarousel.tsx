@@ -30,6 +30,8 @@ const ProductCarousel = () => {
     loop: true, 
     align: "start",
     slidesToScroll: 1,
+    skipSnaps: false,
+    dragFree: true,
     breakpoints: {
       "(min-width: 768px)": { slidesToScroll: 2 },
       "(min-width: 1024px)": { slidesToScroll: 3 }
@@ -430,28 +432,34 @@ const ProductCarousel = () => {
     }
   }, [emblaApi, isAutoPlaying, isMouseOverCarousel]);
 
-  // Mouse-based scrolling
+  // Mouse-based scrolling with throttling to prevent flickering
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (!emblaApi || !isMouseOverCarousel) return;
     
     const rect = e.currentTarget.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const mouseX = e.clientX;
-    const threshold = rect.width * 0.2; // 20% threshold from center
+    const threshold = rect.width * 0.25; // 25% threshold from center
     
     setMousePosition({ x: mouseX, y: e.clientY });
+    
+    // Throttle scrolling to prevent flickering
+    const now = Date.now();
+    if (handleMouseMove.lastScroll && now - handleMouseMove.lastScroll < 500) return;
     
     // Scroll based on mouse position
     if (mouseX < centerX - threshold) {
       // Mouse is on the left side - scroll left
       emblaApi.scrollPrev();
+      handleMouseMove.lastScroll = now;
     } else if (mouseX > centerX + threshold) {
       // Mouse is on the right side - scroll right
       emblaApi.scrollNext();
+      handleMouseMove.lastScroll = now;
     }
   }, [emblaApi, isMouseOverCarousel]);
 
-  // Touch/gesture support for mobile
+  // Touch/gesture support for mobile with throttling
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
     if (!emblaApi || !isMouseOverCarousel) return;
     
@@ -459,13 +467,19 @@ const ProductCarousel = () => {
     const rect = e.currentTarget.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const touchX = touch.clientX;
-    const threshold = rect.width * 0.2;
+    const threshold = rect.width * 0.25;
+    
+    // Throttle scrolling to prevent flickering
+    const now = Date.now();
+    if (handleTouchMove.lastScroll && now - handleTouchMove.lastScroll < 500) return;
     
     // Scroll based on touch position
     if (touchX < centerX - threshold) {
       emblaApi.scrollPrev();
+      handleTouchMove.lastScroll = now;
     } else if (touchX > centerX + threshold) {
       emblaApi.scrollNext();
+      handleTouchMove.lastScroll = now;
     }
   }, [emblaApi, isMouseOverCarousel]);
 
@@ -487,15 +501,9 @@ const ProductCarousel = () => {
           <h2 className="text-4xl font-bold text-foreground mb-6">
             Salesforce Ecosystem Expertise
           </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-4">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Discover how our certified expertise in the Salesforce ecosystem can drive measurable ROI for your business
           </p>
-          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-            <div className={`w-2 h-2 rounded-full ${isAutoPlaying ? 'bg-brand-primary animate-pulse' : 'bg-muted-foreground'}`}></div>
-            <span>{isAutoPlaying ? 'Auto-scrolling' : 'Paused'}</span>
-            <span className="mx-2">•</span>
-            <span>Move mouse left/right to navigate</span>
-          </div>
         </AnimatedSection>
 
         <div className="relative">
@@ -508,10 +516,134 @@ const ProductCarousel = () => {
             onMouseEnter={() => setIsMouseOverCarousel(true)}
             onMouseLeave={() => setIsMouseOverCarousel(false)}
           >
-            <div className="flex gap-6 transition-transform duration-700 ease-in-out">
+            <div className="flex gap-6">
+              {/* First set of products for infinite loop */}
               {products.map((product, index) => (
                 <div
-                  key={product.id}
+                  key={`${product.id}-1`}
+                  className="flex-none w-80 md:w-96"
+                  onMouseEnter={() => setHoveredProduct(product.id)}
+                  onMouseLeave={() => setHoveredProduct(null)}
+                >
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    className="relative group"
+                  >
+                    {/* Product Card */}
+                    <div className="bg-card/80 backdrop-blur-sm border border-border rounded-2xl p-8 h-96 flex flex-col justify-between hover:border-brand-primary/50 transition-all duration-300 hover:shadow-2xl hover:shadow-brand-primary/10">
+                      {/* Product Header */}
+                      <div className="text-center">
+                        <div className="w-20 h-20 mx-auto mb-4 bg-muted/50 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                          <img 
+                            src={product.logo} 
+                            alt={product.name}
+                            className="w-12 h-12 object-contain"
+                          />
+                        </div>
+                        <h3 className="text-xl font-semibold text-foreground mb-2">
+                          {product.name}
+                        </h3>
+                        <p className="text-sm text-muted-foreground mb-2">
+                          {product.category}
+                        </p>
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                          {product.description}
+                        </p>
+                      </div>
+
+                      {/* Business Value Badge */}
+                      <div className="text-center">
+                        <div className="inline-flex items-center gap-2 bg-gradient-to-r from-brand-primary/20 to-brand-secondary/20 border border-brand-primary/30 rounded-full px-4 py-2">
+                          <TrendingUp className="w-4 h-4 text-brand-primary" />
+                          <span className="text-sm font-semibold text-brand-primary">
+                            {product.businessValue.costSavings}
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {product.businessValue.timeframe}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Hover Overlay */}
+                    <AnimatePresence>
+                      {hoveredProduct === product.id && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 20 }}
+                          transition={{ duration: 0.3 }}
+                          className="absolute inset-0 bg-slate-900/98 backdrop-blur-md border-2 border-brand-primary/70 rounded-2xl p-6 shadow-2xl shadow-brand-primary/30 z-20"
+                        >
+                          <div className="h-full flex flex-col justify-between">
+                            {/* Business Value Details */}
+                            <div>
+                              <div className="flex items-center gap-2 mb-4">
+                                <TrendingUp className="w-6 h-6 text-cyan-400" />
+                                <h4 className="text-xl font-bold text-white">
+                                  Business Value
+                                </h4>
+                              </div>
+                              <p className="text-base text-cyan-300 font-semibold mb-4 leading-relaxed">
+                                {product.businessValue.primaryBenefit}
+                              </p>
+                              <ul className="space-y-3 mb-6">
+                                {product.businessValue.keyOutcomes.map((outcome, idx) => (
+                                  <li key={idx} className="flex items-start gap-3 text-sm text-gray-200 leading-relaxed">
+                                    <div className="w-2 h-2 bg-cyan-400 rounded-full mt-2 flex-shrink-0" />
+                                    {outcome}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+
+                            {/* Cloudastick Expertise */}
+                            <div>
+                              <div className="flex items-center gap-2 mb-4">
+                                <product.icon className="w-6 h-6 text-blue-400" />
+                                <h4 className="text-xl font-bold text-white">
+                                  Cloudastick Expertise
+                                </h4>
+                              </div>
+                              <div className="space-y-3 text-sm">
+                                <div>
+                                  <span className="text-gray-400 font-medium">Specialization:</span>
+                                  <p className="text-white font-semibold mt-1 leading-relaxed">{product.cloudastickExpertise.specialization}</p>
+                                </div>
+                                <div>
+                                  <span className="text-gray-400 font-medium">Success Stories:</span>
+                                  <p className="text-white font-semibold mt-1 leading-relaxed">{product.cloudastickExpertise.successStories}</p>
+                                </div>
+                                <div>
+                                  <span className="text-gray-400 font-medium">Industry Focus:</span>
+                                  <p className="text-white font-semibold mt-1 leading-relaxed">{product.cloudastickExpertise.industryFocus}</p>
+                                </div>
+                                <div>
+                                  <span className="text-gray-400 font-medium">Certifications:</span>
+                                  <div className="mt-2 space-y-2">
+                                    {product.cloudastickExpertise.certifications.map((cert, idx) => (
+                                      <div key={idx} className="text-xs bg-blue-500/20 text-blue-300 px-3 py-2 rounded-lg border border-blue-500/30">
+                                        {cert}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                </div>
+              ))}
+              
+              {/* Second set of products for infinite loop */}
+              {products.map((product, index) => (
+                <div
+                  key={`${product.id}-2`}
                   className="flex-none w-80 md:w-96"
                   onMouseEnter={() => setHoveredProduct(product.id)}
                   onMouseLeave={() => setHoveredProduct(null)}
