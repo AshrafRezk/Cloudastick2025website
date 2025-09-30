@@ -77,7 +77,16 @@ PERSONALITY:
 - Flexible tone - starts casual, can get formal with executives
 - References warmth of Arabic culture (coffee/tea, hosting, guiding)
 
-LANGUAGE PREFERENCE: ${currentLanguage === 'ar' ? 'Respond in Egyptian Arabic (عامية مصرية) - keep it friendly and colloquial, not formal فصحى. Keep technical terms like "Sales Cloud, CRM" in English but wrap them in Arabic sentences.' : 'Respond in English - professional but warm and approachable.'}
+RESPONSE FORMATTING:
+- Use **bold** for important terms and key points
+- Use *italics* for emphasis and friendly expressions
+- Use bullet points (-) for lists and key benefits
+- Use numbered lists (1. 2. 3.) for step-by-step processes
+- Keep responses conversational and humane, not robotic
+- Break up long responses with line breaks for readability
+- Use emojis sparingly but appropriately (🌸, ☕, 🚀, 💼)
+
+LANGUAGE PREFERENCE: ${currentLanguage === 'ar' ? 'Respond in Egyptian Arabic (عامية مصرية) - keep it friendly and colloquial, not formal فصحى. Keep technical terms like "Sales Cloud, CRM" in English but wrap them in Arabic sentences. Use proper Arabic formatting with right-to-left text flow.' : 'Respond in English - professional but warm and approachable. Use proper English formatting with left-to-right text flow.'}
 
 ABOUT CLOUDASTICK:
 Cloudastick is a Salesforce Crest (Gold) Partner with expertise in Sales Cloud, Service Cloud, Marketing Cloud, Experience Cloud, and integrations with SAP, Oracle, NetSuite, Paymob, and Geidea. We serve industries like Real Estate, Insurance, Manufacturing, Travel & Tourism, and Education.
@@ -89,7 +98,7 @@ Always answer questions about:
 - Our premium boutique consultancy positioning (like Accenture/PwC but agile and regional)
 - Proposals, governance, KPIs, and project management approaches
 
-Keep responses clear, concise, and professional while maintaining your warm, hospitable personality.`;
+Keep responses clear, concise, and professional while maintaining your warm, hospitable personality. Format your responses with proper structure and readability.`;
 
       const requestPayload = {
         prompt: `${systemPrompt}\n\nUser question: ${inputText.trim()}`
@@ -172,8 +181,75 @@ Keep responses clear, concise, and professional while maintaining your warm, hos
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  // Format text with rich formatting support
+  const formatMessage = (text: string, language: 'en' | 'ar' = 'en') => {
+    // Handle line breaks
+    const lines = text.split('\n');
+    
+    return lines.map((line, index) => {
+      // Skip empty lines
+      if (!line.trim()) return null;
+      
+      // Format bold text (**text**)
+      let formattedLine = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      
+      // Format italic text (*text*)
+      formattedLine = formattedLine.replace(/\*(.*?)\*/g, '<em>$1</em>');
+      
+      // Format bullet points (- text)
+      if (formattedLine.trim().startsWith('- ')) {
+        formattedLine = formattedLine.replace(/^- /, '• ');
+      }
+      
+      // Format numbered lists (1. text)
+      if (/^\d+\.\s/.test(formattedLine.trim())) {
+        // Keep as is for numbered lists
+      }
+      
+      return (
+        <div 
+          key={index}
+          className={`${language === 'ar' ? 'text-right' : 'text-left'} leading-relaxed`}
+          dangerouslySetInnerHTML={{ __html: formattedLine }}
+        />
+      );
+    }).filter(Boolean);
+  };
+
   return (
     <>
+      {/* Custom Styles for Rich Text and Arabic Support */}
+      <style jsx>{`
+        .message-content strong {
+          font-weight: 600;
+          color: inherit;
+        }
+        .message-content em {
+          font-style: italic;
+          color: inherit;
+        }
+        .message-content ul {
+          margin: 0.5rem 0;
+          padding-right: 1rem;
+        }
+        .message-content ol {
+          margin: 0.5rem 0;
+          padding-right: 1rem;
+        }
+        .message-content li {
+          margin: 0.25rem 0;
+        }
+        .arabic-text {
+          direction: rtl;
+          text-align: right;
+          font-family: 'Segoe UI', 'Tahoma', 'Arial', sans-serif;
+        }
+        .english-text {
+          direction: ltr;
+          text-align: left;
+        }
+      `}</style>
+      
       {/* Chat Toggle Button */}
       <motion.button
         initial={{ scale: 0 }}
@@ -268,17 +344,22 @@ Keep responses clear, concise, and professional while maintaining your warm, hos
                             />
                           )}
                         </div>
-                        <div className={`rounded-2xl px-4 py-2 ${
+                        <div className={`rounded-2xl px-4 py-3 ${
                           message.sender === 'user'
                             ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white'
                             : 'bg-gray-100 text-gray-800'
                         }`}>
-                          <p className={`text-sm leading-relaxed ${
+                          <div className={`text-sm message-content ${
                             message.sender === 'user' ? 'text-white' : 'text-gray-800'
-                          }`}>{message.text}</p>
-                          <p className={`text-xs mt-1 ${
+                          } ${message.language === 'ar' ? 'arabic-text' : 'english-text'}`}>
+                            {message.sender === 'bot' ? 
+                              formatMessage(message.text, message.language) : 
+                              <p className="leading-relaxed">{message.text}</p>
+                            }
+                          </div>
+                          <p className={`text-xs mt-2 ${
                             message.sender === 'user' ? 'text-cyan-100' : 'text-gray-500'
-                          }`}>
+                          } ${message.language === 'ar' ? 'arabic-text' : 'english-text'}`}>
                             {formatTime(message.timestamp)}
                           </p>
                         </div>
