@@ -13,6 +13,7 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [showAura, setShowAura] = useState(false);
   const [isStarted, setIsStarted] = useState(false);
+  const [buttonRipple, setButtonRipple] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -61,6 +62,10 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
 
   // Handle the start button click
   const handleStartExperience = async () => {
+    // Trigger ripple effect
+    setButtonRipple(true);
+    setTimeout(() => setButtonRipple(false), 400);
+    
     setIsStarted(true);
     
     // Start audio
@@ -131,10 +136,11 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
-            className="fixed inset-0 z-50 flex items-center justify-center relative overflow-hidden"
+            className="fixed inset-0 z-50 flex items-center justify-center relative overflow-hidden w-full h-full"
             onMouseMove={handleMouseMove}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
+            style={{ minHeight: '100vh', minWidth: '100vw' }}
           >
             {/* Video Background */}
             <video
@@ -222,9 +228,9 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
             )}
 
             {/* Content Area */}
-            <div className="text-center relative z-10">
+            <div className="text-center relative z-10 flex flex-col items-center justify-center min-h-screen">
               {!isStarted ? (
-                /* Start Experience Button */
+                /* Enhanced Welcome Experience */
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -232,43 +238,101 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
                     duration: 1,
                     ease: "easeOut"
                   }}
-                  className="space-y-8"
+                  className="space-y-12"
                 >
-                  {/* Logo */}
+                  {/* Animated Logo with Glow and Float */}
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ 
-                      duration: 1,
-                      delay: 0.3,
-                      ease: "easeOut"
+                    initial={{ opacity: 0, scale: 0.5, y: 20 }}
+                    animate={{ 
+                      opacity: 1, 
+                      scale: 1,
+                      y: [0, -10, 0]
                     }}
+                    transition={{ 
+                      duration: 2,
+                      delay: 0.5,
+                      ease: "easeOut",
+                      y: {
+                        duration: 3,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }
+                    }}
+                    className="relative"
                   >
+                    {/* Glow Effect */}
+                    <motion.div
+                      animate={{
+                        boxShadow: [
+                          "0 0 20px rgba(255, 255, 255, 0.3)",
+                          "0 0 40px rgba(255, 255, 255, 0.5)",
+                          "0 0 20px rgba(255, 255, 255, 0.3)"
+                        ]
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                      className="absolute inset-0 rounded-full blur-lg"
+                    />
+                    
                     <img 
                       src="/Assets/Company Logos/white-logo-dark.webp" 
                       alt="Cloudastick Logo"
-                      className="w-24 h-24 object-contain mx-auto mb-6"
+                      className="w-28 h-28 object-contain mx-auto relative z-10"
                     />
                   </motion.div>
 
-                  {/* Minimal Prompt */}
+                  {/* Tagline */}
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ 
                       duration: 0.8,
-                      delay: 0.6,
+                      delay: 1.2,
                       ease: "easeOut"
                     }}
-                    className="space-y-8"
                   >
+                    <p className="text-white/90 text-lg font-light tracking-wide">
+                      Tailored CRM Experiences, Elevated.
+                    </p>
+                  </motion.div>
+
+                  {/* Enhanced Button with Ripple */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ 
+                      duration: 0.8,
+                      delay: 1.8,
+                      ease: "easeOut"
+                    }}
+                    className="relative"
+                  >
+                    {/* Ripple Effect */}
+                    {buttonRipple && (
+                      <motion.div
+                        initial={{ scale: 0, opacity: 0.8 }}
+                        animate={{ 
+                          scale: [0, 1.5, 2],
+                          opacity: [0.8, 0.4, 0]
+                        }}
+                        transition={{ 
+                          duration: 0.4,
+                          ease: "easeOut"
+                        }}
+                        className="absolute inset-0 bg-gradient-to-r from-yellow-400/50 to-orange-400/50 rounded-full blur-sm"
+                      />
+                    )}
+                    
                     <motion.button
                       onClick={handleStartExperience}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="bg-white/10 backdrop-blur-sm border border-white/20 text-white px-6 py-3 rounded-full font-light text-sm hover:bg-white/20 transition-all duration-300"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="relative bg-gradient-to-r from-yellow-400/20 to-orange-400/20 backdrop-blur-sm border border-yellow-400/30 text-white px-8 py-4 rounded-full font-medium text-sm hover:from-yellow-400/30 hover:to-orange-400/30 transition-all duration-300 shadow-lg hover:shadow-yellow-400/20"
                     >
-                      Start
+                      Begin Here
                     </motion.button>
                   </motion.div>
                 </motion.div>
@@ -276,16 +340,43 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
                 /* Logo Display After Start */
                 <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
+                  animate={{ 
+                    opacity: 1, 
+                    scale: 1,
+                    y: [0, -10, 0]
+                  }}
                   transition={{ 
                     duration: 1,
-                    ease: "easeOut"
+                    ease: "easeOut",
+                    y: {
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }
                   }}
+                  className="relative"
                 >
+                  {/* Glow Effect */}
+                  <motion.div
+                    animate={{
+                      boxShadow: [
+                        "0 0 20px rgba(255, 255, 255, 0.3)",
+                        "0 0 40px rgba(255, 255, 255, 0.5)",
+                        "0 0 20px rgba(255, 255, 255, 0.3)"
+                      ]
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                    className="absolute inset-0 rounded-full blur-lg"
+                  />
+                  
                   <img 
                     src="/Assets/Company Logos/white-logo-dark.webp" 
                     alt="Cloudastick Logo"
-                    className="w-32 h-32 object-contain mx-auto"
+                    className="w-32 h-32 object-contain mx-auto relative z-10"
                   />
                 </motion.div>
               )}
