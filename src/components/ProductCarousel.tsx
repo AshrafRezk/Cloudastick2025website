@@ -41,6 +41,8 @@ const ProductCarousel = () => {
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [mousePosition, setMousePosition] = useState<{ x: number; y: number } | null>(null);
   const [isMouseOverCarousel, setIsMouseOverCarousel] = useState(false);
+  const [scrollDirection, setScrollDirection] = useState<'left' | 'right' | null>(null);
+  const [scrollSpeed, setScrollSpeed] = useState(1); // 1 = normal, 2 = fast, 0.5 = slow
 
   const products: Product[] = [
     {
@@ -425,41 +427,53 @@ const ProductCarousel = () => {
     }
   ];
 
-  // Auto-scroll functionality
-  const autoScroll = useCallback(() => {
-    if (emblaApi && isAutoPlaying && !isMouseOverCarousel) {
+  // Continuous slow motion functionality
+  const continuousScroll = useCallback(() => {
+    if (emblaApi && isAutoPlaying && !hoveredProduct) {
+      // Always scroll right for continuous motion
       emblaApi.scrollNext();
     }
-  }, [emblaApi, isAutoPlaying, isMouseOverCarousel]);
+  }, [emblaApi, isAutoPlaying, hoveredProduct]);
 
-  // Mouse-based scrolling with throttling to prevent flickering
+  // Directional speedup functionality
+  const directionalScroll = useCallback(() => {
+    if (emblaApi && scrollDirection && !hoveredProduct) {
+      if (scrollDirection === 'left') {
+        emblaApi.scrollPrev();
+      } else if (scrollDirection === 'right') {
+        emblaApi.scrollNext();
+      }
+    }
+  }, [emblaApi, scrollDirection, hoveredProduct]);
+
+  // Mouse-based direction and speed control
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (!emblaApi || !isMouseOverCarousel) return;
     
     const rect = e.currentTarget.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const mouseX = e.clientX;
-    const threshold = rect.width * 0.25; // 25% threshold from center
+    const threshold = rect.width * 0.2; // 20% threshold from center
     
     setMousePosition({ x: mouseX, y: e.clientY });
     
-    // Throttle scrolling to prevent flickering
-    const now = Date.now();
-    if (handleMouseMove.lastScroll && now - handleMouseMove.lastScroll < 500) return;
-    
-    // Scroll based on mouse position
+    // Set direction and speed based on mouse position
     if (mouseX < centerX - threshold) {
-      // Mouse is on the left side - scroll left
-      emblaApi.scrollPrev();
-      handleMouseMove.lastScroll = now;
+      // Mouse is on the left side - speed up left motion
+      setScrollDirection('left');
+      setScrollSpeed(2); // Fast speed
     } else if (mouseX > centerX + threshold) {
-      // Mouse is on the right side - scroll right
-      emblaApi.scrollNext();
-      handleMouseMove.lastScroll = now;
+      // Mouse is on the right side - speed up right motion
+      setScrollDirection('right');
+      setScrollSpeed(2); // Fast speed
+    } else {
+      // Mouse is in center - normal continuous motion
+      setScrollDirection(null);
+      setScrollSpeed(1); // Normal speed
     }
   }, [emblaApi, isMouseOverCarousel]);
 
-  // Touch/gesture support for mobile with throttling
+  // Touch/gesture support for mobile
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
     if (!emblaApi || !isMouseOverCarousel) return;
     
@@ -467,32 +481,36 @@ const ProductCarousel = () => {
     const rect = e.currentTarget.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const touchX = touch.clientX;
-    const threshold = rect.width * 0.25;
+    const threshold = rect.width * 0.2;
     
-    // Throttle scrolling to prevent flickering
-    const now = Date.now();
-    if (handleTouchMove.lastScroll && now - handleTouchMove.lastScroll < 500) return;
-    
-    // Scroll based on touch position
+    // Set direction and speed based on touch position
     if (touchX < centerX - threshold) {
-      emblaApi.scrollPrev();
-      handleTouchMove.lastScroll = now;
+      setScrollDirection('left');
+      setScrollSpeed(2);
     } else if (touchX > centerX + threshold) {
-      emblaApi.scrollNext();
-      handleTouchMove.lastScroll = now;
+      setScrollDirection('right');
+      setScrollSpeed(2);
+    } else {
+      setScrollDirection(null);
+      setScrollSpeed(1);
     }
   }, [emblaApi, isMouseOverCarousel]);
 
-  // Set up auto-scroll interval
+  // Set up continuous motion intervals
   useEffect(() => {
     if (!emblaApi) return;
 
-    const interval = setInterval(autoScroll, 6000); // Auto-scroll every 6 seconds for steadier movement
+    // Continuous slow motion (every 3 seconds)
+    const continuousInterval = setInterval(continuousScroll, 3000);
+    
+    // Directional speedup (every 1 second when direction is set)
+    const directionalInterval = setInterval(directionalScroll, 1000);
 
     return () => {
-      clearInterval(interval);
+      clearInterval(continuousInterval);
+      clearInterval(directionalInterval);
     };
-  }, [emblaApi, autoScroll]);
+  }, [emblaApi, continuousScroll, directionalScroll]);
 
   return (
     <section className="py-20 bg-gradient-to-br from-background via-muted/30 to-background">
@@ -514,7 +532,11 @@ const ProductCarousel = () => {
             onMouseMove={handleMouseMove}
             onTouchMove={handleTouchMove}
             onMouseEnter={() => setIsMouseOverCarousel(true)}
-            onMouseLeave={() => setIsMouseOverCarousel(false)}
+            onMouseLeave={() => {
+              setIsMouseOverCarousel(false);
+              setScrollDirection(null);
+              setScrollSpeed(1);
+            }}
           >
             <div className="flex gap-6">
               {/* First set of products for infinite loop */}
@@ -785,3 +807,4 @@ const ProductCarousel = () => {
 };
 
 export default ProductCarousel;
+
