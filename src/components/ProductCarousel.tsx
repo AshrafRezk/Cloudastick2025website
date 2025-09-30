@@ -430,13 +430,6 @@ const ProductCarousel = () => {
     }
   ];
 
-  // Continuous slow motion functionality
-  const continuousScroll = useCallback(() => {
-    if (emblaApi && isAutoPlaying) {
-      // Always scroll right for continuous motion
-      emblaApi.scrollNext();
-    }
-  }, [emblaApi, isAutoPlaying]);
 
   // Directional speedup functionality
   const directionalScroll = useCallback(() => {
@@ -499,21 +492,25 @@ const ProductCarousel = () => {
     }
   }, [emblaApi, isMouseOverCarousel]);
 
-  // Set up continuous motion intervals
+  // Set up automatic rotation intervals
   useEffect(() => {
     if (!emblaApi) return;
 
-    // Continuous slow motion (every 3 seconds)
-    const continuousInterval = setInterval(continuousScroll, 3000);
+    // Automatic rotation every 4 seconds (unless user is actively interacting)
+    const autoRotateInterval = setInterval(() => {
+      if (isAutoPlaying && !isMouseOverCarousel) {
+        emblaApi.scrollNext();
+      }
+    }, 4000);
     
     // Directional speedup (every 1 second when direction is set)
     const directionalInterval = setInterval(directionalScroll, 1000);
 
     return () => {
-      clearInterval(continuousInterval);
+      clearInterval(autoRotateInterval);
       clearInterval(directionalInterval);
     };
-  }, [emblaApi, continuousScroll, directionalScroll]);
+  }, [emblaApi, isAutoPlaying, isMouseOverCarousel, directionalScroll]);
 
   // Material 3 scroll tracking and effects
   useEffect(() => {
@@ -653,7 +650,7 @@ const ProductCarousel = () => {
                         }}
                       >
                         <motion.div 
-                          className="w-20 h-20 mx-auto mb-4 bg-muted/50 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300"
+                          className="w-20 h-20 mx-auto mb-3 bg-muted/50 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300"
                           animate={{
                             scale: currentSlideIndex === index ? 1.1 : 1,
                             rotateZ: currentSlideIndex === index ? 0 : 2
@@ -747,28 +744,28 @@ const ProductCarousel = () => {
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: 20 }}
                           transition={{ duration: 0.3 }}
-                          className="absolute inset-0 bg-slate-900/98 backdrop-blur-md border-2 border-brand-primary/70 rounded-2xl p-6 shadow-2xl shadow-brand-primary/30 z-30 overflow-hidden"
+                          className="absolute inset-0 bg-slate-900/98 backdrop-blur-md border-2 border-brand-primary/70 rounded-2xl p-4 shadow-2xl shadow-brand-primary/30 z-30 overflow-hidden"
                           style={{
                             backdropFilter: "blur(12px)",
                             WebkitBackdropFilter: "blur(12px)"
                           }}
                         >
-                          <div className="h-full flex flex-col justify-between overflow-y-auto">
+                          <div className="h-full flex flex-col justify-between overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent">
                             {/* Business Value Details */}
                             <div>
-                              <div className="flex items-center gap-2 mb-4">
-                                <TrendingUp className="w-6 h-6 text-cyan-400" />
-                                <h4 className="text-xl font-bold text-white drop-shadow-sm">
+                              <div className="flex items-center gap-2 mb-3">
+                                <TrendingUp className="w-5 h-5 text-cyan-400" />
+                                <h4 className="text-lg font-bold text-white drop-shadow-sm">
                                   Business Value
                                 </h4>
                               </div>
-                              <p className="text-base text-cyan-300 font-semibold mb-4 leading-relaxed">
+                              <p className="text-sm text-cyan-300 font-semibold mb-3 leading-relaxed drop-shadow-sm">
                                 {product.businessValue.primaryBenefit}
                               </p>
-                              <ul className="space-y-3 mb-6">
+                              <ul className="space-y-2 mb-3">
                                 {product.businessValue.keyOutcomes.map((outcome, idx) => (
-                                  <li key={idx} className="flex items-start gap-3 text-sm text-gray-100 leading-relaxed">
-                                    <div className="w-2 h-2 bg-cyan-400 rounded-full mt-2 flex-shrink-0" />
+                                  <li key={idx} className="flex items-start gap-2 text-xs text-gray-100 leading-relaxed drop-shadow-sm">
+                                    <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full mt-1.5 flex-shrink-0 shadow-sm" />
                                     {outcome}
                                   </li>
                                 ))}
@@ -777,9 +774,9 @@ const ProductCarousel = () => {
 
                             {/* Cloudastick Expertise */}
                             <div>
-                              <div className="flex items-center gap-2 mb-4">
-                                <product.icon className="w-6 h-6 text-blue-400" />
-                                <h4 className="text-xl font-bold text-white drop-shadow-sm">
+                              <div className="flex items-center gap-2 mb-3">
+                                <product.icon className="w-5 h-5 text-blue-400" />
+                                <h4 className="text-lg font-bold text-white drop-shadow-sm">
                                   Cloudastick Expertise
                                 </h4>
                               </div>
@@ -840,7 +837,7 @@ const ProductCarousel = () => {
                     <div className="bg-card/80 backdrop-blur-sm border border-border rounded-2xl p-8 h-96 flex flex-col justify-between hover:border-brand-primary/50 transition-all duration-300 hover:shadow-2xl hover:shadow-brand-primary/10">
                       {/* Product Header */}
                       <div className="text-center">
-                        <div className="w-20 h-20 mx-auto mb-4 bg-muted/50 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                        <div className="w-20 h-20 mx-auto mb-3 bg-muted/50 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                           <img 
                             src={product.logo} 
                             alt={product.name}
@@ -885,19 +882,19 @@ const ProductCarousel = () => {
                           <div className="h-full flex flex-col justify-between">
                             {/* Business Value Details */}
                             <div>
-                              <div className="flex items-center gap-2 mb-4">
-                                <TrendingUp className="w-6 h-6 text-cyan-400" />
-                                <h4 className="text-xl font-bold text-white drop-shadow-sm">
+                              <div className="flex items-center gap-2 mb-3">
+                                <TrendingUp className="w-5 h-5 text-cyan-400" />
+                                <h4 className="text-lg font-bold text-white drop-shadow-sm">
                                   Business Value
                                 </h4>
                               </div>
-                              <p className="text-base text-cyan-300 font-semibold mb-4 leading-relaxed">
+                              <p className="text-sm text-cyan-300 font-semibold mb-3 leading-relaxed drop-shadow-sm">
                                 {product.businessValue.primaryBenefit}
                               </p>
-                              <ul className="space-y-3 mb-6">
+                              <ul className="space-y-2 mb-3">
                                 {product.businessValue.keyOutcomes.map((outcome, idx) => (
-                                  <li key={idx} className="flex items-start gap-3 text-sm text-gray-100 leading-relaxed">
-                                    <div className="w-2 h-2 bg-cyan-400 rounded-full mt-2 flex-shrink-0" />
+                                  <li key={idx} className="flex items-start gap-2 text-xs text-gray-100 leading-relaxed drop-shadow-sm">
+                                    <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full mt-1.5 flex-shrink-0 shadow-sm" />
                                     {outcome}
                                   </li>
                                 ))}
@@ -906,9 +903,9 @@ const ProductCarousel = () => {
 
                             {/* Cloudastick Expertise */}
                             <div>
-                              <div className="flex items-center gap-2 mb-4">
-                                <product.icon className="w-6 h-6 text-blue-400" />
-                                <h4 className="text-xl font-bold text-white drop-shadow-sm">
+                              <div className="flex items-center gap-2 mb-3">
+                                <product.icon className="w-5 h-5 text-blue-400" />
+                                <h4 className="text-lg font-bold text-white drop-shadow-sm">
                                   Cloudastick Expertise
                                 </h4>
                               </div>
