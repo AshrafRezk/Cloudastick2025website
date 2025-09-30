@@ -204,7 +204,7 @@ Keep responses clear, concise, and professional while maintaining your warm, hos
             {/* Header */}
             <div className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white p-4 rounded-t-2xl flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-full overflow-hidden bg-white/20 flex items-center justify-center p-0.5">
+                <div className="w-8 h-8 rounded-full overflow-hidden bg-white/20 flex items-center justify-center p-0.5">
                   <img 
                     src="/Assets/Mira800*800.png" 
                     alt="Mira" 
@@ -253,10 +253,10 @@ Keep responses clear, concise, and professional while maintaining your warm, hos
                       className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
                       <div className={`flex items-start space-x-2 max-w-[80%] ${message.sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
-                        <div className={`${message.sender === 'user' ? 'w-8 h-8' : 'w-12 h-12'} rounded-full flex items-center justify-center ${
+                        <div className={`${message.sender === 'user' ? 'w-8 h-8' : 'w-10 h-10'} rounded-full flex items-center justify-center ${
                           message.sender === 'user' 
                             ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white' 
-                            : 'bg-gray-100 text-gray-600 overflow-hidden p-0.5'
+                            : 'bg-gray-100 text-gray-600 overflow-hidden p-1'
                         }`}>
                           {message.sender === 'user' ? (
                             <User className="w-4 h-4" />
@@ -293,7 +293,7 @@ Keep responses clear, concise, and professional while maintaining your warm, hos
                       className="flex justify-start"
                     >
                       <div className="flex items-start space-x-2">
-                        <div className="w-12 h-12 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center overflow-hidden p-0.5">
+                        <div className="w-10 h-10 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center overflow-hidden p-1">
                           <img 
                             src="/Assets/Mira800*800.png" 
                             alt="Mira" 
