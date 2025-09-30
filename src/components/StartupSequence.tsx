@@ -149,7 +149,7 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
               loop
               muted
               playsInline
-              className="absolute inset-0 w-full h-full object-cover opacity-40"
+              className="absolute inset-0 w-full h-full object-cover opacity-80"
               onLoadedData={() => console.log('✅ Video loaded successfully')}
               onError={(e) => console.log('❌ Video failed to load:', e)}
             >
@@ -157,7 +157,7 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
             </video>
 
             {/* Dark Overlay */}
-            <div className="absolute inset-0 bg-black/60"></div>
+            <div className="absolute inset-0 bg-black/30"></div>
             {/* Mouse Aura Effect */}
             {showAura && (
               <motion.div
