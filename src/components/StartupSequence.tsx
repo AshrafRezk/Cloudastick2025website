@@ -240,7 +240,7 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
                   }}
                   className="space-y-12"
                 >
-                  {/* Animated Logo with Glow and Float */}
+                  {/* Animated Logo with Boutique Glow */}
                   <motion.div
                     initial={{ opacity: 0, scale: 0.5, y: 20 }}
                     animate={{ 
@@ -258,29 +258,30 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
                         ease: "easeInOut"
                       }
                     }}
-                    className="relative"
+                    className="relative flex items-center justify-center"
                   >
-                    {/* Glow Effect */}
+                    {/* Boutique Radial Gradient Halo */}
                     <motion.div
                       animate={{
-                        boxShadow: [
-                          "0 0 20px rgba(255, 255, 255, 0.3)",
-                          "0 0 40px rgba(255, 255, 255, 0.5)",
-                          "0 0 20px rgba(255, 255, 255, 0.3)"
-                        ]
+                        scale: [1, 1.05, 1],
+                        opacity: [0.12, 0.15, 0.12]
                       }}
                       transition={{
-                        duration: 2,
+                        duration: 4,
                         repeat: Infinity,
                         ease: "easeInOut"
                       }}
-                      className="absolute inset-0 rounded-full blur-lg"
+                      className="absolute inset-0 w-96 h-96 -m-32 rounded-full"
+                      style={{
+                        background: 'radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 30%, rgba(255, 255, 255, 0.03) 60%, transparent 100%)',
+                        filter: 'blur(50px)'
+                      }}
                     />
                     
                     <img 
                       src="/Assets/Company Logos/white-logo-dark.webp" 
                       alt="Cloudastick Logo"
-                      className="w-28 h-28 object-contain mx-auto relative z-10"
+                      className="w-28 h-28 object-contain relative z-10"
                     />
                   </motion.div>
 
@@ -354,29 +355,30 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
                       ease: "easeInOut"
                     }
                   }}
-                  className="relative"
+                  className="relative flex items-center justify-center"
                 >
-                  {/* Glow Effect */}
+                  {/* Boutique Radial Gradient Halo */}
                   <motion.div
                     animate={{
-                      boxShadow: [
-                        "0 0 20px rgba(255, 255, 255, 0.3)",
-                        "0 0 40px rgba(255, 255, 255, 0.5)",
-                        "0 0 20px rgba(255, 255, 255, 0.3)"
-                      ]
+                      scale: [1, 1.05, 1],
+                      opacity: [0.12, 0.15, 0.12]
                     }}
                     transition={{
-                      duration: 2,
+                      duration: 4,
                       repeat: Infinity,
                       ease: "easeInOut"
                     }}
-                    className="absolute inset-0 rounded-full blur-lg"
+                    className="absolute inset-0 w-96 h-96 -m-32 rounded-full"
+                    style={{
+                      background: 'radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 30%, rgba(255, 255, 255, 0.03) 60%, transparent 100%)',
+                      filter: 'blur(50px)'
+                    }}
                   />
                   
                   <img 
                     src="/Assets/Company Logos/white-logo-dark.webp" 
                     alt="Cloudastick Logo"
-                    className="w-32 h-32 object-contain mx-auto relative z-10"
+                    className="w-32 h-32 object-contain relative z-10"
                   />
                 </motion.div>
               )}
