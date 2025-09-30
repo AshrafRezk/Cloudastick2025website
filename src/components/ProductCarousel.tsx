@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import useEmblaCarousel from "embla-carousel-react";
-import { ChevronLeft, ChevronRight, TrendingUp, Users, Zap, Shield, BarChart3, MessageSquare, Database, ShoppingCart, Wrench, Headphones, Cloud, Brain, CreditCard, Globe, Smartphone, Leaf, Building } from "lucide-react";
+import { TrendingUp, Users, Zap, Shield, BarChart3, MessageSquare, Database, ShoppingCart, Wrench, Headphones, Cloud, Brain, CreditCard, Globe, Smartphone, Leaf, Building, GraduationCap, Monitor } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
 
 interface Product {
@@ -37,6 +37,8 @@ const ProductCarousel = () => {
   });
   const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [mousePosition, setMousePosition] = useState<{ x: number; y: number } | null>(null);
+  const [isMouseOverCarousel, setIsMouseOverCarousel] = useState(false);
 
   const products: Product[] = [
     {
@@ -340,6 +342,26 @@ const ProductCarousel = () => {
       icon: Shield
     },
     {
+      id: "education-cloud",
+      name: "Education Cloud",
+      logo: "/Assets/Product Logos/salesforce.png",
+      description: "Comprehensive platform for educational institutions to manage students, faculty, and operations",
+      businessValue: {
+        primaryBenefit: "Transform educational operations and student engagement",
+        timeframe: "within 8 months",
+        keyOutcomes: ["Improve student retention by 30%", "Streamline enrollment processes", "Enhance faculty collaboration", "Enable data-driven education insights"],
+        costSavings: "Save $80K+ annually in administrative costs"
+      },
+      cloudastickExpertise: {
+        specialization: "Educational Technology & Student Success Management",
+        certifications: ["Education Cloud Specialist", "Nonprofit Cloud Consultant"],
+        successStories: "Transformed 12+ educational institutions' operations",
+        industryFocus: "Universities, K-12 Schools, Training Organizations, EdTech"
+      },
+      category: "Education Management",
+      icon: GraduationCap
+    },
+    {
       id: "experience-cloud",
       name: "Experience Cloud",
       logo: "/Assets/Product Logos/salesforce.png",
@@ -357,7 +379,7 @@ const ProductCarousel = () => {
         industryFocus: "Technology, Healthcare, Financial Services, Education"
       },
       category: "Digital Experience",
-      icon: Globe
+      icon: Monitor
     },
     {
       id: "net-zero-cloud",
@@ -403,54 +425,60 @@ const ProductCarousel = () => {
 
   // Auto-scroll functionality
   const autoScroll = useCallback(() => {
-    if (emblaApi && isAutoPlaying) {
+    if (emblaApi && isAutoPlaying && !isMouseOverCarousel) {
       emblaApi.scrollNext();
     }
-  }, [emblaApi, isAutoPlaying]);
+  }, [emblaApi, isAutoPlaying, isMouseOverCarousel]);
+
+  // Mouse-based scrolling
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!emblaApi || !isMouseOverCarousel) return;
+    
+    const rect = e.currentTarget.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const mouseX = e.clientX;
+    const threshold = rect.width * 0.2; // 20% threshold from center
+    
+    setMousePosition({ x: mouseX, y: e.clientY });
+    
+    // Scroll based on mouse position
+    if (mouseX < centerX - threshold) {
+      // Mouse is on the left side - scroll left
+      emblaApi.scrollPrev();
+    } else if (mouseX > centerX + threshold) {
+      // Mouse is on the right side - scroll right
+      emblaApi.scrollNext();
+    }
+  }, [emblaApi, isMouseOverCarousel]);
+
+  // Touch/gesture support for mobile
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!emblaApi || !isMouseOverCarousel) return;
+    
+    const touch = e.touches[0];
+    const rect = e.currentTarget.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const touchX = touch.clientX;
+    const threshold = rect.width * 0.2;
+    
+    // Scroll based on touch position
+    if (touchX < centerX - threshold) {
+      emblaApi.scrollPrev();
+    } else if (touchX > centerX + threshold) {
+      emblaApi.scrollNext();
+    }
+  }, [emblaApi, isMouseOverCarousel]);
 
   // Set up auto-scroll interval
   useEffect(() => {
     if (!emblaApi) return;
 
-    const interval = setInterval(autoScroll, 4000); // Auto-scroll every 4 seconds
-
-    // Pause auto-scroll when user hovers over a product
-    const handleMouseEnter = () => setIsAutoPlaying(false);
-    const handleMouseLeave = () => setIsAutoPlaying(true);
-
-    // Add event listeners to pause/resume auto-scroll
-    const emblaContainer = emblaApi.containerNode();
-    if (emblaContainer) {
-      emblaContainer.addEventListener('mouseenter', handleMouseEnter);
-      emblaContainer.addEventListener('mouseleave', handleMouseLeave);
-    }
+    const interval = setInterval(autoScroll, 6000); // Auto-scroll every 6 seconds for steadier movement
 
     return () => {
       clearInterval(interval);
-      if (emblaContainer) {
-        emblaContainer.removeEventListener('mouseenter', handleMouseEnter);
-        emblaContainer.removeEventListener('mouseleave', handleMouseLeave);
-      }
     };
   }, [emblaApi, autoScroll]);
-
-  const scrollPrev = () => {
-    if (emblaApi) {
-      setIsAutoPlaying(false); // Pause auto-scroll when user interacts
-      emblaApi.scrollPrev();
-      // Resume auto-scroll after 8 seconds
-      setTimeout(() => setIsAutoPlaying(true), 8000);
-    }
-  };
-
-  const scrollNext = () => {
-    if (emblaApi) {
-      setIsAutoPlaying(false); // Pause auto-scroll when user interacts
-      emblaApi.scrollNext();
-      // Resume auto-scroll after 8 seconds
-      setTimeout(() => setIsAutoPlaying(true), 8000);
-    }
-  };
 
   return (
     <section className="py-20 bg-gradient-to-br from-background via-muted/30 to-background">
@@ -465,30 +493,22 @@ const ProductCarousel = () => {
           <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
             <div className={`w-2 h-2 rounded-full ${isAutoPlaying ? 'bg-brand-primary animate-pulse' : 'bg-muted-foreground'}`}></div>
             <span>{isAutoPlaying ? 'Auto-scrolling' : 'Paused'}</span>
+            <span className="mx-2">•</span>
+            <span>Move mouse left/right to navigate</span>
           </div>
         </AnimatedSection>
 
         <div className="relative">
-          {/* Navigation Buttons */}
-          <button
-            onClick={scrollPrev}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-background/80 backdrop-blur-sm border border-border rounded-full flex items-center justify-center hover:bg-muted transition-colors shadow-lg"
-            aria-label="Previous products"
+          {/* Carousel Container with Mouse/Touch Controls */}
+          <div 
+            className="overflow-hidden cursor-grab active:cursor-grabbing" 
+            ref={emblaRef}
+            onMouseMove={handleMouseMove}
+            onTouchMove={handleTouchMove}
+            onMouseEnter={() => setIsMouseOverCarousel(true)}
+            onMouseLeave={() => setIsMouseOverCarousel(false)}
           >
-            <ChevronLeft className="w-6 h-6 text-foreground" />
-          </button>
-          
-          <button
-            onClick={scrollNext}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-background/80 backdrop-blur-sm border border-border rounded-full flex items-center justify-center hover:bg-muted transition-colors shadow-lg"
-            aria-label="Next products"
-          >
-            <ChevronRight className="w-6 h-6 text-foreground" />
-          </button>
-
-          {/* Carousel Container */}
-          <div className="overflow-hidden" ref={emblaRef}>
-            <div className="flex gap-6 transition-transform duration-500 ease-in-out">
+            <div className="flex gap-6 transition-transform duration-700 ease-in-out">
               {products.map((product, index) => (
                 <div
                   key={product.id}
@@ -546,24 +566,24 @@ const ProductCarousel = () => {
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: 20 }}
                           transition={{ duration: 0.3 }}
-                          className="absolute inset-0 bg-card/95 backdrop-blur-sm border border-brand-primary/50 rounded-2xl p-6 shadow-2xl shadow-brand-primary/20 z-20"
+                          className="absolute inset-0 bg-slate-900/98 backdrop-blur-md border-2 border-brand-primary/70 rounded-2xl p-6 shadow-2xl shadow-brand-primary/30 z-20"
                         >
                           <div className="h-full flex flex-col justify-between">
                             {/* Business Value Details */}
                             <div>
                               <div className="flex items-center gap-2 mb-4">
-                                <TrendingUp className="w-5 h-5 text-brand-primary" />
-                                <h4 className="text-lg font-semibold text-foreground">
+                                <TrendingUp className="w-6 h-6 text-cyan-400" />
+                                <h4 className="text-xl font-bold text-white">
                                   Business Value
                                 </h4>
                               </div>
-                              <p className="text-sm text-brand-primary font-medium mb-3">
+                              <p className="text-base text-cyan-300 font-semibold mb-4 leading-relaxed">
                                 {product.businessValue.primaryBenefit}
                               </p>
-                              <ul className="space-y-2 mb-6">
+                              <ul className="space-y-3 mb-6">
                                 {product.businessValue.keyOutcomes.map((outcome, idx) => (
-                                  <li key={idx} className="flex items-start gap-2 text-sm text-muted-foreground">
-                                    <div className="w-1.5 h-1.5 bg-brand-primary rounded-full mt-2 flex-shrink-0" />
+                                  <li key={idx} className="flex items-start gap-3 text-sm text-gray-200 leading-relaxed">
+                                    <div className="w-2 h-2 bg-cyan-400 rounded-full mt-2 flex-shrink-0" />
                                     {outcome}
                                   </li>
                                 ))}
@@ -572,30 +592,30 @@ const ProductCarousel = () => {
 
                             {/* Cloudastick Expertise */}
                             <div>
-                              <div className="flex items-center gap-2 mb-3">
-                                <product.icon className="w-5 h-5 text-brand-secondary" />
-                                <h4 className="text-lg font-semibold text-foreground">
+                              <div className="flex items-center gap-2 mb-4">
+                                <product.icon className="w-6 h-6 text-blue-400" />
+                                <h4 className="text-xl font-bold text-white">
                                   Cloudastick Expertise
                                 </h4>
                               </div>
-                              <div className="space-y-2 text-sm">
+                              <div className="space-y-3 text-sm">
                                 <div>
-                                  <span className="text-muted-foreground">Specialization:</span>
-                                  <p className="text-foreground font-medium">{product.cloudastickExpertise.specialization}</p>
+                                  <span className="text-gray-400 font-medium">Specialization:</span>
+                                  <p className="text-white font-semibold mt-1 leading-relaxed">{product.cloudastickExpertise.specialization}</p>
                                 </div>
                                 <div>
-                                  <span className="text-muted-foreground">Success Stories:</span>
-                                  <p className="text-foreground font-medium">{product.cloudastickExpertise.successStories}</p>
+                                  <span className="text-gray-400 font-medium">Success Stories:</span>
+                                  <p className="text-white font-semibold mt-1 leading-relaxed">{product.cloudastickExpertise.successStories}</p>
                                 </div>
                                 <div>
-                                  <span className="text-muted-foreground">Industry Focus:</span>
-                                  <p className="text-foreground font-medium">{product.cloudastickExpertise.industryFocus}</p>
+                                  <span className="text-gray-400 font-medium">Industry Focus:</span>
+                                  <p className="text-white font-semibold mt-1 leading-relaxed">{product.cloudastickExpertise.industryFocus}</p>
                                 </div>
                                 <div>
-                                  <span className="text-muted-foreground">Certifications:</span>
-                                  <div className="mt-1 space-y-1">
+                                  <span className="text-gray-400 font-medium">Certifications:</span>
+                                  <div className="mt-2 space-y-2">
                                     {product.cloudastickExpertise.certifications.map((cert, idx) => (
-                                      <div key={idx} className="text-xs bg-brand-primary/10 text-brand-primary px-2 py-1 rounded">
+                                      <div key={idx} className="text-xs bg-blue-500/20 text-blue-300 px-3 py-2 rounded-lg border border-blue-500/30">
                                         {cert}
                                       </div>
                                     ))}
