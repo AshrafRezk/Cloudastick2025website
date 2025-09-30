@@ -9,6 +9,7 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
   const [isVisible, setIsVisible] = useState(true);
   const [audioLoaded, setAudioLoaded] = useState(false);
   const [audioError, setAudioError] = useState(false);
+  const [audioStarted, setAudioStarted] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
@@ -30,9 +31,14 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
   useEffect(() => {
     return () => {
       // Don't stop audio when component unmounts - let it finish naturally
-      // The audio will continue playing in the background
+      // The audio will continue playing in the background until the track ends
+      if (audioStarted && audioRef.current) {
+        console.log('🎵 Startup sequence ending - audio will continue playing in background');
+        // Audio element will continue playing even after component unmounts
+        // as it's attached to the DOM and will play until finished
+      }
     };
-  }, []);
+  }, [audioStarted]);
 
   // Handle audio loading and errors
   const handleAudioLoad = () => {
@@ -46,41 +52,34 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
     setAudioError(true);
   };
 
-  // Auto-play audio after a brief delay
+  // Play audio only on first click
   const playAudio = async () => {
-    if (audioError || !audioLoaded) {
-      console.log('⚠️ Audio not available - continuing without sound');
+    if (audioError || !audioLoaded || audioStarted) {
+      if (audioStarted) {
+        console.log('🎵 Audio already playing - ignoring additional clicks');
+      } else {
+        console.log('⚠️ Audio not available - continuing without sound');
+      }
       return;
     }
 
     try {
       if (audioRef.current) {
-        console.log('🎵 Attempting to play audio...');
+        console.log('🎵 Starting audio on first click...');
         audioRef.current.volume = 0.2; // Lower volume to be less intrusive
         await audioRef.current.play();
-        console.log('✅ Audio started playing successfully');
+        setAudioStarted(true);
+        console.log('✅ Audio started playing successfully and will continue until finished');
       }
     } catch (error) {
       console.log('❌ Audio play failed:', error);
     }
   };
 
-  // Handle audio play on user interaction
+  // Handle audio play on user interaction (first click only)
   const handleUserInteraction = async () => {
     await playAudio();
   };
-
-  // Auto-play audio after component mounts and audio loads
-  useEffect(() => {
-    if (audioLoaded && !audioError) {
-      // Small delay to ensure smooth startup
-      const timer = setTimeout(() => {
-        playAudio();
-      }, 1500); // Play after 1.5 seconds
-
-      return () => clearTimeout(timer);
-    }
-  }, [audioLoaded, audioError]);
 
   // Fallback: try to load audio manually after a delay
   useEffect(() => {
@@ -135,28 +134,6 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
               className="w-32 h-32 object-contain mx-auto"
             />
             
-            {/* Audio Status Indicator */}
-            {audioLoaded && !audioError && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.5, duration: 0.5 }}
-                className="mt-4 text-white/60 text-sm"
-              >
-                Click to enable audio
-              </motion.div>
-            )}
-            
-            {audioError && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.5, duration: 0.5 }}
-                className="mt-4 text-white/40 text-xs"
-              >
-                Audio blocked by browser settings
-              </motion.div>
-            )}
           </motion.div>
         </motion.div>
       )}
