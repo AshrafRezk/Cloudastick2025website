@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import useEmblaCarousel from "embla-carousel-react";
-import { ChevronLeft, ChevronRight, TrendingUp, Users, Zap, Shield, BarChart3, MessageSquare, Database } from "lucide-react";
+import { ChevronLeft, ChevronRight, TrendingUp, Users, Zap, Shield, BarChart3, MessageSquare, Database, ShoppingCart, Wrench, Headphones, Cloud, Brain, CreditCard, Globe, Smartphone } from "lucide-react";
 import AnimatedSection from "./AnimatedSection";
 
 interface Product {
@@ -39,8 +39,8 @@ const ProductCarousel = () => {
 
   const products: Product[] = [
     {
-      id: "salesforce",
-      name: "Salesforce CRM",
+      id: "salesforce-crm",
+      name: "Sales Cloud CRM",
       logo: "/Assets/Product Logos/salesforce.png",
       description: "The world's leading customer relationship management platform",
       businessValue: {
@@ -61,7 +61,7 @@ const ProductCarousel = () => {
     {
       id: "marketing-cloud",
       name: "Marketing Cloud",
-      logo: "/Assets/Product Logos/salesforce.png", // Using Salesforce logo as base
+      logo: "/Assets/Product Logos/salesforce.png",
       description: "Comprehensive marketing automation and customer engagement platform",
       businessValue: {
         primaryBenefit: "Drive personalized customer engagement at scale",
@@ -77,6 +77,126 @@ const ProductCarousel = () => {
       },
       category: "Marketing Automation",
       icon: MessageSquare
+    },
+    {
+      id: "service-cloud",
+      name: "Service Cloud",
+      logo: "/Assets/Product Logos/salesforce.png",
+      description: "Comprehensive customer service platform with AI-powered support",
+      businessValue: {
+        primaryBenefit: "Deliver exceptional customer service experiences",
+        timeframe: "within 6 months",
+        keyOutcomes: ["Reduce case resolution time by 45%", "Increase customer satisfaction by 30%", "Automate 60% of routine inquiries"],
+        costSavings: "Save $80K+ annually in support costs"
+      },
+      cloudastickExpertise: {
+        specialization: "Customer Service Optimization & AI Implementation",
+        certifications: ["Service Cloud Consultant", "Einstein Analytics Specialist"],
+        successStories: "Transformed 25+ customer service operations",
+        industryFocus: "Healthcare, Financial Services, Technology"
+      },
+      category: "Customer Service",
+      icon: Headphones
+    },
+    {
+      id: "commerce-cloud",
+      name: "Commerce Cloud",
+      logo: "/Assets/Product Logos/salesforce.png",
+      description: "Advanced e-commerce platform for B2C and B2B commerce",
+      businessValue: {
+        primaryBenefit: "Accelerate digital commerce and revenue growth",
+        timeframe: "within 10 months",
+        keyOutcomes: ["Increase online revenue by 50%", "Improve conversion rates by 25%", "Reduce cart abandonment by 35%"],
+        costSavings: "Save $120K+ in custom e-commerce development"
+      },
+      cloudastickExpertise: {
+        specialization: "Digital Commerce & Omnichannel Strategy",
+        certifications: ["Commerce Cloud Digital Developer", "B2B Commerce Specialist"],
+        successStories: "Launched 20+ successful e-commerce platforms",
+        industryFocus: "Retail, Manufacturing, B2B Services"
+      },
+      category: "E-commerce Platform",
+      icon: ShoppingCart
+    },
+    {
+      id: "data-cloud",
+      name: "Data Cloud",
+      logo: "/Assets/Product Logos/salesforce.png",
+      description: "Unified customer data platform with real-time insights",
+      businessValue: {
+        primaryBenefit: "Unify customer data and enable real-time personalization",
+        timeframe: "within 8 months",
+        keyOutcomes: ["Create 360-degree customer views", "Enable real-time personalization", "Improve data accuracy by 90%"],
+        costSavings: "Eliminate $60K+ in data integration costs"
+      },
+      cloudastickExpertise: {
+        specialization: "Customer Data Strategy & Real-time Analytics",
+        certifications: ["Data Cloud Specialist", "CDP Implementation Specialist"],
+        successStories: "Implemented 15+ customer data platforms",
+        industryFocus: "Retail, Financial Services, Healthcare"
+      },
+      category: "Customer Data Platform",
+      icon: Cloud
+    },
+    {
+      id: "einstein-ai",
+      name: "Einstein AI",
+      logo: "/Assets/Product Logos/salesforce.png",
+      description: "AI-powered insights and automation across the Salesforce platform",
+      businessValue: {
+        primaryBenefit: "Leverage AI to predict outcomes and automate processes",
+        timeframe: "within 6 months",
+        keyOutcomes: ["Increase lead conversion by 30%", "Predict customer churn with 85% accuracy", "Automate 50% of routine tasks"],
+        costSavings: "Save $100K+ annually through AI automation"
+      },
+      cloudastickExpertise: {
+        specialization: "AI Strategy & Machine Learning Implementation",
+        certifications: ["Einstein Analytics Specialist", "AI Associate"],
+        successStories: "Deployed AI solutions for 18+ organizations",
+        industryFocus: "Technology, Financial Services, Healthcare"
+      },
+      category: "Artificial Intelligence",
+      icon: Brain
+    },
+    {
+      id: "cpq-billing",
+      name: "CPQ & Billing",
+      logo: "/Assets/Product Logos/salesforce.png",
+      description: "Configure, Price, Quote and Billing automation platform",
+      businessValue: {
+        primaryBenefit: "Streamline quote-to-cash processes and reduce errors",
+        timeframe: "within 7 months",
+        keyOutcomes: ["Reduce quote generation time by 70%", "Increase quote accuracy by 95%", "Accelerate deal closure by 40%"],
+        costSavings: "Save $90K+ annually in manual quoting processes"
+      },
+      cloudastickExpertise: {
+        specialization: "Quote-to-Cash Optimization & Billing Automation",
+        certifications: ["CPQ Specialist", "Billing Specialist"],
+        successStories: "Optimized 12+ complex quoting and billing processes",
+        industryFocus: "Manufacturing, Technology, Professional Services"
+      },
+      category: "Quote-to-Cash",
+      icon: CreditCard
+    },
+    {
+      id: "field-service",
+      name: "Field Service",
+      logo: "/Assets/Product Logos/salesforce.png",
+      description: "Mobile workforce management and field service optimization",
+      businessValue: {
+        primaryBenefit: "Optimize field operations and improve service delivery",
+        timeframe: "within 9 months",
+        keyOutcomes: ["Reduce service call time by 35%", "Increase first-time fix rates by 50%", "Optimize technician scheduling"],
+        costSavings: "Save $75K+ annually in field service operations"
+      },
+      cloudastickExpertise: {
+        specialization: "Field Service Optimization & Mobile Workforce Management",
+        certifications: ["Field Service Lightning Specialist"],
+        successStories: "Transformed 10+ field service operations",
+        industryFocus: "Utilities, Manufacturing, Healthcare"
+      },
+      category: "Field Service Management",
+      icon: Wrench
     },
     {
       id: "tableau",
@@ -137,6 +257,46 @@ const ProductCarousel = () => {
       },
       category: "Collaboration",
       icon: Users
+    },
+    {
+      id: "platform-cloud",
+      name: "Platform Cloud",
+      logo: "/Assets/Product Logos/salesforce.png",
+      description: "Low-code platform for building custom applications",
+      businessValue: {
+        primaryBenefit: "Build custom applications faster with low-code development",
+        timeframe: "within 5 months",
+        keyOutcomes: ["Reduce app development time by 60%", "Enable citizen developers", "Accelerate digital transformation"],
+        costSavings: "Save $150K+ in custom application development"
+      },
+      cloudastickExpertise: {
+        specialization: "Low-Code Development & Custom Application Architecture",
+        certifications: ["Platform Developer I & II", "Platform App Builder"],
+        successStories: "Built 30+ custom applications for various industries",
+        industryFocus: "Technology, Healthcare, Financial Services"
+      },
+      category: "Application Platform",
+      icon: Globe
+    },
+    {
+      id: "mobile-sdk",
+      name: "Mobile SDK",
+      logo: "/Assets/Product Logos/salesforce.png",
+      description: "Native mobile app development for Salesforce",
+      businessValue: {
+        primaryBenefit: "Create powerful mobile experiences for your workforce",
+        timeframe: "within 6 months",
+        keyOutcomes: ["Increase mobile productivity by 40%", "Enable offline access to CRM data", "Improve field team efficiency"],
+        costSavings: "Save $80K+ in mobile app development"
+      },
+      cloudastickExpertise: {
+        specialization: "Mobile App Development & Salesforce Integration",
+        certifications: ["Mobile SDK Specialist", "Platform Developer"],
+        successStories: "Developed 12+ mobile applications for Salesforce",
+        industryFocus: "Field Services, Healthcare, Sales Teams"
+      },
+      category: "Mobile Development",
+      icon: Smartphone
     },
     {
       id: "informatica",
