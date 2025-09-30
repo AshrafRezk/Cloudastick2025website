@@ -4,8 +4,9 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Layout from "./components/Layout";
+import StartupSequence from "./components/StartupSequence";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Services from "./pages/Services";
@@ -27,28 +28,51 @@ const ScrollToTop = () => {
   return null;
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <ScrollToTop />
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/clients" element={<Clients />} />
-            <Route path="/feedback" element={<Feedback />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/learn" element={<Learn />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Layout>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  const [showStartup, setShowStartup] = useState(true);
+  const [startupComplete, setStartupComplete] = useState(false);
+
+  useEffect(() => {
+    // Check if startup has been shown before (optional - you can remove this for always showing startup)
+    const hasSeenStartup = localStorage.getItem('cloudastick-startup-seen');
+    if (hasSeenStartup) {
+      setShowStartup(false);
+      setStartupComplete(true);
+    }
+  }, []);
+
+  const handleStartupComplete = () => {
+    setShowStartup(false);
+    setStartupComplete(true);
+    localStorage.setItem('cloudastick-startup-seen', 'true');
+  };
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <ScrollToTop />
+          {showStartup && <StartupSequence onComplete={handleStartupComplete} />}
+          {startupComplete && (
+            <Layout>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/services" element={<Services />} />
+                <Route path="/clients" element={<Clients />} />
+                <Route path="/feedback" element={<Feedback />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/learn" element={<Learn />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Layout>
+          )}
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;

@@ -26,7 +26,7 @@ const Mira = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Ahlan wa sahlan! I'm Mira, your friendly guide here at Cloudastick Systems. I can walk you through our Salesforce solutions, share success stories, or connect you with our team. Would you like me to continue in English or العربي المصري? 🌸",
+      text: "Ahlan wa sahlan! I'm Mira, your friendly guide here at Cloudastick Systems! 🌸\n\nI'd love to get to know you better! Could you please tell me:\n\n• **Your name** (so I can address you properly)\n• **What sector/industry** you work in\n\nThis will help me share the most relevant Salesforce success stories and solutions for your specific needs! Would you like me to continue in English or العربي المصري?",
       sender: 'bot',
       timestamp: new Date(),
       language: 'en'
@@ -85,6 +85,8 @@ RESPONSE FORMATTING:
 - Keep responses conversational and humane, not robotic
 - Break up long responses with line breaks for readability
 - Use emojis sparingly but appropriately (🌸, ☕, 🚀, 💼)
+- Always try to use the visitor's name when provided
+- Reference their industry/sector when relevant to provide targeted examples
 
 LANGUAGE PREFERENCE: ${currentLanguage === 'ar' ? 'Respond in Egyptian Arabic (عامية مصرية) - keep it friendly and colloquial, not formal فصحى. Keep technical terms like "Sales Cloud, CRM" in English but wrap them in Arabic sentences. Use proper Arabic formatting with right-to-left text flow.' : 'Respond in English - professional but warm and approachable. Use proper English formatting with left-to-right text flow.'}
 
@@ -329,10 +331,10 @@ Keep responses clear, concise, and professional while maintaining your warm, hos
                       className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
                       <div className={`flex items-start space-x-2 max-w-[80%] ${message.sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
-                        <div className={`${message.sender === 'user' ? 'w-8 h-8' : 'w-12 h-12'} rounded-full flex items-center justify-center ${
+                        <div className={`${message.sender === 'user' ? 'w-8 h-8' : 'w-14 h-14'} rounded-full flex items-center justify-center ${
                           message.sender === 'user' 
                             ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white' 
-                            : 'bg-gray-100 text-gray-600 overflow-hidden p-0.5'
+                            : 'bg-gray-100 text-gray-600 overflow-hidden p-1'
                         }`}>
                           {message.sender === 'user' ? (
                             <User className="w-4 h-4" />
@@ -374,7 +376,7 @@ Keep responses clear, concise, and professional while maintaining your warm, hos
                       className="flex justify-start"
                     >
                       <div className="flex items-start space-x-2">
-                        <div className="w-12 h-12 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center overflow-hidden p-0.5">
+                        <div className="w-14 h-14 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center overflow-hidden p-1">
                           <img 
                             src="/Assets/Mira800*800.png" 
                             alt="Mira" 
