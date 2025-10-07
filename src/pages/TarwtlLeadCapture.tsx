@@ -45,15 +45,15 @@ const TarwtlLeadCapture: React.FC = () => {
 
   // Tarjama team members for Lead Gen Officer selection
   const teamMembers = [
-    { name: 'Bara Hamed', role: 'Sales Representative', userId: '005NM000001gxpVYAQ', image: '/Assets/team-members/Bara Hamed - 005NM000001gxpVYAQ.jpg' },
-    { name: 'Habiba Walid', role: 'Sales Representative', userId: 'DEFAULT_USER', image: '/Assets/team-members/Habiba walid.jpg' },
-    { name: 'Iyad Ahmad', role: 'Sales Representative', userId: '0053z00000D66YmAAJ', image: '/Assets/team-members/Iyad Ahmad - 0053z00000D66YmAAJ.jpg' },
-    { name: 'Michel Khoury', role: 'Sales Representative', userId: 'DEFAULT_USER', image: '/Assets/team-members/Michel khoury.jpg' },
-    { name: 'Moutasem Al-Huneidi', role: 'Sales Representative', userId: '005NM000001M0LlYAK', image: '/Assets/team-members/Moutasem Al-Huneidi - 005NM000001M0LlYAK.jpg' },
-    { name: 'Nicolas Boulos', role: 'Sales Representative', userId: '005NM000001iFdtYAE', image: '/Assets/team-members/Nicolas Boulos - 005NM000001iFdtYAE.jpg' },
-    { name: 'Nour El Hassan', role: 'Sales Representative', userId: '0053z00000C11ySAAR', image: '/Assets/team-members/Nour el hassan - 0053z00000C11ySAAR.jpg' },
-    { name: 'Talal El Chammah', role: 'Sales Representative', userId: '005NM0000010MxhYAE', image: '/Assets/team-members/Talal El Chammah - 005NM0000010MxhYAE.jpg' },
-    { name: 'Zaid Radaideh', role: 'Sales Representative', userId: '005NM000001w3OLYAY', image: '/Assets/team-members/Zaid radaideh - _005NM000001w3OLYAY.jpg' },
+    { name: 'Bara Hamed', role: 'Sales Representative', userId: '005NM000001gxpVYAQ', image: '/Assets/team/Bara Hamed - 005NM000001gxpVYAQ.png' },
+    { name: 'Habiba Walid', role: 'Sales Representative', userId: 'DEFAULT_USER', image: '/Assets/team/Habiba walid.png' },
+    { name: 'Iyad Ahmad', role: 'Sales Representative', userId: '0053z00000D66YmAAJ', image: '/Assets/team/Iyad Ahmad - 0053z00000D66YmAAJ.png' },
+    { name: 'Michel Khoury', role: 'Sales Representative', userId: 'DEFAULT_USER', image: '/Assets/team/Michel khoury.png' },
+    { name: 'Moutasem Al-Huneidi', role: 'Sales Representative', userId: '005NM000001M0LlYAK', image: '/Assets/team/Moutasem Al-Huneidi - 005NM000001M0LlYAK.png' },
+    { name: 'Nicolas Boulos', role: 'Sales Representative', userId: '005NM000001iFdtYAE', image: '/Assets/team/Nicolas Boulos - 005NM000001iFdtYAE.png' },
+    { name: 'Nour El Hassan', role: 'Sales Representative', userId: '0053z00000C11ySAAR', image: '/Assets/team/Nour el hassan - 0053z00000C11ySAAR.png' },
+    { name: 'Talal El Chammah', role: 'Sales Representative', userId: '005NM0000010MxhYAE', image: '/Assets/team/Talal El Chammah - 005NM0000010MxhYAE.png' },
+    { name: 'Zaid Radaideh', role: 'Sales Representative', userId: '005NM000001w3OLYAY', image: '/Assets/team/Zaid radaideh - 005NM000001w3OLYAY.png' },
   ];
 
   const DEFAULT_USER_ID = '005NM000001gxpVYAQ'; // Default to Bara Hamed if no one selected
