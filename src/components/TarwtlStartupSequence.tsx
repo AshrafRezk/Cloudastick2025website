@@ -81,7 +81,7 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
                 autoPlay
                 muted
                 playsInline
-                className="absolute inset-0 w-full h-full object-cover opacity-40"
+                className="absolute inset-0 w-full h-full object-cover opacity-70"
                 onEnded={(e) => {
                   // Freeze on last frame by seeking to the end
                   const video = e.currentTarget;
