@@ -11,6 +11,12 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
   const [canStart, setCanStart] = useState(false);
   const [isStarted, setIsStarted] = useState(false);
   const videoRef = React.useRef<HTMLVideoElement>(null);
+  const onCompleteRef = React.useRef(onComplete);
+
+  // Update ref when onComplete changes
+  React.useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
 
   useEffect(() => {
     // Show "Start" button after all logos have displayed
@@ -43,7 +49,7 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
     const completeTimer = setTimeout(() => {
       setShowSequence(false);
       setTimeout(() => {
-        onComplete();
+        onCompleteRef.current();
       }, 300);
     }, 3600); // Show Arabic.ai for 1.2s then complete
 
@@ -52,7 +58,7 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
       clearTimeout(tarjamaTimer);
       clearTimeout(completeTimer);
     };
-  }, [isStarted, onComplete]);
+  }, [isStarted]); // Only depend on isStarted, use ref for onComplete
 
   const triggerHaptic = () => {
     if ('vibrate' in navigator) {
