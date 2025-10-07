@@ -390,7 +390,7 @@ Lead Source: ${source}`;
             </div>
           </motion.div>
 
-          {/* CTA Button */}
+          {/* CTA Button - Centered */}
           <motion.button
             initial={{ opacity: 0, y: 20 }}
             animate={{ 
@@ -409,7 +409,7 @@ Lead Source: ${source}`;
             }}
             onClick={scrollToForm}
             onMouseEnter={() => triggerHaptic(20)}
-            className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full shadow-2xl shadow-blue-500/40 transition-all duration-300 transform hover:scale-110 active:scale-95 flex items-center justify-center group"
+            className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full shadow-2xl shadow-blue-500/40 transition-all duration-300 transform hover:scale-110 active:scale-95 flex items-center justify-center group mx-auto"
             whileHover={{ 
               scale: 1.1,
               boxShadow: "0 25px 50px -12px rgba(59, 130, 246, 0.5)"
