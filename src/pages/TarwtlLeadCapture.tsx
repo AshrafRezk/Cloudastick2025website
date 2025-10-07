@@ -436,14 +436,14 @@ Lead Source: ${source}`;
               <p className="text-xs text-slate-500 text-center mb-6">Optional - Select if you spoke with someone from our team</p>
               
               <div className="relative max-w-4xl mx-auto">
-                {/* Navigation Arrows - Infinite Loop */}
+                {/* Navigation Arrows - Infinite Loop (Hidden on mobile) */}
                 <button
                   type="button"
                   onClick={() => {
                     setCarouselIndex(carouselIndex === 0 ? teamMembers.length - 3 : carouselIndex - 1);
                     triggerHaptic(20);
                   }}
-                  className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center text-slate-600 hover:text-slate-900"
+                  className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-300 items-center justify-center text-slate-600 hover:text-slate-900"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -456,7 +456,7 @@ Lead Source: ${source}`;
                     setCarouselIndex(carouselIndex >= teamMembers.length - 3 ? 0 : carouselIndex + 1);
                     triggerHaptic(20);
                   }}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center text-slate-600 hover:text-slate-900"
+                  className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-300 items-center justify-center text-slate-600 hover:text-slate-900"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -464,30 +464,45 @@ Lead Source: ${source}`;
                 </button>
 
                 {/* Carousel Container */}
-                <div className="overflow-hidden rounded-3xl mx-16">
+                <div className="overflow-hidden rounded-3xl mx-4 md:mx-16">
                   <motion.div
                     animate={{ x: `-${carouselIndex * (100 / 3)}%` }}
                     transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                     className="flex"
+                    drag="x"
+                    dragConstraints={{ left: 0, right: 0 }}
+                    onDragEnd={(event, info) => {
+                      const threshold = 50;
+                      if (info.offset.x > threshold) {
+                        // Swipe right - go to previous
+                        setCarouselIndex(carouselIndex === 0 ? teamMembers.length - 3 : carouselIndex - 1);
+                        triggerHaptic(20);
+                      } else if (info.offset.x < -threshold) {
+                        // Swipe left - go to next
+                        setCarouselIndex(carouselIndex >= teamMembers.length - 3 ? 0 : carouselIndex + 1);
+                        triggerHaptic(20);
+                      }
+                    }}
                   >
                     {teamMembers.map((member, index) => (
                       <motion.div
                         key={index}
-                        className="min-w-[33.333%] px-3"
+                        className="min-w-[33.333%] px-1 md:px-3"
                         whileHover={{ scale: selectedOfficerIndex === null ? 1.02 : 1 }}
+                        whileTap={{ scale: 0.98 }}
                       >
                         <motion.button
                           type="button"
                           onClick={() => handleOfficerSelect(index)}
-                          className={`w-full p-4 rounded-2xl transition-all duration-300 ${
+                          className={`w-full p-2 md:p-4 rounded-xl md:rounded-2xl transition-all duration-300 ${
                             selectedOfficerIndex === index
                               ? 'bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-xl shadow-blue-500/40'
                               : 'bg-white text-slate-700 hover:bg-slate-50 border-2 border-slate-200 shadow-lg'
                           }`}
                         >
-                          <div className="flex flex-col items-center gap-3">
+                          <div className="flex flex-col items-center gap-2 md:gap-3">
                             {/* Avatar */}
-                            <div className={`w-24 h-24 rounded-full overflow-hidden border-3 ${
+                            <div className={`w-16 h-16 md:w-24 md:h-24 rounded-full overflow-hidden border-2 md:border-3 ${
                               selectedOfficerIndex === index ? 'border-white/30' : 'border-slate-200'
                             }`}>
                               <img
@@ -498,8 +513,8 @@ Lead Source: ${source}`;
                             </div>
                             
                             {/* Name Only */}
-                            <div>
-                              <h3 className={`text-lg font-bold ${
+                            <div className="text-center">
+                              <h3 className={`text-sm md:text-lg font-bold leading-tight ${
                                 selectedOfficerIndex === index ? 'text-white' : 'text-slate-900'
                               }`}>
                                 {member.name}
@@ -513,7 +528,7 @@ Lead Source: ${source}`;
                                 animate={{ scale: 1 }}
                                 className="flex items-center gap-1 mt-1"
                               >
-                                <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <svg className="w-3 h-3 md:w-4 md:h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                                 </svg>
                                 <span className="text-xs font-semibold">Selected</span>
@@ -526,8 +541,13 @@ Lead Source: ${source}`;
                   </motion.div>
                 </div>
 
+                {/* Carousel Indicators - Mobile Swipe Instructions */}
+                <div className="md:hidden text-center mt-4">
+                  <p className="text-xs text-slate-500">Swipe left/right to navigate</p>
+                </div>
+
                 {/* Carousel Indicators - Infinite Loop */}
-                <div className="flex justify-center gap-2 mt-6">
+                <div className="flex justify-center gap-2 mt-4 md:mt-6">
                   {Array.from({ length: Math.ceil(teamMembers.length / 3) }, (_, index) => (
                     <button
                       key={index}
@@ -536,10 +556,10 @@ Lead Source: ${source}`;
                         setCarouselIndex(index);
                         triggerHaptic(20);
                       }}
-                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                      className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-all duration-300 ${
                         index === carouselIndex
-                          ? 'bg-blue-600 w-8'
-                          : 'bg-slate-300'
+                          ? 'bg-blue-600 w-6 md:w-8'
+                          : 'bg-slate-300 hover:bg-slate-400'
                       }`}
                     />
                   ))}
