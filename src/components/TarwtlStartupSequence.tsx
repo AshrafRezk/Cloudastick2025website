@@ -217,7 +217,7 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
                         className="w-48 h-48 flex items-center justify-center"
                       >
                         <div className="relative">
-                          <div className="absolute inset-0 bg-gradient-to-br from-green-400/30 to-teal-400/30 rounded-full blur-3xl" />
+                          <div className="absolute inset-0 bg-gradient-to-br from-gray-400/30 to-slate-400/30 rounded-full blur-3xl" />
                           <img
                             src="/Assets/Gitex/Gitex for Tarjama/tarjama.png"
                             alt="Tarjama"
