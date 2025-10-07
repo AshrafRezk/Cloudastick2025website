@@ -45,15 +45,15 @@ const TarwtlLeadCapture: React.FC = () => {
 
   // Tarjama team members for Lead Gen Officer selection
   const teamMembers = [
-    { name: 'Bara Hamed', role: 'Sales Representative', userId: '005NM000001gxpVYAQ', image: '/Assets/Gitex/Gitex%20for%20Tarjama/Tarjama%20salesforce%20users/Bara%20Hamed%20-%20005NM000001gxpVYAQ.jpg' },
-    { name: 'Habiba Walid', role: 'Sales Representative', userId: 'DEFAULT_USER', image: '/Assets/Gitex/Gitex%20for%20Tarjama/Tarjama%20salesforce%20users/Habiba%20walid.jpg' },
-    { name: 'Iyad Ahmad', role: 'Sales Representative', userId: '0053z00000D66YmAAJ', image: '/Assets/Gitex/Gitex%20for%20Tarjama/Tarjama%20salesforce%20users/Iyad%20Ahmad%20-%200053z00000D66YmAAJ.jpg' },
-    { name: 'Michel Khoury', role: 'Sales Representative', userId: 'DEFAULT_USER', image: '/Assets/Gitex/Gitex%20for%20Tarjama/Tarjama%20salesforce%20users/Michel%20khoury.jpg' },
-    { name: 'Moutasem Al-Huneidi', role: 'Sales Representative', userId: '005NM000001M0LlYAK', image: '/Assets/Gitex/Gitex%20for%20Tarjama/Tarjama%20salesforce%20users/Moutasem%20Al-Huneidi%20-%20005NM000001M0LlYAK.jpg' },
-    { name: 'Nicolas Boulos', role: 'Sales Representative', userId: '005NM000001iFdtYAE', image: '/Assets/Gitex/Gitex%20for%20Tarjama/Tarjama%20salesforce%20users/Nicolas%20Boulos%20-%20005NM000001iFdtYAE.jpg' },
-    { name: 'Nour El Hassan', role: 'Sales Representative', userId: '0053z00000C11ySAAR', image: '/Assets/Gitex/Gitex%20for%20Tarjama/Tarjama%20salesforce%20users/Nour%20el%20hassan%20-%200053z00000C11ySAAR.jpg' },
-    { name: 'Talal El Chammah', role: 'Sales Representative', userId: '005NM0000010MxhYAE', image: '/Assets/Gitex/Gitex%20for%20Tarjama/Tarjama%20salesforce%20users/Talal%20El%20Chammah%20-%20005NM0000010MxhYAE.jpg' },
-    { name: 'Zaid Radaideh', role: 'Sales Representative', userId: '005NM000001w3OLYAY', image: '/Assets/Gitex/Gitex%20for%20Tarjama/Tarjama%20salesforce%20users/Zaid%20radaideh%20-%20_005NM000001w3OLYAY.jpg' },
+    { name: 'Bara Hamed', role: 'Sales Representative', userId: '005NM000001gxpVYAQ', image: encodeURI('/Assets/Gitex/Gitex for Tarjama/Tarjama salesforce users/Bara Hamed - 005NM000001gxpVYAQ.jpg') },
+    { name: 'Habiba Walid', role: 'Sales Representative', userId: 'DEFAULT_USER', image: encodeURI('/Assets/Gitex/Gitex for Tarjama/Tarjama salesforce users/Habiba walid.jpg') },
+    { name: 'Iyad Ahmad', role: 'Sales Representative', userId: '0053z00000D66YmAAJ', image: encodeURI('/Assets/Gitex/Gitex for Tarjama/Tarjama salesforce users/Iyad Ahmad - 0053z00000D66YmAAJ.jpg') },
+    { name: 'Michel Khoury', role: 'Sales Representative', userId: 'DEFAULT_USER', image: encodeURI('/Assets/Gitex/Gitex for Tarjama/Tarjama salesforce users/Michel khoury.jpg') },
+    { name: 'Moutasem Al-Huneidi', role: 'Sales Representative', userId: '005NM000001M0LlYAK', image: encodeURI('/Assets/Gitex/Gitex for Tarjama/Tarjama salesforce users/Moutasem Al-Huneidi - 005NM000001M0LlYAK.jpg') },
+    { name: 'Nicolas Boulos', role: 'Sales Representative', userId: '005NM000001iFdtYAE', image: encodeURI('/Assets/Gitex/Gitex for Tarjama/Tarjama salesforce users/Nicolas Boulos - 005NM000001iFdtYAE.jpg') },
+    { name: 'Nour El Hassan', role: 'Sales Representative', userId: '0053z00000C11ySAAR', image: encodeURI('/Assets/Gitex/Gitex for Tarjama/Tarjama salesforce users/Nour el hassan - 0053z00000C11ySAAR.jpg') },
+    { name: 'Talal El Chammah', role: 'Sales Representative', userId: '005NM0000010MxhYAE', image: encodeURI('/Assets/Gitex/Gitex for Tarjama/Tarjama salesforce users/Talal El Chammah - 005NM0000010MxhYAE.jpg') },
+    { name: 'Zaid Radaideh', role: 'Sales Representative', userId: '005NM000001w3OLYAY', image: encodeURI('/Assets/Gitex/Gitex for Tarjama/Tarjama salesforce users/Zaid radaideh - _005NM000001w3OLYAY.jpg') },
   ];
 
   const DEFAULT_USER_ID = '005NM000001gxpVYAQ'; // Default to Bara Hamed if no one selected
