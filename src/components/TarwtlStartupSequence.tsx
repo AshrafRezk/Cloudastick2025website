@@ -23,7 +23,7 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
   useEffect(() => {
     if (!isStarted) return;
 
-    // Logo sequence: Gitex (1.5s) → Tarjama (1.5s) → Arabic.ai (stays)
+    // Logo sequence: Gitex (1.5s) → Tarjama (1.5s) → Arabic.ai (1.5s) → Complete
     const gitexTimer = setTimeout(() => {
       setCurrentLogo('tarjama');
     }, 1500);
@@ -32,11 +32,17 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
       setCurrentLogo('arabic-ai');
     }, 3000);
 
+    const completeTimer = setTimeout(() => {
+      setShowSequence(false);
+      setTimeout(onComplete, 300);
+    }, 4500); // Show Arabic.ai for 1.5s then complete
+
     return () => {
       clearTimeout(gitexTimer);
       clearTimeout(tarjamaTimer);
+      clearTimeout(completeTimer);
     };
-  }, [isStarted]);
+  }, [isStarted, onComplete]);
 
   const triggerHaptic = () => {
     if ('vibrate' in navigator) {
@@ -48,12 +54,6 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
     triggerHaptic();
     setIsStarted(true);
     setCanStart(false);
-  };
-
-  const handleCompleteSequence = () => {
-    triggerHaptic();
-    setShowSequence(false);
-    setTimeout(onComplete, 300);
   };
 
   return (
@@ -218,19 +218,6 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
                     )}
                   </AnimatePresence>
                 </div>
-
-                {/* "Begin" Button - Shows after Arabic.ai logo appears */}
-                {currentLogo === 'arabic-ai' && (
-                  <motion.button
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5, duration: 0.5 }}
-                    onClick={handleCompleteSequence}
-                    className="px-12 py-5 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white text-lg font-semibold rounded-full shadow-lg shadow-blue-500/40 transition-all duration-300 transform hover:scale-105 active:scale-95"
-                  >
-                    Begin
-                  </motion.button>
-                )}
               </motion.div>
             )}
           </div>
