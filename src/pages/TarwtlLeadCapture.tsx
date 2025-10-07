@@ -43,16 +43,20 @@ const TarwtlLeadCapture: React.FC = () => {
   const successAudioRef = useRef<HTMLAudioElement>(null);
   const carouselIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Team members for Lead Gen Officer selection
-  // TODO: Replace with actual Salesforce userIds
+  // Tarjama team members for Lead Gen Officer selection
   const teamMembers = [
-    { name: 'Mina Michel', role: 'Founder', userId: 'USER_ID_1', image: '/Assets/Company Members/Mina_Michel_Founder_of_Cloudastick_Systems.png' },
-    { name: 'Ashraf Rezk', role: 'Head of Tech', userId: 'USER_ID_2', image: '/Assets/Company Members/Ashraf_Rezk_Head_of_Tech.png' },
-    { name: 'Omar El Borae', role: 'Customer Success', userId: 'USER_ID_3', image: '/Assets/Company Members/Omar_El_Borae_Customer_Success_Manager.png' },
-    { name: 'Mariam Mamdouh', role: 'Project Manager', userId: 'USER_ID_4', image: '/Assets/Company Members/Mariam_Mamdouh_Project_Manager.png' },
+    { name: 'Bara Hamed', role: 'Sales Representative', userId: '005NM000001gxpVYAQ', image: '/Assets/Gitex/Gitex for Tarjama/Tarjama salesforce users/Bara Hamed - 005NM000001gxpVYAQ.jpg' },
+    { name: 'Habiba Walid', role: 'Sales Representative', userId: 'DEFAULT_USER', image: '/Assets/Gitex/Gitex for Tarjama/Tarjama salesforce users/Habiba walid.jpg' },
+    { name: 'Iyad Ahmad', role: 'Sales Representative', userId: '0053z00000D66YmAAJ', image: '/Assets/Gitex/Gitex for Tarjama/Tarjama salesforce users/Iyad Ahmad - 0053z00000D66YmAAJ.jpg' },
+    { name: 'Michel Khoury', role: 'Sales Representative', userId: 'DEFAULT_USER', image: '/Assets/Gitex/Gitex for Tarjama/Tarjama salesforce users/Michel khoury.jpg' },
+    { name: 'Moutasem Al-Huneidi', role: 'Sales Representative', userId: '005NM000001M0LlYAK', image: '/Assets/Gitex/Gitex for Tarjama/Tarjama salesforce users/Moutasem Al-Huneidi - 005NM000001M0LlYAK.jpg' },
+    { name: 'Nicolas Boulos', role: 'Sales Representative', userId: '005NM000001iFdtYAE', image: '/Assets/Gitex/Gitex for Tarjama/Tarjama salesforce users/Nicolas Boulos - 005NM000001iFdtYAE.jpg' },
+    { name: 'Nour El Hassan', role: 'Sales Representative', userId: '0053z00000C11ySAAR', image: '/Assets/Gitex/Gitex for Tarjama/Tarjama salesforce users/Nour el hassan - 0053z00000C11ySAAR.jpg' },
+    { name: 'Talal El Chammah', role: 'Sales Representative', userId: '005NM0000010MxhYAE', image: '/Assets/Gitex/Gitex for Tarjama/Tarjama salesforce users/Talal El Chammah - 005NM0000010MxhYAE.jpg' },
+    { name: 'Zaid Radaideh', role: 'Sales Representative', userId: '005NM000001w3OLYAY', image: '/Assets/Gitex/Gitex for Tarjama/Tarjama salesforce users/Zaid radaideh - _005NM000001w3OLYAY.jpg' },
   ];
 
-  const DEFAULT_USER_ID = 'USER_ID_1'; // Default if no one selected
+  const DEFAULT_USER_ID = '005NM000001gxpVYAQ'; // Default to Bara Hamed if no one selected
 
   // Inspirational quotes for AI Agents
   const quotes = [
