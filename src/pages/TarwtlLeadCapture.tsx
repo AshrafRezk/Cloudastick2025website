@@ -53,7 +53,7 @@ const TarwtlLeadCapture: React.FC = () => {
     { name: 'Nicolas Boulos', role: 'Sales Representative', userId: '005NM000001iFdtYAE', image: '/Assets/team-members/Nicolas Boulos - 005NM000001iFdtYAE.png' },
     { name: 'Nour El Hassan', role: 'Sales Representative', userId: '0053z00000C11ySAAR', image: '/Assets/team-members/Nour el hassan - 0053z00000C11ySAAR.png' },
     { name: 'Talal El Chammah', role: 'Sales Representative', userId: '005NM0000010MxhYAE', image: '/Assets/team-members/Talal El Chammah - 005NM0000010MxhYAE.png' },
-    { name: 'Zaid Radaideh', role: 'Sales Representative', userId: '005NM000001w3OLYAY', image: '/Assets/team-members/Zaid radaideh - _005NM000001w3OLYAY.png' },
+    { name: 'Zaid Radaideh', role: 'Sales Representative', userId: '005NM000001w3OLYAY', image: '/Assets/team-members/Zaid radaideh - 005NM000001w3OLYAY.png' },
   ];
 
   const DEFAULT_USER_ID = '005NM000001gxpVYAQ'; // Default to Bara Hamed if no one selected
