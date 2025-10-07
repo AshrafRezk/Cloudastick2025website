@@ -377,34 +377,62 @@ Lead Source: ${source}`;
               <label className="block text-sm font-semibold text-slate-700 mb-4">
                 Products of Interest *
               </label>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {[
-                  { name: 'Salesforce', logo: '/Assets/Product Logos/salesforce.png' },
-                  { name: 'MuleSoft', logo: '/Assets/Product Logos/mulesoft.png' },
-                  { name: 'Tableau', logo: '/Assets/Product Logos/tableau.png' },
-                  { name: 'Slack', logo: '/Assets/Product Logos/slack.png' },
-                  { name: 'Copado', logo: '/Assets/Product Logos/copado.png' },
-                  { name: 'Informatica', logo: '/Assets/Product Logos/informatica.png' },
-                  { name: 'Quip', logo: '/Assets/Product Logos/quip.png' },
+                  { 
+                    name: 'Conversational AI Agent',
+                    icon: (
+                      <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                      </svg>
+                    ),
+                    description: 'Virtual assistants for support & sales'
+                  },
+                  { 
+                    name: 'Process Automation Agent',
+                    icon: (
+                      <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                    ),
+                    description: 'Automate tasks in HR, finance & ops'
+                  },
+                  { 
+                    name: 'Analytics and Reporting Agent',
+                    icon: (
+                      <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                    ),
+                    description: 'Real-time insights & dashboards'
+                  },
                 ].map((product) => (
                   <motion.button
                     key={product.name}
                     type="button"
                     onClick={() => handleProductToggle(product.name)}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={`p-4 rounded-2xl font-semibold transition-all duration-300 flex flex-col items-center gap-2 ${
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className={`p-6 rounded-2xl font-semibold transition-all duration-300 flex flex-col items-center gap-3 text-center ${
                       formData.products.includes(product.name)
                         ? 'bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/30 border-2 border-transparent'
                         : 'bg-white text-slate-700 hover:bg-slate-50 border-2 border-slate-200'
                     }`}
                   >
-                    <div className={`w-12 h-12 flex items-center justify-center ${
-                      formData.products.includes(product.name) ? 'brightness-0 invert' : ''
+                    <div className={`flex items-center justify-center ${
+                      formData.products.includes(product.name) ? 'text-white' : 'text-blue-600'
                     }`}>
-                      <img src={product.logo} alt={product.name} className="max-w-full max-h-full object-contain" />
+                      {product.icon}
                     </div>
-                    <span className="text-sm">{product.name}</span>
+                    <div>
+                      <div className="font-semibold mb-1">{product.name}</div>
+                      <div className={`text-xs ${
+                        formData.products.includes(product.name) ? 'text-blue-100' : 'text-slate-500'
+                      }`}>
+                        {product.description}
+                      </div>
+                    </div>
                   </motion.button>
                 ))}
               </div>
