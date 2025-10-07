@@ -678,7 +678,7 @@ Lead Source: ${source}`;
                     value={formData.first_name}
                     onChange={(e) => handleInputChange('first_name', e.target.value)}
                     onFocus={() => triggerHaptic(20)}
-                    className={`w-full px-4 py-3 rounded-2xl border-2 ${
+                    className={`w-full px-4 py-3 rounded-2xl border-2 text-slate-900 placeholder-slate-400 bg-white ${
                       errors.first_name ? 'border-red-500' : 'border-slate-200'
                     } focus:border-blue-500 focus:outline-none transition-colors duration-200`}
                     placeholder="John"
@@ -698,7 +698,7 @@ Lead Source: ${source}`;
                     value={formData.last_name}
                     onChange={(e) => handleInputChange('last_name', e.target.value)}
                     onFocus={() => triggerHaptic(20)}
-                    className={`w-full px-4 py-3 rounded-2xl border-2 ${
+                    className={`w-full px-4 py-3 rounded-2xl border-2 text-slate-900 placeholder-slate-400 bg-white ${
                       errors.last_name ? 'border-red-500' : 'border-slate-200'
                     } focus:border-blue-500 focus:outline-none transition-colors duration-200`}
                     placeholder="Doe"
@@ -721,7 +721,7 @@ Lead Source: ${source}`;
                     value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
                     onFocus={() => triggerHaptic(20)}
-                    className={`w-full px-4 py-3 rounded-2xl border-2 ${
+                    className={`w-full px-4 py-3 rounded-2xl border-2 text-slate-900 placeholder-slate-400 bg-white ${
                       errors.email ? 'border-red-500' : 'border-slate-200'
                     } focus:border-blue-500 focus:outline-none transition-colors duration-200`}
                     placeholder="john.doe@company.com"
@@ -741,7 +741,7 @@ Lead Source: ${source}`;
                     value={formData.company}
                     onChange={(e) => handleInputChange('company', e.target.value)}
                     onFocus={() => triggerHaptic(20)}
-                    className={`w-full px-4 py-3 rounded-2xl border-2 ${
+                    className={`w-full px-4 py-3 rounded-2xl border-2 text-slate-900 placeholder-slate-400 bg-white ${
                       errors.company ? 'border-red-500' : 'border-slate-200'
                     } focus:border-blue-500 focus:outline-none transition-colors duration-200`}
                     placeholder="Company Name"
@@ -764,7 +764,7 @@ Lead Source: ${source}`;
                     value={formData.mobile}
                     onChange={(e) => handleInputChange('mobile', e.target.value)}
                     onFocus={() => triggerHaptic(20)}
-                    className={`w-full px-4 py-3 rounded-2xl border-2 ${
+                    className={`w-full px-4 py-3 rounded-2xl border-2 text-slate-900 placeholder-slate-400 bg-white ${
                       errors.mobile ? 'border-red-500' : 'border-slate-200'
                     } focus:border-blue-500 focus:outline-none transition-colors duration-200`}
                     placeholder="+971 50 123 4567"
@@ -784,7 +784,7 @@ Lead Source: ${source}`;
                     value={formData.city}
                     onChange={(e) => handleInputChange('city', e.target.value)}
                     onFocus={() => triggerHaptic(20)}
-                    className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 focus:border-blue-500 focus:outline-none transition-colors duration-200"
+                    className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 placeholder-slate-400 bg-white focus:border-blue-500 focus:outline-none transition-colors duration-200"
                     placeholder="Dubai"
                   />
                 </div>
@@ -801,7 +801,7 @@ Lead Source: ${source}`;
                     value={formData.country_code}
                     onChange={(e) => handleInputChange('country_code', e.target.value)}
                     onFocus={() => triggerHaptic(20)}
-                    className={`w-full px-4 py-3 rounded-2xl border-2 ${
+                    className={`w-full px-4 py-3 rounded-2xl border-2 text-slate-900 bg-white ${
                       errors.country_code ? 'border-red-500' : 'border-slate-200'
                     } focus:border-blue-500 focus:outline-none transition-colors duration-200`}
                   >
@@ -836,7 +836,7 @@ Lead Source: ${source}`;
                     value={formData.industry}
                     onChange={(e) => handleInputChange('industry', e.target.value)}
                     onFocus={() => triggerHaptic(20)}
-                    className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 focus:border-blue-500 focus:outline-none transition-colors duration-200"
+                    className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 bg-white focus:border-blue-500 focus:outline-none transition-colors duration-200"
                   >
                     <option value="">--Select Industry--</option>
                     <option value="Technology & IT">Technology & IT</option>
@@ -868,7 +868,7 @@ Lead Source: ${source}`;
                   onChange={(e) => handleInputChange('comments', e.target.value)}
                   onFocus={() => triggerHaptic(20)}
                   rows={4}
-                  className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 focus:border-blue-500 focus:outline-none transition-colors duration-200 resize-none"
+                  className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 placeholder-slate-400 bg-white focus:border-blue-500 focus:outline-none transition-colors duration-200 resize-none"
                   placeholder="Tell us more about your needs..."
                 />
               </div>
