@@ -15,6 +15,7 @@ import Feedback from "./pages/Feedback";
 import Contact from "./pages/Contact";
 import Learn from "./pages/Learn";
 import NotFound from "./pages/NotFound";
+import TarwtlLeadCapture from "./pages/TarwtlLeadCapture";
 
 const queryClient = new QueryClient();
 
@@ -54,21 +55,31 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <ScrollToTop />
-          {showStartup && <StartupSequence onComplete={handleStartupComplete} />}
-          {startupComplete && (
-            <Layout>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/services" element={<Services />} />
-                <Route path="/clients" element={<Clients />} />
-                <Route path="/feedback" element={<Feedback />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/learn" element={<Learn />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Layout>
-          )}
+          <Routes>
+            {/* Special route for Tarwtl - no standard startup or layout */}
+            <Route path="/tarwtl" element={<TarwtlLeadCapture />} />
+            
+            {/* Standard routes with startup sequence and layout */}
+            <Route path="/*" element={
+              <>
+                {showStartup && <StartupSequence onComplete={handleStartupComplete} />}
+                {startupComplete && (
+                  <Layout>
+                    <Routes>
+                      <Route path="/" element={<Home />} />
+                      <Route path="/about" element={<About />} />
+                      <Route path="/services" element={<Services />} />
+                      <Route path="/clients" element={<Clients />} />
+                      <Route path="/feedback" element={<Feedback />} />
+                      <Route path="/contact" element={<Contact />} />
+                      <Route path="/learn" element={<Learn />} />
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </Layout>
+                )}
+              </>
+            } />
+          </Routes>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>

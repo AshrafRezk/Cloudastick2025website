@@ -14,6 +14,9 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
   const [showAura, setShowAura] = useState(false);
   const [isStarted, setIsStarted] = useState(false);
   const [buttonRipple, setButtonRipple] = useState(false);
+  const [isNearCenter, setIsNearCenter] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [showMobilePill, setShowMobilePill] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -60,8 +63,38 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
     }
   }, []);
 
-  // Handle the start button click
+  // Mobile detection and mobile pill animation
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768 || 'ontouchstart' in window);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    // Show mobile pill after 1.5s
+    if (isMobile) {
+      const timer = setTimeout(() => {
+        setShowMobilePill(true);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, [isMobile]);
+
+  // Haptic feedback function
+  const triggerHaptic = () => {
+    if ('vibrate' in navigator) {
+      navigator.vibrate([10, 5, 10]); // Light haptic pattern
+    }
+  };
+
+  // Handle the start experience
   const handleStartExperience = async () => {
+    // Trigger haptic feedback
+    triggerHaptic();
+    
     // Trigger ripple effect
     setButtonRipple(true);
     setTimeout(() => setButtonRipple(false), 400);
@@ -103,13 +136,19 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
     }
   };
 
-  // Handle mouse movement for aura effect
+  // Handle mouse movement for aura effect and center detection
   const handleMouseMove = (e: React.MouseEvent) => {
     const rect = e.currentTarget.getBoundingClientRect();
-    setMousePosition({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
-    });
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    
+    setMousePosition({ x: mouseX, y: mouseY });
+    
+    // Check if mouse is near center (within 200px radius)
+    const distance = Math.sqrt(Math.pow(mouseX - centerX, 2) + Math.pow(mouseY - centerY, 2));
+    setIsNearCenter(distance < 200);
   };
 
   // Handle mouse enter/leave for aura visibility
@@ -299,43 +338,6 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
                       Tailored CRM Experiences, Elevated.
                     </p>
                   </motion.div>
-
-                  {/* Enhanced Button with Ripple */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ 
-                      duration: 0.8,
-                      delay: 1.8,
-                      ease: "easeOut"
-                    }}
-                    className="relative"
-                  >
-                    {/* Ripple Effect */}
-                    {buttonRipple && (
-                      <motion.div
-                        initial={{ scale: 0, opacity: 0.8 }}
-                        animate={{ 
-                          scale: [0, 1.5, 2],
-                          opacity: [0.8, 0.4, 0]
-                        }}
-                        transition={{ 
-                          duration: 0.4,
-                          ease: "easeOut"
-                        }}
-                        className="absolute inset-0 bg-gradient-to-r from-yellow-400/50 to-orange-400/50 rounded-full blur-sm"
-                      />
-                    )}
-                    
-                    <motion.button
-                      onClick={handleStartExperience}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="relative bg-gradient-to-r from-yellow-400/20 to-orange-400/20 backdrop-blur-sm border border-yellow-400/30 text-white px-8 py-4 rounded-full font-medium text-sm hover:from-yellow-400/30 hover:to-orange-400/30 transition-all duration-300 shadow-lg hover:shadow-yellow-400/20"
-                    >
-                      Begin Here
-                    </motion.button>
-                  </motion.div>
                 </motion.div>
               ) : (
                 /* Logo Display After Start */
@@ -383,6 +385,72 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
                 </motion.div>
               )}
             </div>
+
+            {/* Morphing Cursor CTA (Desktop) */}
+            {!isMobile && showAura && (
+              <motion.div
+                className="absolute pointer-events-auto cursor-pointer"
+                style={{
+                  left: mousePosition.x - 50,
+                  top: mousePosition.y - 50,
+                }}
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ 
+                  scale: isNearCenter ? 1.2 : 1,
+                  opacity: 1
+                }}
+                transition={{ 
+                  duration: 0.3,
+                  ease: "easeOut"
+                }}
+                onClick={handleStartExperience}
+              >
+                <motion.div
+                  className={`w-24 h-24 rounded-full flex items-center justify-center transition-all duration-300 ${
+                    isNearCenter 
+                      ? 'bg-gradient-to-r from-cyan-400/30 to-blue-500/30 backdrop-blur-md border border-cyan-400/50' 
+                      : 'bg-gradient-to-r from-cyan-400/20 to-blue-500/20 backdrop-blur-sm border border-cyan-400/30'
+                  }`}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  {isNearCenter ? (
+                    <motion.span
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.2 }}
+                      className="text-white text-xs font-medium text-center leading-tight"
+                    >
+                      Begin Now
+                    </motion.span>
+                  ) : (
+                    <div className="w-3 h-3 bg-cyan-400 rounded-full animate-pulse" />
+                  )}
+                </motion.div>
+              </motion.div>
+            )}
+
+            {/* Mobile Floating Pill CTA */}
+            {isMobile && showMobilePill && (
+              <motion.div
+                initial={{ y: 100, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ 
+                  duration: 0.6,
+                  ease: "easeOut"
+                }}
+                className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-20"
+              >
+                <motion.button
+                  onClick={handleStartExperience}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-8 py-4 rounded-full font-medium text-sm hover:bg-white/20 transition-all duration-300 shadow-lg"
+                >
+                  Begin Now
+                </motion.button>
+              </motion.div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
