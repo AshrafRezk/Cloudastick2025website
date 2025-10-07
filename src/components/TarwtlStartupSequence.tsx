@@ -63,10 +63,10 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.5 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-gray-50 via-slate-100 to-gray-50"
         >
           {/* Animated Background Pattern */}
-          <div className="absolute inset-0 opacity-20">
+          <div className="absolute inset-0 opacity-10">
             <motion.div
               animate={{
                 backgroundPosition: ['0% 0%', '100% 100%'],
@@ -78,7 +78,7 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
               }}
               className="w-full h-full"
               style={{
-                backgroundImage: 'radial-gradient(circle, rgba(59, 130, 246, 0.3) 1px, transparent 1px)',
+                backgroundImage: 'radial-gradient(circle, rgba(100, 100, 100, 0.2) 1px, transparent 1px)',
                 backgroundSize: '50px 50px',
               }}
             />
@@ -107,7 +107,7 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
                   }}
                 >
                   <div className="w-32 h-32 mx-auto mb-6 relative">
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-400/30 to-purple-400/30 rounded-full blur-3xl" />
                     <img
                       src="/Assets/Gitex/Gitex for Tarjama/arabicai.png"
                       alt="Arabic.ai"
@@ -117,10 +117,10 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
                 </motion.div>
 
                 <div className="space-y-4">
-                  <h1 className="text-4xl md:text-5xl font-bold text-white">
+                  <h1 className="text-4xl md:text-5xl font-bold text-slate-900">
                     Build Your Company AI Agent Today!
                   </h1>
-                  <p className="text-lg md:text-xl text-blue-200/80 max-w-2xl mx-auto">
+                  <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto">
                     Arabic-native AI agents for automation, support, and intelligence
                   </p>
                 </div>
@@ -131,7 +131,7 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
                     onClick={handleStartJourney}
-                    className="mt-12 px-10 py-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-semibold rounded-full shadow-lg shadow-blue-500/30 transition-all duration-300 transform hover:scale-105 active:scale-95"
+                    className="mt-12 px-10 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-full shadow-xl shadow-blue-500/40 transition-all duration-300 transform hover:scale-105 active:scale-95"
                   >
                     Start Your Journey
                   </motion.button>
@@ -157,7 +157,7 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
                         className="w-48 h-48 flex items-center justify-center"
                       >
                         <div className="relative">
-                          <div className="absolute inset-0 bg-gradient-to-br from-orange-400/20 to-red-400/20 rounded-full blur-3xl" />
+                          <div className="absolute inset-0 bg-gradient-to-br from-orange-400/30 to-red-400/30 rounded-full blur-3xl" />
                           <img
                             src="/Assets/Gitex/Gitex_logo.png"
                             alt="Gitex"
@@ -177,7 +177,7 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
                         className="w-48 h-48 flex items-center justify-center"
                       >
                         <div className="relative">
-                          <div className="absolute inset-0 bg-gradient-to-br from-green-400/20 to-teal-400/20 rounded-full blur-3xl" />
+                          <div className="absolute inset-0 bg-gradient-to-br from-green-400/30 to-teal-400/30 rounded-full blur-3xl" />
                           <img
                             src="/Assets/Gitex/Gitex for Tarjama/tarjama.png"
                             alt="Tarjama"
@@ -199,14 +199,14 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
                           <motion.div
                             animate={{
                               scale: [1, 1.05, 1],
-                              opacity: [0.2, 0.3, 0.2],
+                              opacity: [0.3, 0.4, 0.3],
                             }}
                             transition={{
                               duration: 3,
                               repeat: Infinity,
                               ease: 'easeInOut',
                             }}
-                            className="absolute inset-0 bg-gradient-to-br from-blue-400/30 to-purple-400/30 rounded-full blur-3xl"
+                            className="absolute inset-0 bg-gradient-to-br from-blue-400/40 to-purple-400/40 rounded-full blur-3xl"
                           />
                           <img
                             src="/Assets/Gitex/Gitex for Tarjama/arabicai.png"
