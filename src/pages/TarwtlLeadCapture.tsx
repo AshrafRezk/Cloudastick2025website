@@ -436,15 +436,14 @@ Lead Source: ${source}`;
               <p className="text-xs text-slate-500 text-center mb-6">Optional - Select if you spoke with someone from our team</p>
               
               <div className="relative max-w-4xl mx-auto">
-                {/* Navigation Arrows */}
+                {/* Navigation Arrows - Infinite Loop */}
                 <button
                   type="button"
                   onClick={() => {
-                    setCarouselIndex(Math.max(0, carouselIndex - 1));
+                    setCarouselIndex(carouselIndex === 0 ? teamMembers.length - 3 : carouselIndex - 1);
                     triggerHaptic(20);
                   }}
-                  disabled={carouselIndex === 0}
-                  className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center text-slate-600 hover:text-slate-900"
+                  className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center text-slate-600 hover:text-slate-900"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -454,11 +453,10 @@ Lead Source: ${source}`;
                 <button
                   type="button"
                   onClick={() => {
-                    setCarouselIndex(Math.min(teamMembers.length - 3, carouselIndex + 1));
+                    setCarouselIndex(carouselIndex >= teamMembers.length - 3 ? 0 : carouselIndex + 1);
                     triggerHaptic(20);
                   }}
-                  disabled={carouselIndex >= teamMembers.length - 3}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center text-slate-600 hover:text-slate-900"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center text-slate-600 hover:text-slate-900"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -528,7 +526,7 @@ Lead Source: ${source}`;
                   </motion.div>
                 </div>
 
-                {/* Carousel Indicators */}
+                {/* Carousel Indicators - Infinite Loop */}
                 <div className="flex justify-center gap-2 mt-6">
                   {Array.from({ length: Math.ceil(teamMembers.length / 3) }, (_, index) => (
                     <button
@@ -539,7 +537,7 @@ Lead Source: ${source}`;
                         triggerHaptic(20);
                       }}
                       className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                        index === Math.floor(carouselIndex / 3)
+                        index === carouselIndex
                           ? 'bg-blue-600 w-8'
                           : 'bg-slate-300'
                       }`}
