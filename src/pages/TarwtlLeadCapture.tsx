@@ -33,8 +33,24 @@ const TarwtlLeadCapture: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
+  const [personalizedQuote, setPersonalizedQuote] = useState('');
+  const [showQuote, setShowQuote] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const successAudioRef = useRef<HTMLAudioElement>(null);
+
+  // Inspirational quotes for AI Agents
+  const quotes = [
+    "The future of business is autonomous—AI agents work while you grow.",
+    "Every enterprise task automated is time reclaimed for innovation.",
+    "AI agents don't just answer questions—they solve problems in real-time.",
+    "Speed, scale, and intelligence—AI agents deliver all three, effortlessly.",
+    "Transform data into decisions with AI agents built for Arabic.",
+    "Your AI advantage starts with understanding your language and culture.",
+    "AI agents: Because efficiency isn't a luxury—it's a competitive edge.",
+    "From vision to automation in days, not months.",
+    "The best AI doesn't replace humans—it empowers them.",
+    "Arabic-first AI means faster, smarter, better results for MENA.",
+  ];
 
   // Haptic feedback helper
   const triggerHaptic = (duration = 30) => {
@@ -136,7 +152,7 @@ Lead Source: ${source}`;
       // Create form data for Salesforce
       const salesforceData = new FormData();
       salesforceData.append('oid', '00D3z000000fPuB');
-      salesforceData.append('retURL', 'https://arabic.ai');
+      salesforceData.append('retURL', 'https://arabic.ai/ai-agents/');
       salesforceData.append('first_name', formData.first_name);
       salesforceData.append('last_name', formData.last_name);
       salesforceData.append('email', formData.email);
@@ -169,22 +185,10 @@ Lead Source: ${source}`;
         successAudioRef.current.play().catch(() => {});
       }
 
-      // Reset form after delay
+      // Redirect to AI Agents page after 3 seconds
       setTimeout(() => {
-        setFormData({
-          first_name: '',
-          last_name: '',
-          email: '',
-          company: '',
-          city: '',
-          country_code: '',
-          mobile: '',
-          industry: '',
-          comments: '',
-          products: [],
-        });
-        setShowSuccess(false);
-      }, 5000);
+        window.location.href = 'https://arabic.ai/ai-agents/';
+      }, 3000);
     } catch (error) {
       console.error('Error submitting form:', error);
       triggerHaptic(100);
@@ -198,6 +202,19 @@ Lead Source: ${source}`;
     // Clear error for this field
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));
+    }
+    
+    // Show personalized quote when first name is entered (at least 2 characters)
+    if (field === 'first_name' && value.length >= 2 && !showQuote) {
+      const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+      setPersonalizedQuote(randomQuote);
+      setShowQuote(true);
+      triggerHaptic(30);
+    }
+    
+    // Hide quote if first name is cleared
+    if (field === 'first_name' && value.length < 2) {
+      setShowQuote(false);
     }
   };
 
@@ -273,10 +290,11 @@ Lead Source: ${source}`;
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-4xl md:text-6xl font-bold text-slate-900 mb-6"
           >
-            Let's talk about{' '}
+            Build Your Company{' '}
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Arabic.ai
-            </span>
+              AI Agent
+            </span>{' '}
+            Today!
           </motion.h1>
 
           {/* Subheading */}
@@ -284,10 +302,37 @@ Lead Source: ${source}`;
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-xl md:text-2xl text-slate-600 mb-12 max-w-2xl mx-auto"
+            className="text-xl md:text-2xl text-slate-600 mb-6 max-w-3xl mx-auto"
           >
-            AI-Powered Arabic NLP Solutions for Salesforce
+            Arabic-native AI agents for customer support, automation, analytics, and personalization
           </motion.p>
+
+          {/* Key Benefits */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="flex flex-wrap justify-center gap-6 mb-12 text-sm md:text-base"
+          >
+            <div className="flex items-center gap-2 text-slate-700">
+              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <span>No AI expertise needed</span>
+            </div>
+            <div className="flex items-center gap-2 text-slate-700">
+              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <span>Arabic-first by design</span>
+            </div>
+            <div className="flex items-center gap-2 text-slate-700">
+              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <span>Enterprise-ready & secure</span>
+            </div>
+          </motion.div>
 
           {/* CTA Button */}
           <motion.button
@@ -367,6 +412,37 @@ Lead Source: ${source}`;
                 <p className="text-red-500 text-sm mt-2 text-center">{errors.products}</p>
               )}
             </div>
+
+            {/* Personalized Quote */}
+            <AnimatePresence>
+              {showQuote && formData.first_name && (
+                <motion.div
+                  initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                  transition={{ duration: 0.5 }}
+                  className="mb-8 p-6 bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl border-2 border-blue-200/50 shadow-lg"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        </svg>
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-blue-900 mb-1">
+                        Hi {formData.first_name}! Here's today's inspiration:
+                      </p>
+                      <p className="text-lg text-slate-700 italic leading-relaxed">
+                        "{personalizedQuote}"
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Form */}
             <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
@@ -623,21 +699,62 @@ Lead Source: ${source}`;
       </AnimatePresence>
 
       {/* Footer */}
-      <footer className="bg-slate-900 text-white py-12 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="flex items-center justify-center mb-6">
-            <img
-              src="/Assets/Gitex/Gitex for Tarjama/arabicai.png"
-              alt="Arabic.ai"
-              className="h-16 object-contain opacity-90"
-            />
+      <footer className="bg-slate-900 text-white py-16 px-4">
+        <div className="max-w-4xl mx-auto">
+          {/* Logo and Tagline */}
+          <div className="text-center mb-12">
+            <div className="flex items-center justify-center mb-6">
+              <img
+                src="/Assets/Gitex/Gitex for Tarjama/arabicai.png"
+                alt="Arabic.ai"
+                className="h-16 object-contain opacity-90"
+              />
+            </div>
+            <p className="text-slate-300 text-lg mb-2">
+              Building AI Agents & Apps So Simple, Any Enterprise Can Do It
+            </p>
+            <p className="text-slate-500 text-sm">
+              Your Workflow… Your Data… We just Build & Automate them.
+            </p>
           </div>
-          <p className="text-slate-400 mb-2">
-            AI-Powered Arabic NLP Solutions for Salesforce
-          </p>
-          <p className="text-slate-500 text-sm">
-            © {new Date().getFullYear()} Arabic.ai. All rights reserved.
-          </p>
+
+          {/* Key Features Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12 text-center">
+            <div>
+              <div className="text-blue-400 font-semibold mb-2">Arabic-First by Design</div>
+              <p className="text-slate-400 text-sm">Automate workflows in Arabic with regional intelligence</p>
+            </div>
+            <div>
+              <div className="text-blue-400 font-semibold mb-2">Enterprise-Ready</div>
+              <p className="text-slate-400 text-sm">Secure, modular, and seamlessly integrated</p>
+            </div>
+            <div>
+              <div className="text-blue-400 font-semibold mb-2">Fast ROI</div>
+              <p className="text-slate-400 text-sm">Unlock measurable results from day one</p>
+            </div>
+          </div>
+
+          {/* CTA Link */}
+          <div className="text-center mb-8">
+            <a
+              href="https://arabic.ai/ai-agents/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-full transition-all duration-300 transform hover:scale-105"
+            >
+              Learn More About AI Agents
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </a>
+          </div>
+
+          {/* Copyright */}
+          <div className="text-center border-t border-slate-800 pt-8">
+            <p className="text-slate-500 text-sm">
+              © {new Date().getFullYear()} Arabic.ai. All rights reserved.
+            </p>
+          </div>
         </div>
       </footer>
     </div>

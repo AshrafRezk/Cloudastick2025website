@@ -118,10 +118,10 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
 
                 <div className="space-y-4">
                   <h1 className="text-4xl md:text-5xl font-bold text-white">
-                    Welcome to Arabic.ai
+                    Build Your Company AI Agent Today!
                   </h1>
                   <p className="text-lg md:text-xl text-blue-200/80 max-w-2xl mx-auto">
-                    AI-Powered Arabic NLP Solutions for Salesforce
+                    Arabic-native AI agents for automation, support, and intelligence
                   </p>
                 </div>
 
