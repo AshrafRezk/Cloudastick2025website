@@ -435,32 +435,61 @@ Lead Source: ${source}`;
               </label>
               <p className="text-xs text-slate-500 text-center mb-6">Optional - Select if you spoke with someone from our team</p>
               
-              <div className="relative max-w-md mx-auto">
+              <div className="relative max-w-4xl mx-auto">
+                {/* Navigation Arrows */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCarouselIndex(Math.max(0, carouselIndex - 1));
+                    triggerHaptic(20);
+                  }}
+                  disabled={carouselIndex === 0}
+                  className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center text-slate-600 hover:text-slate-900"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCarouselIndex(Math.min(teamMembers.length - 3, carouselIndex + 1));
+                    triggerHaptic(20);
+                  }}
+                  disabled={carouselIndex >= teamMembers.length - 3}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center text-slate-600 hover:text-slate-900"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+
                 {/* Carousel Container */}
-                <div className="overflow-hidden rounded-3xl">
+                <div className="overflow-hidden rounded-3xl mx-16">
                   <motion.div
-                    animate={{ x: `-${carouselIndex * 100}%` }}
+                    animate={{ x: `-${carouselIndex * (100 / 3)}%` }}
                     transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                     className="flex"
                   >
                     {teamMembers.map((member, index) => (
                       <motion.div
                         key={index}
-                        className="min-w-full px-4"
+                        className="min-w-[33.333%] px-3"
                         whileHover={{ scale: selectedOfficerIndex === null ? 1.02 : 1 }}
                       >
                         <motion.button
                           type="button"
                           onClick={() => handleOfficerSelect(index)}
-                          className={`w-full p-6 rounded-3xl transition-all duration-300 ${
+                          className={`w-full p-4 rounded-2xl transition-all duration-300 ${
                             selectedOfficerIndex === index
-                              ? 'bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-2xl shadow-blue-500/40 border-2 border-transparent'
+                              ? 'bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-xl shadow-blue-500/40'
                               : 'bg-white text-slate-700 hover:bg-slate-50 border-2 border-slate-200 shadow-lg'
                           }`}
                         >
-                          <div className="flex flex-col items-center gap-4">
+                          <div className="flex flex-col items-center gap-3">
                             {/* Avatar */}
-                            <div className={`w-32 h-32 rounded-full overflow-hidden border-4 ${
+                            <div className={`w-24 h-24 rounded-full overflow-hidden border-3 ${
                               selectedOfficerIndex === index ? 'border-white/30' : 'border-slate-200'
                             }`}>
                               <img
@@ -472,7 +501,7 @@ Lead Source: ${source}`;
                             
                             {/* Name Only */}
                             <div>
-                              <h3 className={`text-xl font-bold ${
+                              <h3 className={`text-lg font-bold ${
                                 selectedOfficerIndex === index ? 'text-white' : 'text-slate-900'
                               }`}>
                                 {member.name}
@@ -484,12 +513,12 @@ Lead Source: ${source}`;
                               <motion.div
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
-                                className="flex items-center gap-2 mt-2"
+                                className="flex items-center gap-1 mt-1"
                               >
-                                <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                                 </svg>
-                                <span className="text-sm font-semibold">Selected</span>
+                                <span className="text-xs font-semibold">Selected</span>
                               </motion.div>
                             )}
                           </div>
@@ -501,7 +530,7 @@ Lead Source: ${source}`;
 
                 {/* Carousel Indicators */}
                 <div className="flex justify-center gap-2 mt-6">
-                  {teamMembers.map((_, index) => (
+                  {Array.from({ length: Math.ceil(teamMembers.length / 3) }, (_, index) => (
                     <button
                       key={index}
                       type="button"
@@ -510,10 +539,8 @@ Lead Source: ${source}`;
                         triggerHaptic(20);
                       }}
                       className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                        index === carouselIndex
+                        index === Math.floor(carouselIndex / 3)
                           ? 'bg-blue-600 w-8'
-                          : index === selectedOfficerIndex
-                          ? 'bg-purple-600'
                           : 'bg-slate-300'
                       }`}
                     />
