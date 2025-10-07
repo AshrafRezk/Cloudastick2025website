@@ -470,18 +470,13 @@ Lead Source: ${source}`;
                               />
                             </div>
                             
-                            {/* Name & Role */}
+                            {/* Name Only */}
                             <div>
-                              <h3 className={`text-xl font-bold mb-1 ${
+                              <h3 className={`text-xl font-bold ${
                                 selectedOfficerIndex === index ? 'text-white' : 'text-slate-900'
                               }`}>
                                 {member.name}
                               </h3>
-                              <p className={`text-sm ${
-                                selectedOfficerIndex === index ? 'text-blue-100' : 'text-slate-500'
-                              }`}>
-                                {member.role}
-                              </p>
                             </div>
 
                             {/* Selected Indicator */}
