@@ -393,13 +393,64 @@ Lead Source: ${source}`;
           {/* CTA Button */}
           <motion.button
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
+            animate={{ 
+              opacity: 1, 
+              y: [0, -8, 0],
+            }}
+            transition={{ 
+              duration: 0.8, 
+              delay: 0.6,
+              y: {
+                duration: 2,
+                repeat: Infinity,
+                repeatType: "reverse",
+                ease: "easeInOut"
+              }
+            }}
             onClick={scrollToForm}
             onMouseEnter={() => triggerHaptic(20)}
-            className="px-10 py-5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-lg font-semibold rounded-full shadow-lg shadow-blue-500/30 transition-all duration-300 transform hover:scale-105 active:scale-95"
+            className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full shadow-2xl shadow-blue-500/40 transition-all duration-300 transform hover:scale-110 active:scale-95 flex items-center justify-center group"
+            whileHover={{ 
+              scale: 1.1,
+              boxShadow: "0 25px 50px -12px rgba(59, 130, 246, 0.5)"
+            }}
+            whileTap={{ scale: 0.95 }}
           >
-            Get Started
+            <motion.div
+              animate={{ y: [0, 2, 0] }}
+              transition={{ 
+                duration: 1.5,
+                repeat: Infinity,
+                repeatType: "reverse",
+                ease: "easeInOut"
+              }}
+              className="flex flex-col items-center"
+            >
+              <svg 
+                className="w-8 h-8 group-hover:scale-110 transition-transform duration-300" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  strokeWidth={2} 
+                  d="M19 14l-7 7m0 0l-7-7m7 7V3" 
+                />
+              </svg>
+              <motion.div
+                animate={{ opacity: [0.7, 1, 0.7] }}
+                transition={{ 
+                  duration: 2,
+                  repeat: Infinity,
+                  repeatType: "reverse"
+                }}
+                className="text-xs font-bold mt-1"
+              >
+                Start
+              </motion.div>
+            </motion.div>
           </motion.button>
 
           {/* Floating Elements */}
@@ -421,10 +472,10 @@ Lead Source: ${source}`;
             {/* Form Header */}
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-                We'll help you get your agent up and running as soon as possible!
+                Get your AI Agent up and running as soon as possible!
               </h2>
               <p className="text-lg text-slate-600">
-                We'll get back to you within 24 hours
+                arabic.ai is here for you!
               </p>
             </div>
 
