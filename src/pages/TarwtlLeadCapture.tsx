@@ -421,7 +421,7 @@ Lead Source: ${source}`;
             {/* Form Header */}
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-                Share Your Details
+                We'll help you get your agent up and running as soon as possible!
               </h2>
               <p className="text-lg text-slate-600">
                 We'll get back to you within 24 hours
