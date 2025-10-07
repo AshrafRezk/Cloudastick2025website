@@ -109,7 +109,7 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
                   <div className="w-32 h-32 mx-auto mb-6 relative">
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl" />
                     <img
-                      src="/lovable-uploads/4fe89c11-3a26-4657-b290-84aa60913e64.png"
+                      src="/Assets/Gitex/Gitex for Tarjama/arabicai.png"
                       alt="Arabic.ai"
                       className="w-full h-full object-contain relative z-10"
                     />
@@ -159,7 +159,7 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
                         <div className="relative">
                           <div className="absolute inset-0 bg-gradient-to-br from-orange-400/20 to-red-400/20 rounded-full blur-3xl" />
                           <img
-                            src="/lovable-uploads/86bce185-8352-41ab-95de-e94dde49cfa6.png"
+                            src="/Assets/Gitex/Gitex_logo.png"
                             alt="Gitex"
                             className="w-full h-full object-contain relative z-10"
                           />
@@ -179,7 +179,7 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
                         <div className="relative">
                           <div className="absolute inset-0 bg-gradient-to-br from-green-400/20 to-teal-400/20 rounded-full blur-3xl" />
                           <img
-                            src="/lovable-uploads/2bfae079-606f-45b2-bee0-70af6023b001.png"
+                            src="/Assets/Gitex/Gitex for Tarjama/tarjama.png"
                             alt="Tarjama"
                             className="w-full h-full object-contain relative z-10"
                           />
@@ -209,7 +209,7 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
                             className="absolute inset-0 bg-gradient-to-br from-blue-400/30 to-purple-400/30 rounded-full blur-3xl"
                           />
                           <img
-                            src="/lovable-uploads/4fe89c11-3a26-4657-b290-84aa60913e64.png"
+                            src="/Assets/Gitex/Gitex for Tarjama/arabicai.png"
                             alt="Arabic.ai"
                             className="w-full h-full object-contain relative z-10"
                           />

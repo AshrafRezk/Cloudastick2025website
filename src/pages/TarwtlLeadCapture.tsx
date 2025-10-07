@@ -259,7 +259,7 @@ Lead Source: ${source}`;
                 className="absolute inset-0 bg-gradient-to-br from-blue-400/30 to-purple-400/30 rounded-full blur-3xl"
               />
               <img
-                src="/lovable-uploads/4fe89c11-3a26-4657-b290-84aa60913e64.png"
+                src="/Assets/Gitex/Gitex for Tarjama/arabicai.png"
                 alt="Arabic.ai"
                 className="w-full h-full object-contain relative z-10"
               />
@@ -618,12 +618,12 @@ Lead Source: ${source}`;
         <div className="max-w-4xl mx-auto text-center">
           <div className="flex items-center justify-center gap-8 mb-6">
             <img
-              src="/lovable-uploads/2bfae079-606f-45b2-bee0-70af6023b001.png"
+              src="/Assets/Gitex/Gitex for Tarjama/tarjama.png"
               alt="Tarjama"
               className="h-12 object-contain opacity-80"
             />
             <img
-              src="/lovable-uploads/4fe89c11-3a26-4657-b290-84aa60913e64.png"
+              src="/Assets/Gitex/Gitex for Tarjama/arabicai.png"
               alt="Arabic.ai"
               className="h-12 object-contain opacity-80"
             />
