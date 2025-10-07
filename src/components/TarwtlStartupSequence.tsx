@@ -10,12 +10,20 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
   const [showSequence, setShowSequence] = useState(true);
   const [canStart, setCanStart] = useState(false);
   const [isStarted, setIsStarted] = useState(false);
+  const videoRef = React.useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     // Show "Start" button after all logos have displayed
     const timer = setTimeout(() => {
       setCanStart(true);
     }, 1000);
+
+    // Auto-play video when component mounts
+    if (videoRef.current) {
+      videoRef.current.play().catch((error) => {
+        console.log('Video autoplay prevented:', error);
+      });
+    }
 
     return () => clearTimeout(timer);
   }, []);
@@ -65,24 +73,47 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
           transition={{ duration: 0.5 }}
           className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-gray-50 via-slate-100 to-gray-50"
         >
-          {/* Animated Background Pattern */}
-          <div className="absolute inset-0 opacity-10">
-            <motion.div
-              animate={{
-                backgroundPosition: ['0% 0%', '100% 100%'],
-              }}
-              transition={{
-                duration: 20,
-                repeat: Infinity,
-                repeatType: 'reverse',
-              }}
-              className="w-full h-full"
-              style={{
-                backgroundImage: 'radial-gradient(circle, rgba(100, 100, 100, 0.2) 1px, transparent 1px)',
-                backgroundSize: '50px 50px',
-              }}
-            />
-          </div>
+          {/* Video Background - Only on initial welcome screen */}
+          {!isStarted && (
+            <div className="absolute inset-0 overflow-hidden">
+              <video
+                ref={videoRef}
+                muted
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover opacity-40"
+                onEnded={(e) => {
+                  // Freeze on last frame by seeking to the end
+                  const video = e.currentTarget;
+                  video.currentTime = video.duration;
+                }}
+              >
+                <source src="/Assets/Gitex/Gitex for Tarjama/robotvideo.mp4" type="video/mp4" />
+              </video>
+              {/* Gradient overlay to ensure text readability */}
+              <div className="absolute inset-0 bg-gradient-to-b from-white/70 via-white/50 to-white/70" />
+            </div>
+          )}
+
+          {/* Animated Background Pattern - Only during logo sequence */}
+          {isStarted && (
+            <div className="absolute inset-0 opacity-10">
+              <motion.div
+                animate={{
+                  backgroundPosition: ['0% 0%', '100% 100%'],
+                }}
+                transition={{
+                  duration: 20,
+                  repeat: Infinity,
+                  repeatType: 'reverse',
+                }}
+                className="w-full h-full"
+                style={{
+                  backgroundImage: 'radial-gradient(circle, rgba(100, 100, 100, 0.2) 1px, transparent 1px)',
+                  backgroundSize: '50px 50px',
+                }}
+              />
+            </div>
+          )}
 
           {/* Content */}
           <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4">
