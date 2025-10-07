@@ -13,6 +13,7 @@ interface FormData {
   industry: string;
   comments: string;
   products: string[];
+  lead_gen_officer: string; // Salesforce userId
 }
 
 const TarwtlLeadCapture: React.FC = () => {
@@ -28,6 +29,7 @@ const TarwtlLeadCapture: React.FC = () => {
     industry: '',
     comments: '',
     products: [],
+    lead_gen_officer: '', // Will be set to default or selected user
   });
   const [deviceInfo, setDeviceInfo] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -35,8 +37,22 @@ const TarwtlLeadCapture: React.FC = () => {
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
   const [personalizedQuote, setPersonalizedQuote] = useState('');
   const [showQuote, setShowQuote] = useState(false);
+  const [selectedOfficerIndex, setSelectedOfficerIndex] = useState<number | null>(null);
+  const [carouselIndex, setCarouselIndex] = useState(0);
   const formRef = useRef<HTMLFormElement>(null);
   const successAudioRef = useRef<HTMLAudioElement>(null);
+  const carouselIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Team members for Lead Gen Officer selection
+  // TODO: Replace with actual Salesforce userIds
+  const teamMembers = [
+    { name: 'Mina Michel', role: 'Founder', userId: 'USER_ID_1', image: '/Assets/Company Members/Mina_Michel_Founder_of_Cloudastick_Systems.png' },
+    { name: 'Ashraf Rezk', role: 'Head of Tech', userId: 'USER_ID_2', image: '/Assets/Company Members/Ashraf_Rezk_Head_of_Tech.png' },
+    { name: 'Omar El Borae', role: 'Customer Success', userId: 'USER_ID_3', image: '/Assets/Company Members/Omar_El_Borae_Customer_Success_Manager.png' },
+    { name: 'Mariam Mamdouh', role: 'Project Manager', userId: 'USER_ID_4', image: '/Assets/Company Members/Mariam_Mamdouh_Project_Manager.png' },
+  ];
+
+  const DEFAULT_USER_ID = 'USER_ID_1'; // Default if no one selected
 
   // Inspirational quotes for AI Agents
   const quotes = [
@@ -58,6 +74,28 @@ const TarwtlLeadCapture: React.FC = () => {
       navigator.vibrate(duration);
     }
   };
+
+  // Carousel autoplay
+  useEffect(() => {
+    // Start autoplay carousel
+    carouselIntervalRef.current = setInterval(() => {
+      setCarouselIndex((prev) => (prev + 1) % teamMembers.length);
+    }, 3000); // Change every 3 seconds
+
+    return () => {
+      if (carouselIntervalRef.current) {
+        clearInterval(carouselIntervalRef.current);
+      }
+    };
+  }, [teamMembers.length]);
+
+  // Stop autoplay when user selects someone
+  useEffect(() => {
+    if (selectedOfficerIndex !== null && carouselIntervalRef.current) {
+      clearInterval(carouselIntervalRef.current);
+      carouselIntervalRef.current = null;
+    }
+  }, [selectedOfficerIndex]);
 
   // Capture device info and query params on mount
   useEffect(() => {
@@ -121,6 +159,16 @@ Lead Source: ${source}`;
     });
   };
 
+  const handleOfficerSelect = (index: number) => {
+    triggerHaptic(40);
+    setSelectedOfficerIndex(index);
+    setCarouselIndex(index);
+    setFormData(prev => ({
+      ...prev,
+      lead_gen_officer: teamMembers[index].userId
+    }));
+  };
+
   const validateForm = (): boolean => {
     const newErrors: Partial<Record<keyof FormData, string>> = {};
     
@@ -161,6 +209,10 @@ Lead Source: ${source}`;
       salesforceData.append('country_code', formData.country_code);
       salesforceData.append('mobile', formData.mobile);
       salesforceData.append('industry', formData.industry);
+      
+      // Add Lead Gen Officer (use default if none selected)
+      const leadOfficerId = formData.lead_gen_officer || DEFAULT_USER_ID;
+      salesforceData.append('00NJ5000000XXXXX', leadOfficerId); // TODO: Replace with actual Salesforce field ID
       
       // Add products to comments
       const productsText = `Products of Interest: ${formData.products.join(', ')}\n\n${formData.comments}`;
@@ -370,6 +422,122 @@ Lead Source: ${source}`;
               <p className="text-lg text-slate-600">
                 We'll get back to you within 24 hours
               </p>
+            </div>
+
+            {/* Lead Gen Officer Carousel */}
+            <div className="mb-10">
+              <label className="block text-sm font-semibold text-slate-700 mb-4 text-center">
+                Who did you talk to today?
+              </label>
+              <p className="text-xs text-slate-500 text-center mb-6">Optional - Select if you spoke with someone from our team</p>
+              
+              <div className="relative max-w-md mx-auto">
+                {/* Carousel Container */}
+                <div className="overflow-hidden rounded-3xl">
+                  <motion.div
+                    animate={{ x: `-${carouselIndex * 100}%` }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                    className="flex"
+                  >
+                    {teamMembers.map((member, index) => (
+                      <motion.div
+                        key={index}
+                        className="min-w-full px-4"
+                        whileHover={{ scale: selectedOfficerIndex === null ? 1.02 : 1 }}
+                      >
+                        <motion.button
+                          type="button"
+                          onClick={() => handleOfficerSelect(index)}
+                          className={`w-full p-6 rounded-3xl transition-all duration-300 ${
+                            selectedOfficerIndex === index
+                              ? 'bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-2xl shadow-blue-500/40 border-2 border-transparent'
+                              : 'bg-white text-slate-700 hover:bg-slate-50 border-2 border-slate-200 shadow-lg'
+                          }`}
+                        >
+                          <div className="flex flex-col items-center gap-4">
+                            {/* Avatar */}
+                            <div className={`w-32 h-32 rounded-full overflow-hidden border-4 ${
+                              selectedOfficerIndex === index ? 'border-white/30' : 'border-slate-200'
+                            }`}>
+                              <img
+                                src={member.image}
+                                alt={member.name}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            
+                            {/* Name & Role */}
+                            <div>
+                              <h3 className={`text-xl font-bold mb-1 ${
+                                selectedOfficerIndex === index ? 'text-white' : 'text-slate-900'
+                              }`}>
+                                {member.name}
+                              </h3>
+                              <p className={`text-sm ${
+                                selectedOfficerIndex === index ? 'text-blue-100' : 'text-slate-500'
+                              }`}>
+                                {member.role}
+                              </p>
+                            </div>
+
+                            {/* Selected Indicator */}
+                            {selectedOfficerIndex === index && (
+                              <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                className="flex items-center gap-2 mt-2"
+                              >
+                                <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                </svg>
+                                <span className="text-sm font-semibold">Selected</span>
+                              </motion.div>
+                            )}
+                          </div>
+                        </motion.button>
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                </div>
+
+                {/* Carousel Indicators */}
+                <div className="flex justify-center gap-2 mt-6">
+                  {teamMembers.map((_, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => {
+                        setCarouselIndex(index);
+                        triggerHaptic(20);
+                      }}
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                        index === carouselIndex
+                          ? 'bg-blue-600 w-8'
+                          : index === selectedOfficerIndex
+                          ? 'bg-purple-600'
+                          : 'bg-slate-300'
+                      }`}
+                    />
+                  ))}
+                </div>
+
+                {/* Clear Selection */}
+                {selectedOfficerIndex !== null && (
+                  <motion.button
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    type="button"
+                    onClick={() => {
+                      setSelectedOfficerIndex(null);
+                      setFormData(prev => ({ ...prev, lead_gen_officer: '' }));
+                      triggerHaptic(30);
+                    }}
+                    className="mt-4 mx-auto block text-sm text-slate-500 hover:text-slate-700 underline"
+                  >
+                    Clear Selection
+                  </motion.button>
+                )}
+              </div>
             </div>
 
             {/* Product Selector */}
