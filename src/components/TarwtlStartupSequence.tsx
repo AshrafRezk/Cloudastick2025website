@@ -31,19 +31,21 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
   useEffect(() => {
     if (!isStarted) return;
 
-    // Logo sequence: Gitex (1.5s) → Tarjama (1.5s) → Arabic.ai (1.5s) → Complete
+    // Logo sequence: Gitex (1.2s) → Tarjama (1.2s) → Arabic.ai (1.2s) → Complete
     const gitexTimer = setTimeout(() => {
       setCurrentLogo('tarjama');
-    }, 1500);
+    }, 1200);
 
     const tarjamaTimer = setTimeout(() => {
       setCurrentLogo('arabic-ai');
-    }, 3000);
+    }, 2400);
 
     const completeTimer = setTimeout(() => {
       setShowSequence(false);
-      setTimeout(onComplete, 300);
-    }, 4500); // Show Arabic.ai for 1.5s then complete
+      setTimeout(() => {
+        onComplete();
+      }, 300);
+    }, 3600); // Show Arabic.ai for 1.2s then complete
 
     return () => {
       clearTimeout(gitexTimer);
