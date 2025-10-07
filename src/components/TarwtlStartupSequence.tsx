@@ -78,6 +78,7 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
             <div className="absolute inset-0 overflow-hidden">
               <video
                 ref={videoRef}
+                autoPlay
                 muted
                 playsInline
                 className="absolute inset-0 w-full h-full object-cover opacity-40"
