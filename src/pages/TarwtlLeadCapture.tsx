@@ -275,10 +275,6 @@ Lead Source: ${source}`;
           >
             Let's talk about{' '}
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Tarjama
-            </span>{' '}
-            |{' '}
-            <span className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
               Arabic.ai
             </span>
           </motion.h1>
@@ -290,7 +286,7 @@ Lead Source: ${source}`;
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-xl md:text-2xl text-slate-600 mb-12 max-w-2xl mx-auto"
           >
-            Salesforce AI, Arabic NLP, and Translation Solutions
+            AI-Powered Arabic NLP Solutions for Salesforce
           </motion.p>
 
           {/* CTA Button */}
@@ -334,23 +330,36 @@ Lead Source: ${source}`;
             {/* Product Selector */}
             <div className="mb-10">
               <label className="block text-sm font-semibold text-slate-700 mb-4">
-                Which solution interests you? *
+                Products of Interest *
               </label>
-              <div className="flex flex-wrap gap-4 justify-center">
-                {['Tarjama', 'Arabic.ai'].map((product) => (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                  { name: 'Salesforce', logo: '/Assets/Product Logos/salesforce.png' },
+                  { name: 'MuleSoft', logo: '/Assets/Product Logos/mulesoft.png' },
+                  { name: 'Tableau', logo: '/Assets/Product Logos/tableau.png' },
+                  { name: 'Slack', logo: '/Assets/Product Logos/slack.png' },
+                  { name: 'Copado', logo: '/Assets/Product Logos/copado.png' },
+                  { name: 'Informatica', logo: '/Assets/Product Logos/informatica.png' },
+                  { name: 'Quip', logo: '/Assets/Product Logos/quip.png' },
+                ].map((product) => (
                   <motion.button
-                    key={product}
+                    key={product.name}
                     type="button"
-                    onClick={() => handleProductToggle(product)}
+                    onClick={() => handleProductToggle(product.name)}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className={`px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 ${
-                      formData.products.includes(product)
-                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/30'
-                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    className={`p-4 rounded-2xl font-semibold transition-all duration-300 flex flex-col items-center gap-2 ${
+                      formData.products.includes(product.name)
+                        ? 'bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/30 border-2 border-transparent'
+                        : 'bg-white text-slate-700 hover:bg-slate-50 border-2 border-slate-200'
                     }`}
                   >
-                    {product}
+                    <div className={`w-12 h-12 flex items-center justify-center ${
+                      formData.products.includes(product.name) ? 'brightness-0 invert' : ''
+                    }`}>
+                      <img src={product.logo} alt={product.name} className="max-w-full max-h-full object-contain" />
+                    </div>
+                    <span className="text-sm">{product.name}</span>
                   </motion.button>
                 ))}
               </div>
@@ -616,20 +625,18 @@ Lead Source: ${source}`;
       {/* Footer */}
       <footer className="bg-slate-900 text-white py-12 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="flex items-center justify-center gap-8 mb-6">
-            <img
-              src="/Assets/Gitex/Gitex for Tarjama/tarjama.png"
-              alt="Tarjama"
-              className="h-12 object-contain opacity-80"
-            />
+          <div className="flex items-center justify-center mb-6">
             <img
               src="/Assets/Gitex/Gitex for Tarjama/arabicai.png"
               alt="Arabic.ai"
-              className="h-12 object-contain opacity-80"
+              className="h-16 object-contain opacity-90"
             />
           </div>
-          <p className="text-slate-400">
-            Powered by Tarjama & Arabic.ai • {new Date().getFullYear()}
+          <p className="text-slate-400 mb-2">
+            AI-Powered Arabic NLP Solutions for Salesforce
+          </p>
+          <p className="text-slate-500 text-sm">
+            © {new Date().getFullYear()} Arabic.ai. All rights reserved.
           </p>
         </div>
       </footer>

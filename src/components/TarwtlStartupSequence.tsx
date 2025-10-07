@@ -118,10 +118,10 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
 
                 <div className="space-y-4">
                   <h1 className="text-4xl md:text-5xl font-bold text-white">
-                    Welcome to Tarjama | Arabic.ai
+                    Welcome to Arabic.ai
                   </h1>
                   <p className="text-lg md:text-xl text-blue-200/80 max-w-2xl mx-auto">
-                    Salesforce AI, Arabic NLP, and Translation Solutions
+                    AI-Powered Arabic NLP Solutions for Salesforce
                   </p>
                 </div>
 
