@@ -39,6 +39,7 @@ const TarwtlLeadCapture: React.FC = () => {
   const [showQuote, setShowQuote] = useState(false);
   const [selectedOfficerIndex, setSelectedOfficerIndex] = useState<number | null>(null);
   const [carouselIndex, setCarouselIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const successAudioRef = useRef<HTMLAudioElement>(null);
   const carouselIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -275,8 +276,21 @@ Lead Source: ${source}`;
   };
 
   const scrollToForm = () => {
+    setIsTransitioning(true);
     triggerHaptic(30);
-    document.getElementById('lead-form')?.scrollIntoView({ behavior: 'smooth' });
+    
+    // Start morph transition
+    setTimeout(() => {
+      const formElement = document.getElementById('lead-form');
+      if (formElement) {
+        formElement.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 300);
+    
+    // End transition after scroll completes
+    setTimeout(() => {
+      setIsTransitioning(false);
+    }, 1500);
   };
 
   if (showStartup) {
@@ -396,6 +410,9 @@ Lead Source: ${source}`;
             animate={{ 
               opacity: 1, 
               y: [0, -8, 0],
+              scale: isTransitioning ? [1, 1.2, 0.8, 1.5] : 1,
+              borderRadius: isTransitioning ? ["50%", "20%", "50%", "0%"] : "50%",
+              rotate: isTransitioning ? [0, 180, 360] : 0,
             }}
             transition={{ 
               duration: 0.8, 
@@ -405,13 +422,27 @@ Lead Source: ${source}`;
                 repeat: Infinity,
                 repeatType: "reverse",
                 ease: "easeInOut"
-              }
+              },
+              scale: isTransitioning ? {
+                duration: 0.8,
+                times: [0, 0.3, 0.6, 1],
+                ease: "easeInOut"
+              } : {},
+              borderRadius: isTransitioning ? {
+                duration: 0.8,
+                times: [0, 0.3, 0.6, 1],
+                ease: "easeInOut"
+              } : {},
+              rotate: isTransitioning ? {
+                duration: 0.8,
+                ease: "easeInOut"
+              } : {}
             }}
             onClick={scrollToForm}
             onMouseEnter={() => triggerHaptic(20)}
-            className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full shadow-2xl shadow-blue-500/40 transition-all duration-300 transform hover:scale-110 active:scale-95 flex items-center justify-center group mx-auto"
+            className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-2xl shadow-blue-500/40 transition-all duration-300 transform hover:scale-110 active:scale-95 flex items-center justify-center group mx-auto"
             whileHover={{ 
-              scale: 1.1,
+              scale: isTransitioning ? 1 : 1.1,
               boxShadow: "0 25px 50px -12px rgba(59, 130, 246, 0.5)"
             }}
             whileTap={{ scale: 0.95 }}
@@ -463,10 +494,22 @@ Lead Source: ${source}`;
       <section id="lead-form" className="relative px-4 py-20">
         <div className="max-w-4xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 40, scale: 0.9 }}
+            whileInView={{ 
+              opacity: 1, 
+              y: 0, 
+              scale: isTransitioning ? [0.9, 1.05, 1] : 1 
+            }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
+            transition={{ 
+              duration: 0.8,
+              scale: isTransitioning ? {
+                duration: 0.6,
+                times: [0, 0.5, 1],
+                ease: "easeInOut",
+                delay: 0.3
+              } : {}
+            }}
             className="bg-white rounded-3xl shadow-2xl shadow-blue-500/10 p-8 md:p-12"
           >
             {/* Form Header */}
