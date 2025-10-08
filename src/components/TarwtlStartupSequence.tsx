@@ -46,6 +46,7 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
     const transitionMusic = transitionMusicRef.current;
     if (transitionMusic) {
       transitionMusic.currentTime = 0;
+      transitionMusic.volume = 1; // Start at full volume
       transitionMusic.play().catch(() => {});
     }
 
@@ -75,6 +76,29 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
         woosh2Ref.current.play().catch(() => {});
       }
       setShowSequence(false);
+      
+      // Start fading out music gradually over 2 seconds
+      if (transitionMusic) {
+        const fadeOutDuration = 2000; // 2 seconds
+        const fadeOutSteps = 50;
+        const fadeOutInterval = fadeOutDuration / fadeOutSteps;
+        const volumeStep = transitionMusic.volume / fadeOutSteps;
+        
+        let currentStep = 0;
+        const fadeInterval = setInterval(() => {
+          if (transitionMusic && currentStep < fadeOutSteps) {
+            transitionMusic.volume = Math.max(0, transitionMusic.volume - volumeStep);
+            currentStep++;
+          } else {
+            clearInterval(fadeInterval);
+            if (transitionMusic) {
+              transitionMusic.pause();
+              transitionMusic.volume = 1; // Reset volume for next time
+            }
+          }
+        }, fadeOutInterval);
+      }
+      
       setTimeout(() => {
         onCompleteRef.current();
       }, 300);
@@ -84,10 +108,6 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
       clearTimeout(gitexTimer);
       clearTimeout(tarjamaTimer);
       clearTimeout(completeTimer);
-      // Stop music when component unmounts
-      if (transitionMusic) {
-        transitionMusic.pause();
-      }
     };
   }, [isStarted]); // Only depend on isStarted, use ref for onComplete
 
