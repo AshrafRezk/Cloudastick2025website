@@ -6,7 +6,7 @@ interface TarwtlStartupSequenceProps {
 }
 
 const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplete }) => {
-  const [currentLogo, setCurrentLogo] = useState<'gitex' | 'tarjama' | 'arabic-ai'>('gitex');
+  const [currentLogo, setCurrentLogo] = useState<'gitex' | 'arabic-ai'>('gitex');
   const [showSequence, setShowSequence] = useState(true);
   const [canStart, setCanStart] = useState(false);
   const [isStarted, setIsStarted] = useState(false);
@@ -41,7 +41,7 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
   useEffect(() => {
     if (!isStarted) return;
 
-    // Logo sequence: Gitex (1.2s) → Tarjama (1.2s) → Arabic.ai (1.2s) → Complete
+    // Logo sequence: Gitex (1.8s) → Arabic.ai (1.8s) → Complete (Tarjama removed)
     const gitexTimer = setTimeout(() => {
       // Play woosh for logo transition at 50% volume
       if (woosh2Ref.current) {
@@ -49,18 +49,8 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
         woosh2Ref.current.currentTime = 0;
         woosh2Ref.current.play().catch(() => {});
       }
-      setCurrentLogo('tarjama');
-    }, 1200);
-
-    const tarjamaTimer = setTimeout(() => {
-      // Play woosh for logo transition at 50% volume
-      if (woosh2Ref.current) {
-        woosh2Ref.current.volume = 0.5; // Reduced by 50%
-        woosh2Ref.current.currentTime = 0;
-        woosh2Ref.current.play().catch(() => {});
-      }
       setCurrentLogo('arabic-ai');
-    }, 2400);
+    }, 1800);
 
     const completeTimer = setTimeout(() => {
       // Play woosh for final transition at 50% volume
@@ -74,18 +64,17 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
       setTimeout(() => {
         onCompleteRef.current();
       }, 300);
-    }, 3600); // Show Arabic.ai for 1.2s then complete
+    }, 3600); // Show Arabic.ai for 1.8s then complete
 
     return () => {
       clearTimeout(gitexTimer);
-      clearTimeout(tarjamaTimer);
       clearTimeout(completeTimer);
     };
   }, [isStarted]); // Only depend on isStarted, use ref for onComplete
 
   const triggerHaptic = () => {
     if ('vibrate' in navigator) {
-      navigator.vibrate([30, 20, 30]);
+      navigator.vibrate([1, 1, 1]); // Reduced to 4% of original [30, 20, 30]
     }
   };
 
@@ -234,26 +223,6 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
                           <img
                             src="/Assets/Gitex/Gitex_logo.png"
                             alt="Gitex"
-                            className="w-full h-full object-contain relative z-10"
-                          />
-                        </div>
-                      </motion.div>
-                    )}
-
-                    {currentLogo === 'tarjama' && (
-                      <motion.div
-                        key="tarjama"
-                        initial={{ opacity: 0, scale: 0.8, rotateY: -90 }}
-                        animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-                        exit={{ opacity: 0, scale: 0.8, rotateY: 90 }}
-                        transition={{ duration: 0.6, ease: 'easeOut' }}
-                        className="w-48 h-48 flex items-center justify-center"
-                      >
-                        <div className="relative">
-                          <div className="absolute inset-0 bg-gradient-to-br from-gray-400/30 to-slate-400/30 rounded-full blur-3xl" />
-                          <img
-                            src="/Assets/Gitex/Gitex for Tarjama/tarjama.png"
-                            alt="Tarjama"
                             className="w-full h-full object-contain relative z-10"
                           />
                         </div>
