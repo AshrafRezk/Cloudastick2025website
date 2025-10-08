@@ -236,8 +236,16 @@ Lead Source: ${source}`;
       salesforceData.append('industry', formData.industry);
       
       // Add Lead Gen Officer (use default if none selected)
-      const leadOfficerId = formData.lead_gen_officer || DEFAULT_USER_ID;
-      salesforceData.append('00NJ5000000XXXXX', leadOfficerId); // TODO: Replace with actual Salesforce field ID
+      const selectedOfficer = selectedOfficerIndex !== null 
+        ? teamMembers[selectedOfficerIndex] 
+        : teamMembers.find(m => m.userId === DEFAULT_USER_ID);
+
+      // If user has ID, use it; otherwise use their name
+      const leadOfficerValue = selectedOfficer 
+        ? (selectedOfficer.userId !== 'DEFAULT_USER' ? selectedOfficer.userId : selectedOfficer.name)
+        : DEFAULT_USER_ID;
+
+      salesforceData.append('00NNM00000D5r7R', leadOfficerValue);
       
       // Add products to comments
       const productsText = `Products of Interest: ${formData.products.join(', ')}\n\n${formData.comments}`;
