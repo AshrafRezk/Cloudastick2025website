@@ -16,7 +16,6 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
   // Audio refs for sound effects
   const woosh1Ref = React.useRef<HTMLAudioElement>(null); // Small motions
   const woosh2Ref = React.useRef<HTMLAudioElement>(null); // Bigger animations
-  const transitionMusicRef = React.useRef<HTMLAudioElement>(null); // Logo sequence music
 
   // Update ref when onComplete changes
   React.useEffect(() => {
@@ -42,19 +41,11 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
   useEffect(() => {
     if (!isStarted) return;
 
-    // Play transition music when logo sequence starts
-    const transitionMusic = transitionMusicRef.current;
-    if (transitionMusic) {
-      transitionMusic.currentTime = 0;
-      transitionMusic.volume = 0.8; // Set to 80% volume (reduced by 20%)
-      transitionMusic.play().catch(() => {});
-      // Let the track play completely without interruption
-    }
-
     // Logo sequence: Gitex (1.2s) → Tarjama (1.2s) → Arabic.ai (1.2s) → Complete
     const gitexTimer = setTimeout(() => {
-      // Play woosh for logo transition
+      // Play woosh for logo transition at 50% volume
       if (woosh2Ref.current) {
+        woosh2Ref.current.volume = 0.5; // Reduced by 50%
         woosh2Ref.current.currentTime = 0;
         woosh2Ref.current.play().catch(() => {});
       }
@@ -62,8 +53,9 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
     }, 1200);
 
     const tarjamaTimer = setTimeout(() => {
-      // Play woosh for logo transition
+      // Play woosh for logo transition at 50% volume
       if (woosh2Ref.current) {
+        woosh2Ref.current.volume = 0.5; // Reduced by 50%
         woosh2Ref.current.currentTime = 0;
         woosh2Ref.current.play().catch(() => {});
       }
@@ -71,14 +63,13 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
     }, 2400);
 
     const completeTimer = setTimeout(() => {
-      // Play woosh for final transition
+      // Play woosh for final transition at 50% volume
       if (woosh2Ref.current) {
+        woosh2Ref.current.volume = 0.5; // Reduced by 50%
         woosh2Ref.current.currentTime = 0;
         woosh2Ref.current.play().catch(() => {});
       }
       setShowSequence(false);
-      
-      // Music continues playing - no fade out, let the whole track play
       
       setTimeout(() => {
         onCompleteRef.current();
@@ -100,8 +91,9 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
 
   const handleStartJourney = () => {
     triggerHaptic();
-    // Play woosh2 for button click (big animation)
+    // Play woosh2 for button click (big animation) at 50% volume
     if (woosh2Ref.current) {
+      woosh2Ref.current.volume = 0.5; // Reduced by 50%
       woosh2Ref.current.currentTime = 0;
       woosh2Ref.current.play().catch(() => {});
     }
@@ -121,7 +113,6 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
           {/* Audio Elements */}
           <audio ref={woosh1Ref} src="/Assets/woosh1.mp3" preload="auto" />
           <audio ref={woosh2Ref} src="/Assets/woosh2.mp3" preload="auto" />
-          <audio ref={transitionMusicRef} src="/Assets/cloudastickwebsiteloadmusic.mp3" preload="auto" />
 
           {/* Video Background - Only on initial welcome screen */}
           {!isStarted && (
