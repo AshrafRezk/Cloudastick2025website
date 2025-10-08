@@ -12,6 +12,11 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
   const [isStarted, setIsStarted] = useState(false);
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const onCompleteRef = React.useRef(onComplete);
+  
+  // Audio refs for sound effects
+  const woosh1Ref = React.useRef<HTMLAudioElement>(null); // Small motions
+  const woosh2Ref = React.useRef<HTMLAudioElement>(null); // Bigger animations
+  const transitionMusicRef = React.useRef<HTMLAudioElement>(null); // Logo sequence music
 
   // Update ref when onComplete changes
   React.useEffect(() => {
@@ -37,16 +42,38 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
   useEffect(() => {
     if (!isStarted) return;
 
+    // Play transition music when logo sequence starts
+    const transitionMusic = transitionMusicRef.current;
+    if (transitionMusic) {
+      transitionMusic.currentTime = 0;
+      transitionMusic.play().catch(() => {});
+    }
+
     // Logo sequence: Gitex (1.2s) → Tarjama (1.2s) → Arabic.ai (1.2s) → Complete
     const gitexTimer = setTimeout(() => {
+      // Play woosh for logo transition
+      if (woosh2Ref.current) {
+        woosh2Ref.current.currentTime = 0;
+        woosh2Ref.current.play().catch(() => {});
+      }
       setCurrentLogo('tarjama');
     }, 1200);
 
     const tarjamaTimer = setTimeout(() => {
+      // Play woosh for logo transition
+      if (woosh2Ref.current) {
+        woosh2Ref.current.currentTime = 0;
+        woosh2Ref.current.play().catch(() => {});
+      }
       setCurrentLogo('arabic-ai');
     }, 2400);
 
     const completeTimer = setTimeout(() => {
+      // Play woosh for final transition
+      if (woosh2Ref.current) {
+        woosh2Ref.current.currentTime = 0;
+        woosh2Ref.current.play().catch(() => {});
+      }
       setShowSequence(false);
       setTimeout(() => {
         onCompleteRef.current();
@@ -57,6 +84,10 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
       clearTimeout(gitexTimer);
       clearTimeout(tarjamaTimer);
       clearTimeout(completeTimer);
+      // Stop music when component unmounts
+      if (transitionMusic) {
+        transitionMusic.pause();
+      }
     };
   }, [isStarted]); // Only depend on isStarted, use ref for onComplete
 
@@ -68,6 +99,11 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
 
   const handleStartJourney = () => {
     triggerHaptic();
+    // Play woosh2 for button click (big animation)
+    if (woosh2Ref.current) {
+      woosh2Ref.current.currentTime = 0;
+      woosh2Ref.current.play().catch(() => {});
+    }
     setIsStarted(true);
     setCanStart(false);
   };
@@ -81,6 +117,11 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
           transition={{ duration: 0.5 }}
           className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-gray-50 via-slate-100 to-gray-50"
         >
+          {/* Audio Elements */}
+          <audio ref={woosh1Ref} src="/Assets/woosh1.mp3" preload="auto" />
+          <audio ref={woosh2Ref} src="/Assets/woosh2.mp3" preload="auto" />
+          <audio ref={transitionMusicRef} src="/Assets/cloudastickwebsiteloadmusic.mp3" preload="auto" />
+
           {/* Video Background - Only on initial welcome screen */}
           {!isStarted && (
             <div className="absolute inset-0 overflow-hidden">

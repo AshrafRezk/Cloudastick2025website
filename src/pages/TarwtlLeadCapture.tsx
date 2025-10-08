@@ -42,6 +42,8 @@ const TarwtlLeadCapture: React.FC = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const successAudioRef = useRef<HTMLAudioElement>(null);
+  const woosh1Ref = useRef<HTMLAudioElement>(null); // Small motions
+  const woosh2Ref = useRef<HTMLAudioElement>(null); // Bigger animations
   const carouselIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Tarjama team members for Lead Gen Officer selection
@@ -160,6 +162,11 @@ Lead Source: ${source}`;
 
   const handleProductToggle = (product: string) => {
     triggerHaptic(40);
+    // Play woosh1 for product selection
+    if (woosh1Ref.current) {
+      woosh1Ref.current.currentTime = 0;
+      woosh1Ref.current.play().catch(() => {});
+    }
     setFormData(prev => {
       const products = prev.products.includes(product)
         ? prev.products.filter(p => p !== product)
@@ -170,6 +177,11 @@ Lead Source: ${source}`;
 
   const handleOfficerSelect = (index: number) => {
     triggerHaptic(40);
+    // Play woosh2 for team member selection (bigger animation)
+    if (woosh2Ref.current) {
+      woosh2Ref.current.currentTime = 0;
+      woosh2Ref.current.play().catch(() => {});
+    }
     setSelectedOfficerIndex(index);
     setCarouselIndex(index);
     setFormData(prev => ({
@@ -282,6 +294,11 @@ Lead Source: ${source}`;
   const scrollToForm = () => {
     setIsTransitioning(true);
     triggerHaptic(30);
+    // Play woosh2 for big morph animation
+    if (woosh2Ref.current) {
+      woosh2Ref.current.currentTime = 0;
+      woosh2Ref.current.play().catch(() => {});
+    }
     
     // Start morph transition
     setTimeout(() => {
@@ -303,8 +320,10 @@ Lead Source: ${source}`;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
-      {/* Success Audio */}
+      {/* Audio Elements */}
       <audio ref={successAudioRef} src="/Assets/cloudastickwebsiteloadmusic.mp3" preload="auto" />
+      <audio ref={woosh1Ref} src="/Assets/woosh1.mp3" preload="auto" />
+      <audio ref={woosh2Ref} src="/Assets/woosh2.mp3" preload="auto" />
 
       {/* Hero Section - Material 3 Design */}
       <section className="relative min-h-screen flex items-center justify-center px-4 py-20 overflow-hidden">
@@ -538,6 +557,11 @@ Lead Source: ${source}`;
                 <button
                   type="button"
                   onClick={() => {
+                    // Play woosh1 for carousel navigation
+                    if (woosh1Ref.current) {
+                      woosh1Ref.current.currentTime = 0;
+                      woosh1Ref.current.play().catch(() => {});
+                    }
                     setCarouselIndex(carouselIndex === 0 ? teamMembers.length - 3 : carouselIndex - 1);
                     triggerHaptic(20);
                   }}
@@ -551,6 +575,11 @@ Lead Source: ${source}`;
                 <button
                   type="button"
                   onClick={() => {
+                    // Play woosh1 for carousel navigation
+                    if (woosh1Ref.current) {
+                      woosh1Ref.current.currentTime = 0;
+                      woosh1Ref.current.play().catch(() => {});
+                    }
                     setCarouselIndex(carouselIndex >= teamMembers.length - 3 ? 0 : carouselIndex + 1);
                     triggerHaptic(20);
                   }}
@@ -651,6 +680,11 @@ Lead Source: ${source}`;
                       key={index}
                       type="button"
                       onClick={() => {
+                        // Play woosh1 for carousel indicator click
+                        if (woosh1Ref.current) {
+                          woosh1Ref.current.currentTime = 0;
+                          woosh1Ref.current.play().catch(() => {});
+                        }
                         setCarouselIndex(index);
                         triggerHaptic(20);
                       }}
@@ -670,6 +704,11 @@ Lead Source: ${source}`;
                     animate={{ opacity: 1, y: 0 }}
                     type="button"
                     onClick={() => {
+                      // Play woosh1 for clear action
+                      if (woosh1Ref.current) {
+                        woosh1Ref.current.currentTime = 0;
+                        woosh1Ref.current.play().catch(() => {});
+                      }
                       setSelectedOfficerIndex(null);
                       setFormData(prev => ({ ...prev, lead_gen_officer: '' }));
                       triggerHaptic(30);
