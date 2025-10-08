@@ -222,20 +222,7 @@ Lead Source: ${source}`;
     triggerHaptic(40);
 
     try {
-      // Create form data for Salesforce
-      const salesforceData = new FormData();
-      salesforceData.append('oid', '00D3z000000fPuB');
-      salesforceData.append('retURL', 'https://arabic.ai/ai-agents/');
-      salesforceData.append('first_name', formData.first_name);
-      salesforceData.append('last_name', formData.last_name);
-      salesforceData.append('email', formData.email);
-      salesforceData.append('company', formData.company);
-      salesforceData.append('city', formData.city);
-      salesforceData.append('country_code', formData.country_code);
-      salesforceData.append('mobile', formData.mobile);
-      salesforceData.append('industry', formData.industry);
-      
-      // Add Lead Gen Officer (use default if none selected)
+      // Get Lead Gen Officer value
       const selectedOfficer = selectedOfficerIndex !== null 
         ? teamMembers[selectedOfficerIndex] 
         : teamMembers.find(m => m.userId === DEFAULT_USER_ID);
@@ -245,21 +232,57 @@ Lead Source: ${source}`;
         ? (selectedOfficer.userId !== 'DEFAULT_USER' ? selectedOfficer.userId : selectedOfficer.name)
         : DEFAULT_USER_ID;
 
-      salesforceData.append('00NNM00000D5r7R', leadOfficerValue);
-      
       // Add products to comments
       const productsText = `Products of Interest: ${formData.products.join(', ')}\n\n${formData.comments}`;
-      salesforceData.append('00NJ5000000hzjZ', productsText);
-      
-      // Add device info
-      salesforceData.append('00NNM00000D1ioR', deviceInfo);
 
-      // Submit to Salesforce
-      await fetch('https://webto.salesforce.com/servlet/servlet.WebToLead?encoding=UTF-8&orgId=00D3z000000fPuB', {
-        method: 'POST',
-        body: salesforceData,
-        mode: 'no-cors', // Salesforce doesn't support CORS
-      });
+      // Create a hidden form for Salesforce submission
+      const hiddenForm = document.createElement('form');
+      hiddenForm.action = 'https://webto.salesforce.com/servlet/servlet.WebToLead?encoding=UTF-8&orgId=00D3z000000fPuB';
+      hiddenForm.method = 'POST';
+      hiddenForm.target = 'salesforce-iframe';
+      
+      // Helper to add hidden fields
+      const addField = (name: string, value: string) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = value;
+        hiddenForm.appendChild(input);
+      };
+
+      // Add all form fields
+      addField('oid', '00D3z000000fPuB');
+      addField('retURL', 'https://arabic.ai/ai-agents/');
+      addField('first_name', formData.first_name);
+      addField('last_name', formData.last_name);
+      addField('email', formData.email);
+      addField('company', formData.company);
+      addField('city', formData.city);
+      addField('country_code', formData.country_code);
+      addField('mobile', formData.mobile);
+      addField('industry', formData.industry);
+      addField('00NNM00000D5r7R', leadOfficerValue); // Target Owner
+      addField('00NJ5000000hzjZ', productsText); // Comments with products
+      addField('00NNM00000D1ioR', deviceInfo); // Device Info
+
+      // Create hidden iframe for submission (to avoid page redirect)
+      let iframe = document.getElementById('salesforce-iframe') as HTMLIFrameElement;
+      if (!iframe) {
+        iframe = document.createElement('iframe');
+        iframe.id = 'salesforce-iframe';
+        iframe.name = 'salesforce-iframe';
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+      }
+
+      // Append form to body and submit
+      document.body.appendChild(hiddenForm);
+      hiddenForm.submit();
+      
+      // Clean up form after submission
+      setTimeout(() => {
+        document.body.removeChild(hiddenForm);
+      }, 1000);
 
       // Show success
       setShowSuccess(true);
