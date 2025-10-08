@@ -44,6 +44,10 @@ const TarwtlLeadCapture: React.FC = () => {
   const successAudioRef = useRef<HTMLAudioElement>(null);
   const woosh1Ref = useRef<HTMLAudioElement>(null); // Small motions
   const woosh2Ref = useRef<HTMLAudioElement>(null); // Bigger animations
+  const selection1Ref = useRef<HTMLAudioElement>(null); // Sales person selection
+  const selection2Ref = useRef<HTMLAudioElement>(null); // Services/Products selection
+  const selection3Ref = useRef<HTMLAudioElement>(null); // Carousel page indicators
+  const selection4Ref = useRef<HTMLAudioElement>(null); // Clear selection
   const carouselIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Tarjama team members for Lead Gen Officer selection
@@ -162,10 +166,10 @@ Lead Source: ${source}`;
 
   const handleProductToggle = (product: string) => {
     triggerHaptic(40);
-    // Play woosh1 for product selection
-    if (woosh1Ref.current) {
-      woosh1Ref.current.currentTime = 0;
-      woosh1Ref.current.play().catch(() => {});
+    // Play selection2 for services/products selection
+    if (selection2Ref.current) {
+      selection2Ref.current.currentTime = 0;
+      selection2Ref.current.play().catch(() => {});
     }
     setFormData(prev => {
       const products = prev.products.includes(product)
@@ -177,10 +181,10 @@ Lead Source: ${source}`;
 
   const handleOfficerSelect = (index: number) => {
     triggerHaptic(40);
-    // Play woosh2 for team member selection (bigger animation)
-    if (woosh2Ref.current) {
-      woosh2Ref.current.currentTime = 0;
-      woosh2Ref.current.play().catch(() => {});
+    // Play selection1 for sales person selection
+    if (selection1Ref.current) {
+      selection1Ref.current.currentTime = 0;
+      selection1Ref.current.play().catch(() => {});
     }
     setSelectedOfficerIndex(index);
     setCarouselIndex(index);
@@ -324,6 +328,10 @@ Lead Source: ${source}`;
       <audio ref={successAudioRef} src="/Assets/cloudastickwebsiteloadmusic.mp3" preload="auto" />
       <audio ref={woosh1Ref} src="/Assets/woosh1.mp3" preload="auto" />
       <audio ref={woosh2Ref} src="/Assets/woosh2.mp3" preload="auto" />
+      <audio ref={selection1Ref} src="/Assets/Selection1.mp3" preload="auto" />
+      <audio ref={selection2Ref} src="/Assets/Selection2.mp3" preload="auto" />
+      <audio ref={selection3Ref} src="/Assets/Selection3.mp3" preload="auto" />
+      <audio ref={selection4Ref} src="/Assets/Selection4.mp3" preload="auto" />
 
       {/* Hero Section - Material 3 Design */}
       <section className="relative min-h-screen flex items-center justify-center px-4 py-20 overflow-hidden">
@@ -680,10 +688,10 @@ Lead Source: ${source}`;
                       key={index}
                       type="button"
                       onClick={() => {
-                        // Play woosh1 for carousel indicator click
-                        if (woosh1Ref.current) {
-                          woosh1Ref.current.currentTime = 0;
-                          woosh1Ref.current.play().catch(() => {});
+                        // Play selection3 for carousel page indicator
+                        if (selection3Ref.current) {
+                          selection3Ref.current.currentTime = 0;
+                          selection3Ref.current.play().catch(() => {});
                         }
                         setCarouselIndex(index);
                         triggerHaptic(20);
@@ -704,10 +712,10 @@ Lead Source: ${source}`;
                     animate={{ opacity: 1, y: 0 }}
                     type="button"
                     onClick={() => {
-                      // Play woosh1 for clear action
-                      if (woosh1Ref.current) {
-                        woosh1Ref.current.currentTime = 0;
-                        woosh1Ref.current.play().catch(() => {});
+                      // Play selection4 for clear action
+                      if (selection4Ref.current) {
+                        selection4Ref.current.currentTime = 0;
+                        selection4Ref.current.play().catch(() => {});
                       }
                       setSelectedOfficerIndex(null);
                       setFormData(prev => ({ ...prev, lead_gen_officer: '' }));
