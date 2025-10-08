@@ -43,9 +43,9 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
 
     // Logo sequence: Gitex (1.8s) → Arabic.ai (1.8s) → Complete (Tarjama removed)
     const gitexTimer = setTimeout(() => {
-      // Play woosh for logo transition at 50% volume
+      // Play woosh for logo transition at 4% volume (barely audible)
       if (woosh2Ref.current) {
-        woosh2Ref.current.volume = 0.5; // Reduced by 50%
+        woosh2Ref.current.volume = 0.04;
         woosh2Ref.current.currentTime = 0;
         woosh2Ref.current.play().catch(() => {});
       }
@@ -53,9 +53,9 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
     }, 1800);
 
     const completeTimer = setTimeout(() => {
-      // Play woosh for final transition at 50% volume
+      // Play woosh for final transition at 4% volume (barely audible)
       if (woosh2Ref.current) {
-        woosh2Ref.current.volume = 0.5; // Reduced by 50%
+        woosh2Ref.current.volume = 0.04;
         woosh2Ref.current.currentTime = 0;
         woosh2Ref.current.play().catch(() => {});
       }
@@ -80,9 +80,9 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
 
   const handleStartJourney = () => {
     triggerHaptic();
-    // Play woosh2 for button click (big animation) at 50% volume
+    // Play woosh2 for button click (big animation) at 4% volume (barely audible)
     if (woosh2Ref.current) {
-      woosh2Ref.current.volume = 0.5; // Reduced by 50%
+      woosh2Ref.current.volume = 0.04;
       woosh2Ref.current.currentTime = 0;
       woosh2Ref.current.play().catch(() => {});
     }
