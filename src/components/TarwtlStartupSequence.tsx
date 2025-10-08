@@ -46,8 +46,9 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
     const transitionMusic = transitionMusicRef.current;
     if (transitionMusic) {
       transitionMusic.currentTime = 0;
-      transitionMusic.volume = 1; // Start at full volume
+      transitionMusic.volume = 0.8; // Set to 80% volume (reduced by 20%)
       transitionMusic.play().catch(() => {});
+      // Let the track play completely without interruption
     }
 
     // Logo sequence: Gitex (1.2s) → Tarjama (1.2s) → Arabic.ai (1.2s) → Complete
@@ -77,27 +78,7 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
       }
       setShowSequence(false);
       
-      // Start fading out music gradually over 2 seconds
-      if (transitionMusic) {
-        const fadeOutDuration = 2000; // 2 seconds
-        const fadeOutSteps = 50;
-        const fadeOutInterval = fadeOutDuration / fadeOutSteps;
-        const volumeStep = transitionMusic.volume / fadeOutSteps;
-        
-        let currentStep = 0;
-        const fadeInterval = setInterval(() => {
-          if (transitionMusic && currentStep < fadeOutSteps) {
-            transitionMusic.volume = Math.max(0, transitionMusic.volume - volumeStep);
-            currentStep++;
-          } else {
-            clearInterval(fadeInterval);
-            if (transitionMusic) {
-              transitionMusic.pause();
-              transitionMusic.volume = 1; // Reset volume for next time
-            }
-          }
-        }, fadeOutInterval);
-      }
+      // Music continues playing - no fade out, let the whole track play
       
       setTimeout(() => {
         onCompleteRef.current();
