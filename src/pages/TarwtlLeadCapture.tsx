@@ -90,6 +90,28 @@ const TarwtlLeadCapture: React.FC = () => {
     }
   };
 
+  // Strong haptic feedback for item clicks
+  const triggerStrongHaptic = (duration = 100) => {
+    if ('vibrate' in navigator) {
+      navigator.vibrate(Math.max(1, Math.round(duration * 0.01))); // Strong but controlled
+    }
+  };
+
+  // Crescendo to diminuendo haptic for animations (woosh)
+  const triggerWooshHaptic = () => {
+    if ('vibrate' in navigator) {
+      // Crescendo to diminuendo pattern: start soft, peak, then fade
+      navigator.vibrate([
+        10, 5,   // Soft start
+        20, 5,   // Building up
+        30, 5,   // Peak intensity
+        20, 5,   // Starting to fade
+        10, 5,   // Soft end
+        0        // Silence
+      ].map(v => Math.round(v * 0.01))); // Scale down for subtlety
+    }
+  };
+
   // Carousel autoplay
   useEffect(() => {
     // Start autoplay carousel
@@ -165,7 +187,7 @@ Lead Source: ${source}`;
   };
 
   const handleProductToggle = (product: string) => {
-    triggerHaptic(1);
+    triggerStrongHaptic(50);
     // Play selection2 for services/products selection
     if (selection2Ref.current) {
       selection2Ref.current.currentTime = 0;
@@ -180,7 +202,7 @@ Lead Source: ${source}`;
   };
 
   const handleOfficerSelect = (index: number) => {
-    triggerHaptic(1);
+    triggerStrongHaptic(60);
     // Play selection1 for sales person selection
     if (selection1Ref.current) {
       selection1Ref.current.currentTime = 0;
@@ -329,7 +351,7 @@ Lead Source: ${source}`;
 
   const scrollToForm = () => {
     setIsTransitioning(true);
-    triggerHaptic(30);
+    triggerWooshHaptic(); // Crescendo to diminuendo for woosh animation
     // Play woosh2 for big morph animation
     if (woosh2Ref.current) {
       woosh2Ref.current.currentTime = 0;
@@ -639,7 +661,7 @@ Lead Source: ${source}`;
                       woosh1Ref.current.play().catch(() => {});
                     }
                     setCarouselIndex(carouselIndex === 0 ? teamMembers.length - 3 : carouselIndex - 1);
-                    triggerHaptic(1);
+                    triggerWooshHaptic(); // Crescendo to diminuendo for navigation
                   }}
                   className="flex absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 md:w-12 md:h-12 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-300 items-center justify-center text-slate-600 hover:text-slate-900"
                 >
@@ -657,7 +679,7 @@ Lead Source: ${source}`;
                       woosh1Ref.current.play().catch(() => {});
                     }
                     setCarouselIndex(carouselIndex >= teamMembers.length - 3 ? 0 : carouselIndex + 1);
-                    triggerHaptic(1);
+                    triggerWooshHaptic(); // Crescendo to diminuendo for navigation
                   }}
                   className="flex absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 md:w-12 md:h-12 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-300 items-center justify-center text-slate-600 hover:text-slate-900"
                 >
@@ -679,11 +701,11 @@ Lead Source: ${source}`;
                       if (info.offset.x > threshold) {
                         // Swipe right - go to previous
                         setCarouselIndex(carouselIndex === 0 ? teamMembers.length - 3 : carouselIndex - 1);
-                        triggerHaptic(1);
+                        triggerWooshHaptic(); // Crescendo to diminuendo for swipe
                       } else if (info.offset.x < -threshold) {
                         // Swipe left - go to next
                         setCarouselIndex(carouselIndex >= teamMembers.length - 3 ? 0 : carouselIndex + 1);
-                        triggerHaptic(1);
+                        triggerWooshHaptic(); // Crescendo to diminuendo for swipe
                       }
                     }}
                   >
@@ -762,7 +784,7 @@ Lead Source: ${source}`;
                           selection3Ref.current.play().catch(() => {});
                         }
                         setCarouselIndex(index);
-                        triggerHaptic(1);
+                        triggerStrongHaptic(40);
                       }}
                       className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-all duration-300 ${
                         index === carouselIndex
