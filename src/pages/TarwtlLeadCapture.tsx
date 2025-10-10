@@ -595,7 +595,7 @@ Lead Source: ${source}`;
               <p className="text-xs text-slate-500 text-center mb-6">Optional - Select if you spoke with someone from our team</p>
               
               <div className="relative max-w-4xl mx-auto">
-                {/* Navigation Arrows - Infinite Loop (Hidden on mobile) */}
+                {/* Navigation Arrows - Infinite Loop (Now visible on mobile) */}
                 <button
                   type="button"
                   onClick={() => {
@@ -608,9 +608,9 @@ Lead Source: ${source}`;
                     setCarouselIndex(carouselIndex === 0 ? teamMembers.length - 3 : carouselIndex - 1);
                     triggerHaptic(20);
                   }}
-                  className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-300 items-center justify-center text-slate-600 hover:text-slate-900"
+                  className="flex absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-300 items-center justify-center text-slate-600 hover:text-slate-900"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
@@ -627,9 +627,9 @@ Lead Source: ${source}`;
                     setCarouselIndex(carouselIndex >= teamMembers.length - 3 ? 0 : carouselIndex + 1);
                     triggerHaptic(20);
                   }}
-                  className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-300 items-center justify-center text-slate-600 hover:text-slate-900"
+                  className="flex absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-300 items-center justify-center text-slate-600 hover:text-slate-900"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
@@ -1172,10 +1172,24 @@ Lead Source: ${source}`;
             </a>
           </div>
 
-          {/* Copyright */}
+          {/* Copyright & Powered By */}
           <div className="text-center border-t border-slate-800 pt-8">
-            <p className="text-slate-500 text-sm">
+            <p className="text-slate-500 text-sm mb-3">
               © {new Date().getFullYear()} Arabic.ai. All rights reserved.
+            </p>
+            <p className="text-slate-400 text-sm flex items-center justify-center gap-2">
+              <span>CRM Powered by</span>
+              <a 
+                href="https://cloudastick.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-blue-400 hover:text-blue-300 font-semibold transition-colors duration-200"
+              >
+                Cloudastick
+              </a>
+              <span>with ❤️</span>
+              <span className="text-slate-500">•</span>
+              <span className="text-slate-500">Salesforce Partner</span>
             </p>
           </div>
         </div>
