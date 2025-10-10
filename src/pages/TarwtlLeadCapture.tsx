@@ -314,16 +314,20 @@ Lead Source: ${source}`;
       setErrors(prev => ({ ...prev, [field]: undefined }));
     }
     
-    // Show personalized quote when first name is entered (at least 2 characters)
-    if (field === 'first_name' && value.length >= 2 && !showQuote) {
+    // Show personalized quote when:
+    // 1. First name is fully typed (at least 3 characters)
+    // 2. OR when typing in other fields after first name is complete
+    const hasValidFirstName = field === 'first_name' ? value.length >= 3 : formData.first_name.length >= 3;
+    
+    if (hasValidFirstName && !showQuote) {
       const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
       setPersonalizedQuote(randomQuote);
       setShowQuote(true);
       triggerHaptic(30);
     }
     
-    // Hide quote if first name is cleared
-    if (field === 'first_name' && value.length < 2) {
+    // Hide quote if first name is cleared or becomes too short
+    if (field === 'first_name' && value.length < 3) {
       setShowQuote(false);
     }
   };
