@@ -181,7 +181,7 @@ Lead Source: ${source}`;
   };
 
   const handleOfficerSelect = (index: number) => {
-    triggerHaptic(40);
+    triggerHaptic(1);
     // Play selection1 for sales person selection at 4% volume
     if (selection1Ref.current) {
       selection1Ref.current.volume = 0.04;
@@ -216,12 +216,12 @@ Lead Source: ${source}`;
     e.preventDefault();
     
     if (!validateForm()) {
-      triggerHaptic(50);
+      triggerHaptic(1);
       return;
     }
 
     setIsSubmitting(true);
-    triggerHaptic(40);
+    triggerHaptic(1);
 
     try {
       // Get Lead Gen Officer value
@@ -288,7 +288,7 @@ Lead Source: ${source}`;
 
       // Show success
       setShowSuccess(true);
-      triggerHaptic(50);
+      triggerHaptic(1);
       
       // Play success sound
       if (successAudioRef.current) {
@@ -301,7 +301,7 @@ Lead Source: ${source}`;
       }, 3000);
     } catch (error) {
       console.error('Error submitting form:', error);
-      triggerHaptic(100);
+      triggerHaptic(1);
     } finally {
       setIsSubmitting(false);
     }
@@ -320,7 +320,7 @@ Lead Source: ${source}`;
       const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
       setPersonalizedQuote(randomQuote);
       setShowQuote(true);
-      triggerHaptic(30);
+      triggerHaptic(1);
     }
     
     // Hide quote if first name is cleared or becomes too short
@@ -794,7 +794,7 @@ Lead Source: ${source}`;
                       }
                       setSelectedOfficerIndex(null);
                       setFormData(prev => ({ ...prev, lead_gen_officer: '' }));
-                      triggerHaptic(30);
+                      triggerHaptic(1);
                     }}
                     className="mt-4 mx-auto block text-sm text-slate-500 hover:text-slate-700 underline"
                   >
