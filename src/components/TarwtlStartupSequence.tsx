@@ -100,8 +100,8 @@ const TarwtlStartupSequence: React.FC<TarwtlStartupSequenceProps> = ({ onComplet
           className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-gray-50 via-slate-100 to-gray-50"
         >
           {/* Audio Elements */}
-          <audio ref={woosh1Ref} src="/Assets/woosh1.mp3" preload="auto" />
-          <audio ref={woosh2Ref} src="/Assets/woosh2.mp3" preload="auto" />
+          <audio ref={woosh1Ref} src="/Assets/woosh1new.mp3" preload="auto" />
+          <audio ref={woosh2Ref} src="/Assets/woosh2new.mp3" preload="auto" />
 
           {/* Video Background - Only on initial welcome screen */}
           {!isStarted && (
