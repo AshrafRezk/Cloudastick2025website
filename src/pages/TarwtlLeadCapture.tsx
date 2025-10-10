@@ -380,12 +380,12 @@ Lead Source: ${source}`;
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
       {/* Audio Elements */}
       <audio ref={successAudioRef} src="/Assets/cloudastickwebsiteloadmusic.mp3" preload="auto" />
-      <audio ref={woosh1Ref} src="/Assets/woosh1new.mp3" preload="auto" />
-      <audio ref={woosh2Ref} src="/Assets/woosh2new.mp3" preload="auto" />
-      <audio ref={selection1Ref} src="/Assets/selection1new.mp3" preload="auto" />
-      <audio ref={selection2Ref} src="/Assets/selection2new.mp3" preload="auto" />
-      <audio ref={selection3Ref} src="/Assets/selection3new.mp3" preload="auto" />
-      <audio ref={selection4Ref} src="/Assets/selection4new.mp3" preload="auto" />
+      <audio ref={woosh1Ref} src="/Assets/woosh1new.mp3?v=2024101103" preload="auto" />
+      <audio ref={woosh2Ref} src="/Assets/woosh2new.mp3?v=2024101103" preload="auto" />
+      <audio ref={selection1Ref} src="/Assets/selection1new.mp3?v=2024101103" preload="auto" />
+      <audio ref={selection2Ref} src="/Assets/selection2new.mp3?v=2024101103" preload="auto" />
+      <audio ref={selection3Ref} src="/Assets/selection3new.mp3?v=2024101103" preload="auto" />
+      <audio ref={selection4Ref} src="/Assets/selection4new.mp3?v=2024101103" preload="auto" />
 
       {/* Hero Section - Material 3 Design */}
       <section className="relative min-h-screen flex items-center justify-center px-4 py-20 overflow-hidden">
@@ -596,8 +596,8 @@ Lead Source: ${source}`;
             onLoadStart={() => console.log('Video loading started')}
             onCanPlay={() => console.log('Video can play')}
           >
-            <source src="/Assets/Gitex/Gitex for Tarjama/robotvideo.mp4" type="video/mp4" />
-            <source src="./Assets/Gitex/Gitex for Tarjama/robotvideo.mp4" type="video/mp4" />
+            <source src="/Assets/Gitex/Gitex for Tarjama/robotvideo.mp4?v=2024101103" type="video/mp4" />
+            <source src="./Assets/Gitex/Gitex for Tarjama/robotvideo.mp4?v=2024101103" type="video/mp4" />
             Your browser does not support the video tag.
           </motion.video>
           
