@@ -560,8 +560,31 @@ Lead Source: ${source}`;
       </section>
 
       {/* Form Section - Material 3 Design */}
-      <section id="lead-form" className="relative px-4 py-20">
-        <div className="max-w-4xl mx-auto">
+      <section id="lead-form" className="relative px-4 py-20 overflow-hidden">
+        {/* Robot Video Background */}
+        <div className="absolute inset-0 overflow-hidden">
+          <motion.video
+            autoPlay
+            muted
+            loop
+            playsInline
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.2 }}
+            transition={{ duration: 1.5, ease: "easeInOut" }}
+            className="absolute inset-0 w-full h-full object-cover"
+          >
+            <source src="/Assets/Gitex/Gitex for Tarjama/robotvideo.mp4" type="video/mp4" />
+          </motion.video>
+          {/* Dark overlay for better text readability */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 0.5 }}
+            className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/30 to-black/20" 
+          />
+        </div>
+        
+        <div className="relative z-10 max-w-4xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 40, scale: 0.9 }}
             whileInView={{ 
@@ -579,7 +602,7 @@ Lead Source: ${source}`;
                 delay: 0.3
               } : {}
             }}
-            className="bg-white rounded-3xl shadow-2xl shadow-blue-500/10 p-8 md:p-12"
+            className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl shadow-blue-500/10 p-8 md:p-12 border border-white/20"
           >
             {/* Form Header */}
             <div className="text-center mb-12">
