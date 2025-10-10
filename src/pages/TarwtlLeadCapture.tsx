@@ -83,10 +83,10 @@ const TarwtlLeadCapture: React.FC = () => {
     "Arabic-first AI means faster, smarter, better results for MENA.",
   ];
 
-  // Haptic feedback helper (reduced to 4% of original values)
+  // Haptic feedback helper (reduced to 0.1% of original values - barely audible)
   const triggerHaptic = (duration = 1) => {
     if ('vibrate' in navigator) {
-      navigator.vibrate(Math.max(1, Math.round(duration * 0.04)));
+      navigator.vibrate(Math.max(1, Math.round(duration * 0.001)));
     }
   };
 
