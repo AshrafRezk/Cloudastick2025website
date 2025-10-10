@@ -90,25 +90,25 @@ const TarwtlLeadCapture: React.FC = () => {
     }
   };
 
-  // Strong haptic feedback for item clicks
+  // Strong haptic feedback for item clicks with dynamic intensity
   const triggerStrongHaptic = (duration = 100) => {
     if ('vibrate' in navigator) {
-      navigator.vibrate(Math.max(1, Math.round(duration * 0.01))); // Strong but controlled
+      navigator.vibrate(Math.max(1, Math.round(duration * 0.1))); // 10x stronger
     }
   };
 
-  // Crescendo to diminuendo haptic for animations (woosh)
+  // Crescendo to diminuendo haptic for animations (woosh) with dynamic intensity
   const triggerWooshHaptic = () => {
     if ('vibrate' in navigator) {
       // Crescendo to diminuendo pattern: start soft, peak, then fade
       navigator.vibrate([
-        10, 5,   // Soft start
-        20, 5,   // Building up
-        30, 5,   // Peak intensity
-        20, 5,   // Starting to fade
-        10, 5,   // Soft end
-        0        // Silence
-      ].map(v => Math.round(v * 0.01))); // Scale down for subtlety
+        50, 10,   // Soft start (5x stronger)
+        100, 10,  // Building up (5x stronger)
+        150, 10,  // Peak intensity (5x stronger)
+        100, 10,  // Starting to fade (5x stronger)
+        50, 10,   // Soft end (5x stronger)
+        0         // Silence
+      ].map(v => Math.round(v * 0.05))); // Scale for dynamic intensity
     }
   };
 
@@ -187,7 +187,7 @@ Lead Source: ${source}`;
   };
 
   const handleProductToggle = (product: string) => {
-    triggerStrongHaptic(50);
+    triggerStrongHaptic(80); // Higher intensity for product selection
     // Play selection2 for services/products selection
     if (selection2Ref.current) {
       selection2Ref.current.currentTime = 0;
@@ -202,7 +202,7 @@ Lead Source: ${source}`;
   };
 
   const handleOfficerSelect = (index: number) => {
-    triggerStrongHaptic(60);
+    triggerStrongHaptic(100); // Highest intensity for officer selection
     // Play selection1 for sales person selection
     if (selection1Ref.current) {
       selection1Ref.current.currentTime = 0;
@@ -586,7 +586,7 @@ Lead Source: ${source}`;
             playsInline
             preload="metadata"
             initial={{ opacity: 0 }}
-            animate={{ opacity: 0.2 }}
+            animate={{ opacity: 0.4 }}
             transition={{ duration: 1.5, ease: "easeInOut" }}
             className="absolute inset-0 w-full h-full object-cover"
             onError={(e) => {
@@ -604,12 +604,12 @@ Lead Source: ${source}`;
           {/* Fallback gradient background */}
           <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-indigo-500/10" />
           
-          {/* Dark overlay for better text readability */}
+          {/* Dark overlay for better text readability - more transparent */}
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.5 }}
-            className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/30 to-black/20" 
+            className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/15 to-black/10" 
           />
         </div>
         
@@ -784,7 +784,7 @@ Lead Source: ${source}`;
                           selection3Ref.current.play().catch(() => {});
                         }
                         setCarouselIndex(index);
-                        triggerStrongHaptic(40);
+                        triggerStrongHaptic(60); // Medium intensity for carousel indicators
                       }}
                       className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-all duration-300 ${
                         index === carouselIndex
