@@ -568,13 +568,26 @@ Lead Source: ${source}`;
             muted
             loop
             playsInline
+            preload="metadata"
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.2 }}
             transition={{ duration: 1.5, ease: "easeInOut" }}
             className="absolute inset-0 w-full h-full object-cover"
+            onError={(e) => {
+              console.log('Video failed to load, using fallback background');
+              e.currentTarget.style.display = 'none';
+            }}
+            onLoadStart={() => console.log('Video loading started')}
+            onCanPlay={() => console.log('Video can play')}
           >
             <source src="/Assets/Gitex/Gitex for Tarjama/robotvideo.mp4" type="video/mp4" />
+            <source src="./Assets/Gitex/Gitex for Tarjama/robotvideo.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
           </motion.video>
+          
+          {/* Fallback gradient background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-indigo-500/10" />
+          
           {/* Dark overlay for better text readability */}
           <motion.div 
             initial={{ opacity: 0 }}
@@ -662,9 +675,9 @@ Lead Source: ${source}`;
                 </button>
 
                 {/* Carousel Container */}
-                <div className="overflow-hidden rounded-3xl mx-20 md:mx-24">
+                <div className="overflow-hidden rounded-3xl mx-16 md:mx-24">
                   <motion.div
-                    animate={{ x: `-${carouselIndex * (100 / 3)}%` }}
+                    animate={{ x: `-${carouselIndex * (window.innerWidth < 768 ? 100 / 2.5 : 100 / 3)}%` }}
                     transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                     className="flex"
                     drag="x"
@@ -685,14 +698,14 @@ Lead Source: ${source}`;
                     {teamMembers.map((member, index) => (
                       <motion.div
                         key={index}
-                        className="min-w-[33.333%] px-0.5 md:px-2"
+                        className="min-w-[40%] md:min-w-[33.333%] px-1 md:px-2"
                         whileHover={{ scale: selectedOfficerIndex === null ? 1.02 : 1 }}
                         whileTap={{ scale: 0.98 }}
                       >
                         <motion.button
                           type="button"
                           onClick={() => handleOfficerSelect(index)}
-                          className={`w-full p-2 md:p-4 rounded-xl md:rounded-2xl transition-all duration-300 ${
+                          className={`w-full p-3 md:p-4 rounded-xl md:rounded-2xl transition-all duration-300 min-h-[120px] md:min-h-[140px] ${
                             selectedOfficerIndex === index
                               ? 'bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-xl shadow-blue-500/40'
                               : 'bg-white text-slate-700 hover:bg-slate-50 border-2 border-slate-200 shadow-lg'
@@ -712,7 +725,7 @@ Lead Source: ${source}`;
                             
                             {/* Name Only */}
                             <div className="text-center">
-                              <h3 className={`text-sm md:text-lg font-bold leading-tight ${
+                              <h3 className={`text-xs md:text-lg font-bold leading-tight break-words ${
                                 selectedOfficerIndex === index ? 'text-white' : 'text-slate-900'
                               }`}>
                                 {member.name}
