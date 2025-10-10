@@ -165,7 +165,7 @@ Lead Source: ${source}`;
   };
 
   const handleProductToggle = (product: string) => {
-    triggerHaptic(40);
+    triggerHaptic(1);
     // Play selection2 for services/products selection at 4% volume
     if (selection2Ref.current) {
       selection2Ref.current.volume = 0.04;
@@ -505,7 +505,7 @@ Lead Source: ${source}`;
               } : {}
             }}
             onClick={scrollToForm}
-            onMouseEnter={() => triggerHaptic(20)}
+            onMouseEnter={() => triggerHaptic(1)}
             className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-2xl shadow-blue-500/40 transition-all duration-300 transform hover:scale-110 active:scale-95 flex items-center justify-center group mx-auto"
             whileHover={{ 
               scale: isTransitioning ? 1 : 1.1,
@@ -643,7 +643,7 @@ Lead Source: ${source}`;
                       woosh1Ref.current.play().catch(() => {});
                     }
                     setCarouselIndex(carouselIndex === 0 ? teamMembers.length - 3 : carouselIndex - 1);
-                    triggerHaptic(20);
+                    triggerHaptic(1);
                   }}
                   className="flex absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 md:w-12 md:h-12 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-300 items-center justify-center text-slate-600 hover:text-slate-900"
                 >
@@ -662,7 +662,7 @@ Lead Source: ${source}`;
                       woosh1Ref.current.play().catch(() => {});
                     }
                     setCarouselIndex(carouselIndex >= teamMembers.length - 3 ? 0 : carouselIndex + 1);
-                    triggerHaptic(20);
+                    triggerHaptic(1);
                   }}
                   className="flex absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 md:w-12 md:h-12 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-300 items-center justify-center text-slate-600 hover:text-slate-900"
                 >
@@ -684,11 +684,11 @@ Lead Source: ${source}`;
                       if (info.offset.x > threshold) {
                         // Swipe right - go to previous
                         setCarouselIndex(carouselIndex === 0 ? teamMembers.length - 3 : carouselIndex - 1);
-                        triggerHaptic(20);
+                        triggerHaptic(1);
                       } else if (info.offset.x < -threshold) {
                         // Swipe left - go to next
                         setCarouselIndex(carouselIndex >= teamMembers.length - 3 ? 0 : carouselIndex + 1);
-                        triggerHaptic(20);
+                        triggerHaptic(1);
                       }
                     }}
                   >
@@ -768,7 +768,7 @@ Lead Source: ${source}`;
                           selection3Ref.current.play().catch(() => {});
                         }
                         setCarouselIndex(index);
-                        triggerHaptic(20);
+                        triggerHaptic(1);
                       }}
                       className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-all duration-300 ${
                         index === carouselIndex
@@ -917,7 +917,7 @@ Lead Source: ${source}`;
                     id="first_name"
                     value={formData.first_name}
                     onChange={(e) => handleInputChange('first_name', e.target.value)}
-                    onFocus={() => triggerHaptic(20)}
+                    onFocus={() => triggerHaptic(1)}
                     className={`w-full px-4 py-3 rounded-2xl border-2 text-slate-900 placeholder-slate-400 bg-white ${
                       errors.first_name ? 'border-red-500' : 'border-slate-200'
                     } focus:border-blue-500 focus:outline-none transition-colors duration-200`}
@@ -937,7 +937,7 @@ Lead Source: ${source}`;
                     id="last_name"
                     value={formData.last_name}
                     onChange={(e) => handleInputChange('last_name', e.target.value)}
-                    onFocus={() => triggerHaptic(20)}
+                    onFocus={() => triggerHaptic(1)}
                     className={`w-full px-4 py-3 rounded-2xl border-2 text-slate-900 placeholder-slate-400 bg-white ${
                       errors.last_name ? 'border-red-500' : 'border-slate-200'
                     } focus:border-blue-500 focus:outline-none transition-colors duration-200`}
@@ -960,7 +960,7 @@ Lead Source: ${source}`;
                     id="email"
                     value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
-                    onFocus={() => triggerHaptic(20)}
+                    onFocus={() => triggerHaptic(1)}
                     className={`w-full px-4 py-3 rounded-2xl border-2 text-slate-900 placeholder-slate-400 bg-white ${
                       errors.email ? 'border-red-500' : 'border-slate-200'
                     } focus:border-blue-500 focus:outline-none transition-colors duration-200`}
@@ -980,7 +980,7 @@ Lead Source: ${source}`;
                     id="company"
                     value={formData.company}
                     onChange={(e) => handleInputChange('company', e.target.value)}
-                    onFocus={() => triggerHaptic(20)}
+                    onFocus={() => triggerHaptic(1)}
                     className={`w-full px-4 py-3 rounded-2xl border-2 text-slate-900 placeholder-slate-400 bg-white ${
                       errors.company ? 'border-red-500' : 'border-slate-200'
                     } focus:border-blue-500 focus:outline-none transition-colors duration-200`}
@@ -1003,7 +1003,7 @@ Lead Source: ${source}`;
                     id="mobile"
                     value={formData.mobile}
                     onChange={(e) => handleInputChange('mobile', e.target.value)}
-                    onFocus={() => triggerHaptic(20)}
+                    onFocus={() => triggerHaptic(1)}
                     className={`w-full px-4 py-3 rounded-2xl border-2 text-slate-900 placeholder-slate-400 bg-white ${
                       errors.mobile ? 'border-red-500' : 'border-slate-200'
                     } focus:border-blue-500 focus:outline-none transition-colors duration-200`}
@@ -1023,7 +1023,7 @@ Lead Source: ${source}`;
                     id="city"
                     value={formData.city}
                     onChange={(e) => handleInputChange('city', e.target.value)}
-                    onFocus={() => triggerHaptic(20)}
+                    onFocus={() => triggerHaptic(1)}
                     className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 placeholder-slate-400 bg-white focus:border-blue-500 focus:outline-none transition-colors duration-200"
                     placeholder="Dubai"
                   />
@@ -1040,7 +1040,7 @@ Lead Source: ${source}`;
                     id="country_code"
                     value={formData.country_code}
                     onChange={(e) => handleInputChange('country_code', e.target.value)}
-                    onFocus={() => triggerHaptic(20)}
+                    onFocus={() => triggerHaptic(1)}
                     className={`w-full px-4 py-3 rounded-2xl border-2 text-slate-900 bg-white ${
                       errors.country_code ? 'border-red-500' : 'border-slate-200'
                     } focus:border-blue-500 focus:outline-none transition-colors duration-200`}
@@ -1075,7 +1075,7 @@ Lead Source: ${source}`;
                     id="industry"
                     value={formData.industry}
                     onChange={(e) => handleInputChange('industry', e.target.value)}
-                    onFocus={() => triggerHaptic(20)}
+                    onFocus={() => triggerHaptic(1)}
                     className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 bg-white focus:border-blue-500 focus:outline-none transition-colors duration-200"
                   >
                     <option value="">--Select Industry--</option>
@@ -1106,7 +1106,7 @@ Lead Source: ${source}`;
                   id="comments"
                   value={formData.comments}
                   onChange={(e) => handleInputChange('comments', e.target.value)}
-                  onFocus={() => triggerHaptic(20)}
+                  onFocus={() => triggerHaptic(1)}
                   rows={4}
                   className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 placeholder-slate-400 bg-white focus:border-blue-500 focus:outline-none transition-colors duration-200 resize-none"
                   placeholder="Tell us more about your needs..."
