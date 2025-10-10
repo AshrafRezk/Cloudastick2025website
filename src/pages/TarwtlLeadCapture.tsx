@@ -314,12 +314,9 @@ Lead Source: ${source}`;
       setErrors(prev => ({ ...prev, [field]: undefined }));
     }
     
-    // Show personalized quote when:
-    // 1. First name is fully typed (at least 3 characters)
-    // 2. OR when typing in other fields after first name is complete
-    const hasValidFirstName = field === 'first_name' ? value.length >= 3 : formData.first_name.length >= 3;
-    
-    if (hasValidFirstName && !showQuote) {
+    // Show personalized quote only when typing in other fields after first name is complete
+    // Don't show while typing the first name itself
+    if (field !== 'first_name' && formData.first_name.length >= 3 && !showQuote) {
       const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
       setPersonalizedQuote(randomQuote);
       setShowQuote(true);
