@@ -166,9 +166,8 @@ Lead Source: ${source}`;
 
   const handleProductToggle = (product: string) => {
     triggerHaptic(1);
-    // Play selection2 for services/products selection at 4% volume
+    // Play selection2 for services/products selection
     if (selection2Ref.current) {
-      selection2Ref.current.volume = 0.04;
       selection2Ref.current.currentTime = 0;
       selection2Ref.current.play().catch(() => {});
     }
@@ -182,9 +181,8 @@ Lead Source: ${source}`;
 
   const handleOfficerSelect = (index: number) => {
     triggerHaptic(1);
-    // Play selection1 for sales person selection at 4% volume
+    // Play selection1 for sales person selection
     if (selection1Ref.current) {
-      selection1Ref.current.volume = 0.04;
       selection1Ref.current.currentTime = 0;
       selection1Ref.current.play().catch(() => {});
     }
@@ -332,9 +330,8 @@ Lead Source: ${source}`;
   const scrollToForm = () => {
     setIsTransitioning(true);
     triggerHaptic(30);
-    // Play woosh2 for big morph animation at 4% volume
+    // Play woosh2 for big morph animation
     if (woosh2Ref.current) {
-      woosh2Ref.current.volume = 0.04;
       woosh2Ref.current.currentTime = 0;
       woosh2Ref.current.play().catch(() => {});
     }
@@ -636,9 +633,8 @@ Lead Source: ${source}`;
                 <button
                   type="button"
                   onClick={() => {
-                    // Play woosh1 for carousel navigation at 4% volume
+                    // Play woosh1 for carousel navigation
                     if (woosh1Ref.current) {
-                      woosh1Ref.current.volume = 0.04;
                       woosh1Ref.current.currentTime = 0;
                       woosh1Ref.current.play().catch(() => {});
                     }
@@ -655,9 +651,8 @@ Lead Source: ${source}`;
                 <button
                   type="button"
                   onClick={() => {
-                    // Play woosh1 for carousel navigation at 4% volume
+                    // Play woosh1 for carousel navigation
                     if (woosh1Ref.current) {
-                      woosh1Ref.current.volume = 0.04;
                       woosh1Ref.current.currentTime = 0;
                       woosh1Ref.current.play().catch(() => {});
                     }
@@ -761,9 +756,8 @@ Lead Source: ${source}`;
                       key={index}
                       type="button"
                       onClick={() => {
-                        // Play selection3 for carousel page indicator at 4% volume
+                        // Play selection3 for carousel page indicator
                         if (selection3Ref.current) {
-                          selection3Ref.current.volume = 0.04;
                           selection3Ref.current.currentTime = 0;
                           selection3Ref.current.play().catch(() => {});
                         }
@@ -786,9 +780,8 @@ Lead Source: ${source}`;
                     animate={{ opacity: 1, y: 0 }}
                     type="button"
                     onClick={() => {
-                      // Play selection4 for clear action at 4% volume
+                      // Play selection4 for clear action
                       if (selection4Ref.current) {
-                        selection4Ref.current.volume = 0.04;
                         selection4Ref.current.currentTime = 0;
                         selection4Ref.current.play().catch(() => {});
                       }
