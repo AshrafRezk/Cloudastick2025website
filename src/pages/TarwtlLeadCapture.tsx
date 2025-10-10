@@ -612,7 +612,7 @@ Lead Source: ${source}`;
                     setCarouselIndex(carouselIndex === 0 ? teamMembers.length - 3 : carouselIndex - 1);
                     triggerHaptic(20);
                   }}
-                  className="flex absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-300 items-center justify-center text-slate-600 hover:text-slate-900"
+                  className="flex absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-300 items-center justify-center text-slate-600 hover:text-slate-900"
                 >
                   <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -631,7 +631,7 @@ Lead Source: ${source}`;
                     setCarouselIndex(carouselIndex >= teamMembers.length - 3 ? 0 : carouselIndex + 1);
                     triggerHaptic(20);
                   }}
-                  className="flex absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-300 items-center justify-center text-slate-600 hover:text-slate-900"
+                  className="flex absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-300 items-center justify-center text-slate-600 hover:text-slate-900"
                 >
                   <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -639,7 +639,7 @@ Lead Source: ${source}`;
                 </button>
 
                 {/* Carousel Container */}
-                <div className="overflow-hidden rounded-3xl mx-4 md:mx-16">
+                <div className="overflow-hidden rounded-3xl mx-12 md:mx-16">
                   <motion.div
                     animate={{ x: `-${carouselIndex * (100 / 3)}%` }}
                     transition={{ type: 'spring', stiffness: 300, damping: 30 }}
