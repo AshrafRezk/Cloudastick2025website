@@ -14,6 +14,7 @@ interface FormData {
   comments: string;
   products: string[];
   lead_gen_officer: string; // Salesforce userId
+  lead_source: string; // Lead source from URL params
 }
 
 const TarwtlLeadCapture: React.FC = () => {
@@ -30,6 +31,7 @@ const TarwtlLeadCapture: React.FC = () => {
     comments: '',
     products: [],
     lead_gen_officer: '', // Will be set to default or selected user
+    lead_source: '', // Will be set from URL params
   });
   const [deviceInfo, setDeviceInfo] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -112,6 +114,33 @@ const TarwtlLeadCapture: React.FC = () => {
     }
   };
 
+  // Set audio volume to 5% on component mount
+  useEffect(() => {
+    const setAudioVolume = () => {
+      const audioElements = [
+        successAudioRef.current,
+        woosh1Ref.current,
+        woosh2Ref.current,
+        selection1Ref.current,
+        selection2Ref.current,
+        selection3Ref.current,
+        selection4Ref.current
+      ];
+
+      audioElements.forEach(audio => {
+        if (audio) {
+          audio.volume = 0.05; // 5% volume
+        }
+      });
+    };
+
+    setAudioVolume();
+    // Also set volume after a short delay to ensure elements are loaded
+    const timer = setTimeout(setAudioVolume, 100);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
   // Carousel autoplay
   useEffect(() => {
     // Start autoplay carousel
@@ -166,6 +195,16 @@ const TarwtlLeadCapture: React.FC = () => {
       // Get query parameters
       const urlParams = new URLSearchParams(window.location.search);
       const source = urlParams.get('src') || urlParams.get('utm_source') || 'organic';
+      
+      // Capture lead source from URL params (check multiple param names)
+      const leadSource = urlParams.get('lead_source') 
+        || urlParams.get('source') 
+        || urlParams.get('utm_source')
+        || urlParams.get('src')
+        || 'Events - Gitex 2025'; // Default for this campaign
+      
+      // Set lead source in form data
+      setFormData(prev => ({ ...prev, lead_source: leadSource }));
       
       const info = `Device: ${deviceType}
 Browser: ${browser}
@@ -253,7 +292,7 @@ Lead Source: ${source}`;
       const leadOfficerValue = selectedOfficer 
         ? (selectedOfficer.userId !== 'DEFAULT_USER' ? selectedOfficer.userId : selectedOfficer.name)
         : DEFAULT_USER_ID;
-
+      
       // Add products to comments
       const productsText = `Products of Interest: ${formData.products.join(', ')}\n\n${formData.comments}`;
 
@@ -284,6 +323,8 @@ Lead Source: ${source}`;
       addField('mobile', formData.mobile);
       addField('industry', formData.industry);
       addField('00NNM00000D5r7R', leadOfficerValue); // Target Owner
+      addField('00NNM00000DIbrF', formData.products.join(';')); // Products of Interest (multi-picklist)
+      addField('lead_source', formData.lead_source); // Lead Source from URL params
       addField('00NJ5000000hzjZ', productsText); // Comments with products
       addField('00NNM00000D1ioR', deviceInfo); // Device Info
 
