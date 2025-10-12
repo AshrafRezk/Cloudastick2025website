@@ -1,20 +1,42 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
 const TarwtlLeadSuccess: React.FC = () => {
   const navigate = useNavigate();
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoLoaded, setVideoLoaded] = useState(false);
 
   useEffect(() => {
     // Ensure video plays on mount
     if (videoRef.current) {
-      videoRef.current.play().catch(() => {
+      videoRef.current.play().catch((error) => {
         // Auto-play might be blocked, user interaction needed
-        console.log('Video autoplay was prevented');
+        console.log('Video autoplay was prevented:', error);
       });
     }
   }, []);
+
+  const handleVideoError = (e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
+    console.error('Video failed to load:', e);
+    // Hide video and show fallback background
+    const video = e.currentTarget;
+    video.style.display = 'none';
+  };
+
+  const handleVideoLoadStart = () => {
+    console.log('Video loading started');
+  };
+
+  const handleVideoCanPlay = () => {
+    console.log('Video can play');
+    setVideoLoaded(true);
+  };
+
+  const handleVideoLoaded = () => {
+    console.log('Video loaded');
+    setVideoLoaded(true);
+  };
 
   const handleBack = () => {
     navigate('/tarwtl-lead-capture');
@@ -22,6 +44,12 @@ const TarwtlLeadSuccess: React.FC = () => {
 
   const handleLearnMore = () => {
     window.location.href = 'https://arabic.ai/';
+  };
+
+  const handleVideoClick = () => {
+    if (videoRef.current && videoRef.current.paused) {
+      videoRef.current.play().catch(console.error);
+    }
   };
 
   return (
@@ -33,12 +61,21 @@ const TarwtlLeadSuccess: React.FC = () => {
         muted
         loop
         playsInline
-        className="absolute inset-0 w-full h-full object-cover"
+        preload="metadata"
+        onError={handleVideoError}
+        onLoadStart={handleVideoLoadStart}
+        onCanPlay={handleVideoCanPlay}
+        onLoadedData={handleVideoLoaded}
+        onClick={handleVideoClick}
+        className="absolute inset-0 w-full h-full object-cover cursor-pointer"
       >
         <source src="/Assets/arabicaivideo.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
 
+      {/* Fallback gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-purple-900/80 to-indigo-900/80" />
+      
       {/* Dark Overlay for better text visibility */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/40" />
 
