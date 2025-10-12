@@ -8,6 +8,8 @@ const TarwtlLeadSuccess: React.FC = () => {
   const videoRefForeground = useRef<HTMLVideoElement>(null);
   const [videoFailedBackground, setVideoFailedBackground] = useState(false);
   const [videoFailedForeground, setVideoFailedForeground] = useState(false);
+  const [backgroundVideoLoaded, setBackgroundVideoLoaded] = useState(false);
+  const [foregroundVideoLoaded, setForegroundVideoLoaded] = useState(false);
 
   // Ensure background video starts playing with multiple strategies
   useEffect(() => {
@@ -67,6 +69,16 @@ const TarwtlLeadSuccess: React.FC = () => {
     setVideoFailedForeground(true);
   };
 
+  const handleBackgroundVideoLoad = () => {
+    console.log('✅ Background video loaded successfully');
+    setBackgroundVideoLoaded(true);
+  };
+
+  const handleForegroundVideoLoad = () => {
+    console.log('✅ Foreground video loaded successfully');
+    setForegroundVideoLoaded(true);
+  };
+
   const handleBackgroundVideoClick = () => {
     if (videoRefBackground.current && videoRefBackground.current.paused) {
       videoRefBackground.current.play().catch(console.error);
@@ -79,6 +91,24 @@ const TarwtlLeadSuccess: React.FC = () => {
 
   const handleLearnMore = () => {
     window.location.href = 'https://arabic.ai/';
+  };
+
+  const retryBackgroundVideo = () => {
+    setVideoFailedBackground(false);
+    setBackgroundVideoLoaded(false);
+    // Force video reload
+    if (videoRefBackground.current) {
+      videoRefBackground.current.load();
+    }
+  };
+
+  const retryForegroundVideo = () => {
+    setVideoFailedForeground(false);
+    setForegroundVideoLoaded(false);
+    // Force video reload
+    if (videoRefForeground.current) {
+      videoRefForeground.current.load();
+    }
   };
 
 
@@ -126,7 +156,7 @@ const TarwtlLeadSuccess: React.FC = () => {
                       width: 'auto',
                       height: 'auto'
                     }}
-                    onLoadedData={() => console.log('✅ Background video loaded successfully')}
+                    onLoadedData={handleBackgroundVideoLoad}
                     onError={handleBackgroundVideoError}
                     onLoadStart={() => console.log('🔄 Background video loading started')}
                     onCanPlay={() => console.log('▶️ Background video can play')}
@@ -135,6 +165,7 @@ const TarwtlLeadSuccess: React.FC = () => {
                     <source src="/Assets/arabicaivideo.mp4" type="video/mp4" />
                     <source src="./Assets/arabicaivideo.mp4" type="video/mp4" />
                     <source src="Assets/arabicaivideo.mp4" type="video/mp4" />
+                    <source src="https://arabic.ai/Assets/arabicaivideo.mp4" type="video/mp4" />
                     Your browser does not support the video tag.
                   </video>
                   {/* Dark Overlay for better text visibility */}
@@ -144,7 +175,24 @@ const TarwtlLeadSuccess: React.FC = () => {
       
       {/* Fallback gradient background */}
       {videoFailedBackground && (
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-purple-900/80 to-indigo-900/80" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-purple-900/80 to-indigo-900/80">
+          {/* Animated background pattern */}
+          <div className="absolute inset-0 opacity-20">
+            <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-indigo-500/30 rounded-full blur-3xl animate-pulse delay-500"></div>
+          </div>
+          
+          {/* Retry button for background video */}
+          <div className="absolute top-4 right-4">
+            <button
+              onClick={retryBackgroundVideo}
+              className="px-4 py-2 bg-white/20 backdrop-blur-sm text-white rounded-full hover:bg-white/30 transition-all duration-300 text-sm font-medium"
+            >
+              🔄 Retry Background Video
+            </button>
+          </div>
+        </div>
       )}
       
       {/* Dark Overlay for better text visibility */}
@@ -226,15 +274,28 @@ const TarwtlLeadSuccess: React.FC = () => {
                     '--webkit-media-controls-volume-slider': 'display: block',
                     '--webkit-media-controls-timeline': 'display: block'
                   } as React.CSSProperties}
-                  onLoadedData={() => console.log('✅ Foreground video loaded successfully')}
+                  onLoadedData={handleForegroundVideoLoad}
                   onError={handleForegroundVideoError}
                 >
                   <source src="/Assets/agrid-video.mp4" type="video/mp4" />
+                  <source src="./Assets/agrid-video.mp4" type="video/mp4" />
+                  <source src="Assets/agrid-video.mp4" type="video/mp4" />
+                  <source src="https://arabic.ai/Assets/agrid-video.mp4" type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
+                
+                {/* Loading indicator */}
+                {!foregroundVideoLoaded && !videoFailedForeground && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                    <div className="flex flex-col items-center">
+                      <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin mb-2"></div>
+                      <p className="text-white/70 text-sm">Loading video...</p>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
-              <div className="w-full rounded-xl shadow-lg overflow-hidden" style={{ aspectRatio: '16/9' }}>
+              <div className="relative w-full rounded-xl shadow-lg overflow-hidden" style={{ aspectRatio: '16/9' }}>
                 <div style={{padding:'56.25% 0 0 0', position:'relative'}}>
                   <iframe 
                     src="https://player.vimeo.com/video/1126661789?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479&amp;autoplay=1&amp;loop=1&amp;muted=0" 
@@ -244,6 +305,16 @@ const TarwtlLeadSuccess: React.FC = () => {
                     style={{position:'absolute', top:0, left:0, width:'100%', height:'100%'}} 
                     title="Meet Agrid!"
                   />
+                </div>
+                
+                {/* Retry button for foreground video */}
+                <div className="absolute top-2 right-2">
+                  <button
+                    onClick={retryForegroundVideo}
+                    className="px-3 py-1 bg-black/50 backdrop-blur-sm text-white rounded-full hover:bg-black/70 transition-all duration-300 text-xs font-medium"
+                  >
+                    🔄 Retry Video
+                  </button>
                 </div>
               </div>
             )}
