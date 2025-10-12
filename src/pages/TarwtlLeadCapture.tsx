@@ -292,9 +292,6 @@ Lead Source: ${source}`;
       const leadOfficerValue = selectedOfficer 
         ? (selectedOfficer.userId !== 'DEFAULT_USER' ? selectedOfficer.userId : selectedOfficer.name)
         : DEFAULT_USER_ID;
-      
-      // Add products to comments
-      const productsText = `Products of Interest: ${formData.products.join(', ')}\n\n${formData.comments}`;
 
       // Create a hidden form for Salesforce submission
       const hiddenForm = document.createElement('form');
@@ -325,7 +322,7 @@ Lead Source: ${source}`;
       addField('00NNM00000D5r7R', leadOfficerValue); // Target Owner
       addField('00NNM00000DIbrF', formData.products.join(';')); // Products of Interest (multi-picklist)
       addField('lead_source', formData.lead_source); // Lead Source from URL params
-      addField('00NJ5000000hzjZ', productsText); // Comments with products
+      addField('00NJ5000000hzjZ', formData.comments); // Comments (Short)
       addField('00NNM00000D1ioR', deviceInfo); // Device Info
 
       // Create hidden iframe for submission (to avoid page redirect)
