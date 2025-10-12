@@ -68,13 +68,13 @@ const TarwtlLeadSuccess: React.FC = () => {
       {/* Dark Overlay for better text visibility */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/40" />
 
-      {/* User-playable Video */}
-      <div className="absolute top-4 right-4 md:top-8 md:right-8 z-20">
+      {/* User-playable Video - Centered in first 1/3 of screen */}
+      <div className="absolute top-0 left-0 w-full h-1/3 flex items-center justify-center z-20 px-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.5 }}
-          className="bg-white/10 backdrop-blur-sm rounded-2xl p-2 md:p-4 shadow-2xl"
+          className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 md:p-6 shadow-2xl max-w-4xl w-full"
         >
           {!videoFailedForeground ? (
             <video
@@ -84,7 +84,7 @@ const TarwtlLeadSuccess: React.FC = () => {
               loop
               playsInline
               controls
-              className="w-64 h-36 md:w-80 md:h-48 rounded-xl object-cover shadow-lg"
+              className="w-full h-48 md:h-64 rounded-xl object-cover shadow-lg"
               onLoadedData={() => console.log('✅ Foreground video loaded successfully')}
               onError={handleForegroundVideoError}
             >
@@ -92,7 +92,7 @@ const TarwtlLeadSuccess: React.FC = () => {
               Your browser does not support the video tag.
             </video>
           ) : (
-            <div className="w-64 h-36 md:w-80 md:h-48 rounded-xl shadow-lg overflow-hidden">
+            <div className="w-full h-48 md:h-64 rounded-xl shadow-lg overflow-hidden">
               <div style={{padding:'75% 0 0 0', position:'relative'}}>
                 <iframe 
                   src="https://player.vimeo.com/video/1126661789?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479&amp;autoplay=1&amp;loop=1&amp;muted=1" 
@@ -105,14 +105,14 @@ const TarwtlLeadSuccess: React.FC = () => {
               </div>
             </div>
           )}
-          <p className="text-white text-xs md:text-sm text-center mt-2 font-medium">
+          <p className="text-white text-sm md:text-base text-center mt-3 font-medium">
             Meet Agrid!
           </p>
         </motion.div>
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-20">
+      {/* Content - Positioned below the video */}
+      <div className="relative z-10 flex flex-col items-center justify-center px-4 pt-1/3 min-h-screen">
         {/* Success Message */}
         <motion.div
           initial={{ opacity: 0, y: -30 }}
