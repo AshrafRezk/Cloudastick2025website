@@ -97,8 +97,8 @@ const TarwtlLeadSuccess: React.FC = () => {
       {/* Dark Overlay for better text visibility */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/40" />
 
-      {/* User-playable Video - Centered in first 1/3 of screen */}
-      <div className="absolute top-0 left-0 w-full h-1/3 flex items-center justify-center z-20 px-4">
+      {/* User-playable Video - Centered in first half of screen */}
+      <div className="absolute top-0 left-0 w-full h-1/2 flex items-center justify-center z-20 px-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -113,7 +113,7 @@ const TarwtlLeadSuccess: React.FC = () => {
               loop
               playsInline
               controls
-              className="w-full h-48 md:h-64 rounded-xl object-cover shadow-lg"
+              className="w-full h-64 md:h-80 rounded-xl object-cover shadow-lg"
               onLoadedData={() => console.log('✅ Foreground video loaded successfully')}
               onError={handleForegroundVideoError}
             >
@@ -121,7 +121,7 @@ const TarwtlLeadSuccess: React.FC = () => {
               Your browser does not support the video tag.
             </video>
           ) : (
-            <div className="w-full h-48 md:h-64 rounded-xl shadow-lg overflow-hidden">
+            <div className="w-full h-64 md:h-80 rounded-xl shadow-lg overflow-hidden">
               <div style={{padding:'75% 0 0 0', position:'relative'}}>
                 <iframe 
                   src="https://player.vimeo.com/video/1126661789?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479&amp;autoplay=1&amp;loop=1&amp;muted=1" 
@@ -141,7 +141,7 @@ const TarwtlLeadSuccess: React.FC = () => {
       </div>
 
       {/* Content - Positioned below the video */}
-      <div className="relative z-10 flex flex-col items-center justify-center px-4 pt-1/3 min-h-screen">
+      <div className="relative z-10 flex flex-col items-center justify-center px-4 pt-1/2 min-h-screen">
         {/* Success Message */}
         <motion.div
           initial={{ opacity: 0, y: -30 }}
@@ -149,20 +149,6 @@ const TarwtlLeadSuccess: React.FC = () => {
           transition={{ duration: 0.8 }}
           className="text-center mb-12"
         >
-          {/* Success Icon */}
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="mb-8 flex justify-center"
-          >
-            <div className="w-24 h-24 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center shadow-2xl">
-              <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-          </motion.div>
-
           {/* Thank You Message */}
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
