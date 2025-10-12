@@ -1,9 +1,25 @@
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
 const TarwtlLeadSuccess: React.FC = () => {
   const navigate = useNavigate();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoFailed, setVideoFailed] = useState(false);
+
+  // Ensure video starts playing (same as startup sequence)
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.play().catch((error) => {
+        console.log('Video autoplay prevented:', error);
+      });
+    }
+  }, []);
+
+  const handleVideoError = (e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
+    console.log('❌ Video failed to load, showing fallback content');
+    setVideoFailed(true);
+  };
 
   const handleBack = () => {
     navigate('/tarwtl-lead-capture');
@@ -30,19 +46,34 @@ const TarwtlLeadSuccess: React.FC = () => {
           transition={{ duration: 0.8, delay: 0.5 }}
           className="bg-white/10 backdrop-blur-sm rounded-2xl p-2 md:p-4 shadow-2xl"
         >
-          <video
-            controls
-            muted
-            playsInline
-            preload="metadata"
-            className="w-64 h-36 md:w-80 md:h-48 rounded-xl object-cover shadow-lg"
-          >
-            <source src="/Assets/Agrid -EN-3.mp4" type="video/mp4" />
-            <source src="./Assets/Agrid -EN-3.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
+          {!videoFailed ? (
+            <video
+              ref={videoRef}
+              autoPlay
+              muted
+              loop
+              playsInline
+              controls
+              className="w-64 h-36 md:w-80 md:h-48 rounded-xl object-cover shadow-lg"
+              onLoadedData={() => console.log('✅ Video loaded successfully')}
+              onError={handleVideoError}
+            >
+              <source src="/Assets/scyscrapers.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          ) : (
+            <div className="w-64 h-36 md:w-80 md:h-48 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg">
+              <div className="text-center text-white">
+                <svg className="w-12 h-12 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                  <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                </svg>
+                <p className="text-sm font-medium">Learn More About Us</p>
+              </div>
+            </div>
+          )}
           <p className="text-white text-xs md:text-sm text-center mt-2 font-medium">
-            Watch Our Story
+            Meet Agrid!
           </p>
         </motion.div>
       </div>
