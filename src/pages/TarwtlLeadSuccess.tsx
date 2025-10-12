@@ -63,6 +63,30 @@ const TarwtlLeadSuccess: React.FC = () => {
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-black">
+      {/* Custom CSS for video controls */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          video::-webkit-media-controls-panel {
+            display: block !important;
+            background: rgba(0, 0, 0, 0.8) !important;
+          }
+          video::-webkit-media-controls-play-button {
+            display: block !important;
+          }
+          video::-webkit-media-controls-volume-slider {
+            display: block !important;
+          }
+          video::-webkit-media-controls-timeline {
+            display: block !important;
+          }
+          video::-webkit-media-controls-current-time-display {
+            display: block !important;
+          }
+          video::-webkit-media-controls-time-remaining-display {
+            display: block !important;
+          }
+        `
+      }} />
       {/* Background Video */}
       {!videoFailedBackground && (
         <div className="absolute inset-0 overflow-hidden">
@@ -155,25 +179,32 @@ const TarwtlLeadSuccess: React.FC = () => {
             className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 md:p-6 shadow-2xl"
           >
             {!videoFailedForeground ? (
-              <video
-                ref={videoRefForeground}
-                autoPlay
-                muted
-                loop
-                playsInline
-                controls
-                controlsList="nodownload nofullscreen noremoteplayback"
-                className="w-full h-64 md:h-80 rounded-xl object-cover shadow-lg"
-                style={{ 
-                  backgroundColor: '#000',
-                  '--webkit-media-controls-panel': 'display: block'
-                } as React.CSSProperties}
-                onLoadedData={() => console.log('✅ Foreground video loaded successfully')}
-                onError={handleForegroundVideoError}
-              >
-                <source src="/Assets/agrid-video.mp4" type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
+              <div className="relative w-full h-64 md:h-80 rounded-xl overflow-hidden shadow-lg bg-black">
+                <video
+                  ref={videoRefForeground}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  controls
+                  controlsList="nodownload nofullscreen noremoteplayback"
+                  className="w-full h-full object-cover"
+                  style={{ 
+                    backgroundColor: '#000',
+                    objectPosition: 'center center',
+                    '--webkit-media-controls': 'display: block',
+                    '--webkit-media-controls-panel': 'display: block',
+                    '--webkit-media-controls-play-button': 'display: block',
+                    '--webkit-media-controls-volume-slider': 'display: block',
+                    '--webkit-media-controls-timeline': 'display: block'
+                  } as React.CSSProperties}
+                  onLoadedData={() => console.log('✅ Foreground video loaded successfully')}
+                  onError={handleForegroundVideoError}
+                >
+                  <source src="/Assets/agrid-video.mp4" type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
             ) : (
               <div className="w-full h-64 md:h-80 rounded-xl shadow-lg overflow-hidden">
                 <div style={{padding:'75% 0 0 0', position:'relative'}}>
