@@ -1,42 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
 const TarwtlLeadSuccess: React.FC = () => {
   const navigate = useNavigate();
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [videoLoaded, setVideoLoaded] = useState(false);
-
-  useEffect(() => {
-    // Ensure video plays on mount
-    if (videoRef.current) {
-      videoRef.current.play().catch((error) => {
-        // Auto-play might be blocked, user interaction needed
-        console.log('Video autoplay was prevented:', error);
-      });
-    }
-  }, []);
-
-  const handleVideoError = (e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
-    console.error('Video failed to load:', e);
-    // Hide video and show fallback background
-    const video = e.currentTarget;
-    video.style.display = 'none';
-  };
-
-  const handleVideoLoadStart = () => {
-    console.log('Video loading started');
-  };
-
-  const handleVideoCanPlay = () => {
-    console.log('Video can play');
-    setVideoLoaded(true);
-  };
-
-  const handleVideoLoaded = () => {
-    console.log('Video loaded');
-    setVideoLoaded(true);
-  };
 
   const handleBack = () => {
     navigate('/tarwtl-lead-capture');
@@ -46,39 +13,39 @@ const TarwtlLeadSuccess: React.FC = () => {
     window.location.href = 'https://arabic.ai/';
   };
 
-  const handleVideoClick = () => {
-    if (videoRef.current && videoRef.current.paused) {
-      videoRef.current.play().catch(console.error);
-    }
-  };
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-black">
-      {/* Video Background */}
-      <video
-        ref={videoRef}
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="metadata"
-        onError={handleVideoError}
-        onLoadStart={handleVideoLoadStart}
-        onCanPlay={handleVideoCanPlay}
-        onLoadedData={handleVideoLoaded}
-        onClick={handleVideoClick}
-        className="absolute inset-0 w-full h-full object-cover cursor-pointer"
-      >
-        <source src="/Assets/Gitex/Gitex for Tarjama/robotvideo.mp4?v=2024101103" type="video/mp4" />
-        <source src="./Assets/Gitex/Gitex for Tarjama/robotvideo.mp4?v=2024101103" type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
-
-      {/* Fallback gradient background */}
+      {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-purple-900/80 to-indigo-900/80" />
       
       {/* Dark Overlay for better text visibility */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/40" />
+
+      {/* User-playable Video */}
+      <div className="absolute top-4 right-4 md:top-8 md:right-8 z-20">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+          className="bg-white/10 backdrop-blur-sm rounded-2xl p-2 md:p-4 shadow-2xl"
+        >
+          <video
+            controls
+            muted
+            playsInline
+            preload="metadata"
+            className="w-64 h-36 md:w-80 md:h-48 rounded-xl object-cover shadow-lg"
+          >
+            <source src="/Assets/Agrid -EN-3.mp4" type="video/mp4" />
+            <source src="./Assets/Agrid -EN-3.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+          <p className="text-white text-xs md:text-sm text-center mt-2 font-medium">
+            Watch Our Story
+          </p>
+        </motion.div>
+      </div>
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-20">
