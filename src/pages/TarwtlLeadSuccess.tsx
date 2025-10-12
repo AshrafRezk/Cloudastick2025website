@@ -69,7 +69,8 @@ const TarwtlLeadSuccess: React.FC = () => {
         onClick={handleVideoClick}
         className="absolute inset-0 w-full h-full object-cover cursor-pointer"
       >
-        <source src="/Assets/arabicaivideo.mp4" type="video/mp4" />
+        <source src="/Assets/Gitex/Gitex for Tarjama/robotvideo.mp4?v=2024101103" type="video/mp4" />
+        <source src="./Assets/Gitex/Gitex for Tarjama/robotvideo.mp4?v=2024101103" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
 
