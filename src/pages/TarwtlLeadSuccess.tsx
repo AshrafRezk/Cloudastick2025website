@@ -121,57 +121,57 @@ const TarwtlLeadSuccess: React.FC = () => {
       {/* Dark Overlay for better text visibility */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/40" />
 
-      {/* Content - Thank You Message First */}
-      <div className="relative z-10 flex flex-col items-center justify-center px-4 py-20 min-h-screen">
-        {/* Success Message */}
-        <motion.div
-          initial={{ opacity: 0, y: -30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-12"
-        >
-          {/* Thank You Message */}
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-4xl md:text-6xl font-bold text-white mb-6"
-          >
-            Thank You!
-          </motion.h1>
+              {/* Content - Optimized for Desktop and Mobile */}
+              <div className="relative z-10 flex flex-col items-center justify-center px-4 py-8 md:py-12 lg:py-16 min-h-screen">
+                {/* Success Message */}
+                <motion.div
+                  initial={{ opacity: 0, y: -30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8 }}
+                  className="text-center mb-8 md:mb-12 lg:mb-16"
+                >
+                  {/* Thank You Message */}
+                  <motion.h1
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.4 }}
+                    className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-4 md:mb-6"
+                  >
+                    Thank You!
+                  </motion.h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="text-xl md:text-2xl text-white/90 mb-4 max-w-2xl mx-auto"
-          >
-            Your information has been submitted successfully.
-          </motion.p>
+                  <motion.p
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.6 }}
+                    className="text-lg md:text-xl lg:text-2xl text-white/90 mb-3 md:mb-4 max-w-2xl mx-auto"
+                  >
+                    Your information has been submitted successfully.
+                  </motion.p>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-            className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto"
-          >
-            Our team will reach out to you shortly to discuss your AI Agent needs.
-          </motion.p>
-        </motion.div>
+                  <motion.p
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.8 }}
+                    className="text-base md:text-lg lg:text-xl text-white/80 max-w-2xl mx-auto"
+                  >
+                    Our team will reach out to you shortly to discuss your AI Agent needs.
+                  </motion.p>
+                </motion.div>
 
-        {/* Video Section - Morph Transition */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8, y: 50 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ 
-            duration: 1.2, 
-            delay: 1.2,
-            type: "spring",
-            stiffness: 100,
-            damping: 15
-          }}
-          className="w-full max-w-4xl mb-12"
-        >
+                {/* Video Section - Morph Transition */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8, y: 50 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ 
+                    duration: 1.2, 
+                    delay: 1.2,
+                    type: "spring",
+                    stiffness: 100,
+                    damping: 15
+                  }}
+                  className="w-full max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl mb-8 md:mb-12"
+                >
           <motion.div
             initial={{ borderRadius: "50%" }}
             animate={{ borderRadius: "1rem" }}
@@ -179,11 +179,10 @@ const TarwtlLeadSuccess: React.FC = () => {
             className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 md:p-6 shadow-2xl"
           >
             {!videoFailedForeground ? (
-              <div className="relative w-full h-64 md:h-80 rounded-xl overflow-hidden shadow-lg bg-black">
+              <div className="relative w-full h-64 md:h-80 lg:h-96 xl:h-[28rem] rounded-xl overflow-hidden shadow-lg bg-black">
                 <video
                   ref={videoRefForeground}
                   autoPlay
-                  muted
                   loop
                   playsInline
                   controls
@@ -230,13 +229,13 @@ const TarwtlLeadSuccess: React.FC = () => {
           </motion.div>
         </motion.div>
 
-        {/* Action Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 2.2 }}
-          className="flex flex-col sm:flex-row gap-4 w-full max-w-md"
-        >
+                {/* Action Buttons */}
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 2.2 }}
+                  className="flex flex-col sm:flex-row gap-4 w-full max-w-sm md:max-w-md lg:max-w-lg"
+                >
           {/* Learn More Button (Primary) */}
           <motion.button
             onClick={handleLearnMore}
