@@ -9,31 +9,52 @@ const TarwtlLeadSuccess: React.FC = () => {
   const [videoFailedBackground, setVideoFailedBackground] = useState(false);
   const [videoFailedForeground, setVideoFailedForeground] = useState(false);
 
-  // Ensure background video starts playing
+  // Ensure background video starts playing with multiple strategies
   useEffect(() => {
     const playVideo = () => {
       if (videoRefBackground.current) {
-        videoRefBackground.current.play().catch((error) => {
-          console.log('Background video autoplay prevented:', error);
-          // Try again after a short delay
-          setTimeout(() => {
-            if (videoRefBackground.current) {
-              videoRefBackground.current.play().catch((retryError) => {
-                console.log('Background video retry failed:', retryError);
-              });
-            }
-          }, 1000);
-        });
+        const video = videoRefBackground.current;
+        
+        // Set video properties for better autoplay success
+        video.muted = true; // Ensure muted for autoplay
+        video.volume = 0;
+        video.currentTime = 0;
+        
+        // Try to play with different strategies
+        const playPromise = video.play();
+        
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            console.log('✅ Background video playing successfully');
+            setVideoFailedBackground(false);
+          }).catch((error) => {
+            console.log('❌ Background video autoplay failed:', error);
+            
+            // Try again with user interaction simulation
+            setTimeout(() => {
+              if (video) {
+                video.load(); // Reload video
+                video.muted = true;
+                video.play().catch((retryError) => {
+                  console.log('❌ Background video retry failed:', retryError);
+                  setVideoFailedBackground(true);
+                });
+              }
+            }, 1000);
+          });
+        }
       }
     };
 
-    // Try to play immediately
-    playVideo();
-
-    // Also try after component is fully mounted
-    const timer = setTimeout(playVideo, 500);
+    // Multiple attempts with increasing delays
+    const attempts = [0, 500, 1000, 2000];
+    const timers = attempts.map(delay => 
+      setTimeout(() => {
+        playVideo();
+      }, delay)
+    );
     
-    return () => clearTimeout(timer);
+    return () => timers.forEach(clearTimeout);
   }, []);
 
   const handleBackgroundVideoError = (e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
@@ -87,31 +108,39 @@ const TarwtlLeadSuccess: React.FC = () => {
           }
         `
       }} />
-      {/* Background Video */}
-      {!videoFailedBackground && (
-        <div className="absolute inset-0 overflow-hidden">
-          <video
-            ref={videoRefBackground}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            onClick={handleBackgroundVideoClick}
-            className="absolute inset-0 w-full h-full object-cover opacity-80 cursor-pointer"
-            onLoadedData={() => console.log('✅ Background video loaded successfully')}
-            onError={handleBackgroundVideoError}
-            onLoadStart={() => console.log('🔄 Background video loading started')}
-            onCanPlay={() => console.log('▶️ Background video can play')}
-          >
-            <source src="/Assets/arabicaivideo.mp4" type="video/mp4" />
-            <source src="./Assets/arabicaivideo.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
-          {/* Dark Overlay for better text visibility */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/40" />
-        </div>
-      )}
+              {/* Background Video */}
+              {!videoFailedBackground && (
+                <div className="absolute inset-0 overflow-hidden">
+                  <video
+                    ref={videoRefBackground}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="metadata"
+                    onClick={handleBackgroundVideoClick}
+                    className="absolute inset-0 w-full h-full object-cover opacity-80 cursor-pointer"
+                    style={{ 
+                      minWidth: '100%', 
+                      minHeight: '100%',
+                      width: 'auto',
+                      height: 'auto'
+                    }}
+                    onLoadedData={() => console.log('✅ Background video loaded successfully')}
+                    onError={handleBackgroundVideoError}
+                    onLoadStart={() => console.log('🔄 Background video loading started')}
+                    onCanPlay={() => console.log('▶️ Background video can play')}
+                    onPlaying={() => console.log('🎬 Background video is playing')}
+                  >
+                    <source src="/Assets/arabicaivideo.mp4" type="video/mp4" />
+                    <source src="./Assets/arabicaivideo.mp4" type="video/mp4" />
+                    <source src="Assets/arabicaivideo.mp4" type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                  {/* Dark Overlay for better text visibility */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/40" />
+                </div>
+              )}
       
       {/* Fallback gradient background */}
       {videoFailedBackground && (
@@ -179,7 +208,7 @@ const TarwtlLeadSuccess: React.FC = () => {
             className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 md:p-6 shadow-2xl"
           >
             {!videoFailedForeground ? (
-              <div className="relative w-full h-64 md:h-80 lg:h-96 xl:h-[28rem] rounded-xl overflow-hidden shadow-lg bg-black">
+              <div className="relative w-full rounded-xl overflow-hidden shadow-lg bg-black" style={{ aspectRatio: '16/9' }}>
                 <video
                   ref={videoRefForeground}
                   autoPlay
@@ -187,10 +216,10 @@ const TarwtlLeadSuccess: React.FC = () => {
                   playsInline
                   controls
                   controlsList="nodownload nofullscreen noremoteplayback"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                   style={{ 
                     backgroundColor: '#000',
-                    objectPosition: 'center center',
+                    minHeight: '320px',
                     '--webkit-media-controls': 'display: block',
                     '--webkit-media-controls-panel': 'display: block',
                     '--webkit-media-controls-play-button': 'display: block',
@@ -205,10 +234,10 @@ const TarwtlLeadSuccess: React.FC = () => {
                 </video>
               </div>
             ) : (
-              <div className="w-full h-64 md:h-80 rounded-xl shadow-lg overflow-hidden">
-                <div style={{padding:'75% 0 0 0', position:'relative'}}>
+              <div className="w-full rounded-xl shadow-lg overflow-hidden" style={{ aspectRatio: '16/9' }}>
+                <div style={{padding:'56.25% 0 0 0', position:'relative'}}>
                   <iframe 
-                    src="https://player.vimeo.com/video/1126661789?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479&amp;autoplay=1&amp;loop=1&amp;muted=1" 
+                    src="https://player.vimeo.com/video/1126661789?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479&amp;autoplay=1&amp;loop=1&amp;muted=0" 
                     frameBorder="0" 
                     allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" 
                     referrerPolicy="strict-origin-when-cross-origin" 
