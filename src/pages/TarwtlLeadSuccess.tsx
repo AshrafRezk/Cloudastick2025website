@@ -97,51 +97,8 @@ const TarwtlLeadSuccess: React.FC = () => {
       {/* Dark Overlay for better text visibility */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/40" />
 
-      {/* User-playable Video - Centered in first half of screen */}
-      <div className="absolute top-0 left-0 w-full h-1/2 flex items-center justify-center z-20 px-4">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
-          className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 md:p-6 shadow-2xl max-w-4xl w-full"
-        >
-          {!videoFailedForeground ? (
-            <video
-              ref={videoRefForeground}
-              autoPlay
-              muted
-              loop
-              playsInline
-              controls
-              className="w-full h-64 md:h-80 rounded-xl object-cover shadow-lg"
-              onLoadedData={() => console.log('✅ Foreground video loaded successfully')}
-              onError={handleForegroundVideoError}
-            >
-              <source src="/Assets/agrid-video.mp4" type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
-          ) : (
-            <div className="w-full h-64 md:h-80 rounded-xl shadow-lg overflow-hidden">
-              <div style={{padding:'75% 0 0 0', position:'relative'}}>
-                <iframe 
-                  src="https://player.vimeo.com/video/1126661789?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479&amp;autoplay=1&amp;loop=1&amp;muted=1" 
-                  frameBorder="0" 
-                  allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" 
-                  referrerPolicy="strict-origin-when-cross-origin" 
-                  style={{position:'absolute', top:0, left:0, width:'100%', height:'100%'}} 
-                  title="Meet Agrid!"
-                />
-              </div>
-            </div>
-          )}
-          <p className="text-white text-sm md:text-base text-center mt-3 font-medium">
-            Meet Agrid!
-          </p>
-        </motion.div>
-      </div>
-
-      {/* Content - Positioned below the video */}
-      <div className="relative z-10 flex flex-col items-center justify-center px-4 pt-1/2 min-h-screen">
+      {/* Content - Thank You Message First */}
+      <div className="relative z-10 flex flex-col items-center justify-center px-4 py-20 min-h-screen">
         {/* Success Message */}
         <motion.div
           initial={{ opacity: 0, y: -30 }}
@@ -178,11 +135,75 @@ const TarwtlLeadSuccess: React.FC = () => {
           </motion.p>
         </motion.div>
 
+        {/* Video Section - Morph Transition */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8, y: 50 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ 
+            duration: 1.2, 
+            delay: 1.2,
+            type: "spring",
+            stiffness: 100,
+            damping: 15
+          }}
+          className="w-full max-w-4xl mb-12"
+        >
+          <motion.div
+            initial={{ borderRadius: "50%" }}
+            animate={{ borderRadius: "1rem" }}
+            transition={{ duration: 1.5, delay: 1.2 }}
+            className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 md:p-6 shadow-2xl"
+          >
+            {!videoFailedForeground ? (
+              <video
+                ref={videoRefForeground}
+                autoPlay
+                muted
+                loop
+                playsInline
+                controls
+                controlsList="nodownload nofullscreen noremoteplayback"
+                className="w-full h-64 md:h-80 rounded-xl object-cover shadow-lg"
+                style={{ 
+                  backgroundColor: '#000',
+                  '--webkit-media-controls-panel': 'display: block'
+                } as React.CSSProperties}
+                onLoadedData={() => console.log('✅ Foreground video loaded successfully')}
+                onError={handleForegroundVideoError}
+              >
+                <source src="/Assets/agrid-video.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            ) : (
+              <div className="w-full h-64 md:h-80 rounded-xl shadow-lg overflow-hidden">
+                <div style={{padding:'75% 0 0 0', position:'relative'}}>
+                  <iframe 
+                    src="https://player.vimeo.com/video/1126661789?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479&amp;autoplay=1&amp;loop=1&amp;muted=1" 
+                    frameBorder="0" 
+                    allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" 
+                    referrerPolicy="strict-origin-when-cross-origin" 
+                    style={{position:'absolute', top:0, left:0, width:'100%', height:'100%'}} 
+                    title="Meet Agrid!"
+                  />
+                </div>
+              </div>
+            )}
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 2 }}
+              className="text-white text-sm md:text-base text-center mt-3 font-medium"
+            >
+              Meet Agrid!
+            </motion.p>
+          </motion.div>
+        </motion.div>
+
         {/* Action Buttons */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1 }}
+          transition={{ duration: 0.8, delay: 2.2 }}
           className="flex flex-col sm:flex-row gap-4 w-full max-w-md"
         >
           {/* Learn More Button (Primary) */}
