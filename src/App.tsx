@@ -16,6 +16,7 @@ import Contact from "./pages/Contact";
 import Learn from "./pages/Learn";
 import NotFound from "./pages/NotFound";
 import TarwtlLeadCapture from "./pages/TarwtlLeadCapture";
+import TarwtlLeadSuccess from "./pages/TarwtlLeadSuccess";
 
 const queryClient = new QueryClient();
 
@@ -56,8 +57,10 @@ const App = () => {
         <BrowserRouter>
           <ScrollToTop />
           <Routes>
-            {/* Special route for Tarwtl - no standard startup or layout */}
+            {/* Special routes for Tarwtl - no standard startup or layout */}
             <Route path="/tarwtl" element={<TarwtlLeadCapture />} />
+            <Route path="/tarwtl-lead-capture" element={<TarwtlLeadCapture />} />
+            <Route path="/tarwtl-success" element={<TarwtlLeadSuccess />} />
             
             {/* Standard routes with startup sequence and layout */}
             <Route path="/*" element={

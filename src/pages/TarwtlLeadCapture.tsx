@@ -353,10 +353,10 @@ Lead Source: ${source}`;
         successAudioRef.current.play().catch(() => {});
       }
 
-      // Redirect to AI Agents page after 3 seconds
+      // Redirect to success page after 2 seconds
       setTimeout(() => {
-        window.location.href = 'https://arabic.ai/ai-agents/';
-      }, 3000);
+        window.location.href = '/tarwtl-success';
+      }, 2000);
     } catch (error) {
       console.error('Error submitting form:', error);
       triggerHaptic(1);
