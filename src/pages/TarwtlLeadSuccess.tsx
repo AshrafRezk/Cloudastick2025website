@@ -11,11 +11,29 @@ const TarwtlLeadSuccess: React.FC = () => {
 
   // Ensure background video starts playing
   useEffect(() => {
-    if (videoRefBackground.current) {
-      videoRefBackground.current.play().catch((error) => {
-        console.log('Background video autoplay prevented:', error);
-      });
-    }
+    const playVideo = () => {
+      if (videoRefBackground.current) {
+        videoRefBackground.current.play().catch((error) => {
+          console.log('Background video autoplay prevented:', error);
+          // Try again after a short delay
+          setTimeout(() => {
+            if (videoRefBackground.current) {
+              videoRefBackground.current.play().catch((retryError) => {
+                console.log('Background video retry failed:', retryError);
+              });
+            }
+          }, 1000);
+        });
+      }
+    };
+
+    // Try to play immediately
+    playVideo();
+
+    // Also try after component is fully mounted
+    const timer = setTimeout(playVideo, 500);
+    
+    return () => clearTimeout(timer);
   }, []);
 
   const handleBackgroundVideoError = (e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
@@ -26,6 +44,12 @@ const TarwtlLeadSuccess: React.FC = () => {
   const handleForegroundVideoError = (e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
     console.log('❌ Foreground video failed to load, showing Vimeo fallback');
     setVideoFailedForeground(true);
+  };
+
+  const handleBackgroundVideoClick = () => {
+    if (videoRefBackground.current && videoRefBackground.current.paused) {
+      videoRefBackground.current.play().catch(console.error);
+    }
   };
 
   const handleBack = () => {
@@ -48,11 +72,16 @@ const TarwtlLeadSuccess: React.FC = () => {
             muted
             loop
             playsInline
-            className="absolute inset-0 w-full h-full object-cover opacity-80"
+            preload="auto"
+            onClick={handleBackgroundVideoClick}
+            className="absolute inset-0 w-full h-full object-cover opacity-80 cursor-pointer"
             onLoadedData={() => console.log('✅ Background video loaded successfully')}
             onError={handleBackgroundVideoError}
+            onLoadStart={() => console.log('🔄 Background video loading started')}
+            onCanPlay={() => console.log('▶️ Background video can play')}
           >
             <source src="/Assets/arabicaivideo.mp4" type="video/mp4" />
+            <source src="./Assets/arabicaivideo.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
           {/* Dark Overlay for better text visibility */}
