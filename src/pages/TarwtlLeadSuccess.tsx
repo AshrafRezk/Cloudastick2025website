@@ -165,6 +165,15 @@ const TarwtlLeadSuccess: React.FC = () => {
                   </video>
                   {/* Dark Overlay for better text visibility */}
                   <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/40" />
+                  
+                  {/* Overlay to hide video controls/unmute button */}
+                  <div className="absolute inset-0 pointer-events-none">
+                    {/* Top overlay to hide unmute button and controls */}
+                    <div className="absolute top-0 left-0 w-full h-16 bg-black/30"></div>
+                    {/* Corner overlays for any corner controls */}
+                    <div className="absolute top-0 left-0 w-20 h-20 bg-black/20"></div>
+                    <div className="absolute top-0 right-0 w-20 h-20 bg-black/20"></div>
+                  </div>
                 </div>
               )}
       
