@@ -10,6 +10,7 @@ const TarwtlLeadSuccess: React.FC = () => {
   const [videoFailedForeground, setVideoFailedForeground] = useState(false);
   const [backgroundVideoLoaded, setBackgroundVideoLoaded] = useState(false);
   const [foregroundVideoLoaded, setForegroundVideoLoaded] = useState(false);
+  const [backgroundVideoAttempts, setBackgroundVideoAttempts] = useState(0);
 
   // Load Vimeo player script for enhanced functionality
   useEffect(() => {
@@ -23,57 +24,93 @@ const TarwtlLeadSuccess: React.FC = () => {
     };
   }, []);
 
-  // Ensure background video starts playing with multiple strategies
+  // Enhanced background video loading strategy
   useEffect(() => {
-    const playVideo = () => {
-      if (videoRefBackground.current) {
-        const video = videoRefBackground.current;
-        
-        // Set video properties for better autoplay success
-        video.muted = true; // Ensure muted for autoplay
-        video.volume = 0;
-        video.currentTime = 0;
-        
-        // Try to play with different strategies
-        const playPromise = video.play();
-        
-        if (playPromise !== undefined) {
-          playPromise.then(() => {
-            console.log('✅ Background video playing successfully');
-            setVideoFailedBackground(false);
-          }).catch((error) => {
-            console.log('❌ Background video autoplay failed:', error);
-            
-            // Try again with user interaction simulation
-            setTimeout(() => {
-              if (video) {
-                video.load(); // Reload video
-                video.muted = true;
-                video.play().catch((retryError) => {
-                  console.log('❌ Background video retry failed:', retryError);
-                  setVideoFailedBackground(true);
-                });
-              }
-            }, 1000);
-          });
-        }
-      }
+    const loadAndPlayVideo = async () => {
+      if (!videoRefBackground.current) return;
+      
+      const video = videoRefBackground.current;
+      
+      // Set optimal video properties for autoplay
+      video.muted = true;
+      video.volume = 0;
+      video.playsInline = true;
+      video.preload = 'auto';
+      video.currentTime = 0;
+      
+      // Add event listeners for better control
+      const handleCanPlay = () => {
+        console.log('✅ Background video can play');
+        video.play().catch(error => {
+          console.log('❌ Play failed, retrying...', error);
+          setTimeout(() => {
+            if (video && !video.paused) return;
+            video.play().catch(console.error);
+          }, 500);
+        });
+      };
+      
+      const handleLoadedData = () => {
+        console.log('✅ Background video data loaded');
+        setVideoFailedBackground(false);
+      };
+      
+      const handleError = () => {
+        console.log('❌ Background video error, trying next source...');
+        // Let the browser try the next source automatically
+      };
+      
+      // Add event listeners
+      video.addEventListener('canplay', handleCanPlay, { once: true });
+      video.addEventListener('loadeddata', handleLoadedData, { once: true });
+      video.addEventListener('error', handleError);
+      
+      // Force load the video
+      video.load();
+      
+      // Cleanup function
+      return () => {
+        video.removeEventListener('canplay', handleCanPlay);
+        video.removeEventListener('loadeddata', handleLoadedData);
+        video.removeEventListener('error', handleError);
+      };
     };
 
-    // Multiple attempts with increasing delays
-    const attempts = [0, 500, 1000, 2000];
-    const timers = attempts.map(delay => 
-      setTimeout(() => {
-        playVideo();
-      }, delay)
+    // Multiple loading attempts with different strategies
+    const loadVideo = () => {
+      loadAndPlayVideo().catch(console.error);
+    };
+
+    // Immediate attempt
+    loadVideo();
+    
+    // Delayed attempts for better browser compatibility
+    const timers = [100, 500, 1000, 2000].map(delay => 
+      setTimeout(loadVideo, delay)
     );
     
     return () => timers.forEach(clearTimeout);
   }, []);
 
   const handleBackgroundVideoError = (e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
-    console.log('❌ Background video failed to load, showing fallback background');
-    setVideoFailedBackground(true);
+    const currentAttempts = backgroundVideoAttempts + 1;
+    setBackgroundVideoAttempts(currentAttempts);
+    
+    console.log(`❌ Background video attempt ${currentAttempts} failed`);
+    
+    // Only fall back to Vimeo after multiple attempts
+    if (currentAttempts >= 3) {
+      console.log('❌ All background video attempts failed, showing Vimeo fallback');
+      setVideoFailedBackground(true);
+    } else {
+      console.log(`🔄 Retrying background video (attempt ${currentAttempts + 1}/3)...`);
+      // Retry after a short delay
+      setTimeout(() => {
+        if (videoRefBackground.current) {
+          videoRefBackground.current.load();
+        }
+      }, 1000 * currentAttempts); // Increasing delay
+    }
   };
 
   const handleForegroundVideoError = (e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
@@ -142,7 +179,7 @@ const TarwtlLeadSuccess: React.FC = () => {
                     muted
                     loop
                     playsInline
-                    preload="metadata"
+                    preload="auto"
                     onClick={handleBackgroundVideoClick}
                     className="absolute inset-0 w-full h-full object-cover opacity-80 cursor-pointer"
                     style={{ 
@@ -156,10 +193,15 @@ const TarwtlLeadSuccess: React.FC = () => {
                     onLoadStart={() => console.log('🔄 Background video loading started')}
                     onCanPlay={() => console.log('▶️ Background video can play')}
                     onPlaying={() => console.log('🎬 Background video is playing')}
+                    onLoadedMetadata={() => console.log('📊 Background video metadata loaded')}
+                    onCanPlayThrough={() => console.log('✅ Background video can play through')}
                   >
                     <source src="/Assets/arabicaivideo.mp4" type="video/mp4" />
                     <source src="./Assets/arabicaivideo.mp4" type="video/mp4" />
                     <source src="Assets/arabicaivideo.mp4" type="video/mp4" />
+                    <source src="/arabicaivideo.mp4" type="video/mp4" />
+                    <source src="./arabicaivideo.mp4" type="video/mp4" />
+                    <source src="arabicaivideo.mp4" type="video/mp4" />
                     <source src="https://arabic.ai/Assets/arabicaivideo.mp4" type="video/mp4" />
                     Your browser does not support the video tag.
                   </video>
