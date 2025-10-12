@@ -4,21 +4,28 @@ import { useNavigate } from 'react-router-dom';
 
 const TarwtlLeadSuccess: React.FC = () => {
   const navigate = useNavigate();
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [videoFailed, setVideoFailed] = useState(false);
+  const videoRefBackground = useRef<HTMLVideoElement>(null);
+  const videoRefForeground = useRef<HTMLVideoElement>(null);
+  const [videoFailedBackground, setVideoFailedBackground] = useState(false);
+  const [videoFailedForeground, setVideoFailedForeground] = useState(false);
 
-  // Ensure video starts playing (same as startup sequence)
+  // Ensure background video starts playing
   useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.play().catch((error) => {
-        console.log('Video autoplay prevented:', error);
+    if (videoRefBackground.current) {
+      videoRefBackground.current.play().catch((error) => {
+        console.log('Background video autoplay prevented:', error);
       });
     }
   }, []);
 
-  const handleVideoError = (e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
-    console.log('❌ Video failed to load, showing fallback content');
-    setVideoFailed(true);
+  const handleBackgroundVideoError = (e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
+    console.log('❌ Background video failed to load, showing fallback background');
+    setVideoFailedBackground(true);
+  };
+
+  const handleForegroundVideoError = (e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
+    console.log('❌ Foreground video failed to load, showing Vimeo fallback');
+    setVideoFailedForeground(true);
   };
 
   const handleBack = () => {
@@ -32,8 +39,31 @@ const TarwtlLeadSuccess: React.FC = () => {
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-black">
-      {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-purple-900/80 to-indigo-900/80" />
+      {/* Background Video */}
+      {!videoFailedBackground && (
+        <div className="absolute inset-0 overflow-hidden">
+          <video
+            ref={videoRefBackground}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover opacity-80"
+            onLoadedData={() => console.log('✅ Background video loaded successfully')}
+            onError={handleBackgroundVideoError}
+          >
+            <source src="/Assets/arabicaivideo.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+          {/* Dark Overlay for better text visibility */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/40" />
+        </div>
+      )}
+      
+      {/* Fallback gradient background */}
+      {videoFailedBackground && (
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-purple-900/80 to-indigo-900/80" />
+      )}
       
       {/* Dark Overlay for better text visibility */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/40" />
@@ -46,29 +76,32 @@ const TarwtlLeadSuccess: React.FC = () => {
           transition={{ duration: 0.8, delay: 0.5 }}
           className="bg-white/10 backdrop-blur-sm rounded-2xl p-2 md:p-4 shadow-2xl"
         >
-          {!videoFailed ? (
+          {!videoFailedForeground ? (
             <video
-              ref={videoRef}
+              ref={videoRefForeground}
               autoPlay
               muted
               loop
               playsInline
               controls
               className="w-64 h-36 md:w-80 md:h-48 rounded-xl object-cover shadow-lg"
-              onLoadedData={() => console.log('✅ Video loaded successfully')}
-              onError={handleVideoError}
+              onLoadedData={() => console.log('✅ Foreground video loaded successfully')}
+              onError={handleForegroundVideoError}
             >
-              <source src="/Assets/scyscrapers.mp4" type="video/mp4" />
+              <source src="/Assets/agrid-video.mp4" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
           ) : (
-            <div className="w-64 h-36 md:w-80 md:h-48 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg">
-              <div className="text-center text-white">
-                <svg className="w-12 h-12 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                  <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
-                </svg>
-                <p className="text-sm font-medium">Learn More About Us</p>
+            <div className="w-64 h-36 md:w-80 md:h-48 rounded-xl shadow-lg overflow-hidden">
+              <div style={{padding:'75% 0 0 0', position:'relative'}}>
+                <iframe 
+                  src="https://player.vimeo.com/video/1126661789?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479&amp;autoplay=1&amp;loop=1&amp;muted=1" 
+                  frameBorder="0" 
+                  allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" 
+                  referrerPolicy="strict-origin-when-cross-origin" 
+                  style={{position:'absolute', top:0, left:0, width:'100%', height:'100%'}} 
+                  title="Meet Agrid!"
+                />
               </div>
             </div>
           )}
