@@ -105,24 +105,6 @@ const TarwtlLeadSuccess: React.FC = () => {
     window.location.href = 'https://arabic.ai/';
   };
 
-  const launchMeetAgrid = () => {
-    // Reset both video states
-    setVideoFailedBackground(false);
-    setVideoFailedForeground(false);
-    setBackgroundVideoLoaded(false);
-    setForegroundVideoLoaded(false);
-    
-    // Force both videos to reload and play
-    if (videoRefBackground.current) {
-      videoRefBackground.current.load();
-      videoRefBackground.current.play().catch(console.error);
-    }
-    
-    if (videoRefForeground.current) {
-      videoRefForeground.current.load();
-      videoRefForeground.current.play().catch(console.error);
-    }
-  };
 
 
   return (
@@ -200,15 +182,6 @@ const TarwtlLeadSuccess: React.FC = () => {
             />
           </div>
           
-          {/* Meet Agrid button for background video */}
-          <div className="absolute top-4 right-4 z-10">
-            <button
-              onClick={launchMeetAgrid}
-              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 backdrop-blur-sm text-white rounded-full hover:from-blue-700 hover:to-purple-700 transition-all duration-300 text-sm font-medium shadow-lg hover:shadow-xl transform hover:scale-105"
-            >
-              🎬 Meet Agrid
-            </button>
-          </div>
           
           {/* Dark Overlay for better text visibility */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/40" />
@@ -327,35 +300,16 @@ const TarwtlLeadSuccess: React.FC = () => {
                   />
                 </div>
                 
-                {/* Meet Agrid button for foreground video */}
-                <div className="absolute top-2 right-2">
-                  <button
-                    onClick={launchMeetAgrid}
-                    className="px-3 py-1 bg-gradient-to-r from-blue-600 to-purple-600 backdrop-blur-sm text-white rounded-full hover:from-blue-700 hover:to-purple-700 transition-all duration-300 text-xs font-medium shadow-lg hover:shadow-xl transform hover:scale-105"
-                  >
-                    🎬 Meet Agrid
-                  </button>
-                </div>
               </div>
             )}
-            <motion.div 
+            <motion.p 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 2 }}
-              className="text-center mt-3"
+              className="text-white text-sm md:text-base text-center mt-3 font-medium"
             >
-              <p className="text-white text-sm md:text-base font-medium mb-3">
-                Meet Agrid!
-              </p>
-              <motion.button
-                onClick={launchMeetAgrid}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full hover:from-blue-700 hover:to-purple-700 transition-all duration-300 text-sm font-medium shadow-lg hover:shadow-xl"
-              >
-                🎬 Launch Video Experience
-              </motion.button>
-            </motion.div>
+              Meet Agrid!
+            </motion.p>
           </motion.div>
         </motion.div>
 
