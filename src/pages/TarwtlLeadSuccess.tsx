@@ -11,6 +11,18 @@ const TarwtlLeadSuccess: React.FC = () => {
   const [backgroundVideoLoaded, setBackgroundVideoLoaded] = useState(false);
   const [foregroundVideoLoaded, setForegroundVideoLoaded] = useState(false);
 
+  // Load Vimeo player script for enhanced functionality
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://player.vimeo.com/api/player.js';
+    script.async = true;
+    document.head.appendChild(script);
+    
+    return () => {
+      document.head.removeChild(script);
+    };
+  }, []);
+
   // Ensure background video starts playing with multiple strategies
   useEffect(() => {
     const playVideo = () => {
@@ -93,21 +105,22 @@ const TarwtlLeadSuccess: React.FC = () => {
     window.location.href = 'https://arabic.ai/';
   };
 
-  const retryBackgroundVideo = () => {
+  const launchMeetAgrid = () => {
+    // Reset both video states
     setVideoFailedBackground(false);
+    setVideoFailedForeground(false);
     setBackgroundVideoLoaded(false);
-    // Force video reload
+    setForegroundVideoLoaded(false);
+    
+    // Force both videos to reload and play
     if (videoRefBackground.current) {
       videoRefBackground.current.load();
+      videoRefBackground.current.play().catch(console.error);
     }
-  };
-
-  const retryForegroundVideo = () => {
-    setVideoFailedForeground(false);
-    setForegroundVideoLoaded(false);
-    // Force video reload
+    
     if (videoRefForeground.current) {
       videoRefForeground.current.load();
+      videoRefForeground.current.play().catch(console.error);
     }
   };
 
@@ -173,25 +186,32 @@ const TarwtlLeadSuccess: React.FC = () => {
                 </div>
               )}
       
-      {/* Fallback gradient background */}
+      {/* Fallback Vimeo background */}
       {videoFailedBackground && (
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-purple-900/80 to-indigo-900/80">
-          {/* Animated background pattern */}
-          <div className="absolute inset-0 opacity-20">
-            <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
-            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-indigo-500/30 rounded-full blur-3xl animate-pulse delay-500"></div>
+        <div className="absolute inset-0 overflow-hidden">
+          <div style={{padding:'100% 0 0 0', position:'relative'}}>
+            <iframe 
+              src="https://player.vimeo.com/video/1126666272?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479&amp;autoplay=1&amp;muted=1&amp;loop=1" 
+              frameBorder="0" 
+              allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" 
+              referrerPolicy="strict-origin-when-cross-origin" 
+              style={{position:'absolute', top:0, left:0, width:'100%', height:'100%'}} 
+              title="arabicaivideo"
+            />
           </div>
           
-          {/* Retry button for background video */}
-          <div className="absolute top-4 right-4">
+          {/* Meet Agrid button for background video */}
+          <div className="absolute top-4 right-4 z-10">
             <button
-              onClick={retryBackgroundVideo}
-              className="px-4 py-2 bg-white/20 backdrop-blur-sm text-white rounded-full hover:bg-white/30 transition-all duration-300 text-sm font-medium"
+              onClick={launchMeetAgrid}
+              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 backdrop-blur-sm text-white rounded-full hover:from-blue-700 hover:to-purple-700 transition-all duration-300 text-sm font-medium shadow-lg hover:shadow-xl transform hover:scale-105"
             >
-              🔄 Retry Background Video
+              🎬 Meet Agrid
             </button>
           </div>
+          
+          {/* Dark Overlay for better text visibility */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/40" />
         </div>
       )}
       
@@ -307,25 +327,35 @@ const TarwtlLeadSuccess: React.FC = () => {
                   />
                 </div>
                 
-                {/* Retry button for foreground video */}
+                {/* Meet Agrid button for foreground video */}
                 <div className="absolute top-2 right-2">
                   <button
-                    onClick={retryForegroundVideo}
-                    className="px-3 py-1 bg-black/50 backdrop-blur-sm text-white rounded-full hover:bg-black/70 transition-all duration-300 text-xs font-medium"
+                    onClick={launchMeetAgrid}
+                    className="px-3 py-1 bg-gradient-to-r from-blue-600 to-purple-600 backdrop-blur-sm text-white rounded-full hover:from-blue-700 hover:to-purple-700 transition-all duration-300 text-xs font-medium shadow-lg hover:shadow-xl transform hover:scale-105"
                   >
-                    🔄 Retry Video
+                    🎬 Meet Agrid
                   </button>
                 </div>
               </div>
             )}
-            <motion.p 
+            <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 2 }}
-              className="text-white text-sm md:text-base text-center mt-3 font-medium"
+              className="text-center mt-3"
             >
-              Meet Agrid!
-            </motion.p>
+              <p className="text-white text-sm md:text-base font-medium mb-3">
+                Meet Agrid!
+              </p>
+              <motion.button
+                onClick={launchMeetAgrid}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full hover:from-blue-700 hover:to-purple-700 transition-all duration-300 text-sm font-medium shadow-lg hover:shadow-xl"
+              >
+                🎬 Launch Video Experience
+              </motion.button>
+            </motion.div>
           </motion.div>
         </motion.div>
 
