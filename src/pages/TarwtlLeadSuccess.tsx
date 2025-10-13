@@ -139,7 +139,7 @@ const TarwtlLeadSuccess: React.FC = () => {
   };
 
   const handleLearnMore = () => {
-    window.location.href = 'https://arabic.ai/';
+    window.location.href = 'https://arabic.ai/academy/';
   };
 
 
@@ -199,9 +199,6 @@ const TarwtlLeadSuccess: React.FC = () => {
                     <source src="/Assets/arabicaivideo.mp4" type="video/mp4" />
                     <source src="./Assets/arabicaivideo.mp4" type="video/mp4" />
                     <source src="Assets/arabicaivideo.mp4" type="video/mp4" />
-                    <source src="/arabicaivideo.mp4" type="video/mp4" />
-                    <source src="./arabicaivideo.mp4" type="video/mp4" />
-                    <source src="arabicaivideo.mp4" type="video/mp4" />
                     <source src="https://arabic.ai/Assets/arabicaivideo.mp4" type="video/mp4" />
                     Your browser does not support the video tag.
                   </video>

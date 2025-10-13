@@ -348,6 +348,12 @@ Lead Source: ${source}`;
       setShowSuccess(true);
       triggerHaptic(1);
       
+      // Play woosh sound for form submission
+      if (woosh1Ref.current) {
+        woosh1Ref.current.currentTime = 0;
+        woosh1Ref.current.play().catch(() => {});
+      }
+      
       // Play success sound
       if (successAudioRef.current) {
         successAudioRef.current.play().catch(() => {});
