@@ -429,24 +429,35 @@ const SalesforceApps = () => {
     setImageLoading(true);
     setImageError(false);
     
-    // Set a timeout to skip to next image if loading takes too long
-    const timeout = setTimeout(() => {
-      console.log('Image loading timeout - skipping to next image');
-      if (showAppModal !== null && apps[showAppModal].screenshots.length > 1) {
-        setCurrentImageIndex((prev) => 
-          prev === apps[showAppModal].screenshots.length - 1 ? 0 : prev + 1
-        );
-      } else {
-        setImageError(true);
-        setImageLoading(false);
-      }
-    }, 5000); // 5 second timeout
+    // Only set timeout for images, not for videos
+    const isVideo = showAppModal !== null && apps[showAppModal].videoEmbed && currentImageIndex === 0;
     
-    setImageTimeout(timeout);
-    
-    return () => {
-      if (timeout) clearTimeout(timeout);
-    };
+    if (!isVideo) {
+      // Set a timeout to skip to next image if loading takes too long
+      const timeout = setTimeout(() => {
+        console.log('Image loading timeout - skipping to next image');
+        if (showAppModal !== null) {
+          const totalItems = (apps[showAppModal].videoEmbed ? 1 : 0) + (apps[showAppModal].screenshots ? apps[showAppModal].screenshots.length : 0);
+          if (totalItems > 1) {
+            setCurrentImageIndex((prev) => 
+              prev === totalItems - 1 ? 0 : prev + 1
+            );
+          } else {
+            setImageError(true);
+            setImageLoading(false);
+          }
+        }
+      }, 5000); // 5 second timeout
+      
+      setImageTimeout(timeout);
+      
+      return () => {
+        if (timeout) clearTimeout(timeout);
+      };
+    } else {
+      // For videos, just set loading to false immediately
+      setImageLoading(false);
+    }
   }, [currentImageIndex, showAppModal]);
 
   // Cleanup timeout on unmount
