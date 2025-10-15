@@ -693,7 +693,7 @@ const SalesforceApps = () => {
                   </motion.div>
                 ))}
               </div>
-            </motion.div>
+            </div>
           </motion.section>
         )}
       </AnimatePresence>
