@@ -8,8 +8,9 @@ import { ArrowRight } from "lucide-react";
 
 const SalesforceApps = () => {
   const [activeVideoModal, setActiveVideoModal] = useState<number | null>(null);
-  const [selectedApp, setSelectedApp] = useState<number | null>(null);
-  const carouselRef = useRef<HTMLDivElement>(null);
+  const [showAppModal, setShowAppModal] = useState<number | null>(null);
+  const vipCarouselRef = useRef<HTMLDivElement>(null);
+  const partnerCarouselRef = useRef<HTMLDivElement>(null);
 
   const apps = [
     {
@@ -342,10 +343,10 @@ const SalesforceApps = () => {
     }
   ];
 
-  const scroll = (direction: 'left' | 'right') => {
-    if (carouselRef.current) {
+  const scroll = (direction: 'left' | 'right', ref: React.RefObject<HTMLDivElement>) => {
+    if (ref.current) {
       const scrollAmount = 400;
-      carouselRef.current.scrollBy({
+      ref.current.scrollBy({
         left: direction === 'left' ? -scrollAmount : scrollAmount,
         behavior: 'smooth'
       });
@@ -397,14 +398,14 @@ const SalesforceApps = () => {
           <div className="relative group">
             {/* Carousel Navigation Buttons */}
             <button
-              onClick={() => scroll('left')}
+              onClick={() => scroll('left', vipCarouselRef)}
               className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-gray-800/90 hover:bg-gray-700 p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 -ml-4"
             >
               <ChevronLeft className="w-6 h-6 text-white" />
             </button>
             
             <button
-              onClick={() => scroll('right')}
+              onClick={() => scroll('right', vipCarouselRef)}
               className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-gray-800/90 hover:bg-gray-700 p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 -mr-4"
             >
               <ChevronRight className="w-6 h-6 text-white" />
@@ -412,9 +413,30 @@ const SalesforceApps = () => {
 
             {/* Scrollable Container */}
             <div
-              ref={carouselRef}
-              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
+              ref={vipCarouselRef}
+              className="flex gap-6 overflow-x-auto overflow-y-hidden scrollbar-hide scroll-smooth pb-4 cursor-grab active:cursor-grabbing"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              onMouseDown={(e) => {
+                const ele = e.currentTarget;
+                ele.style.cursor = 'grabbing';
+                const startX = e.pageX - ele.offsetLeft;
+                const scrollLeft = ele.scrollLeft;
+
+                const handleMouseMove = (e: MouseEvent) => {
+                  const x = e.pageX - ele.offsetLeft;
+                  const walk = (x - startX) * 2;
+                  ele.scrollLeft = scrollLeft - walk;
+                };
+
+                const handleMouseUp = () => {
+                  ele.style.cursor = 'grab';
+                  document.removeEventListener('mousemove', handleMouseMove);
+                  document.removeEventListener('mouseup', handleMouseUp);
+                };
+
+                document.addEventListener('mousemove', handleMouseMove);
+                document.addEventListener('mouseup', handleMouseUp);
+              }}
             >
               {apps.filter(app => app.category !== "Partner Apps").map((app, index) => {
                 const originalIndex = apps.indexOf(app);
@@ -424,9 +446,7 @@ const SalesforceApps = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="flex-shrink-0 w-80 group/card cursor-pointer"
-                  onMouseEnter={() => setSelectedApp(originalIndex)}
-                  onMouseLeave={() => setSelectedApp(null)}
+                  className="flex-shrink-0 w-80 group/card"
                 >
                   <motion.div
                     whileHover={{ scale: 1.05, y: -10 }}
@@ -498,7 +518,7 @@ const SalesforceApps = () => {
                           whileTap={{ scale: 0.95 }}
                           onClick={(e) => {
                             e.stopPropagation();
-                            setSelectedApp(originalIndex === selectedApp ? null : originalIndex);
+                            setShowAppModal(originalIndex);
                           }}
                           className="mt-4 w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-medium py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2"
                         >
@@ -526,14 +546,14 @@ const SalesforceApps = () => {
           <div className="relative group">
             {/* Carousel Navigation Buttons */}
             <button
-              onClick={() => scroll('left')}
+              onClick={() => scroll('left', partnerCarouselRef)}
               className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-gray-800/90 hover:bg-gray-700 p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 -ml-4"
             >
               <ChevronLeft className="w-6 h-6 text-white" />
             </button>
             
             <button
-              onClick={() => scroll('right')}
+              onClick={() => scroll('right', partnerCarouselRef)}
               className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-gray-800/90 hover:bg-gray-700 p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 -mr-4"
             >
               <ChevronRight className="w-6 h-6 text-white" />
@@ -541,9 +561,30 @@ const SalesforceApps = () => {
 
             {/* Scrollable Container */}
             <div
-              ref={carouselRef}
-              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
+              ref={partnerCarouselRef}
+              className="flex gap-6 overflow-x-auto overflow-y-hidden scrollbar-hide scroll-smooth pb-4 cursor-grab active:cursor-grabbing"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              onMouseDown={(e) => {
+                const ele = e.currentTarget;
+                ele.style.cursor = 'grabbing';
+                const startX = e.pageX - ele.offsetLeft;
+                const scrollLeft = ele.scrollLeft;
+
+                const handleMouseMove = (e: MouseEvent) => {
+                  const x = e.pageX - ele.offsetLeft;
+                  const walk = (x - startX) * 2;
+                  ele.scrollLeft = scrollLeft - walk;
+                };
+
+                const handleMouseUp = () => {
+                  ele.style.cursor = 'grab';
+                  document.removeEventListener('mousemove', handleMouseMove);
+                  document.removeEventListener('mouseup', handleMouseUp);
+                };
+
+                document.addEventListener('mousemove', handleMouseMove);
+                document.addEventListener('mouseup', handleMouseUp);
+              }}
             >
               {apps.filter(app => app.category === "Partner Apps").map((app, index) => {
                 const originalIndex = apps.indexOf(app);
@@ -553,9 +594,7 @@ const SalesforceApps = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="flex-shrink-0 w-80 group/card cursor-pointer"
-                  onMouseEnter={() => setSelectedApp(originalIndex)}
-                  onMouseLeave={() => setSelectedApp(null)}
+                  className="flex-shrink-0 w-80 group/card"
                 >
                   <motion.div
                     whileHover={{ scale: 1.05, y: -10 }}
@@ -627,7 +666,7 @@ const SalesforceApps = () => {
                           whileTap={{ scale: 0.95 }}
                           onClick={(e) => {
                             e.stopPropagation();
-                            setSelectedApp(originalIndex === selectedApp ? null : originalIndex);
+                            setShowAppModal(originalIndex);
                           }}
                           className="mt-4 w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-medium py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2"
                         >
@@ -644,57 +683,134 @@ const SalesforceApps = () => {
         </div>
       </section>
 
-      {/* App Details Section */}
+      {/* App Info Modal */}
       <AnimatePresence>
-        {selectedApp !== null && (
-          <motion.section
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="py-12 bg-gray-800/50"
+        {showAppModal !== null && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+            onClick={() => setShowAppModal(null)}
           >
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex items-start justify-between mb-8">
-                <div>
-                  <h3 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
-                    {React.createElement(apps[selectedApp].icon, { className: "w-8 h-8" })}
-                    {apps[selectedApp].title}
-                  </h3>
-                  <p className={`text-lg bg-gradient-to-r ${apps[selectedApp].gradient} bg-clip-text text-transparent`}>
-                    {apps[selectedApp].tagline}
-                  </p>
-                </div>
-                <button
-                  onClick={() => setSelectedApp(null)}
-                  className="p-2 bg-gray-700 hover:bg-gray-600 rounded-full transition-colors"
-                >
-                  <X className="w-6 h-6 text-white" />
-                </button>
-              </div>
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="relative w-full max-w-6xl max-h-[90vh] bg-gray-900 rounded-2xl overflow-hidden shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close button */}
+              <button
+                onClick={() => setShowAppModal(null)}
+                className="absolute top-4 right-4 z-20 p-2 bg-gray-800/80 hover:bg-gray-700 rounded-full transition-colors duration-200"
+              >
+                <X className="w-6 h-6 text-white" />
+              </button>
 
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {apps[selectedApp].features.map((feature, idx) => (
-                  <motion.div
-                    key={idx}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: idx * 0.05 }}
-                    className="bg-gray-800/60 backdrop-blur-sm rounded-xl p-6 border border-gray-700"
-                  >
-                    <div className={`w-12 h-12 bg-gradient-to-br ${apps[selectedApp].gradient} rounded-lg flex items-center justify-center mb-4`}>
-                      <feature.icon className="w-6 h-6 text-white" />
+              {/* Scrollable Content */}
+              <div className="overflow-y-auto max-h-[90vh] scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900">
+                {/* Header with gradient */}
+                <div className={`bg-gradient-to-br ${apps[showAppModal].gradient} px-8 py-8`}>
+                  <div className="flex items-start gap-4">
+                    <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center flex-shrink-0">
+                      {apps[showAppModal].videoEmbed ? (
+                        <motion.div
+                          whileHover={{ scale: 1.1 }}
+                          className="relative w-full h-full flex items-center justify-center"
+                        >
+                          {React.createElement(apps[showAppModal].icon, { className: "w-10 h-10 text-white" })}
+                        </motion.div>
+                      ) : (
+                        <img 
+                          src="/Assets/Company Logos/white-logo-dark.webp" 
+                          alt="Cloudastick Logo" 
+                          className="w-16 h-16 object-contain p-2"
+                        />
+                      )}
                     </div>
-                    <h4 className="text-lg font-semibold text-white mb-2">
-                      {feature.title}
-                    </h4>
-                    <p className="text-gray-400 text-sm">
-                      {feature.description}
-                    </p>
-                  </motion.div>
-                ))}
+                    <div className="flex-grow">
+                      <span className="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-medium text-white mb-3">
+                        {apps[showAppModal].category}
+                      </span>
+                      <h2 className="text-4xl font-bold text-white mb-2">
+                        {apps[showAppModal].title}
+                      </h2>
+                      <p className="text-xl text-white/90 mb-3">
+                        {apps[showAppModal].tagline}
+                      </p>
+                      <p className="text-white/80 text-base leading-relaxed">
+                        {apps[showAppModal].description}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Video Section */}
+                {apps[showAppModal].videoEmbed && (
+                  <div className="bg-black">
+                    <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
+                      <iframe
+                        src={apps[showAppModal].videoEmbed}
+                        className="absolute inset-0 w-full h-full"
+                        frameBorder="0"
+                        allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+                        referrerPolicy="strict-origin-when-cross-origin"
+                        title={apps[showAppModal].title}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Features Section */}
+                <div className="px-8 py-8 bg-gray-800/50">
+                  <h3 className="text-2xl font-bold text-white mb-6">Key Features</h3>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {apps[showAppModal].features.map((feature, idx) => (
+                      <motion.div
+                        key={idx}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.05 }}
+                        className="bg-gray-800/80 backdrop-blur-sm rounded-xl p-6 border border-gray-700 hover:border-cyan-500/50 transition-all duration-300"
+                      >
+                        <div className={`w-12 h-12 bg-gradient-to-br ${apps[showAppModal].gradient} rounded-lg flex items-center justify-center mb-4`}>
+                          <feature.icon className="w-6 h-6 text-white" />
+                        </div>
+                        <h4 className="text-lg font-semibold text-white mb-2">
+                          {feature.title}
+                        </h4>
+                        <p className="text-gray-400 text-sm leading-relaxed">
+                          {feature.description}
+                        </p>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* CTA Footer */}
+                <div className={`bg-gradient-to-r ${apps[showAppModal].gradient} px-8 py-6`}>
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div>
+                      <h4 className="text-white font-semibold text-lg mb-1">
+                        Interested in {apps[showAppModal].title}?
+                      </h4>
+                      <p className="text-white/80 text-sm">
+                        Contact us to learn more or request a demo
+                      </p>
+                    </div>
+                    <Link to="/contact" onClick={() => setShowAppModal(null)}>
+                      <Button variant="secondary" size="lg" className="bg-white text-gray-900 hover:bg-gray-100">
+                        Get in Touch
+                        <ArrowRight className="ml-2 h-5 w-5" />
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
               </div>
-            </div>
-          </motion.section>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
 
