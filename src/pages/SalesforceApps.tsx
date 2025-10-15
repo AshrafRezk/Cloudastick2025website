@@ -16,7 +16,7 @@ const SalesforceApps = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [searchParams, setSearchParams] = useSearchParams();
   const [copied, setCopied] = useState(false);
-  const [imageLoading, setImageLoading] = useState(true);
+  const [imageLoading, setImageLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
   const { toast } = useToast();
 
@@ -417,9 +417,11 @@ const SalesforceApps = () => {
 
   // Reset image states when image index changes
   useEffect(() => {
+    console.log('Image index changed to:', currentImageIndex);
+    console.log('Current image path:', showAppModal !== null ? apps[showAppModal].screenshots[currentImageIndex] : 'No modal open');
     setImageLoading(true);
     setImageError(false);
-  }, [currentImageIndex]);
+  }, [currentImageIndex, showAppModal]);
 
   const scroll = (direction: 'left' | 'right', ref: React.RefObject<HTMLDivElement>) => {
     if (ref.current) {
@@ -903,13 +905,19 @@ const SalesforceApps = () => {
                           src={apps[showAppModal].screenshots[currentImageIndex]} 
                           alt={`${apps[showAppModal].title} screenshot ${currentImageIndex + 1}`}
                           className={`w-full h-auto object-contain max-h-[500px] ${imageLoading ? 'hidden' : 'block'}`}
-                          onLoad={() => setImageLoading(false)}
+                          onLoad={() => {
+                            console.log('Image loaded successfully:', apps[showAppModal].screenshots[currentImageIndex]);
+                            setImageLoading(false);
+                          }}
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
+                            console.log('Image failed to load:', target.src);
                             // Fallback to PNG if JPG fails (JPG is priority for lighter files)
                             if (target.src.includes('.jpg')) {
+                              console.log('Trying PNG fallback for:', target.src);
                               target.src = target.src.replace('.jpg', '.png');
                             } else {
+                              console.log('PNG also failed, skipping to next image');
                               // Skip to next image if PNG also fails
                               if (apps[showAppModal].screenshots.length > 1) {
                                 setCurrentImageIndex((prev) => 
