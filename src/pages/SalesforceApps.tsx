@@ -29,9 +29,9 @@ const SalesforceApps = () => {
       videoEmbed: null,
       category: "Productivity",
       screenshots: [
-        "/Assets/App%20store%20assets/Calendar%20App/1.png",
-        "/Assets/App%20store%20assets/Calendar%20App/2.png",
-        "/Assets/App%20store%20assets/Calendar%20App/3.png"
+        "/Assets/App%20store%20assets/Calendar%20App/1.jpg",
+        "/Assets/App%20store%20assets/Calendar%20App/2.jpg",
+        "/Assets/App%20store%20assets/Calendar%20App/3.jpg"
       ],
       features: [
         {
