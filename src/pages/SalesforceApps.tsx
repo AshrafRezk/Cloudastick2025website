@@ -18,6 +18,7 @@ const SalesforceApps = () => {
   const [copied, setCopied] = useState(false);
   const [imageLoading, setImageLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [imageTimeout, setImageTimeout] = useState<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
 
   const apps = [
@@ -28,7 +29,7 @@ const SalesforceApps = () => {
       tagline: "Google Calendar meets Salesforce",
       description: "A powerful, modern calendar solution that brings the familiar Google Calendar experience directly into your Salesforce environment. Perfect for field service management, sales teams on the ground, and territory management with intelligent route planning and real-time scheduling capabilities.",
       gradient: "from-purple-500 to-pink-600",
-      videoEmbed: null,
+      videoEmbed: `<div style="padding:56.25% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/1127676690?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="Advanced Sleek Calendar by Cloudastick"></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>`,
       category: "Productivity",
       screenshots: [
         "/Assets/App%20store%20assets/Calendar%20App/1.jpg",
@@ -419,9 +420,43 @@ const SalesforceApps = () => {
   useEffect(() => {
     console.log('Image index changed to:', currentImageIndex);
     console.log('Current image path:', showAppModal !== null ? apps[showAppModal].screenshots[currentImageIndex] : 'No modal open');
+    
+    // Clear any existing timeout
+    if (imageTimeout) {
+      clearTimeout(imageTimeout);
+    }
+    
     setImageLoading(true);
     setImageError(false);
+    
+    // Set a timeout to skip to next image if loading takes too long
+    const timeout = setTimeout(() => {
+      console.log('Image loading timeout - skipping to next image');
+      if (showAppModal !== null && apps[showAppModal].screenshots.length > 1) {
+        setCurrentImageIndex((prev) => 
+          prev === apps[showAppModal].screenshots.length - 1 ? 0 : prev + 1
+        );
+      } else {
+        setImageError(true);
+        setImageLoading(false);
+      }
+    }, 5000); // 5 second timeout
+    
+    setImageTimeout(timeout);
+    
+    return () => {
+      if (timeout) clearTimeout(timeout);
+    };
   }, [currentImageIndex, showAppModal]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (imageTimeout) {
+        clearTimeout(imageTimeout);
+      }
+    };
+  }, [imageTimeout]);
 
   const scroll = (direction: 'left' | 'right', ref: React.RefObject<HTMLDivElement>) => {
     if (ref.current) {
@@ -884,71 +919,103 @@ const SalesforceApps = () => {
                   </div>
                 </div>
 
-                {/* Screenshots Carousel */}
-                {apps[showAppModal].screenshots && apps[showAppModal].screenshots.length > 0 && (
+                {/* Video and Screenshots Carousel */}
+                {(apps[showAppModal].videoEmbed || (apps[showAppModal].screenshots && apps[showAppModal].screenshots.length > 0)) && (
                   <div className="bg-gray-900 relative">
                     <div className="relative w-full">
-                      {imageLoading && (
-                        <div className="w-full h-[500px] flex items-center justify-center bg-gray-800">
-                          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
-                        </div>
-                      )}
-                      {imageError ? (
-                        <div className="w-full h-[500px] flex items-center justify-center bg-gray-800 text-gray-400">
-                          <div className="text-center">
-                            <div className="text-4xl mb-4">📱</div>
-                            <p>Image not available</p>
-                          </div>
-                        </div>
-                      ) : (
-                        <img 
-                          src={apps[showAppModal].screenshots[currentImageIndex]} 
-                          alt={`${apps[showAppModal].title} screenshot ${currentImageIndex + 1}`}
-                          className={`w-full h-auto object-contain max-h-[500px] ${imageLoading ? 'hidden' : 'block'}`}
-                          onLoad={() => {
-                            console.log('Image loaded successfully:', apps[showAppModal].screenshots[currentImageIndex]);
-                            setImageLoading(false);
-                          }}
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            console.log('Image failed to load:', target.src);
-                            // Fallback to PNG if JPG fails (JPG is priority for lighter files)
-                            if (target.src.includes('.jpg')) {
-                              console.log('Trying PNG fallback for:', target.src);
-                              target.src = target.src.replace('.jpg', '.png');
-                            } else {
-                              console.log('PNG also failed, skipping to next image');
-                              // Skip to next image if PNG also fails
-                              if (apps[showAppModal].screenshots.length > 1) {
-                                setCurrentImageIndex((prev) => 
-                                  prev === apps[showAppModal].screenshots.length - 1 ? 0 : prev + 1
-                                );
-                              } else {
-                                setImageError(true);
-                                setImageLoading(false);
-                              }
-                            }
-                          }}
-                          loading="lazy"
+                      {/* Show video if it's the first item (index 0) */}
+                      {currentImageIndex === 0 && apps[showAppModal].videoEmbed && (
+                        <div 
+                          className="w-full"
+                          dangerouslySetInnerHTML={{ __html: apps[showAppModal].videoEmbed }}
                         />
                       )}
                       
+                      {/* Show image if it's not the first item or no video */}
+                      {((currentImageIndex > 0 && apps[showAppModal].screenshots) || (!apps[showAppModal].videoEmbed && apps[showAppModal].screenshots)) && (
+                        <>
+                          {imageLoading && (
+                            <div className="w-full h-[500px] flex items-center justify-center bg-gray-800">
+                              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
+                            </div>
+                          )}
+                          {imageError ? (
+                            <div className="w-full h-[500px] flex items-center justify-center bg-gray-800 text-gray-400">
+                              <div className="text-center">
+                                <div className="text-4xl mb-4">📱</div>
+                                <p>Image not available</p>
+                              </div>
+                            </div>
+                          ) : (
+                            <img 
+                              src={apps[showAppModal].screenshots[apps[showAppModal].videoEmbed ? currentImageIndex - 1 : currentImageIndex]} 
+                              alt={`${apps[showAppModal].title} screenshot ${apps[showAppModal].videoEmbed ? currentImageIndex : currentImageIndex + 1}`}
+                              className={`w-full h-auto object-contain max-h-[500px] ${imageLoading ? 'hidden' : 'block'}`}
+                              onLoad={() => {
+                                console.log('Image loaded successfully:', apps[showAppModal].screenshots[apps[showAppModal].videoEmbed ? currentImageIndex - 1 : currentImageIndex]);
+                                // Clear timeout since image loaded successfully
+                                if (imageTimeout) {
+                                  clearTimeout(imageTimeout);
+                                  setImageTimeout(null);
+                                }
+                                setImageLoading(false);
+                              }}
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                console.log('Image failed to load:', target.src);
+                                
+                                // Clear timeout since we're handling the error
+                                if (imageTimeout) {
+                                  clearTimeout(imageTimeout);
+                                  setImageTimeout(null);
+                                }
+                                
+                                // Fallback to PNG if JPG fails (JPG is priority for lighter files)
+                                if (target.src.includes('.jpg')) {
+                                  console.log('Trying PNG fallback for:', target.src);
+                                  target.src = target.src.replace('.jpg', '.png');
+                                } else {
+                                  console.log('PNG also failed, skipping to next image');
+                                  // Skip to next image if PNG also fails
+                                  const totalItems = (apps[showAppModal].videoEmbed ? 1 : 0) + (apps[showAppModal].screenshots ? apps[showAppModal].screenshots.length : 0);
+                                  if (totalItems > 1) {
+                                    setCurrentImageIndex((prev) => 
+                                      prev === totalItems - 1 ? 0 : prev + 1
+                                    );
+                                  } else {
+                                    setImageError(true);
+                                    setImageLoading(false);
+                                  }
+                                }
+                              }}
+                              loading="eager"
+                            />
+                          )}
+                        </>
+                      )}
+                      
                       {/* Navigation Arrows */}
-                      {apps[showAppModal].screenshots.length > 1 && (
+                      {((apps[showAppModal].videoEmbed ? 1 : 0) + (apps[showAppModal].screenshots ? apps[showAppModal].screenshots.length : 0)) > 1 && (
                         <>
                           <button
-                            onClick={() => setCurrentImageIndex((prev) => 
-                              prev === 0 ? apps[showAppModal].screenshots.length - 1 : prev - 1
-                            )}
+                            onClick={() => {
+                              const totalItems = (apps[showAppModal].videoEmbed ? 1 : 0) + (apps[showAppModal].screenshots ? apps[showAppModal].screenshots.length : 0);
+                              setCurrentImageIndex((prev) => 
+                                prev === 0 ? totalItems - 1 : prev - 1
+                              );
+                            }}
                             className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 p-3 rounded-full transition-all duration-300"
                           >
                             <ChevronLeft className="w-6 h-6 text-white" />
                           </button>
                           
                           <button
-                            onClick={() => setCurrentImageIndex((prev) => 
-                              prev === apps[showAppModal].screenshots.length - 1 ? 0 : prev + 1
-                            )}
+                            onClick={() => {
+                              const totalItems = (apps[showAppModal].videoEmbed ? 1 : 0) + (apps[showAppModal].screenshots ? apps[showAppModal].screenshots.length : 0);
+                              setCurrentImageIndex((prev) => 
+                                prev === totalItems - 1 ? 0 : prev + 1
+                              );
+                            }}
                             className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 p-3 rounded-full transition-all duration-300"
                           >
                             <ChevronRight className="w-6 h-6 text-white" />
@@ -956,15 +1023,27 @@ const SalesforceApps = () => {
                           
                           {/* Dots Indicator */}
                           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                            {apps[showAppModal].screenshots.map((_, idx) => (
+                            {apps[showAppModal].videoEmbed && (
+                              <button
+                                onClick={() => setCurrentImageIndex(0)}
+                                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                                  currentImageIndex === 0 
+                                    ? 'bg-cyan-400 w-8' 
+                                    : 'bg-cyan-400/50 hover:bg-cyan-400/75'
+                                }`}
+                                title="Video"
+                              />
+                            )}
+                            {apps[showAppModal].screenshots && apps[showAppModal].screenshots.map((_, idx) => (
                               <button
                                 key={idx}
-                                onClick={() => setCurrentImageIndex(idx)}
+                                onClick={() => setCurrentImageIndex(apps[showAppModal].videoEmbed ? idx + 1 : idx)}
                                 className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                                  idx === currentImageIndex 
+                                  (apps[showAppModal].videoEmbed ? currentImageIndex === idx + 1 : currentImageIndex === idx)
                                     ? 'bg-white w-8' 
                                     : 'bg-white/50 hover:bg-white/75'
                                 }`}
+                                title={`Screenshot ${idx + 1}`}
                               />
                             ))}
                           </div>
@@ -974,21 +1053,6 @@ const SalesforceApps = () => {
                   </div>
                 )}
 
-                {/* Video Section */}
-                {apps[showAppModal].videoEmbed && (
-                  <div className="bg-black">
-                    <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
-                      <iframe
-                        src={apps[showAppModal].videoEmbed}
-                        className="absolute inset-0 w-full h-full"
-                        frameBorder="0"
-                        allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
-                        referrerPolicy="strict-origin-when-cross-origin"
-                        title={apps[showAppModal].title}
-                      />
-                    </div>
-                  </div>
-                )}
 
                 {/* Features Section */}
                 <div className="px-8 py-8 bg-gray-800/50">
