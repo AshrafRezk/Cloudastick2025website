@@ -1,21 +1,26 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, MessageSquare, Filter, Clock, Users, Smartphone, Phone, Send, CheckCircle2, Zap, Sparkles, X, Play, CreditCard, DollarSign, Calculator, TrendingUp, FileText, Heart, ShieldCheck, Headphones, ClipboardList, Target, PieChart, BarChart3, LineChart, UserCheck, ChevronLeft, ChevronRight, Info, FileSignature, Languages, Share2, TrendingDown, Globe } from "lucide-react";
+import { Calendar, MessageSquare, Filter, Clock, Users, Smartphone, Phone, Send, CheckCircle2, Zap, Sparkles, X, Play, CreditCard, DollarSign, Calculator, TrendingUp, FileText, Heart, ShieldCheck, Headphones, ClipboardList, Target, PieChart, BarChart3, LineChart, UserCheck, ChevronLeft, ChevronRight, Info, FileSignature, Languages, Share2, TrendingDown, Globe, Copy, Check } from "lucide-react";
 import AnimatedSection from "../components/AnimatedSection";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import Button from "../components/Button";
 import { ArrowRight } from "lucide-react";
+import { Helmet } from "react-helmet-async";
+import { useToast } from "../hooks/use-toast";
 
 const SalesforceApps = () => {
   const [activeVideoModal, setActiveVideoModal] = useState<number | null>(null);
   const [showAppModal, setShowAppModal] = useState<number | null>(null);
   const vipCarouselRef = useRef<HTMLDivElement>(null);
   const partnerCarouselRef = useRef<HTMLDivElement>(null);
-
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [copied, setCopied] = useState(false);
+  const { toast } = useToast();
 
   const apps = [
     {
+      id: "calendar",
       icon: Calendar,
       title: "Advanced Sleek Calendar",
       tagline: "Google Calendar meets Salesforce",
@@ -92,6 +97,7 @@ const SalesforceApps = () => {
       ]
     },
     {
+      id: "omnichannel-messenger",
       icon: MessageSquare,
       title: "Omnichannel Messenger",
       tagline: "Connect anywhere, track everything",
@@ -134,6 +140,7 @@ const SalesforceApps = () => {
       ]
     },
     {
+      id: "payment-plan-engine",
       icon: CreditCard,
       title: "Payment Plan Engine",
       tagline: "Flexible payment solutions for any business",
@@ -176,6 +183,7 @@ const SalesforceApps = () => {
       ]
     },
     {
+      id: "patient-support-program",
       icon: Heart,
       title: "Patient Support Program",
       tagline: "Comprehensive care management for pharma",
@@ -218,6 +226,7 @@ const SalesforceApps = () => {
       ]
     },
     {
+      id: "segmentation-activity-engine",
       icon: Target,
       title: "Segmentation & Activity Plan Engine",
       tagline: "Precision targeting for pharmaceutical excellence",
@@ -260,6 +269,7 @@ const SalesforceApps = () => {
       ]
     },
     {
+      id: "opero-document-generator",
       icon: FileText,
       title: "Opero Document Generator",
       tagline: "Generate documents in English & Arabic",
@@ -302,6 +312,7 @@ const SalesforceApps = () => {
       ]
     },
     {
+      id: "opero-e-signature",
       icon: FileSignature,
       title: "Opero E-signature",
       tagline: "Digital signatures in English & Arabic",
@@ -344,6 +355,7 @@ const SalesforceApps = () => {
       ]
     },
     {
+      id: "konnect-insights",
       icon: Share2,
       title: "Konnect Insights",
       tagline: "Social media intelligence & engagement",
@@ -387,6 +399,17 @@ const SalesforceApps = () => {
     }
   ];
 
+  // Check for app parameter in URL and auto-open modal
+  useEffect(() => {
+    const appId = searchParams.get('app');
+    if (appId) {
+      const appIndex = apps.findIndex(app => app.id === appId);
+      if (appIndex !== -1) {
+        setShowAppModal(appIndex);
+      }
+    }
+  }, [searchParams]);
+
   const scroll = (direction: 'left' | 'right', ref: React.RefObject<HTMLDivElement>) => {
     if (ref.current) {
       const scrollAmount = 400;
@@ -397,8 +420,47 @@ const SalesforceApps = () => {
     }
   };
 
+  const shareApp = (appIndex: number) => {
+    const app = apps[appIndex];
+    const shareUrl = `${window.location.origin}/salesforce-apps?app=${app.id}`;
+    
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      setCopied(true);
+      toast({
+        title: "Link Copied!",
+        description: "App link copied to clipboard",
+      });
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gray-900">
+      {/* Dynamic Meta Tags for Shared Apps */}
+      {showAppModal !== null && (
+        <Helmet>
+          <title>{apps[showAppModal].title} - Cloudastick VIP Apps</title>
+          <meta name="description" content={apps[showAppModal].description} />
+          
+          {/* Open Graph Tags */}
+          <meta property="og:title" content={`${apps[showAppModal].title} - Cloudastick`} />
+          <meta property="og:description" content={apps[showAppModal].description} />
+          <meta property="og:type" content="website" />
+          <meta property="og:url" content={`${window.location.origin}/salesforce-apps?app=${apps[showAppModal].id}`} />
+          {apps[showAppModal].screenshots && apps[showAppModal].screenshots.length > 0 && (
+            <meta property="og:image" content={`${window.location.origin}${apps[showAppModal].screenshots[0]}`} />
+          )}
+          
+          {/* Twitter Tags */}
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content={`${apps[showAppModal].title} - Cloudastick`} />
+          <meta name="twitter:description" content={apps[showAppModal].description} />
+          {apps[showAppModal].screenshots && apps[showAppModal].screenshots.length > 0 && (
+            <meta name="twitter:image" content={`${window.location.origin}${apps[showAppModal].screenshots[0]}`} />
+          )}
+        </Helmet>
+      )}
+      
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 bg-gradient-to-br from-gray-800 via-gray-900 to-black overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-cyan-500/10 via-transparent to-transparent"></div>
@@ -748,16 +810,28 @@ const SalesforceApps = () => {
               className="relative w-full max-w-6xl max-h-[90vh] bg-gray-900 rounded-2xl overflow-hidden shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Close button */}
-              <button
-                onClick={() => {
-                  setShowAppModal(null);
-                  setCurrentImageIndex(0);
-                }}
-                className="absolute top-4 right-4 z-20 p-2 bg-gray-800/80 hover:bg-gray-700 rounded-full transition-colors duration-200"
-              >
-                <X className="w-6 h-6 text-white" />
-              </button>
+              {/* Action Buttons */}
+              <div className="absolute top-4 right-4 z-20 flex gap-2">
+                {/* Share button */}
+                <button
+                  onClick={() => shareApp(showAppModal)}
+                  className="p-2 bg-gray-800/80 hover:bg-gray-700 rounded-full transition-colors duration-200"
+                  title="Share this app"
+                >
+                  {copied ? <Check className="w-6 h-6 text-green-400" /> : <Share2 className="w-6 h-6 text-white" />}
+                </button>
+                
+                {/* Close button */}
+                <button
+                  onClick={() => {
+                    setShowAppModal(null);
+                    setCurrentImageIndex(0);
+                  }}
+                  className="p-2 bg-gray-800/80 hover:bg-gray-700 rounded-full transition-colors duration-200"
+                >
+                  <X className="w-6 h-6 text-white" />
+                </button>
+              </div>
 
               {/* Scrollable Content */}
               <div className="overflow-y-auto max-h-[90vh] scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900">
