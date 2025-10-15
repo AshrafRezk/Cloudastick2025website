@@ -31,7 +31,7 @@ const SalesforceApps = () => {
       videoEmbed: null,
       category: "Productivity",
       screenshots: [
-        "/Assets/App%20store%20assets/Calendar%20App/1.png",
+        "/Assets/App%20store%20assets/Calendar%20App/1.jpg",
         "/Assets/App%20store%20assets/Calendar%20App/2.jpg",
         "/Assets/App%20store%20assets/Calendar%20App/3.jpg"
       ],
@@ -906,11 +906,11 @@ const SalesforceApps = () => {
                           onLoad={() => setImageLoading(false)}
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
-                            // Fallback to PNG if JPG fails
+                            // Fallback to PNG if JPG fails (JPG is priority for lighter files)
                             if (target.src.includes('.jpg')) {
                               target.src = target.src.replace('.jpg', '.png');
                             } else {
-                              // Skip to next image if current one fails completely
+                              // Skip to next image if PNG also fails
                               if (apps[showAppModal].screenshots.length > 1) {
                                 setCurrentImageIndex((prev) => 
                                   prev === apps[showAppModal].screenshots.length - 1 ? 0 : prev + 1
