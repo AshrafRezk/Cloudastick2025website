@@ -17,6 +17,7 @@ import Learn from "./pages/Learn";
 import NotFound from "./pages/NotFound";
 import TarwtlLeadCapture from "./pages/TarwtlLeadCapture";
 import TarwtlLeadSuccess from "./pages/TarwtlLeadSuccess";
+import SalesforceApps from "./pages/SalesforceApps";
 
 const queryClient = new QueryClient();
 
@@ -76,6 +77,7 @@ const App = () => {
                       <Route path="/feedback" element={<Feedback />} />
                       <Route path="/contact" element={<Contact />} />
                       <Route path="/learn" element={<Learn />} />
+                      <Route path="/salesforce-apps" element={<SalesforceApps />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </Layout>
