@@ -18,6 +18,7 @@ const SalesforceApps = () => {
   const [copied, setCopied] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
+  const [autoPlay, setAutoPlay] = useState(true);
   const { toast } = useToast();
 
   const apps = [
@@ -411,6 +412,7 @@ const SalesforceApps = () => {
         setCurrentImageIndex(0);
         setImageLoading(true);
         setImageError(false);
+        setAutoPlay(true);
       }
     }
   }, [searchParams]);
@@ -420,6 +422,21 @@ const SalesforceApps = () => {
     setImageLoading(true);
     setImageError(false);
   }, [currentImageIndex]);
+
+  // Auto-rotate carousel
+  useEffect(() => {
+    if (!autoPlay || !showAppModal || !apps[showAppModal]?.screenshots || apps[showAppModal].screenshots.length <= 1) {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => 
+        prev === apps[showAppModal].screenshots.length - 1 ? 0 : prev + 1
+      );
+    }, 4000); // Change every 4 seconds
+
+    return () => clearInterval(interval);
+  }, [autoPlay, showAppModal, currentImageIndex]);
 
   const scroll = (direction: 'left' | 'right', ref: React.RefObject<HTMLDivElement>) => {
     if (ref.current) {
@@ -884,7 +901,7 @@ const SalesforceApps = () => {
 
                 {/* Screenshots Carousel */}
                 {apps[showAppModal].screenshots && apps[showAppModal].screenshots.length > 0 && (
-                  <div className="bg-gray-900 relative">
+                  <div className="bg-gray-900 relative group">
                     <div className="relative w-full">
                       {imageLoading && (
                         <div className="w-full h-[500px] flex items-center justify-center bg-gray-800">
@@ -892,10 +909,14 @@ const SalesforceApps = () => {
                         </div>
                       )}
                       {imageError ? (
-                        <div className="w-full h-[500px] flex items-center justify-center bg-gray-800 text-gray-400">
+                        <div className="w-full h-[500px] flex items-center justify-center bg-gray-800">
                           <div className="text-center">
-                            <div className="text-4xl mb-4">📱</div>
-                            <p>Image not available</p>
+                            <img 
+                              src="/Assets/Company Logos/white-logo-dark.webp" 
+                              alt="Cloudastick Logo" 
+                              className="w-32 h-32 object-contain mx-auto mb-4 opacity-60"
+                            />
+                            <p className="text-gray-400">Screenshot not available</p>
                           </div>
                         </div>
                       ) : (
@@ -922,19 +943,25 @@ const SalesforceApps = () => {
                       {apps[showAppModal].screenshots.length > 1 && (
                         <>
                           <button
-                            onClick={() => setCurrentImageIndex((prev) => 
-                              prev === 0 ? apps[showAppModal].screenshots.length - 1 : prev - 1
-                            )}
-                            className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 p-3 rounded-full transition-all duration-300"
+                            onClick={() => {
+                              setCurrentImageIndex((prev) => 
+                                prev === 0 ? apps[showAppModal].screenshots.length - 1 : prev - 1
+                              );
+                              setAutoPlay(false); // Stop auto-play when user interacts
+                            }}
+                            className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 p-3 rounded-full transition-all duration-300 opacity-0 group-hover:opacity-100"
                           >
                             <ChevronLeft className="w-6 h-6 text-white" />
                           </button>
                           
                           <button
-                            onClick={() => setCurrentImageIndex((prev) => 
-                              prev === apps[showAppModal].screenshots.length - 1 ? 0 : prev + 1
-                            )}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 p-3 rounded-full transition-all duration-300"
+                            onClick={() => {
+                              setCurrentImageIndex((prev) => 
+                                prev === apps[showAppModal].screenshots.length - 1 ? 0 : prev + 1
+                              );
+                              setAutoPlay(false); // Stop auto-play when user interacts
+                            }}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 p-3 rounded-full transition-all duration-300 opacity-0 group-hover:opacity-100"
                           >
                             <ChevronRight className="w-6 h-6 text-white" />
                           </button>
@@ -944,7 +971,10 @@ const SalesforceApps = () => {
                             {apps[showAppModal].screenshots.map((_, idx) => (
                               <button
                                 key={idx}
-                                onClick={() => setCurrentImageIndex(idx)}
+                                onClick={() => {
+                                  setCurrentImageIndex(idx);
+                                  setAutoPlay(false); // Stop auto-play when user interacts
+                                }}
                                 className={`w-2 h-2 rounded-full transition-all duration-300 ${
                                   idx === currentImageIndex 
                                     ? 'bg-white w-8' 
@@ -952,6 +982,20 @@ const SalesforceApps = () => {
                                 }`}
                               />
                             ))}
+                          </div>
+                          
+                          {/* Auto-play indicator */}
+                          <div className="absolute top-4 left-4">
+                            <button
+                              onClick={() => setAutoPlay(!autoPlay)}
+                              className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-300 ${
+                                autoPlay 
+                                  ? 'bg-green-500/80 text-white' 
+                                  : 'bg-gray-500/80 text-gray-300'
+                              }`}
+                            >
+                              {autoPlay ? 'Auto' : 'Manual'}
+                            </button>
                           </div>
                         </>
                       )}
