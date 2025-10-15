@@ -16,6 +16,8 @@ const SalesforceApps = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [searchParams, setSearchParams] = useSearchParams();
   const [copied, setCopied] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
   const { toast } = useToast();
 
   const apps = [
@@ -29,7 +31,7 @@ const SalesforceApps = () => {
       videoEmbed: null,
       category: "Productivity",
       screenshots: [
-        "/Assets/App%20store%20assets/Calendar%20App/1.jpg",
+        "/Assets/App%20store%20assets/Calendar%20App/1.png",
         "/Assets/App%20store%20assets/Calendar%20App/2.jpg",
         "/Assets/App%20store%20assets/Calendar%20App/3.jpg"
       ],
@@ -406,9 +408,18 @@ const SalesforceApps = () => {
       const appIndex = apps.findIndex(app => app.id === appId);
       if (appIndex !== -1) {
         setShowAppModal(appIndex);
+        setCurrentImageIndex(0);
+        setImageLoading(true);
+        setImageError(false);
       }
     }
   }, [searchParams]);
+
+  // Reset image states when image index changes
+  useEffect(() => {
+    setImageLoading(true);
+    setImageError(false);
+  }, [currentImageIndex]);
 
   const scroll = (direction: 'left' | 'right', ref: React.RefObject<HTMLDivElement>) => {
     if (ref.current) {
@@ -875,11 +886,37 @@ const SalesforceApps = () => {
                 {apps[showAppModal].screenshots && apps[showAppModal].screenshots.length > 0 && (
                   <div className="bg-gray-900 relative">
                     <div className="relative w-full">
-                      <img 
-                        src={apps[showAppModal].screenshots[currentImageIndex]} 
-                        alt={`${apps[showAppModal].title} screenshot ${currentImageIndex + 1}`}
-                        className="w-full h-auto object-contain max-h-[500px]"
-                      />
+                      {imageLoading && (
+                        <div className="w-full h-[500px] flex items-center justify-center bg-gray-800">
+                          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
+                        </div>
+                      )}
+                      {imageError ? (
+                        <div className="w-full h-[500px] flex items-center justify-center bg-gray-800 text-gray-400">
+                          <div className="text-center">
+                            <div className="text-4xl mb-4">📱</div>
+                            <p>Image not available</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <img 
+                          src={apps[showAppModal].screenshots[currentImageIndex]} 
+                          alt={`${apps[showAppModal].title} screenshot ${currentImageIndex + 1}`}
+                          className={`w-full h-auto object-contain max-h-[500px] ${imageLoading ? 'hidden' : 'block'}`}
+                          onLoad={() => setImageLoading(false)}
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            // Fallback to PNG if JPG fails
+                            if (target.src.includes('.jpg')) {
+                              target.src = target.src.replace('.jpg', '.png');
+                            } else {
+                              setImageError(true);
+                              setImageLoading(false);
+                            }
+                          }}
+                          loading="lazy"
+                        />
+                      )}
                       
                       {/* Navigation Arrows */}
                       {apps[showAppModal].screenshots.length > 1 && (
