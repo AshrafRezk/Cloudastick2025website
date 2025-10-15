@@ -12,15 +12,22 @@ const SalesforceApps = () => {
   const vipCarouselRef = useRef<HTMLDivElement>(null);
   const partnerCarouselRef = useRef<HTMLDivElement>(null);
 
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
   const apps = [
     {
       icon: Calendar,
       title: "Advanced Sleek Calendar",
       tagline: "Google Calendar meets Salesforce",
-      description: "A powerful, modern calendar solution that brings the familiar Google Calendar experience directly into your Salesforce environment.",
+      description: "A powerful, modern calendar solution that brings the familiar Google Calendar experience directly into your Salesforce environment. Perfect for field service management, sales teams on the ground, and territory management with intelligent route planning and real-time scheduling capabilities.",
       gradient: "from-purple-500 to-pink-600",
       videoEmbed: null,
       category: "Productivity",
+      screenshots: [
+        "/Assets/App store assets/Calendar App/1.png",
+        "/Assets/App store assets/Calendar App/2.png",
+        "/Assets/App store assets/Calendar App/3.png"
+      ],
       features: [
         {
           icon: Calendar,
@@ -51,6 +58,36 @@ const SalesforceApps = () => {
           icon: Users,
           title: "Timeline View",
           description: "Advanced timeline visualization to see your activities across time and teams"
+        },
+        {
+          icon: Target,
+          title: "Field Service Management",
+          description: "Perfect for field service teams - schedule service appointments, track technician locations, and manage on-site activities"
+        },
+        {
+          icon: TrendingUp,
+          title: "Route Optimization",
+          description: "Intelligent route planning for sales reps and field workers to maximize daily visits and minimize travel time"
+        },
+        {
+          icon: Users,
+          title: "Territory Management",
+          description: "Visualize and manage field activities by territory, ensuring optimal coverage and balanced workload"
+        },
+        {
+          icon: Clock,
+          title: "Real-time Schedule Updates",
+          description: "Mobile-friendly calendar that syncs in real-time, perfect for field reps managing appointments on the go"
+        },
+        {
+          icon: CheckCircle2,
+          title: "Check-in/Check-out Tracking",
+          description: "Track field visits with geolocation-enabled check-ins, automatic activity logging, and visit duration tracking"
+        },
+        {
+          icon: BarChart3,
+          title: "Field Activity Analytics",
+          description: "Monitor field team productivity, track service completion rates, and analyze visit patterns for continuous improvement"
         }
       ]
     },
@@ -62,6 +99,7 @@ const SalesforceApps = () => {
       gradient: "from-cyan-500 to-blue-600",
       videoEmbed: "https://player.vimeo.com/video/1127501430?badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&muted=1",
       category: "Communication",
+      screenshots: [],
       features: [
         {
           icon: Phone,
@@ -103,6 +141,7 @@ const SalesforceApps = () => {
       gradient: "from-emerald-500 to-teal-600",
       videoEmbed: null,
       category: "Finance",
+      screenshots: [],
       features: [
         {
           icon: Calculator,
@@ -144,6 +183,7 @@ const SalesforceApps = () => {
       gradient: "from-rose-500 to-pink-600",
       videoEmbed: null,
       category: "Healthcare",
+      screenshots: [],
       features: [
         {
           icon: Heart,
@@ -185,6 +225,7 @@ const SalesforceApps = () => {
       gradient: "from-indigo-500 to-purple-600",
       videoEmbed: null,
       category: "Analytics",
+      screenshots: [],
       features: [
         {
           icon: Target,
@@ -226,6 +267,7 @@ const SalesforceApps = () => {
       gradient: "from-blue-500 to-indigo-600",
       videoEmbed: null,
       category: "Partner Apps",
+      screenshots: [],
       features: [
         {
           icon: Languages,
@@ -267,6 +309,7 @@ const SalesforceApps = () => {
       gradient: "from-violet-500 to-purple-600",
       videoEmbed: null,
       category: "Partner Apps",
+      screenshots: [],
       features: [
         {
           icon: Languages,
@@ -308,6 +351,7 @@ const SalesforceApps = () => {
       gradient: "from-orange-500 to-red-600",
       videoEmbed: null,
       category: "Partner Apps",
+      screenshots: [],
       features: [
         {
           icon: Share2,
@@ -691,7 +735,10 @@ const SalesforceApps = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
-            onClick={() => setShowAppModal(null)}
+            onClick={() => {
+              setShowAppModal(null);
+              setCurrentImageIndex(0);
+            }}
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -703,7 +750,10 @@ const SalesforceApps = () => {
             >
               {/* Close button */}
               <button
-                onClick={() => setShowAppModal(null)}
+                onClick={() => {
+                  setShowAppModal(null);
+                  setCurrentImageIndex(0);
+                }}
                 className="absolute top-4 right-4 z-20 p-2 bg-gray-800/80 hover:bg-gray-700 rounded-full transition-colors duration-200"
               >
                 <X className="w-6 h-6 text-white" />
@@ -746,6 +796,57 @@ const SalesforceApps = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Screenshots Carousel */}
+                {apps[showAppModal].screenshots && apps[showAppModal].screenshots.length > 0 && (
+                  <div className="bg-gray-900 relative">
+                    <div className="relative w-full">
+                      <img 
+                        src={apps[showAppModal].screenshots[currentImageIndex]} 
+                        alt={`${apps[showAppModal].title} screenshot ${currentImageIndex + 1}`}
+                        className="w-full h-auto object-contain max-h-[500px]"
+                      />
+                      
+                      {/* Navigation Arrows */}
+                      {apps[showAppModal].screenshots.length > 1 && (
+                        <>
+                          <button
+                            onClick={() => setCurrentImageIndex((prev) => 
+                              prev === 0 ? apps[showAppModal].screenshots.length - 1 : prev - 1
+                            )}
+                            className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 p-3 rounded-full transition-all duration-300"
+                          >
+                            <ChevronLeft className="w-6 h-6 text-white" />
+                          </button>
+                          
+                          <button
+                            onClick={() => setCurrentImageIndex((prev) => 
+                              prev === apps[showAppModal].screenshots.length - 1 ? 0 : prev + 1
+                            )}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 p-3 rounded-full transition-all duration-300"
+                          >
+                            <ChevronRight className="w-6 h-6 text-white" />
+                          </button>
+                          
+                          {/* Dots Indicator */}
+                          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                            {apps[showAppModal].screenshots.map((_, idx) => (
+                              <button
+                                key={idx}
+                                onClick={() => setCurrentImageIndex(idx)}
+                                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                                  idx === currentImageIndex 
+                                    ? 'bg-white w-8' 
+                                    : 'bg-white/50 hover:bg-white/75'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 {/* Video Section */}
                 {apps[showAppModal].videoEmbed && (
@@ -800,7 +901,10 @@ const SalesforceApps = () => {
                         Contact us to learn more or request a demo
                       </p>
                     </div>
-                    <Link to="/contact" onClick={() => setShowAppModal(null)}>
+                    <Link to="/contact" onClick={() => {
+                      setShowAppModal(null);
+                      setCurrentImageIndex(0);
+                    }}>
                       <Button variant="secondary" size="lg" className="bg-white text-gray-900 hover:bg-gray-100">
                         Get in Touch
                         <ArrowRight className="ml-2 h-5 w-5" />
