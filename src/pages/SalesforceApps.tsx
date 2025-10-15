@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, MessageSquare, Filter, Clock, Users, Smartphone, Phone, Send, CheckCircle2, Zap, Sparkles, X, Play, CreditCard, DollarSign, Calculator, TrendingUp, FileText, Heart, ShieldCheck, Headphones, ClipboardList, Target, PieChart, BarChart3, LineChart, UserCheck } from "lucide-react";
+import { Calendar, MessageSquare, Filter, Clock, Users, Smartphone, Phone, Send, CheckCircle2, Zap, Sparkles, X, Play, CreditCard, DollarSign, Calculator, TrendingUp, FileText, Heart, ShieldCheck, Headphones, ClipboardList, Target, PieChart, BarChart3, LineChart, UserCheck, ChevronLeft, ChevronRight, Info, FileSignature, Languages, Share2, TrendingDown, Globe } from "lucide-react";
 import AnimatedSection from "../components/AnimatedSection";
 import { Link } from "react-router-dom";
 import Button from "../components/Button";
@@ -8,6 +8,8 @@ import { ArrowRight } from "lucide-react";
 
 const SalesforceApps = () => {
   const [activeVideoModal, setActiveVideoModal] = useState<number | null>(null);
+  const [selectedApp, setSelectedApp] = useState<number | null>(null);
+  const carouselRef = useRef<HTMLDivElement>(null);
 
   const apps = [
     {
@@ -16,7 +18,8 @@ const SalesforceApps = () => {
       tagline: "Google Calendar meets Salesforce",
       description: "A powerful, modern calendar solution that brings the familiar Google Calendar experience directly into your Salesforce environment.",
       gradient: "from-purple-500 to-pink-600",
-      videoEmbed: null, // Add video embed URL here when available
+      videoEmbed: null,
+      category: "Productivity",
       features: [
         {
           icon: Calendar,
@@ -57,6 +60,7 @@ const SalesforceApps = () => {
       description: "Unified outbound communication platform that connects your team with customers across multiple channels while automatically logging every interaction.",
       gradient: "from-cyan-500 to-blue-600",
       videoEmbed: "https://player.vimeo.com/video/1127501430?badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&muted=1",
+      category: "Communication",
       features: [
         {
           icon: Phone,
@@ -97,6 +101,7 @@ const SalesforceApps = () => {
       description: "Comprehensive payment plan management system designed for Real Estate, Automotive, and other verticals requiring flexible installment solutions.",
       gradient: "from-emerald-500 to-teal-600",
       videoEmbed: null,
+      category: "Finance",
       features: [
         {
           icon: Calculator,
@@ -137,6 +142,7 @@ const SalesforceApps = () => {
       description: "Advanced patient support program management solution designed specifically for pharmaceutical companies to deliver exceptional patient care and outcomes.",
       gradient: "from-rose-500 to-pink-600",
       videoEmbed: null,
+      category: "Healthcare",
       features: [
         {
           icon: Heart,
@@ -177,6 +183,7 @@ const SalesforceApps = () => {
       description: "Intelligent segmentation and activity planning engine built for pharmaceutical sales and marketing teams to optimize HCP engagement and maximize ROI.",
       gradient: "from-indigo-500 to-purple-600",
       videoEmbed: null,
+      category: "Analytics",
       features: [
         {
           icon: Target,
@@ -209,13 +216,146 @@ const SalesforceApps = () => {
           description: "Real-time tracking of activities, KPIs, and ROI across all channels and touchpoints"
         }
       ]
+    },
+    {
+      icon: FileText,
+      title: "Opero Document Generator",
+      tagline: "Generate documents in English & Arabic",
+      description: "Powerful document generation solution with full English and Arabic language support. Create professional documents directly from Salesforce with dynamic templates.",
+      gradient: "from-blue-500 to-indigo-600",
+      videoEmbed: null,
+      category: "Partner Apps",
+      features: [
+        {
+          icon: Languages,
+          title: "Bilingual Support",
+          description: "Full support for both English and Arabic document generation with RTL text support"
+        },
+        {
+          icon: FileText,
+          title: "Dynamic Templates",
+          description: "Create and customize document templates with merge fields from any Salesforce object"
+        },
+        {
+          icon: Zap,
+          title: "Automated Generation",
+          description: "Automatically generate documents based on workflows, triggers, or manual actions"
+        },
+        {
+          icon: CheckCircle2,
+          title: "Multiple Formats",
+          description: "Export documents in PDF, Word, and other popular formats"
+        },
+        {
+          icon: Users,
+          title: "Batch Processing",
+          description: "Generate multiple documents at once for mass communications and reporting"
+        },
+        {
+          icon: ShieldCheck,
+          title: "Version Control",
+          description: "Track document versions and maintain audit trails for compliance"
+        }
+      ]
+    },
+    {
+      icon: FileSignature,
+      title: "Opero E-signature",
+      tagline: "Digital signatures in English & Arabic",
+      description: "Streamlined electronic signature solution with full bilingual support. Secure, legally binding signatures integrated directly into your Salesforce workflow.",
+      gradient: "from-violet-500 to-purple-600",
+      videoEmbed: null,
+      category: "Partner Apps",
+      features: [
+        {
+          icon: Languages,
+          title: "Arabic & English Support",
+          description: "Complete bilingual interface and document support for both English and Arabic"
+        },
+        {
+          icon: FileSignature,
+          title: "Secure E-signatures",
+          description: "Legally binding electronic signatures with encryption and authentication"
+        },
+        {
+          icon: Smartphone,
+          title: "Mobile Signing",
+          description: "Sign documents on any device - desktop, tablet, or mobile"
+        },
+        {
+          icon: Clock,
+          title: "Real-time Tracking",
+          description: "Track document status, view signing progress, and receive instant notifications"
+        },
+        {
+          icon: ShieldCheck,
+          title: "Audit Trail",
+          description: "Complete audit trail with timestamps, IP addresses, and signer authentication"
+        },
+        {
+          icon: Zap,
+          title: "Salesforce Integration",
+          description: "Seamlessly integrated with Salesforce records, workflows, and processes"
+        }
+      ]
+    },
+    {
+      icon: Share2,
+      title: "Konnect Insights",
+      tagline: "Social media intelligence & engagement",
+      description: "Advanced social media content management system with intelligent Case/Lead integration and comprehensive competitor performance analysis.",
+      gradient: "from-orange-500 to-red-600",
+      videoEmbed: null,
+      category: "Partner Apps",
+      features: [
+        {
+          icon: Share2,
+          title: "Social Media CMS",
+          description: "Manage all your social media content from one centralized platform"
+        },
+        {
+          icon: MessageSquare,
+          title: "Case & Lead Integration",
+          description: "Automatically convert social media interactions into Salesforce Cases and Leads"
+        },
+        {
+          icon: TrendingUp,
+          title: "Competitor Analysis",
+          description: "Compare your social media performance against competitors with detailed analytics"
+        },
+        {
+          icon: Users,
+          title: "Multi-Channel Support",
+          description: "Monitor and engage across all major social media platforms"
+        },
+        {
+          icon: BarChart3,
+          title: "Performance Analytics",
+          description: "Track engagement metrics, sentiment analysis, and campaign performance"
+        },
+        {
+          icon: Globe,
+          title: "Brand Monitoring",
+          description: "Real-time brand mention tracking and sentiment analysis across social channels"
+        }
+      ]
     }
   ];
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (carouselRef.current) {
+      const scrollAmount = 400;
+      carouselRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-900">
       {/* Hero Section */}
-      <section className="relative py-32 bg-gradient-to-br from-gray-800 via-gray-900 to-black overflow-hidden">
+      <section className="relative pt-32 pb-20 bg-gradient-to-br from-gray-800 via-gray-900 to-black overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-cyan-500/10 via-transparent to-transparent"></div>
         
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -233,182 +373,330 @@ const SalesforceApps = () => {
             </motion.div>
             
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
-              Cloudastick Salesforce
+              Cloudastick
               <span className="block mt-2 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
-                VIP Apps
+                VIP Apps Store
               </span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto mb-8">
-              Premium applications that supercharge your Salesforce experience with cutting-edge features and seamless integration
+            <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto">
+              Browse our premium collection of Salesforce applications
             </p>
+          </AnimatedSection>
+        </div>
+      </section>
+
+      {/* VIP Apps Carousel */}
+      <section className="py-12 relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-white mb-2">Cloudastick VIP Apps</h2>
+            <p className="text-gray-400">Exclusive apps built by Cloudastick for Salesforce excellence</p>
+          </div>
+
+          <div className="relative group">
+            {/* Carousel Navigation Buttons */}
+            <button
+              onClick={() => scroll('left')}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-gray-800/90 hover:bg-gray-700 p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 -ml-4"
+            >
+              <ChevronLeft className="w-6 h-6 text-white" />
+            </button>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/contact">
-                <Button variant="primary" size="lg">
-                  Request VIP Access
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-              <Link to="/services">
-                <Button variant="outline" size="lg">
-                  Explore Our Services
-                </Button>
-              </Link>
-            </div>
-          </AnimatedSection>
-        </div>
-      </section>
+            <button
+              onClick={() => scroll('right')}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-gray-800/90 hover:bg-gray-700 p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 -mr-4"
+            >
+              <ChevronRight className="w-6 h-6 text-white" />
+            </button>
 
-      {/* Apps Showcase */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="space-y-32">
-            {apps.map((app, appIndex) => (
-              <AnimatedSection key={app.title} delay={appIndex * 0.2}>
-                <div className={`relative ${appIndex % 2 === 1 ? 'lg:flex-row-reverse' : ''}`}>
-                  {/* App Header */}
-                  <div className="text-center mb-12">
-                    <motion.div
-                      whileHover={{ scale: 1.1, rotate: app.videoEmbed ? 5 : 0 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => app.videoEmbed && setActiveVideoModal(appIndex)}
-                      className={`inline-flex items-center justify-center w-20 h-20 rounded-2xl shadow-2xl mb-6 relative overflow-hidden ${
-                        app.videoEmbed 
-                          ? `bg-gradient-to-br ${app.gradient} cursor-pointer` 
-                          : 'bg-gray-800 border-2 border-gray-700'
-                      }`}
-                    >
-                      {app.videoEmbed ? (
-                        <>
-                          <app.icon className="w-10 h-10 text-white" />
-                          <motion.div
-                            className="absolute inset-0 bg-black/50 rounded-2xl flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300"
-                            whileHover={{ scale: 1.05 }}
-                          >
-                            <Play className="w-8 h-8 text-white" />
-                          </motion.div>
-                        </>
-                      ) : (
-                        <img 
-                          src="/Assets/Company Logos/white-logo-dark.webp" 
-                          alt="Cloudastick Logo" 
-                          className="w-16 h-16 object-contain p-2"
-                        />
-                      )}
-                    </motion.div>
-                    
-                    <h2 className="text-4xl md:text-5xl font-bold text-white mb-3">
-                      {app.title}
-                    </h2>
-                    
-                    <p className={`text-xl md:text-2xl font-light bg-gradient-to-r ${app.gradient} bg-clip-text text-transparent mb-4`}>
-                      {app.tagline}
-                    </p>
-                    
-                    <p className="text-lg text-gray-400 max-w-3xl mx-auto">
-                      {app.description}
-                    </p>
-                  </div>
-
-                  {/* Features Grid */}
-                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {app.features.map((feature, featureIndex) => (
-                      <AnimatedSection
-                        key={feature.title}
-                        delay={featureIndex * 0.1}
-                        className="group"
-                      >
-                        <motion.div
-                          whileHover={{ y: -10, scale: 1.02 }}
-                          className="h-full bg-gray-800/60 backdrop-blur-sm rounded-xl p-6 border border-gray-700 hover:border-cyan-500/50 transition-all duration-300 relative overflow-hidden"
-                        >
-                          {/* Gradient overlay on hover */}
-                          <div className={`absolute inset-0 bg-gradient-to-br ${app.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}></div>
-                          
-                          <div className="relative z-10">
-                            <div className={`w-12 h-12 bg-gradient-to-br ${app.gradient} rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                              <feature.icon className="w-6 h-6 text-white" />
-                            </div>
-                            
-                            <h3 className="text-lg font-semibold text-white mb-3">
-                              {feature.title}
-                            </h3>
-                            
-                            <p className="text-gray-400 text-sm leading-relaxed">
-                              {feature.description}
-                            </p>
-                          </div>
-                        </motion.div>
-                      </AnimatedSection>
-                    ))}
-                  </div>
-                </div>
-              </AnimatedSection>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Benefits Section */}
-      <section className="py-20 bg-gray-800/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <AnimatedSection className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              Why Choose VIP Apps?
-            </h2>
-            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-              Built by Salesforce experts, designed for power users
-            </p>
-          </AnimatedSection>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              {
-                title: "Native Integration",
-                description: "Built directly into Salesforce with no external dependencies",
-                icon: Zap
-              },
-              {
-                title: "Enterprise Ready",
-                description: "Scalable solutions that grow with your business",
-                icon: CheckCircle2
-              },
-              {
-                title: "Always Updated",
-                description: "Regular updates and new features included with VIP access",
-                icon: Sparkles
-              },
-              {
-                title: "Premium Support",
-                description: "Dedicated support team ready to assist you",
-                icon: Users
-              }
-            ].map((benefit, index) => (
-              <AnimatedSection
-                key={benefit.title}
-                delay={index * 0.1}
-                className="group"
-              >
+            {/* Scrollable Container */}
+            <div
+              ref={carouselRef}
+              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {apps.filter(app => app.category !== "Partner Apps").map((app, index) => {
+                const originalIndex = apps.indexOf(app);
+                return (
                 <motion.div
-                  whileHover={{ y: -10 }}
-                  className="text-center p-6 rounded-xl bg-gray-800/80 border border-gray-700 hover:border-cyan-500/50 transition-all duration-300"
+                  key={app.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="flex-shrink-0 w-80 group/card cursor-pointer"
+                  onMouseEnter={() => setSelectedApp(originalIndex)}
+                  onMouseLeave={() => setSelectedApp(null)}
                 >
-                  <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                    <benefit.icon className="w-8 h-8 text-white" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-white mb-3">
-                    {benefit.title}
-                  </h3>
-                  <p className="text-gray-400 text-sm">
-                    {benefit.description}
-                  </p>
+                  <motion.div
+                    whileHover={{ scale: 1.05, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                    className="relative h-full"
+                  >
+                    {/* App Card */}
+                    <div className={`relative bg-gradient-to-br ${app.gradient} rounded-2xl overflow-hidden shadow-2xl h-[450px]`}>
+                      {/* Background Pattern */}
+                      <div className="absolute inset-0 opacity-10">
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
+                      </div>
+
+                      {/* Content */}
+                      <div className="relative h-full flex flex-col p-8">
+                        {/* Category Badge */}
+                        <div className="absolute top-4 right-4">
+                          <span className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-medium text-white">
+                            {app.category}
+                          </span>
+                        </div>
+
+                        {/* Icon */}
+                        <div className="mb-6">
+                          {app.videoEmbed ? (
+                            <motion.div
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveVideoModal(originalIndex);
+                              }}
+                              className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center relative cursor-pointer"
+                            >
+                              <app.icon className="w-10 h-10 text-white" />
+                              <motion.div
+                                className="absolute inset-0 bg-black/50 rounded-2xl flex items-center justify-center opacity-0 group-hover/card:opacity-100 transition-opacity duration-300"
+                              >
+                                <Play className="w-8 h-8 text-white" />
+                              </motion.div>
+                            </motion.div>
+                          ) : (
+                            <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                              <img 
+                                src="/Assets/Company Logos/white-logo-dark.webp" 
+                                alt="Cloudastick Logo" 
+                                className="w-16 h-16 object-contain p-2"
+                              />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Title & Tagline */}
+                        <div className="flex-grow">
+                          <h3 className="text-2xl font-bold text-white mb-2">
+                            {app.title}
+                          </h3>
+                          <p className="text-white/90 text-sm mb-4">
+                            {app.tagline}
+                          </p>
+                          <p className="text-white/70 text-sm line-clamp-3">
+                            {app.description}
+                          </p>
+                        </div>
+
+                        {/* Action Button */}
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedApp(originalIndex === selectedApp ? null : originalIndex);
+                          }}
+                          className="mt-4 w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-medium py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2"
+                        >
+                          <Info className="w-4 h-4" />
+                          More Info
+                        </motion.button>
+                      </div>
+                    </div>
+                  </motion.div>
                 </motion.div>
-              </AnimatedSection>
-            ))}
+              )})}
+            </div>
           </div>
         </div>
       </section>
+
+      {/* Partner Apps Carousel */}
+      <section className="py-12 relative bg-gray-800/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-white mb-2">Partner Apps</h2>
+            <p className="text-gray-400">Powerful integrations from our trusted partners</p>
+          </div>
+
+          <div className="relative group">
+            {/* Carousel Navigation Buttons */}
+            <button
+              onClick={() => scroll('left')}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-gray-800/90 hover:bg-gray-700 p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 -ml-4"
+            >
+              <ChevronLeft className="w-6 h-6 text-white" />
+            </button>
+            
+            <button
+              onClick={() => scroll('right')}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-gray-800/90 hover:bg-gray-700 p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 -mr-4"
+            >
+              <ChevronRight className="w-6 h-6 text-white" />
+            </button>
+
+            {/* Scrollable Container */}
+            <div
+              ref={carouselRef}
+              className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {apps.filter(app => app.category === "Partner Apps").map((app, index) => {
+                const originalIndex = apps.indexOf(app);
+                return (
+                <motion.div
+                  key={app.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="flex-shrink-0 w-80 group/card cursor-pointer"
+                  onMouseEnter={() => setSelectedApp(originalIndex)}
+                  onMouseLeave={() => setSelectedApp(null)}
+                >
+                  <motion.div
+                    whileHover={{ scale: 1.05, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                    className="relative h-full"
+                  >
+                    {/* App Card */}
+                    <div className={`relative bg-gradient-to-br ${app.gradient} rounded-2xl overflow-hidden shadow-2xl h-[450px]`}>
+                      {/* Background Pattern */}
+                      <div className="absolute inset-0 opacity-10">
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
+                      </div>
+
+                      {/* Content */}
+                      <div className="relative h-full flex flex-col p-8">
+                        {/* Category Badge */}
+                        <div className="absolute top-4 right-4">
+                          <span className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-medium text-white">
+                            {app.category}
+                          </span>
+                        </div>
+
+                        {/* Icon */}
+                        <div className="mb-6">
+                          {app.videoEmbed ? (
+                            <motion.div
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveVideoModal(originalIndex);
+                              }}
+                              className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center relative cursor-pointer"
+                            >
+                              <app.icon className="w-10 h-10 text-white" />
+                              <motion.div
+                                className="absolute inset-0 bg-black/50 rounded-2xl flex items-center justify-center opacity-0 group-hover/card:opacity-100 transition-opacity duration-300"
+                              >
+                                <Play className="w-8 h-8 text-white" />
+                              </motion.div>
+                            </motion.div>
+                          ) : (
+                            <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                              <img 
+                                src="/Assets/Company Logos/white-logo-dark.webp" 
+                                alt="Cloudastick Logo" 
+                                className="w-16 h-16 object-contain p-2"
+                              />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Title & Tagline */}
+                        <div className="flex-grow">
+                          <h3 className="text-2xl font-bold text-white mb-2">
+                            {app.title}
+                          </h3>
+                          <p className="text-white/90 text-sm mb-4">
+                            {app.tagline}
+                          </p>
+                          <p className="text-white/70 text-sm line-clamp-3">
+                            {app.description}
+                          </p>
+                        </div>
+
+                        {/* Action Button */}
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedApp(originalIndex === selectedApp ? null : originalIndex);
+                          }}
+                          className="mt-4 w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white font-medium py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2"
+                        >
+                          <Info className="w-4 h-4" />
+                          More Info
+                        </motion.button>
+                      </div>
+                    </div>
+                  </motion.div>
+                </motion.div>
+              )})}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* App Details Section */}
+      <AnimatePresence>
+        {selectedApp !== null && (
+          <motion.section
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="py-12 bg-gray-800/50"
+          >
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex items-start justify-between mb-8">
+                <div>
+                  <h3 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
+                    {React.createElement(apps[selectedApp].icon, { className: "w-8 h-8" })}
+                    {apps[selectedApp].title}
+                  </h3>
+                  <p className={`text-lg bg-gradient-to-r ${apps[selectedApp].gradient} bg-clip-text text-transparent`}>
+                    {apps[selectedApp].tagline}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setSelectedApp(null)}
+                  className="p-2 bg-gray-700 hover:bg-gray-600 rounded-full transition-colors"
+                >
+                  <X className="w-6 h-6 text-white" />
+                </button>
+              </div>
+
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {apps[selectedApp].features.map((feature, idx) => (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                    className="bg-gray-800/60 backdrop-blur-sm rounded-xl p-6 border border-gray-700"
+                  >
+                    <div className={`w-12 h-12 bg-gradient-to-br ${apps[selectedApp].gradient} rounded-lg flex items-center justify-center mb-4`}>
+                      <feature.icon className="w-6 h-6 text-white" />
+                    </div>
+                    <h4 className="text-lg font-semibold text-white mb-2">
+                      {feature.title}
+                    </h4>
+                    <p className="text-gray-400 text-sm">
+                      {feature.description}
+                    </p>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </motion.section>
+        )}
+      </AnimatePresence>
 
       {/* CTA Section */}
       <section className="py-20 relative overflow-hidden">
@@ -492,9 +780,14 @@ const SalesforceApps = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <style jsx>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
     </div>
   );
 };
 
 export default SalesforceApps;
-
