@@ -32,7 +32,7 @@ const SalesforceApps = () => {
       videoEmbed: null,
       category: "Productivity",
       screenshots: [
-        "/Assets/App%20store%20assets/Calendar%20App/1.png",
+        "/Assets/App%20store%20assets/Calendar%20App/1.jpg",
         "/Assets/App%20store%20assets/Calendar%20App/2.jpg",
         "/Assets/App%20store%20assets/Calendar%20App/3.jpg"
       ],
@@ -431,7 +431,7 @@ const SalesforceApps = () => {
 
     const interval = setInterval(() => {
       setCurrentImageIndex((prev) => 
-        prev === apps[showAppModal].screenshots.length - 1 ? 0 : prev + 1
+        prev === apps[showAppModal].screenshots.length ? 0 : prev + 1
       );
     }, 4000); // Change every 4 seconds
 
@@ -912,11 +912,23 @@ const SalesforceApps = () => {
                         <div className="w-full h-[500px] flex items-center justify-center bg-gray-800">
                           <div className="text-center">
                             <img 
-                              src="/Assets/Company Logos/white-logo-dark.webp" 
+                              src="/Assets/Company Logos/white logo for black backgrounds animated.gif" 
                               alt="Cloudastick Logo" 
-                              className="w-32 h-32 object-contain mx-auto mb-4 opacity-60"
+                              className="w-32 h-32 object-contain mx-auto mb-4"
                             />
                             <p className="text-gray-400">Screenshot not available</p>
+                          </div>
+                        </div>
+                      ) : currentImageIndex === apps[showAppModal].screenshots.length ? (
+                        <div className="w-full h-[500px] flex items-center justify-center bg-gradient-to-br from-purple-900 to-pink-900">
+                          <div className="text-center">
+                            <img 
+                              src="/Assets/Company Logos/white logo for black backgrounds animated.gif" 
+                              alt="Cloudastick Logo" 
+                              className="w-40 h-40 object-contain mx-auto mb-6"
+                            />
+                            <h3 className="text-2xl font-bold text-white mb-2">Developed with love by</h3>
+                            <p className="text-xl text-cyan-300 font-semibold">Cloudastick Systems</p>
                           </div>
                         </div>
                       ) : (
@@ -927,25 +939,21 @@ const SalesforceApps = () => {
                           onLoad={() => setImageLoading(false)}
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
-                            // Fallback to PNG if JPG fails
-                            if (target.src.includes('.jpg')) {
-                              target.src = target.src.replace('.jpg', '.png');
-                            } else {
-                              setImageError(true);
-                              setImageLoading(false);
-                            }
+                            // Show error state for failed images
+                            setImageError(true);
+                            setImageLoading(false);
                           }}
                           loading="lazy"
                         />
                       )}
                       
                       {/* Navigation Arrows */}
-                      {apps[showAppModal].screenshots.length > 1 && (
+                      {apps[showAppModal].screenshots.length > 0 && (
                         <>
                           <button
                             onClick={() => {
                               setCurrentImageIndex((prev) => 
-                                prev === 0 ? apps[showAppModal].screenshots.length - 1 : prev - 1
+                                prev === 0 ? apps[showAppModal].screenshots.length : prev - 1
                               );
                               setAutoPlay(false); // Stop auto-play when user interacts
                             }}
@@ -957,7 +965,7 @@ const SalesforceApps = () => {
                           <button
                             onClick={() => {
                               setCurrentImageIndex((prev) => 
-                                prev === apps[showAppModal].screenshots.length - 1 ? 0 : prev + 1
+                                prev === apps[showAppModal].screenshots.length ? 0 : prev + 1
                               );
                               setAutoPlay(false); // Stop auto-play when user interacts
                             }}
@@ -982,6 +990,18 @@ const SalesforceApps = () => {
                                 }`}
                               />
                             ))}
+                            {/* Add dot for the "Developed with love" slide */}
+                            <button
+                              onClick={() => {
+                                setCurrentImageIndex(apps[showAppModal].screenshots.length);
+                                setAutoPlay(false);
+                              }}
+                              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                                currentImageIndex === apps[showAppModal].screenshots.length
+                                  ? 'bg-cyan-400 w-8' 
+                                  : 'bg-cyan-400/50 hover:bg-cyan-400/75'
+                              }`}
+                            />
                           </div>
                           
                           {/* Auto-play indicator */}
