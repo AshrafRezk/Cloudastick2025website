@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, MessageSquare, Filter, Clock, Users, Smartphone, Phone, Send, CheckCircle2, Zap, Sparkles, X, Play } from "lucide-react";
+import { Calendar, MessageSquare, Filter, Clock, Users, Smartphone, Phone, Send, CheckCircle2, Zap, Sparkles, X, Play, CreditCard, DollarSign, Calculator, TrendingUp, FileText, Heart, ShieldCheck, Headphones, ClipboardList, Target, PieChart, BarChart3, LineChart, UserCheck } from "lucide-react";
 import AnimatedSection from "../components/AnimatedSection";
 import { Link } from "react-router-dom";
 import Button from "../components/Button";
@@ -87,6 +87,126 @@ const SalesforceApps = () => {
           icon: Smartphone,
           title: "Mobile-First Design",
           description: "Optimized for mobile use while maintaining full desktop functionality"
+        }
+      ]
+    },
+    {
+      icon: CreditCard,
+      title: "Payment Plan Engine",
+      tagline: "Flexible payment solutions for any business",
+      description: "Comprehensive payment plan management system designed for Real Estate, Automotive, and other verticals requiring flexible installment solutions.",
+      gradient: "from-emerald-500 to-teal-600",
+      videoEmbed: null,
+      features: [
+        {
+          icon: Calculator,
+          title: "Automated Payment Calculations",
+          description: "Automatically calculate payment schedules, interest rates, and installment amounts"
+        },
+        {
+          icon: DollarSign,
+          title: "Flexible Plan Configuration",
+          description: "Create custom payment plans tailored to your business needs and customer requirements"
+        },
+        {
+          icon: TrendingUp,
+          title: "Multi-Vertical Support",
+          description: "Perfect for Real Estate, Automotive, and other industries requiring payment plans"
+        },
+        {
+          icon: FileText,
+          title: "Contract Management",
+          description: "Generate and manage payment contracts with automated terms and conditions"
+        },
+        {
+          icon: CheckCircle2,
+          title: "Payment Tracking",
+          description: "Track payment status, overdue amounts, and upcoming installments in real-time"
+        },
+        {
+          icon: Zap,
+          title: "Automated Reminders",
+          description: "Send automated payment reminders and notifications to customers"
+        }
+      ]
+    },
+    {
+      icon: Heart,
+      title: "Patient Support Program",
+      tagline: "Comprehensive care management for pharma",
+      description: "Advanced patient support program management solution designed specifically for pharmaceutical companies to deliver exceptional patient care and outcomes.",
+      gradient: "from-rose-500 to-pink-600",
+      videoEmbed: null,
+      features: [
+        {
+          icon: Heart,
+          title: "Patient Journey Tracking",
+          description: "Monitor and manage complete patient journey from enrollment to program completion"
+        },
+        {
+          icon: ShieldCheck,
+          title: "Compliance Management",
+          description: "Ensure HIPAA and regulatory compliance with built-in security and privacy controls"
+        },
+        {
+          icon: Headphones,
+          title: "Multi-Channel Support",
+          description: "Provide patient support through phone, email, SMS, and patient portals"
+        },
+        {
+          icon: ClipboardList,
+          title: "Medication Adherence",
+          description: "Track medication adherence and send timely reminders to improve patient outcomes"
+        },
+        {
+          icon: Users,
+          title: "Care Team Coordination",
+          description: "Enable seamless collaboration between healthcare providers, nurses, and support staff"
+        },
+        {
+          icon: BarChart3,
+          title: "Outcomes Analytics",
+          description: "Measure program effectiveness with comprehensive reporting and analytics"
+        }
+      ]
+    },
+    {
+      icon: Target,
+      title: "Segmentation & Activity Plan Engine",
+      tagline: "Precision targeting for pharmaceutical excellence",
+      description: "Intelligent segmentation and activity planning engine built for pharmaceutical sales and marketing teams to optimize HCP engagement and maximize ROI.",
+      gradient: "from-indigo-500 to-purple-600",
+      videoEmbed: null,
+      features: [
+        {
+          icon: Target,
+          title: "Smart HCP Segmentation",
+          description: "Automatically segment healthcare professionals based on prescribing patterns, specialty, and engagement"
+        },
+        {
+          icon: LineChart,
+          title: "Predictive Analytics",
+          description: "Use AI-powered insights to identify high-value targets and optimize resource allocation"
+        },
+        {
+          icon: Calendar,
+          title: "Activity Planning",
+          description: "Create and manage detailed activity plans with automated scheduling and routing"
+        },
+        {
+          icon: PieChart,
+          title: "Territory Management",
+          description: "Optimize territory allocation and balance workload across sales representatives"
+        },
+        {
+          icon: UserCheck,
+          title: "Call Planning",
+          description: "Intelligent call planning with frequency optimization and next-best-action recommendations"
+        },
+        {
+          icon: BarChart3,
+          title: "Performance Tracking",
+          description: "Real-time tracking of activities, KPIs, and ROI across all channels and touchpoints"
         }
       ]
     }
