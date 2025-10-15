@@ -18,7 +18,6 @@ const SalesforceApps = () => {
   const [copied, setCopied] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
-  const [autoPlay, setAutoPlay] = useState(true);
   const { toast } = useToast();
 
   const apps = [
@@ -32,7 +31,7 @@ const SalesforceApps = () => {
       videoEmbed: null,
       category: "Productivity",
       screenshots: [
-        "/Assets/App%20store%20assets/Calendar%20App/1.jpg",
+        "/Assets/App%20store%20assets/Calendar%20App/1.png",
         "/Assets/App%20store%20assets/Calendar%20App/2.jpg",
         "/Assets/App%20store%20assets/Calendar%20App/3.jpg"
       ],
@@ -412,7 +411,6 @@ const SalesforceApps = () => {
         setCurrentImageIndex(0);
         setImageLoading(true);
         setImageError(false);
-        setAutoPlay(true);
       }
     }
   }, [searchParams]);
@@ -422,21 +420,6 @@ const SalesforceApps = () => {
     setImageLoading(true);
     setImageError(false);
   }, [currentImageIndex]);
-
-  // Auto-rotate carousel
-  useEffect(() => {
-    if (!autoPlay || !showAppModal || !apps[showAppModal]?.screenshots || apps[showAppModal].screenshots.length <= 1) {
-      return;
-    }
-
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prev) => 
-        prev === apps[showAppModal].screenshots.length ? 0 : prev + 1
-      );
-    }, 4000); // Change every 4 seconds
-
-    return () => clearInterval(interval);
-  }, [autoPlay, showAppModal, currentImageIndex]);
 
   const scroll = (direction: 'left' | 'right', ref: React.RefObject<HTMLDivElement>) => {
     if (ref.current) {
@@ -899,159 +882,86 @@ const SalesforceApps = () => {
                   </div>
                 </div>
 
-                {/* Material 3 Multi-Browse Carousel */}
+                {/* Screenshots Carousel */}
                 {apps[showAppModal].screenshots && apps[showAppModal].screenshots.length > 0 && (
-                  <div className="bg-gray-900 p-6">
-                    {/* Carousel Header */}
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-medium text-white">Screenshots</h3>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => setAutoPlay(!autoPlay)}
-                          className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-300 ${
-                            autoPlay 
-                              ? 'bg-green-500/80 text-white' 
-                              : 'bg-gray-500/80 text-gray-300'
-                          }`}
-                        >
-                          {autoPlay ? 'Auto' : 'Manual'}
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Material 3 Carousel Container */}
-                    <div className="relative">
-                      <div className="overflow-hidden rounded-2xl">
-                        <div 
-                          className="flex transition-transform duration-500 ease-out"
-                          style={{ 
-                            transform: `translateX(-${currentImageIndex * 100}%)`,
-                            width: `${(apps[showAppModal].screenshots.length + 1) * 100}%`
-                          }}
-                        >
-                          {/* Screenshot Slides */}
-                          {apps[showAppModal].screenshots.map((screenshot, idx) => (
-                            <div key={idx} className="w-full flex-shrink-0 px-2">
-                              <div className="relative bg-gray-800 rounded-xl overflow-hidden aspect-video">
-                                {imageLoading && idx === currentImageIndex && (
-                                  <div className="absolute inset-0 flex items-center justify-center bg-gray-800">
-                                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
-                                  </div>
-                                )}
-                                {imageError && idx === currentImageIndex ? (
-                                  <div className="absolute inset-0 flex items-center justify-center bg-gray-800">
-                                    <div className="text-center">
-                                      <img 
-                                        src="/Assets/Company Logos/white logo for black backgrounds animated.gif" 
-                                        alt="Cloudastick Logo" 
-                                        className="w-16 h-16 object-contain mx-auto mb-2"
-                                      />
-                                      <p className="text-gray-400 text-sm">Screenshot not available</p>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <img 
-                                    src={screenshot} 
-                                    alt={`${apps[showAppModal].title} screenshot ${idx + 1}`}
-                                    className={`w-full h-full object-cover ${imageLoading && idx === currentImageIndex ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
-                                    onLoad={() => {
-                                      if (idx === currentImageIndex) setImageLoading(false);
-                                    }}
-                                    onError={(e) => {
-                                      if (idx === currentImageIndex) {
-                                        setImageError(true);
-                                        setImageLoading(false);
-                                      }
-                                    }}
-                                    loading="lazy"
-                                  />
-                                )}
-                                
-                                {/* Screenshot Number Badge */}
-                                <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-sm rounded-full w-8 h-8 flex items-center justify-center">
-                                  <span className="text-white text-sm font-medium">{idx + 1}</span>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                          
-                          {/* "Developed with love" Slide */}
-                          <div className="w-full flex-shrink-0 px-2">
-                            <div className="relative bg-gradient-to-br from-purple-900 to-pink-900 rounded-xl overflow-hidden aspect-video flex items-center justify-center">
-                              <div className="text-center">
-                                <img 
-                                  src="/Assets/Company Logos/white logo for black backgrounds animated.gif" 
-                                  alt="Cloudastick Logo" 
-                                  className="w-20 h-20 object-contain mx-auto mb-4"
-                                />
-                                <h3 className="text-xl font-bold text-white mb-1">Developed with love by</h3>
-                                <p className="text-lg text-cyan-300 font-semibold">Cloudastick Systems</p>
-                              </div>
-                            </div>
+                  <div className="bg-gray-900 relative">
+                    <div className="relative w-full">
+                      {imageLoading && (
+                        <div className="w-full h-[500px] flex items-center justify-center bg-gray-800">
+                          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
+                        </div>
+                      )}
+                      {imageError ? (
+                        <div className="w-full h-[500px] flex items-center justify-center bg-gray-800 text-gray-400">
+                          <div className="text-center">
+                            <div className="text-4xl mb-4">📱</div>
+                            <p>Image not available</p>
                           </div>
                         </div>
-                      </div>
-
-                      {/* Material 3 Navigation Controls */}
-                      <div className="flex items-center justify-between mt-4">
-                        {/* Previous Button */}
-                        <button
-                          onClick={() => {
-                            setCurrentImageIndex((prev) => 
-                              prev === 0 ? apps[showAppModal].screenshots.length : prev - 1
-                            );
-                            setAutoPlay(false);
+                      ) : (
+                        <img 
+                          src={apps[showAppModal].screenshots[currentImageIndex]} 
+                          alt={`${apps[showAppModal].title} screenshot ${currentImageIndex + 1}`}
+                          className={`w-full h-auto object-contain max-h-[500px] ${imageLoading ? 'hidden' : 'block'}`}
+                          onLoad={() => setImageLoading(false)}
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            // Fallback to PNG if JPG fails
+                            if (target.src.includes('.jpg')) {
+                              target.src = target.src.replace('.jpg', '.png');
+                            } else {
+                              // Skip to next image if current one fails completely
+                              if (apps[showAppModal].screenshots.length > 1) {
+                                setCurrentImageIndex((prev) => 
+                                  prev === apps[showAppModal].screenshots.length - 1 ? 0 : prev + 1
+                                );
+                              } else {
+                                setImageError(true);
+                                setImageLoading(false);
+                              }
+                            }
                           }}
-                          className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-full transition-colors duration-200"
-                        >
-                          <ChevronLeft className="w-4 h-4 text-white" />
-                          <span className="text-white text-sm font-medium">Previous</span>
-                        </button>
-
-                        {/* Material 3 Page Indicators */}
-                        <div className="flex items-center gap-2">
-                          {apps[showAppModal].screenshots.map((_, idx) => (
-                            <button
-                              key={idx}
-                              onClick={() => {
-                                setCurrentImageIndex(idx);
-                                setAutoPlay(false);
-                              }}
-                              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                                idx === currentImageIndex 
-                                  ? 'bg-white w-8' 
-                                  : 'bg-white/40 hover:bg-white/60'
-                              }`}
-                            />
-                          ))}
-                          {/* Special indicator for "Developed with love" slide */}
+                          loading="lazy"
+                        />
+                      )}
+                      
+                      {/* Navigation Arrows */}
+                      {apps[showAppModal].screenshots.length > 1 && (
+                        <>
                           <button
-                            onClick={() => {
-                              setCurrentImageIndex(apps[showAppModal].screenshots.length);
-                              setAutoPlay(false);
-                            }}
-                            className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                              currentImageIndex === apps[showAppModal].screenshots.length
-                                ? 'bg-cyan-400 w-8' 
-                                : 'bg-cyan-400/40 hover:bg-cyan-400/60'
-                            }`}
-                          />
-                        </div>
-
-                        {/* Next Button */}
-                        <button
-                          onClick={() => {
-                            setCurrentImageIndex((prev) => 
-                              prev === apps[showAppModal].screenshots.length ? 0 : prev + 1
-                            );
-                            setAutoPlay(false);
-                          }}
-                          className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-full transition-colors duration-200"
-                        >
-                          <span className="text-white text-sm font-medium">Next</span>
-                          <ChevronRight className="w-4 h-4 text-white" />
-                        </button>
-                      </div>
+                            onClick={() => setCurrentImageIndex((prev) => 
+                              prev === 0 ? apps[showAppModal].screenshots.length - 1 : prev - 1
+                            )}
+                            className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 p-3 rounded-full transition-all duration-300"
+                          >
+                            <ChevronLeft className="w-6 h-6 text-white" />
+                          </button>
+                          
+                          <button
+                            onClick={() => setCurrentImageIndex((prev) => 
+                              prev === apps[showAppModal].screenshots.length - 1 ? 0 : prev + 1
+                            )}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 p-3 rounded-full transition-all duration-300"
+                          >
+                            <ChevronRight className="w-6 h-6 text-white" />
+                          </button>
+                          
+                          {/* Dots Indicator */}
+                          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                            {apps[showAppModal].screenshots.map((_, idx) => (
+                              <button
+                                key={idx}
+                                onClick={() => setCurrentImageIndex(idx)}
+                                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                                  idx === currentImageIndex 
+                                    ? 'bg-white w-8' 
+                                    : 'bg-white/50 hover:bg-white/75'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
                 )}
