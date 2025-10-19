@@ -487,36 +487,20 @@ const SalesforceApps = () => {
     };
   }, [imageTimeout]);
 
-  // Listen for Vimeo video end event
+  // Show animation every 10 seconds when viewing video
   useEffect(() => {
-    if (showAppModal !== null && currentImageIndex === 0 && apps[showAppModal].videoEmbed) {
-      // Listen for messages from Vimeo iframe
-      const handleMessage = (event: MessageEvent) => {
-        if (event.origin === 'https://player.vimeo.com') {
-          try {
-            const data = JSON.parse(event.data);
-            if (data.event === 'ended') {
-              console.log('Video ended');
-              setVideoEnded(true);
-            }
-          } catch (e) {
-            // Not a JSON message, ignore
-          }
-        }
-      };
-
-      window.addEventListener('message', handleMessage);
-      
-      // Send a message to the iframe to enable API
-      setTimeout(() => {
-        const iframe = document.querySelector('iframe[src*="vimeo.com"]');
-        if (iframe && iframe instanceof HTMLIFrameElement) {
-          iframe.contentWindow?.postMessage('{"method":"addEventListener","value":"ended"}', '*');
-        }
-      }, 1000);
+    if (showAppModal !== null && currentImageIndex === 0 && apps[showAppModal].videoEmbed && apps[showAppModal].screenshots && apps[showAppModal].screenshots.length > 0) {
+      // Show animation every 10 seconds
+      const intervalId = setInterval(() => {
+        setVideoEnded(true);
+        // Hide animation after 5 seconds
+        setTimeout(() => {
+          setVideoEnded(false);
+        }, 5000);
+      }, 10000);
 
       return () => {
-        window.removeEventListener('message', handleMessage);
+        clearInterval(intervalId);
       };
     }
   }, [showAppModal, currentImageIndex]);
