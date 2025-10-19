@@ -19,6 +19,7 @@ const SalesforceApps = () => {
   const [imageLoading, setImageLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [imageTimeout, setImageTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [videoEnded, setVideoEnded] = useState(false);
   const { toast } = useToast();
 
   const apps = [
@@ -416,9 +417,17 @@ const SalesforceApps = () => {
         setCurrentImageIndex(0);
         setImageLoading(true);
         setImageError(false);
+        setVideoEnded(false);
       }
     }
   }, [searchParams]);
+
+  // Reset video ended state when modal closes
+  useEffect(() => {
+    if (showAppModal === null) {
+      setVideoEnded(false);
+    }
+  }, [showAppModal]);
 
   // Reset image states when image index changes
   useEffect(() => {
@@ -428,6 +437,11 @@ const SalesforceApps = () => {
     // Clear any existing timeout
     if (imageTimeout) {
       clearTimeout(imageTimeout);
+    }
+    
+    // Reset video ended state when switching away from video
+    if (currentImageIndex !== 0) {
+      setVideoEnded(false);
     }
     
     setImageLoading(true);
@@ -472,6 +486,40 @@ const SalesforceApps = () => {
       }
     };
   }, [imageTimeout]);
+
+  // Listen for Vimeo video end event
+  useEffect(() => {
+    if (showAppModal !== null && currentImageIndex === 0 && apps[showAppModal].videoEmbed) {
+      // Listen for messages from Vimeo iframe
+      const handleMessage = (event: MessageEvent) => {
+        if (event.origin === 'https://player.vimeo.com') {
+          try {
+            const data = JSON.parse(event.data);
+            if (data.event === 'ended') {
+              console.log('Video ended');
+              setVideoEnded(true);
+            }
+          } catch (e) {
+            // Not a JSON message, ignore
+          }
+        }
+      };
+
+      window.addEventListener('message', handleMessage);
+      
+      // Send a message to the iframe to enable API
+      setTimeout(() => {
+        const iframe = document.querySelector('iframe[src*="vimeo.com"]');
+        if (iframe && iframe instanceof HTMLIFrameElement) {
+          iframe.contentWindow?.postMessage('{"method":"addEventListener","value":"ended"}', '*');
+        }
+      }, 1000);
+
+      return () => {
+        window.removeEventListener('message', handleMessage);
+      };
+    }
+  }, [showAppModal, currentImageIndex]);
 
   const scroll = (direction: 'left' | 'right', ref: React.RefObject<HTMLDivElement>) => {
     if (ref.current) {
@@ -940,10 +988,66 @@ const SalesforceApps = () => {
                     <div className="relative w-full">
                       {/* Show video if it's the first item (index 0) */}
                       {currentImageIndex === 0 && apps[showAppModal].videoEmbed && (
-                        <div 
-                          className="w-full"
-                          dangerouslySetInnerHTML={{ __html: apps[showAppModal].videoEmbed }}
-                        />
+                        <div className="relative w-full">
+                          <div 
+                            className="w-full"
+                            dangerouslySetInnerHTML={{ __html: apps[showAppModal].videoEmbed }}
+                          />
+                          
+                          {/* Animated prompt when video ends */}
+                          <AnimatePresence>
+                            {videoEnded && apps[showAppModal].screenshots && apps[showAppModal].screenshots.length > 0 && (
+                              <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center pointer-events-none"
+                              >
+                                <motion.div
+                                  initial={{ scale: 0.8, opacity: 0 }}
+                                  animate={{ scale: 1, opacity: 1 }}
+                                  transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                                  className="text-center px-8"
+                                >
+                                  {/* Animated double arrows */}
+                                  <div className="flex items-center justify-center gap-2 mb-6">
+                                    <motion.div
+                                      animate={{ x: [0, 15, 0] }}
+                                      transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                                    >
+                                      <ChevronRight className="w-12 h-12 text-cyan-400" />
+                                    </motion.div>
+                                    <motion.div
+                                      animate={{ x: [0, 15, 0] }}
+                                      transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut", delay: 0.2 }}
+                                    >
+                                      <ChevronRight className="w-12 h-12 text-cyan-300" />
+                                    </motion.div>
+                                    <motion.div
+                                      animate={{ x: [0, 15, 0] }}
+                                      transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut", delay: 0.4 }}
+                                    >
+                                      <ChevronRight className="w-12 h-12 text-cyan-200" />
+                                    </motion.div>
+                                  </div>
+                                  
+                                  {/* Text prompt */}
+                                  <motion.div
+                                    animate={{ opacity: [1, 0.7, 1] }}
+                                    transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                                  >
+                                    <p className="text-white text-2xl font-bold mb-3 drop-shadow-lg">
+                                      View App Screenshots
+                                    </p>
+                                    <p className="text-white/90 text-base">
+                                      Swipe or click the arrows to explore →
+                                    </p>
+                                  </motion.div>
+                                </motion.div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
                       )}
                       
                       {/* Show image if it's not the first item or no video */}
