@@ -113,14 +113,14 @@ const CityscapeLeadSuccess: React.FC = () => {
     const message = encodeURIComponent(
       `Hi Mina! I just saw the Cityscape demo for ${companyName}. I'm interested in getting a quote to implement a lead capturing app connected to Salesforce under 4 days for our booth at Cityscape in November!`
     );
-    window.open(`https://wa.me/971509699691?text=${message}`, '_blank');
+    window.open(`https://wa.me/201005298308?text=${message}`, '_blank');
   };
 
   const handleWhatsAppFullPackage = () => {
     const message = encodeURIComponent(
       `Hi Mina! I'm interested in purchasing Salesforce and the lead capturing app for ${companyName}. I need the MVP ready for our sales team before Cityscape in November. Can we discuss this?`
     );
-    window.open(`https://wa.me/971509699691?text=${message}`, '_blank');
+    window.open(`https://wa.me/201005298308?text=${message}`, '_blank');
   };
 
   // Trusted companies

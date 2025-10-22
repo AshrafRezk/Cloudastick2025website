@@ -40,54 +40,155 @@ const CityscapeLeadCapture: React.FC = () => {
   const [personalizedQuote, setPersonalizedQuote] = useState('');
   const [showQuote, setShowQuote] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [currentLanguage, setCurrentLanguage] = useState<'en' | 'ar'>('en');
   const formRef = useRef<HTMLFormElement>(null);
   const successAudioRef = useRef<HTMLAudioElement>(null);
   const woosh1Ref = useRef<HTMLAudioElement>(null);
   const woosh2Ref = useRef<HTMLAudioElement>(null);
 
-  // Content based on booth purpose
+  // Content based on booth purpose and language
   const contentByPurpose = {
     investors: {
-      title: 'Secure Investment Opportunities',
-      subtitle: 'Connect with strategic investors ready to fund your vision',
-      features: ['Capital Growth', 'Strategic Partnerships', 'Market Expansion'],
-      gradient: 'from-emerald-500 to-teal-600',
-      icon: TrendingUpIcon,
-      quotes: [
-        "Smart investments begin with the right opportunities.",
-        "Your vision deserves the right investors.",
-        "Building wealth through strategic partnerships.",
-        "Secure funding for your next big venture.",
-        "Investment opportunities that match your ambitions."
-      ]
+      en: {
+        title: 'Secure Investment Opportunities',
+        subtitle: 'Connect with strategic investors ready to fund your vision',
+        features: ['Capital Growth', 'Strategic Partnerships', 'Market Expansion'],
+        gradient: 'from-emerald-500 to-teal-600',
+        icon: TrendingUpIcon,
+        quotes: [
+          "Smart investments begin with the right opportunities.",
+          "Your vision deserves the right investors.",
+          "Building wealth through strategic partnerships.",
+          "Secure funding for your next big venture.",
+          "Investment opportunities that match your ambitions."
+        ]
+      },
+      ar: {
+        title: 'فرص استثمارية آمنة',
+        subtitle: 'تواصل مع مستثمرين استراتيجيين جاهزين لتمويل رؤيتك',
+        features: ['نمو رأس المال', 'شراكات استراتيجية', 'توسع السوق'],
+        gradient: 'from-emerald-500 to-teal-600',
+        icon: TrendingUpIcon,
+        quotes: [
+          "الاستثمارات الذكية تبدأ بالفرص الصحيحة.",
+          "رؤيتك تستحق المستثمرين المناسبين.",
+          "بناء الثروة من خلال الشراكات الاستراتيجية.",
+          "احصل على التمويل لمشروعك الكبير القادم.",
+          "فرص استثمارية تتناسب مع طموحاتك."
+        ]
+      }
     },
     offices: {
-      title: 'Premium Office Spaces',
-      subtitle: 'Modern workspaces ready for your business to move in',
-      features: ['Prime Locations', 'Modern Facilities', 'Flexible Terms'],
-      gradient: 'from-blue-500 to-indigo-600',
-      icon: BusinessIcon,
-      quotes: [
-        "Your business deserves a world-class workspace.",
-        "Elevate your operations with premium office spaces.",
-        "Location matters - choose excellence.",
-        "Modern spaces for modern businesses.",
-        "Where innovation meets infrastructure."
-      ]
+      en: {
+        title: 'Premium Office Spaces',
+        subtitle: 'Modern workspaces ready for your business to move in',
+        features: ['Prime Locations', 'Modern Facilities', 'Flexible Terms'],
+        gradient: 'from-blue-500 to-indigo-600',
+        icon: BusinessIcon,
+        quotes: [
+          "Your business deserves a world-class workspace.",
+          "Elevate your operations with premium office spaces.",
+          "Location matters - choose excellence.",
+          "Modern spaces for modern businesses.",
+          "Where innovation meets infrastructure."
+        ]
+      },
+      ar: {
+        title: 'مساحات مكتبية متميزة',
+        subtitle: 'مساحات عمل حديثة جاهزة لانتقال عملك',
+        features: ['مواقع متميزة', 'مرافق حديثة', 'شروط مرنة'],
+        gradient: 'from-blue-500 to-indigo-600',
+        icon: BusinessIcon,
+        quotes: [
+          "عملك يستحق مساحة عمل عالمية المستوى.",
+          "ارتقِ بعملياتك مع مساحات مكتبية متميزة.",
+          "الموقع مهم - اختر التميز.",
+          "مساحات حديثة للأعمال الحديثة.",
+          "حيث يلتقي الابتكار بالبنية التحتية."
+        ]
+      }
     },
     residents: {
-      title: 'Your Dream Home Awaits',
-      subtitle: 'Discover exceptional residential properties for your family',
-      features: ['Family-Friendly', 'Prime Locations', 'Quality Living'],
-      gradient: 'from-purple-500 to-pink-600',
-      icon: HomeIcon,
-      quotes: [
-        "Your dream home is waiting for you.",
-        "Quality living spaces for modern families.",
-        "Create memories in your perfect home.",
-        "Invest in comfort, invest in life.",
-        "Where your family's future begins."
-      ]
+      en: {
+        title: 'Your Dream Home Awaits',
+        subtitle: 'Discover exceptional residential properties for your family',
+        features: ['Family-Friendly', 'Prime Locations', 'Quality Living'],
+        gradient: 'from-purple-500 to-pink-600',
+        icon: HomeIcon,
+        quotes: [
+          "Your dream home is waiting for you.",
+          "Quality living spaces for modern families.",
+          "Create memories in your perfect home.",
+          "Invest in comfort, invest in life.",
+          "Where your family's future begins."
+        ]
+      },
+      ar: {
+        title: 'منزل أحلامك في انتظارك',
+        subtitle: 'اكتشف عقارات سكنية استثنائية لعائلتك',
+        features: ['مناسبة للعائلات', 'مواقع متميزة', 'حياة راقية'],
+        gradient: 'from-purple-500 to-pink-600',
+        icon: HomeIcon,
+        quotes: [
+          "منزل أحلامك ينتظرك.",
+          "مساحات معيشة عالية الجودة للعائلات العصرية.",
+          "اصنع ذكريات في منزلك المثالي.",
+          "استثمر في الراحة، استثمر في الحياة.",
+          "حيث يبدأ مستقبل عائلتك."
+        ]
+      }
+    }
+  };
+
+  // Form content by language
+  const formContent = {
+    en: {
+      formTitle: "Let's Get Started",
+      formSubtitle: "Share your details and we'll reach out to discuss opportunities",
+      insightPrefix: "Hi",
+      insightSuffix: "! Here's our insight:",
+      firstName: "First Name",
+      lastName: "Last Name",
+      email: "Email",
+      mobile: "Mobile",
+      budget: "Budget (Optional)",
+      budgetPlaceholder: "e.g., 100,000 AED",
+      description: "Additional Comments",
+      descriptionPlaceholder: "Tell us more about your requirements...",
+      submitButton: "Submit Details",
+      submitting: "Submitting...",
+      successMessage: "Your details were sent successfully!",
+      errors: {
+        firstName: 'First name is required',
+        lastName: 'Last name is required',
+        email: 'Email is required',
+        emailInvalid: 'Invalid email format',
+        mobile: 'Mobile number is required'
+      }
+    },
+    ar: {
+      formTitle: "لنبدأ",
+      formSubtitle: "شارك تفاصيلك وسنتواصل معك لمناقشة الفرص",
+      insightPrefix: "مرحباً",
+      insightSuffix: "! إليك رؤيتنا:",
+      firstName: "الاسم الأول",
+      lastName: "اسم العائلة",
+      email: "البريد الإلكتروني",
+      mobile: "رقم الجوال",
+      budget: "الميزانية (اختياري)",
+      budgetPlaceholder: "مثال: 100,000 درهم",
+      description: "تعليقات إضافية",
+      descriptionPlaceholder: "أخبرنا المزيد عن متطلباتك...",
+      submitButton: "إرسال التفاصيل",
+      submitting: "جاري الإرسال...",
+      successMessage: "تم إرسال تفاصيلك بنجاح!",
+      errors: {
+        firstName: 'الاسم الأول مطلوب',
+        lastName: 'اسم العائلة مطلوب',
+        email: 'البريد الإلكتروني مطلوب',
+        emailInvalid: 'صيغة البريد الإلكتروني غير صحيحة',
+        mobile: 'رقم الجوال مطلوب'
+      }
     }
   };
 
@@ -186,14 +287,19 @@ Purpose: ${boothPurpose}`;
     }
   };
 
+  const handleLanguageSwitch = () => {
+    setCurrentLanguage(prev => prev === 'en' ? 'ar' : 'en');
+  };
+
   const validateForm = (): boolean => {
     const newErrors: Partial<Record<keyof FormData, string>> = {};
+    const fc = formContent[currentLanguage];
     
-    if (!formData.first_name.trim()) newErrors.first_name = 'First name is required';
-    if (!formData.last_name.trim()) newErrors.last_name = 'Last name is required';
-    if (!formData.email.trim()) newErrors.email = 'Email is required';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Invalid email format';
-    if (!formData.mobile.trim()) newErrors.mobile = 'Mobile number is required';
+    if (!formData.first_name.trim()) newErrors.first_name = fc.errors.firstName;
+    if (!formData.last_name.trim()) newErrors.last_name = fc.errors.lastName;
+    if (!formData.email.trim()) newErrors.email = fc.errors.email;
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = fc.errors.emailInvalid;
+    if (!formData.mobile.trim()) newErrors.mobile = fc.errors.mobile;
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -293,7 +399,7 @@ Purpose: ${boothPurpose}`;
     
     // Show personalized quote when typing after first name is complete
     if (field !== 'first_name' && formData.first_name.length >= 3 && !showQuote) {
-      const quotes = contentByPurpose[boothPurpose].quotes;
+      const quotes = contentByPurpose[boothPurpose][currentLanguage].quotes;
       const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
       setPersonalizedQuote(randomQuote);
       setShowQuote(true);
@@ -336,10 +442,28 @@ Purpose: ${boothPurpose}`;
     return initials;
   };
 
-  const content = contentByPurpose[boothPurpose];
+  const content = contentByPurpose[boothPurpose][currentLanguage];
+  const fc = formContent[currentLanguage];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-50" dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+      {/* Language Switcher - Fixed Position */}
+      <motion.button
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5, delay: 0.5 }}
+        onClick={handleLanguageSwitch}
+        className="fixed top-6 right-6 z-50 w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <img
+          src={currentLanguage === 'en' ? '/Assets/Cityscape/Memar/ara-lang.png' : '/Assets/Cityscape/Memar/eng-lang.png'}
+          alt={currentLanguage === 'en' ? 'Switch to Arabic' : 'Switch to English'}
+          className="w-6 h-6 object-contain"
+        />
+      </motion.button>
+      
       {/* Audio Elements */}
       <audio ref={successAudioRef} src="/Assets/cloudastickwebsiteloadmusic.mp3" preload="auto" />
       <audio ref={woosh1Ref} src="/Assets/woosh1new.mp3?v=2024101103" preload="auto" />
@@ -569,12 +693,12 @@ Purpose: ${boothPurpose}`;
             className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-8 md:p-12 border border-white/20"
           >
             {/* Form Header */}
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-                Let's Get Started
+            <div className={`text-center mb-12 ${currentLanguage === 'ar' ? 'text-right' : 'text-center'}`}>
+              <h2 className={`text-3xl md:text-4xl font-bold text-slate-900 mb-4 ${currentLanguage === 'ar' ? 'text-right' : 'text-center'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                {fc.formTitle}
               </h2>
-              <p className="text-lg text-slate-600">
-                Share your details and we'll reach out to discuss opportunities
+              <p className={`text-lg text-slate-600 ${currentLanguage === 'ar' ? 'text-right' : 'text-center'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                {fc.formSubtitle}
               </p>
             </div>
 
@@ -596,10 +720,10 @@ Purpose: ${boothPurpose}`;
                       </div>
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-semibold text-slate-800 mb-1">
-                        Hi {formData.first_name}! Here's our insight:
+                      <p className={`text-sm font-semibold text-slate-800 mb-1 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                        {fc.insightPrefix} {formData.first_name}{fc.insightSuffix}
                       </p>
-                      <p className="text-lg text-slate-700 italic leading-relaxed">
+                      <p className={`text-lg text-slate-700 italic leading-relaxed ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
                         "{personalizedQuote}"
                       </p>
                     </div>
@@ -613,8 +737,8 @@ Purpose: ${boothPurpose}`;
               {/* Name Fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="first_name" className="block text-sm font-semibold text-slate-700 mb-2">
-                    First Name *
+                  <label htmlFor="first_name" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                    {fc.firstName} *
                   </label>
                   <input
                     type="text"
@@ -624,7 +748,8 @@ Purpose: ${boothPurpose}`;
                     className={`w-full px-4 py-3 rounded-2xl border-2 text-slate-900 placeholder-slate-400 bg-white ${
                       errors.first_name ? 'border-red-500' : 'border-slate-200'
                     } focus:border-blue-500 focus:outline-none transition-colors duration-200`}
-                    placeholder="John"
+                    placeholder={currentLanguage === 'ar' ? 'أحمد' : 'John'}
+                    dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
                   />
                   {errors.first_name && (
                     <p className="text-red-500 text-sm mt-1">{errors.first_name}</p>
@@ -632,8 +757,8 @@ Purpose: ${boothPurpose}`;
                 </div>
 
                 <div>
-                  <label htmlFor="last_name" className="block text-sm font-semibold text-slate-700 mb-2">
-                    Last Name *
+                  <label htmlFor="last_name" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                    {fc.lastName} *
                   </label>
                   <input
                     type="text"
@@ -643,7 +768,8 @@ Purpose: ${boothPurpose}`;
                     className={`w-full px-4 py-3 rounded-2xl border-2 text-slate-900 placeholder-slate-400 bg-white ${
                       errors.last_name ? 'border-red-500' : 'border-slate-200'
                     } focus:border-blue-500 focus:outline-none transition-colors duration-200`}
-                    placeholder="Doe"
+                    placeholder={currentLanguage === 'ar' ? 'محمد' : 'Doe'}
+                    dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
                   />
                   {errors.last_name && (
                     <p className="text-red-500 text-sm mt-1">{errors.last_name}</p>
@@ -654,8 +780,8 @@ Purpose: ${boothPurpose}`;
               {/* Email & Mobile */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="email" className="block text-sm font-semibold text-slate-700 mb-2">
-                    Email *
+                  <label htmlFor="email" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                    {fc.email} *
                   </label>
                   <input
                     type="email"
@@ -673,8 +799,8 @@ Purpose: ${boothPurpose}`;
                 </div>
 
                 <div>
-                  <label htmlFor="mobile" className="block text-sm font-semibold text-slate-700 mb-2">
-                    Mobile *
+                  <label htmlFor="mobile" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                    {fc.mobile} *
                   </label>
                   <input
                     type="tel"
@@ -694,8 +820,8 @@ Purpose: ${boothPurpose}`;
 
               {/* Budget */}
               <div>
-                <label htmlFor="budget" className="block text-sm font-semibold text-slate-700 mb-2">
-                  Budget (Optional)
+                <label htmlFor="budget" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                  {fc.budget}
                 </label>
                 <input
                   type="text"
@@ -703,14 +829,15 @@ Purpose: ${boothPurpose}`;
                   value={formData.budget}
                   onChange={(e) => handleInputChange('budget', e.target.value)}
                   className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 placeholder-slate-400 bg-white focus:border-blue-500 focus:outline-none transition-colors duration-200"
-                  placeholder="e.g., 100,000 AED"
+                  placeholder={fc.budgetPlaceholder}
+                  dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
                 />
               </div>
 
               {/* Description */}
               <div>
-                <label htmlFor="description" className="block text-sm font-semibold text-slate-700 mb-2">
-                  Additional Comments
+                <label htmlFor="description" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                  {fc.description}
                 </label>
                 <textarea
                   id="description"
@@ -718,7 +845,8 @@ Purpose: ${boothPurpose}`;
                   onChange={(e) => handleInputChange('description', e.target.value)}
                   rows={4}
                   className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 placeholder-slate-400 bg-white focus:border-blue-500 focus:outline-none transition-colors duration-200 resize-none"
-                  placeholder="Tell us more about your requirements..."
+                  placeholder={fc.descriptionPlaceholder}
+                  dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
                 />
               </div>
 
@@ -737,10 +865,10 @@ Purpose: ${boothPurpose}`;
                       transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                       className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
                     />
-                    Submitting...
+                    {fc.submitting}
                   </span>
                 ) : (
-                  'Submit Details'
+                  fc.submitButton
                 )}
               </motion.button>
             </form>
@@ -761,7 +889,7 @@ Purpose: ${boothPurpose}`;
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-              <span className="font-semibold">Your details were sent successfully!</span>
+              <span className="font-semibold">{fc.successMessage}</span>
             </div>
           </motion.div>
         )}

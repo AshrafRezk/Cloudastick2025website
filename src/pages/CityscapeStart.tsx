@@ -15,44 +15,108 @@ const CityscapeStart: React.FC = () => {
   const [companyName, setCompanyName] = useState('');
   const [boothPurpose, setBoothPurpose] = useState<BoothPurpose | ''>('');
   const [errors, setErrors] = useState({ companyName: '', boothPurpose: '' });
+  const [currentLanguage, setCurrentLanguage] = useState<'en' | 'ar'>('en');
 
-  const purposes = [
-    {
-      id: 'investors' as BoothPurpose,
-      title: 'Attract Investors',
-      description: 'Secure funding and partnerships',
-      icon: TrendingUpIcon,
-      gradient: 'from-emerald-500 to-teal-600'
+  // Content by language
+  const content = {
+    en: {
+      title: 'Cityscape',
+      titleHighlight: 'Demo',
+      subtitle: 'Experience personalized lead capture powered by AI and Salesforce',
+      companyLabel: "What's your company name?",
+      companyPlaceholder: 'e.g., Acme Real Estate',
+      goalLabel: "What's your main goal at Cityscape?",
+      continueButton: 'Continue to Lead Capture',
+      poweredBy: 'Powered by',
+      partner: 'Salesforce Partner',
+      errors: {
+        companyName: 'Company name is required',
+        boothPurpose: 'Please select your booth purpose'
+      }
     },
-    {
-      id: 'offices' as BoothPurpose,
-      title: 'Attract Offices',
-      description: 'Ready-to-move business spaces',
-      icon: BusinessIcon,
-      gradient: 'from-blue-500 to-indigo-600'
-    },
-    {
-      id: 'residents' as BoothPurpose,
-      title: 'Attract Residents',
-      description: 'Residential property buyers',
-      icon: HomeIcon,
-      gradient: 'from-purple-500 to-pink-600'
+    ar: {
+      title: 'معرض سيتي سكيب',
+      titleHighlight: 'تجريبي',
+      subtitle: 'تجربة التقاط العملاء المحتملين المخصصة المدعومة بالذكاء الاصطناعي وسيلز فورس',
+      companyLabel: 'ما اسم شركتك؟',
+      companyPlaceholder: 'مثال: شركة العقارات المثالية',
+      goalLabel: 'ما هو هدفك الرئيسي في سيتي سكيب؟',
+      continueButton: 'متابعة إلى نموذج التسجيل',
+      poweredBy: 'مدعوم من',
+      partner: 'شريك سيلز فورس',
+      errors: {
+        companyName: 'اسم الشركة مطلوب',
+        boothPurpose: 'يرجى اختيار غرض الجناح الخاص بك'
+      }
     }
-  ];
+  };
+
+  const purposes = {
+    en: [
+      {
+        id: 'investors' as BoothPurpose,
+        title: 'Attract Investors',
+        description: 'Secure funding and partnerships',
+        icon: TrendingUpIcon,
+        gradient: 'from-emerald-500 to-teal-600'
+      },
+      {
+        id: 'offices' as BoothPurpose,
+        title: 'Attract Offices',
+        description: 'Ready-to-move business spaces',
+        icon: BusinessIcon,
+        gradient: 'from-blue-500 to-indigo-600'
+      },
+      {
+        id: 'residents' as BoothPurpose,
+        title: 'Attract Residents',
+        description: 'Residential property buyers',
+        icon: HomeIcon,
+        gradient: 'from-purple-500 to-pink-600'
+      }
+    ],
+    ar: [
+      {
+        id: 'investors' as BoothPurpose,
+        title: 'جذب المستثمرين',
+        description: 'تأمين التمويل والشراكات',
+        icon: TrendingUpIcon,
+        gradient: 'from-emerald-500 to-teal-600'
+      },
+      {
+        id: 'offices' as BoothPurpose,
+        title: 'جذب المكاتب',
+        description: 'مساحات عمل جاهزة للانتقال',
+        icon: BusinessIcon,
+        gradient: 'from-blue-500 to-indigo-600'
+      },
+      {
+        id: 'residents' as BoothPurpose,
+        title: 'جذب السكان',
+        description: 'مشترو العقارات السكنية',
+        icon: HomeIcon,
+        gradient: 'from-purple-500 to-pink-600'
+      }
+    ]
+  };
 
   const handleStartupComplete = () => {
     setShowStartup(false);
+  };
+
+  const handleLanguageSwitch = () => {
+    setCurrentLanguage(prev => prev === 'en' ? 'ar' : 'en');
   };
 
   const validateForm = (): boolean => {
     const newErrors = { companyName: '', boothPurpose: '' };
     
     if (!companyName.trim()) {
-      newErrors.companyName = 'Company name is required';
+      newErrors.companyName = content[currentLanguage].errors.companyName;
     }
     
     if (!boothPurpose) {
-      newErrors.boothPurpose = 'Please select your booth purpose';
+      newErrors.boothPurpose = content[currentLanguage].errors.boothPurpose;
     }
     
     setErrors(newErrors);
@@ -73,7 +137,24 @@ const CityscapeStart: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100" dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+      {/* Language Switcher - Fixed Position */}
+      <motion.button
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5, delay: 0.5 }}
+        onClick={handleLanguageSwitch}
+        className="fixed top-6 right-6 z-50 w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <img
+          src={currentLanguage === 'en' ? '/Assets/Cityscape/Memar/ara-lang.png' : '/Assets/Cityscape/Memar/eng-lang.png'}
+          alt={currentLanguage === 'en' ? 'Switch to Arabic' : 'Switch to English'}
+          className="w-6 h-6 object-contain"
+        />
+      </motion.button>
+
       {/* Background Animation */}
       <div className="absolute inset-0 opacity-20">
         <motion.div
@@ -117,10 +198,10 @@ const CityscapeStart: React.FC = () => {
             </motion.div>
             
             <h1 className="text-4xl md:text-6xl font-bold text-slate-900 mb-4">
-              Cityscape <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Demo</span>
+              {content[currentLanguage].title} <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{content[currentLanguage].titleHighlight}</span>
             </h1>
             <p className="text-xl md:text-2xl text-slate-600 max-w-2xl mx-auto">
-              Experience personalized lead capture powered by AI and Salesforce
+              {content[currentLanguage].subtitle}
             </p>
           </motion.div>
 
@@ -133,8 +214,8 @@ const CityscapeStart: React.FC = () => {
           >
             {/* Company Name Input */}
             <div className="mb-8">
-              <label htmlFor="companyName" className="block text-lg font-semibold text-slate-800 mb-3">
-                What's your company name?
+              <label htmlFor="companyName" className={`block text-lg font-semibold text-slate-800 mb-3 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}>
+                {content[currentLanguage].companyLabel}
               </label>
               <input
                 type="text"
@@ -147,7 +228,7 @@ const CityscapeStart: React.FC = () => {
                 className={`w-full px-6 py-4 rounded-2xl border-2 text-slate-900 text-lg placeholder-slate-400 bg-white ${
                   errors.companyName ? 'border-red-500' : 'border-slate-200'
                 } focus:border-blue-500 focus:outline-none transition-colors duration-200`}
-                placeholder="e.g., Acme Real Estate"
+                placeholder={content[currentLanguage].companyPlaceholder}
               />
               {errors.companyName && (
                 <motion.p
@@ -162,12 +243,12 @@ const CityscapeStart: React.FC = () => {
 
             {/* Booth Purpose Selection */}
             <div className="mb-8">
-              <label className="block text-lg font-semibold text-slate-800 mb-4">
-                What's your main goal at Cityscape?
+              <label className={`block text-lg font-semibold text-slate-800 mb-4 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}>
+                {content[currentLanguage].goalLabel}
               </label>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {purposes.map((purpose) => {
+                {purposes[currentLanguage].map((purpose) => {
                   const IconComponent = purpose.icon;
                   return (
                     <motion.button
@@ -229,7 +310,7 @@ const CityscapeStart: React.FC = () => {
               whileTap={{ scale: 0.98 }}
               className="w-full py-5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-lg font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
             >
-              Continue to Lead Capture
+              {content[currentLanguage].continueButton}
             </motion.button>
           </motion.div>
 
@@ -241,7 +322,7 @@ const CityscapeStart: React.FC = () => {
             className="text-center mt-8 text-slate-600"
           >
             <p className="text-sm">
-              Powered by{' '}
+              {content[currentLanguage].poweredBy}{' '}
               <a 
                 href="https://cloudastick.com" 
                 target="_blank" 
@@ -250,7 +331,7 @@ const CityscapeStart: React.FC = () => {
               >
                 Cloudastick
               </a>
-              {' '}• Salesforce Partner
+              {' '}• {content[currentLanguage].partner}
             </p>
           </motion.div>
         </div>
