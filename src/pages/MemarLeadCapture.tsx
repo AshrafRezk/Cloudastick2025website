@@ -30,6 +30,7 @@ const MemarLeadCapture: React.FC = () => {
   const [personalizedQuote, setPersonalizedQuote] = useState('');
   const [showQuote, setShowQuote] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [currentLanguage, setCurrentLanguage] = useState<'en' | 'ar'>('en');
   const formRef = useRef<HTMLFormElement>(null);
   const successAudioRef = useRef<HTMLAudioElement>(null);
   const woosh1Ref = useRef<HTMLAudioElement>(null);
@@ -37,18 +38,90 @@ const MemarLeadCapture: React.FC = () => {
   const selection1Ref = useRef<HTMLAudioElement>(null);
 
   // Inspirational quotes for Investment
-  const quotes = [
-    "Secure your future with the safest investment opportunities.",
-    "Grow your capital steadily with Memar's proven track record.",
-    "Investment success starts with the right partner—Memar Developments.",
-    "Build wealth that lasts generations with smart real estate investments.",
-    "Your financial security is our priority—invest with confidence.",
-    "Real estate: The timeless asset that appreciates with care.",
-    "Let your money work for you with Memar's strategic investments.",
-    "Stability meets growth in every Memar development project.",
-    "Smart investors choose Memar for consistent, reliable returns.",
-    "Transform your capital into lasting wealth with Memar.",
-  ];
+  const quotes = {
+    en: [
+      "Secure your future with the safest investment opportunities.",
+      "Grow your capital steadily with Memar's proven track record.",
+      "Investment success starts with the right partner—Memar Developments.",
+      "Build wealth that lasts generations with smart real estate investments.",
+      "Your financial security is our priority—invest with confidence.",
+      "Real estate: The timeless asset that appreciates with care.",
+      "Let your money work for you with Memar's strategic investments.",
+      "Stability meets growth in every Memar development project.",
+      "Smart investors choose Memar for consistent, reliable returns.",
+      "Transform your capital into lasting wealth with Memar.",
+    ],
+    ar: [
+      "أمن مستقبلك بأفضل فرص الاستثمار الآمنة.",
+      "نم رأس مالك بثبات مع سجل ميمار المثبت.",
+      "نجاح الاستثمار يبدأ مع الشريك المناسب - ميمار للتطوير.",
+      "ابن ثروة تدوم لأجيال مع استثمارات عقارية ذكية.",
+      "أمانك المالي هو أولويتنا - استثمر بثقة.",
+      "العقارات: الأصول الخالدة التي تزداد قيمتها مع العناية.",
+      "دع أموالك تعمل من أجلك مع استثمارات ميمار الاستراتيجية.",
+      "الاستقرار يلتقي بالنمو في كل مشروع تطويري من ميمار.",
+      "المستثمرون الأذكياء يختارون ميمار للعوائد الموثوقة والمستمرة.",
+      "حول رأس مالك إلى ثروة دائمة مع ميمار.",
+    ]
+  };
+
+  // Language content
+  const content = {
+    en: {
+      title: "Invest and Grow Your Capital with Memar",
+      subtitle: "The safest investment for anyone seeking stable, reliable returns",
+      benefits: ["Proven Track Record", "Secure Investments", "Consistent Returns"],
+      formTitle: "Book a Consultancy Meeting with a Memar Investment Professional",
+      formSubtitle: "Let's discuss how you can grow your capital safely and securely",
+      firstName: "First Name",
+      lastName: "Last Name",
+      email: "Email",
+      mobile: "Mobile",
+      budget: "Investment Budget (Optional)",
+      budgetPlaceholder: "e.g., 100,000 AED",
+      description: "Additional Comments",
+      descriptionPlaceholder: "Tell us about your investment goals...",
+      submitButton: "Book Consultation",
+      successMessage: "Your details were sent successfully!",
+      footerTitle: "Invest and Grow Your Capital with Memar",
+      footerSubtitle: "The safest investment for anyone seeking stable returns",
+      features: {
+        trackRecord: "Proven Track Record",
+        trackRecordDesc: "Years of successful real estate investments",
+        secureInvestments: "Secure Investments", 
+        secureInvestmentsDesc: "Your capital is protected and managed wisely",
+        consistentReturns: "Consistent Returns",
+        consistentReturnsDesc: "Reliable growth for your investment portfolio"
+      }
+    },
+    ar: {
+      title: "استثمر ونم رأس مالك مع ميمار",
+      subtitle: "أأمن استثمار لأي شخص يسعى لعوائد مستقرة وموثوقة",
+      benefits: ["سجل مثبت", "استثمارات آمنة", "عوائد مستمرة"],
+      formTitle: "احجز استشارة مع خبير استثمار ميمار",
+      formSubtitle: "دعنا نناقش كيف يمكنك تنمية رأس مالك بأمان وثقة",
+      firstName: "الاسم الأول",
+      lastName: "اسم العائلة",
+      email: "البريد الإلكتروني",
+      mobile: "رقم الجوال",
+      budget: "ميزانية الاستثمار (اختياري)",
+      budgetPlaceholder: "مثال: 100,000 درهم",
+      description: "تعليقات إضافية",
+      descriptionPlaceholder: "أخبرنا عن أهدافك الاستثمارية...",
+      submitButton: "احجز الاستشارة",
+      successMessage: "تم إرسال بياناتك بنجاح!",
+      footerTitle: "استثمر ونم رأس مالك مع ميمار",
+      footerSubtitle: "أأمن استثمار لأي شخص يسعى لعوائد مستقرة",
+      features: {
+        trackRecord: "سجل مثبت",
+        trackRecordDesc: "سنوات من الاستثمارات العقارية الناجحة",
+        secureInvestments: "استثمارات آمنة",
+        secureInvestmentsDesc: "رأس مالك محمي ومدير بحكمة",
+        consistentReturns: "عوائد مستمرة",
+        consistentReturnsDesc: "نمو موثوق لمحفظتك الاستثمارية"
+      }
+    }
+  };
 
   // Haptic feedback helper
   const triggerHaptic = (duration = 1) => {
@@ -254,6 +327,11 @@ Lead Source: ${source}`;
     }
   };
 
+  const handleLanguageSwitch = () => {
+    setCurrentLanguage(prev => prev === 'en' ? 'ar' : 'en');
+    triggerHaptic(1);
+  };
+
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     // Clear error for this field
@@ -263,7 +341,8 @@ Lead Source: ${source}`;
     
     // Show personalized quote when typing after first name is complete
     if (field !== 'first_name' && formData.first_name.length >= 3 && !showQuote) {
-      const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+      const currentQuotes = quotes[currentLanguage];
+      const randomQuote = currentQuotes[Math.floor(Math.random() * currentQuotes.length)];
       setPersonalizedQuote(randomQuote);
       setShowQuote(true);
       triggerHaptic(1);
@@ -307,6 +386,23 @@ Lead Source: ${source}`;
       <audio ref={woosh1Ref} src="/Assets/woosh1new.mp3?v=2024101103" preload="auto" />
       <audio ref={woosh2Ref} src="/Assets/woosh2new.mp3?v=2024101103" preload="auto" />
       <audio ref={selection1Ref} src="/Assets/selection1new.mp3?v=2024101103" preload="auto" />
+
+      {/* Language Switcher - Fixed Position */}
+      <motion.button
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5, delay: 0.5 }}
+        onClick={handleLanguageSwitch}
+        className="fixed top-6 right-6 z-50 w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <img
+          src={currentLanguage === 'en' ? '/Assets/Cityscape/Memar/ara-lang.png' : '/Assets/Cityscape/Memar/eng-lang.png'}
+          alt={currentLanguage === 'en' ? 'Switch to Arabic' : 'Switch to English'}
+          className="w-6 h-6 object-contain"
+        />
+      </motion.button>
 
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center px-4 py-20 overflow-hidden">
@@ -366,13 +462,25 @@ Lead Source: ${source}`;
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-4xl md:text-6xl font-bold text-slate-900 mb-6"
+            className={`text-4xl md:text-6xl font-bold text-slate-900 mb-6 ${currentLanguage === 'ar' ? 'text-right' : 'text-center'}`}
+            dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
           >
-            Invest and Grow Your{' '}
-            <span className="bg-gradient-to-r from-[#6daead] to-[#1c2d36] bg-clip-text text-transparent">
-              Capital
-            </span>{' '}
-            with Memar
+            {currentLanguage === 'en' ? (
+              <>
+                Invest and Grow Your{' '}
+                <span className="bg-gradient-to-r from-[#6daead] to-[#1c2d36] bg-clip-text text-transparent">
+                  Capital
+                </span>{' '}
+                with Memar
+              </>
+            ) : (
+              <>
+                استثمر ونم رأس مالك{' '}
+                <span className="bg-gradient-to-r from-[#6daead] to-[#1c2d36] bg-clip-text text-transparent">
+                  مع ميمار
+                </span>
+              </>
+            )}
           </motion.h1>
 
           {/* Subheading */}
@@ -380,9 +488,10 @@ Lead Source: ${source}`;
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-xl md:text-2xl text-slate-600 mb-6 max-w-3xl mx-auto"
+            className={`text-xl md:text-2xl text-slate-600 mb-6 max-w-3xl mx-auto ${currentLanguage === 'ar' ? 'text-right' : 'text-center'}`}
+            dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
           >
-            The safest investment for anyone seeking stable, reliable returns
+            {content[currentLanguage].subtitle}
           </motion.p>
 
           {/* Key Benefits */}
@@ -392,24 +501,14 @@ Lead Source: ${source}`;
             transition={{ duration: 0.8, delay: 0.6 }}
             className="flex flex-wrap justify-center gap-6 mb-12 text-sm md:text-base"
           >
-            <div className="flex items-center gap-2 text-slate-700">
-              <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              <span>Proven Track Record</span>
-            </div>
-            <div className="flex items-center gap-2 text-slate-700">
-              <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              <span>Secure Investments</span>
-            </div>
-            <div className="flex items-center gap-2 text-slate-700">
-              <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              <span>Consistent Returns</span>
-            </div>
+            {content[currentLanguage].benefits.map((benefit, index) => (
+              <div key={index} className="flex items-center gap-2 text-slate-700">
+                <svg className="w-5 h-5 text-[#6daead]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span>{benefit}</span>
+              </div>
+            ))}
           </motion.div>
 
           {/* CTA Button */}
@@ -548,12 +647,12 @@ Lead Source: ${source}`;
             className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl shadow-[#6daead]/10 p-8 md:p-12 border border-white/20"
           >
             {/* Form Header */}
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-                Book a Consultancy Meeting with a Memar Investment Professional
+            <div className={`text-center mb-12 ${currentLanguage === 'ar' ? 'text-right' : 'text-center'}`}>
+              <h2 className={`text-3xl md:text-4xl font-bold text-slate-900 mb-4 ${currentLanguage === 'ar' ? 'text-right' : 'text-center'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                {content[currentLanguage].formTitle}
               </h2>
-              <p className="text-lg text-slate-600">
-                Let's discuss how you can grow your capital safely and securely
+              <p className={`text-lg text-slate-600 ${currentLanguage === 'ar' ? 'text-right' : 'text-center'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                {content[currentLanguage].formSubtitle}
               </p>
             </div>
 
@@ -593,8 +692,8 @@ Lead Source: ${source}`;
               {/* Name Fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="first_name" className="block text-sm font-semibold text-slate-700 mb-2">
-                    First Name *
+                  <label htmlFor="first_name" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                    {content[currentLanguage].firstName} *
                   </label>
                   <input
                     type="text"
@@ -603,8 +702,9 @@ Lead Source: ${source}`;
                     onChange={(e) => handleInputChange('first_name', e.target.value)}
                     className={`w-full px-4 py-3 rounded-2xl border-2 text-slate-900 placeholder-slate-400 bg-white ${
                       errors.first_name ? 'border-red-500' : 'border-slate-200'
-                    } focus:border-emerald-500 focus:outline-none transition-colors duration-200`}
-                    placeholder="John"
+                    } focus:border-[#6daead] focus:outline-none transition-colors duration-200`}
+                    placeholder={currentLanguage === 'ar' ? 'أحمد' : 'John'}
+                    dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
                   />
                   {errors.first_name && (
                     <p className="text-red-500 text-sm mt-1">{errors.first_name}</p>
@@ -612,8 +712,8 @@ Lead Source: ${source}`;
                 </div>
 
                 <div>
-                  <label htmlFor="last_name" className="block text-sm font-semibold text-slate-700 mb-2">
-                    Last Name *
+                  <label htmlFor="last_name" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                    {content[currentLanguage].lastName} *
                   </label>
                   <input
                     type="text"
@@ -622,8 +722,9 @@ Lead Source: ${source}`;
                     onChange={(e) => handleInputChange('last_name', e.target.value)}
                     className={`w-full px-4 py-3 rounded-2xl border-2 text-slate-900 placeholder-slate-400 bg-white ${
                       errors.last_name ? 'border-red-500' : 'border-slate-200'
-                    } focus:border-emerald-500 focus:outline-none transition-colors duration-200`}
-                    placeholder="Doe"
+                    } focus:border-[#6daead] focus:outline-none transition-colors duration-200`}
+                    placeholder={currentLanguage === 'ar' ? 'محمد' : 'Doe'}
+                    dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
                   />
                   {errors.last_name && (
                     <p className="text-red-500 text-sm mt-1">{errors.last_name}</p>
