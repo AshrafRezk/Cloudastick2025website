@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import LocationCityIcon from '@mui/icons-material/LocationCity';
 
 interface CityscapeStartupSequenceProps {
   onComplete: () => void;
@@ -85,7 +86,6 @@ const CityscapeStartupSequence: React.FC<CityscapeStartupSequenceProps> = ({ onC
                 {/* Main Icon */}
                 <div className="relative">
                   <motion.div
-                    className="text-8xl md:text-9xl"
                     animate={{
                       y: [0, -10, 0],
                     }}
@@ -95,7 +95,10 @@ const CityscapeStartupSequence: React.FC<CityscapeStartupSequenceProps> = ({ onC
                       ease: "easeInOut"
                     }}
                   >
-                    🌆
+                    <LocationCityIcon 
+                      sx={{ fontSize: { xs: 100, md: 120 } }} 
+                      className="text-white"
+                    />
                   </motion.div>
                 </div>
               </div>

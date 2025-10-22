@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import BusinessIcon from '@mui/icons-material/Business';
+import HomeIcon from '@mui/icons-material/Home';
+import LightbulbIcon from '@mui/icons-material/Lightbulb';
 
 interface FormData {
   first_name: string;
@@ -48,7 +52,7 @@ const CityscapeLeadCapture: React.FC = () => {
       subtitle: 'Connect with strategic investors ready to fund your vision',
       features: ['Capital Growth', 'Strategic Partnerships', 'Market Expansion'],
       gradient: 'from-emerald-500 to-teal-600',
-      icon: '💰',
+      icon: TrendingUpIcon,
       quotes: [
         "Smart investments begin with the right opportunities.",
         "Your vision deserves the right investors.",
@@ -62,7 +66,7 @@ const CityscapeLeadCapture: React.FC = () => {
       subtitle: 'Modern workspaces ready for your business to move in',
       features: ['Prime Locations', 'Modern Facilities', 'Flexible Terms'],
       gradient: 'from-blue-500 to-indigo-600',
-      icon: '🏢',
+      icon: BusinessIcon,
       quotes: [
         "Your business deserves a world-class workspace.",
         "Elevate your operations with premium office spaces.",
@@ -76,7 +80,7 @@ const CityscapeLeadCapture: React.FC = () => {
       subtitle: 'Discover exceptional residential properties for your family',
       features: ['Family-Friendly', 'Prime Locations', 'Quality Living'],
       gradient: 'from-purple-500 to-pink-600',
-      icon: '🏠',
+      icon: HomeIcon,
       quotes: [
         "Your dream home is waiting for you.",
         "Quality living spaces for modern families.",
@@ -587,8 +591,8 @@ Purpose: ${boothPurpose}`;
                 >
                   <div className="flex items-start gap-4">
                     <div className="flex-shrink-0">
-                      <div className={`w-12 h-12 bg-gradient-to-br ${content.gradient} rounded-full flex items-center justify-center text-2xl`}>
-                        {content.icon}
+                      <div className={`w-12 h-12 bg-gradient-to-br ${content.gradient} rounded-full flex items-center justify-center text-white`}>
+                        <LightbulbIcon />
                       </div>
                     </div>
                     <div className="flex-1">

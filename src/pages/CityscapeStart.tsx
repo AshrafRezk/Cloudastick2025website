@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import CityscapeStartupSequence from '../components/CityscapeStartupSequence';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import BusinessIcon from '@mui/icons-material/Business';
+import HomeIcon from '@mui/icons-material/Home';
+import LocationCityIcon from '@mui/icons-material/LocationCity';
 
 type BoothPurpose = 'investors' | 'offices' | 'residents';
 
@@ -17,21 +21,21 @@ const CityscapeStart: React.FC = () => {
       id: 'investors' as BoothPurpose,
       title: 'Attract Investors',
       description: 'Secure funding and partnerships',
-      icon: '💰',
+      icon: TrendingUpIcon,
       gradient: 'from-emerald-500 to-teal-600'
     },
     {
       id: 'offices' as BoothPurpose,
       title: 'Attract Offices',
       description: 'Ready-to-move business spaces',
-      icon: '🏢',
+      icon: BusinessIcon,
       gradient: 'from-blue-500 to-indigo-600'
     },
     {
       id: 'residents' as BoothPurpose,
       title: 'Attract Residents',
       description: 'Residential property buyers',
-      icon: '🏠',
+      icon: HomeIcon,
       gradient: 'from-purple-500 to-pink-600'
     }
   ];
@@ -109,7 +113,7 @@ const CityscapeStart: React.FC = () => {
               }}
               className="inline-block mb-6"
             >
-              <div className="text-6xl md:text-8xl">🌆</div>
+              <LocationCityIcon sx={{ fontSize: { xs: 80, md: 120 } }} className="text-blue-600" />
             </motion.div>
             
             <h1 className="text-4xl md:text-6xl font-bold text-slate-900 mb-4">
@@ -163,43 +167,48 @@ const CityscapeStart: React.FC = () => {
               </label>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {purposes.map((purpose) => (
-                  <motion.button
-                    key={purpose.id}
-                    type="button"
-                    onClick={() => {
-                      setBoothPurpose(purpose.id);
-                      if (errors.boothPurpose) setErrors({ ...errors, boothPurpose: '' });
-                    }}
-                    whileHover={{ scale: 1.02, y: -4 }}
-                    whileTap={{ scale: 0.98 }}
-                    className={`relative p-6 rounded-2xl border-3 transition-all duration-300 ${
-                      boothPurpose === purpose.id
-                        ? `border-transparent bg-gradient-to-br ${purpose.gradient} text-white shadow-xl`
-                        : 'border-slate-200 bg-white hover:border-slate-300 text-slate-700'
-                    }`}
-                  >
-                    <div className="text-4xl mb-3">{purpose.icon}</div>
-                    <h3 className="text-lg font-bold mb-2">{purpose.title}</h3>
-                    <p className={`text-sm ${
-                      boothPurpose === purpose.id ? 'text-white/90' : 'text-slate-500'
-                    }`}>
-                      {purpose.description}
-                    </p>
+                {purposes.map((purpose) => {
+                  const IconComponent = purpose.icon;
+                  return (
+                    <motion.button
+                      key={purpose.id}
+                      type="button"
+                      onClick={() => {
+                        setBoothPurpose(purpose.id);
+                        if (errors.boothPurpose) setErrors({ ...errors, boothPurpose: '' });
+                      }}
+                      whileHover={{ scale: 1.02, y: -4 }}
+                      whileTap={{ scale: 0.98 }}
+                      className={`relative p-6 rounded-2xl border-3 transition-all duration-300 ${
+                        boothPurpose === purpose.id
+                          ? `border-transparent bg-gradient-to-br ${purpose.gradient} text-white shadow-xl`
+                          : 'border-slate-200 bg-white hover:border-slate-300 text-slate-700'
+                      }`}
+                    >
+                      <div className="mb-3">
+                        <IconComponent sx={{ fontSize: 48 }} />
+                      </div>
+                      <h3 className="text-lg font-bold mb-2">{purpose.title}</h3>
+                      <p className={`text-sm ${
+                        boothPurpose === purpose.id ? 'text-white/90' : 'text-slate-500'
+                      }`}>
+                        {purpose.description}
+                      </p>
                     
-                    {boothPurpose === purpose.id && (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center"
-                      >
-                        <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                        </svg>
-                      </motion.div>
-                    )}
-                  </motion.button>
-                ))}
+                      {boothPurpose === purpose.id && (
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center"
+                        >
+                          <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </motion.div>
+                      )}
+                    </motion.button>
+                  );
+                })}
               </div>
               
               {errors.boothPurpose && (
