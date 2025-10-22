@@ -218,11 +218,13 @@ const MemarStartupSequence: React.FC<MemarStartupSequenceProps> = ({ onComplete 
                       >
                         <div className="relative">
                           <div className="absolute inset-0 bg-gradient-to-br from-[#6daead]/30 to-[#1c2d36]/30 rounded-full blur-3xl" />
-                          <img
-                            src="/Assets/Cityscape/Cityscape assets/Cityscape_Logo.png"
-                            alt="Cityscape"
-                            className="w-full h-full object-contain relative z-10"
-                          />
+                          <div className="w-full h-full bg-white rounded-3xl shadow-2xl flex items-center justify-center p-6 relative z-10">
+                            <img
+                              src="/Assets/Cityscape/Cityscape assets/Cityscape_Logo.png"
+                              alt="Cityscape"
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
                         </div>
                       </motion.div>
                     )}
