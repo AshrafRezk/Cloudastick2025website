@@ -97,7 +97,7 @@ const MemarStartupSequence: React.FC<MemarStartupSequenceProps> = ({ onComplete 
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.5 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-emerald-50 via-slate-100 to-emerald-50"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-slate-50 via-slate-100 to-slate-50"
         >
           {/* Audio Elements */}
           <audio ref={woosh1Ref} src="/Assets/woosh1new.mp3?v=2024101103" preload="auto" volume="0.05" />
@@ -135,7 +135,7 @@ const MemarStartupSequence: React.FC<MemarStartupSequenceProps> = ({ onComplete 
                 }}
                 className="w-full h-full"
                 style={{
-                  backgroundImage: 'radial-gradient(circle, rgba(16, 185, 129, 0.2) 1px, transparent 1px)',
+                  backgroundImage: 'radial-gradient(circle, rgba(109, 174, 173, 0.2) 1px, transparent 1px)',
                   backgroundSize: '50px 50px',
                 }}
               />
@@ -165,7 +165,7 @@ const MemarStartupSequence: React.FC<MemarStartupSequenceProps> = ({ onComplete 
                   }}
                 >
                   <div className="w-32 h-32 mx-auto mb-6 relative">
-                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/30 to-green-400/30 rounded-full blur-3xl" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#6daead]/30 to-[#1c2d36]/30 rounded-full blur-3xl" />
                     <div className="w-full h-full bg-white rounded-3xl shadow-2xl flex items-center justify-center p-4 relative z-10">
                       <img
                         src="/Assets/Cityscape/Memar/Memar_Logo.png"
@@ -191,7 +191,7 @@ const MemarStartupSequence: React.FC<MemarStartupSequenceProps> = ({ onComplete 
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
                     onClick={handleStartJourney}
-                    className="mt-12 px-10 py-4 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-semibold rounded-full shadow-xl shadow-emerald-500/40 transition-all duration-300 transform hover:scale-105 active:scale-95"
+                    className="mt-12 px-10 py-4 bg-gradient-to-r from-[#6daead] to-[#1c2d36] hover:from-[#5a9a99] hover:to-[#1a252b] text-white font-semibold rounded-full shadow-xl shadow-[#6daead]/40 transition-all duration-300 transform hover:scale-105 active:scale-95"
                   >
                     Start Your Investment Journey
                   </motion.button>
@@ -217,7 +217,7 @@ const MemarStartupSequence: React.FC<MemarStartupSequenceProps> = ({ onComplete 
                         className="w-64 h-64 flex items-center justify-center"
                       >
                         <div className="relative">
-                          <div className="absolute inset-0 bg-gradient-to-br from-blue-400/30 to-indigo-400/30 rounded-full blur-3xl" />
+                          <div className="absolute inset-0 bg-gradient-to-br from-[#6daead]/30 to-[#1c2d36]/30 rounded-full blur-3xl" />
                           <img
                             src="/Assets/Cityscape/Cityscape assets/Cityscape_Logo.png"
                             alt="Cityscape"
@@ -246,7 +246,7 @@ const MemarStartupSequence: React.FC<MemarStartupSequenceProps> = ({ onComplete 
                               repeat: Infinity,
                               ease: 'easeInOut',
                             }}
-                            className="absolute inset-0 bg-gradient-to-br from-emerald-400/40 to-green-400/40 rounded-full blur-3xl"
+                            className="absolute inset-0 bg-gradient-to-br from-[#6daead]/40 to-[#1c2d36]/40 rounded-full blur-3xl"
                           />
                           <div className="w-full h-full bg-white rounded-3xl shadow-2xl flex items-center justify-center p-6 relative z-10">
                             <img

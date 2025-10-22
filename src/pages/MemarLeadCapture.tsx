@@ -301,7 +301,7 @@ Lead Source: ${source}`;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-slate-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-50">
       {/* Audio Elements */}
       <audio ref={successAudioRef} src="/Assets/cloudastickwebsiteloadmusic.mp3" preload="auto" />
       <audio ref={woosh1Ref} src="/Assets/woosh1new.mp3?v=2024101103" preload="auto" />
@@ -323,7 +323,7 @@ Lead Source: ${source}`;
             }}
             className="w-full h-full"
             style={{
-              backgroundImage: 'radial-gradient(circle, rgba(16, 185, 129, 0.1) 1px, transparent 1px)',
+              backgroundImage: 'radial-gradient(circle, rgba(109, 174, 173, 0.1) 1px, transparent 1px)',
               backgroundSize: '40px 40px',
             }}
           />
@@ -349,7 +349,7 @@ Lead Source: ${source}`;
                   repeat: Infinity,
                   ease: 'easeInOut',
                 }}
-                className="absolute inset-0 bg-gradient-to-br from-emerald-400/30 to-green-400/30 rounded-full blur-3xl"
+                className="absolute inset-0 bg-gradient-to-br from-[#6daead]/30 to-[#1c2d36]/30 rounded-full blur-3xl"
               />
               <div className="w-full h-full bg-white rounded-3xl shadow-2xl flex items-center justify-center p-6 relative z-10">
                 <img
@@ -369,7 +369,7 @@ Lead Source: ${source}`;
             className="text-4xl md:text-6xl font-bold text-slate-900 mb-6"
           >
             Invest and Grow Your{' '}
-            <span className="bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#6daead] to-[#1c2d36] bg-clip-text text-transparent">
               Capital
             </span>{' '}
             with Memar
@@ -447,10 +447,10 @@ Lead Source: ${source}`;
               } : {}
             }}
             onClick={scrollToForm}
-            className="w-16 h-16 bg-gradient-to-br from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white shadow-2xl shadow-emerald-500/40 transition-all duration-300 transform hover:scale-110 active:scale-95 flex items-center justify-center group mx-auto"
+            className="w-16 h-16 bg-gradient-to-br from-[#6daead] to-[#1c2d36] hover:from-[#5a9a99] hover:to-[#1a252b] text-white shadow-2xl shadow-[#6daead]/40 transition-all duration-300 transform hover:scale-110 active:scale-95 flex items-center justify-center group mx-auto"
             whileHover={{ 
               scale: isTransitioning ? 1 : 1.1,
-              boxShadow: "0 25px 50px -12px rgba(16, 185, 129, 0.5)"
+              boxShadow: "0 25px 50px -12px rgba(109, 174, 173, 0.5)"
             }}
             whileTap={{ scale: 0.95 }}
           >
@@ -492,8 +492,8 @@ Lead Source: ${source}`;
           </motion.button>
 
           {/* Floating Elements */}
-          <div className="absolute top-20 left-10 w-20 h-20 bg-emerald-400/10 rounded-full blur-xl animate-pulse" />
-          <div className="absolute bottom-20 right-10 w-32 h-32 bg-green-400/10 rounded-full blur-xl animate-pulse" />
+          <div className="absolute top-20 left-10 w-20 h-20 bg-[#6daead]/10 rounded-full blur-xl animate-pulse" />
+          <div className="absolute bottom-20 right-10 w-32 h-32 bg-[#1c2d36]/10 rounded-full blur-xl animate-pulse" />
         </div>
       </section>
 
@@ -516,7 +516,7 @@ Lead Source: ${source}`;
           </motion.video>
           
           {/* Fallback gradient background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-green-500/10 to-slate-500/10" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#6daead]/10 via-[#1c2d36]/10 to-slate-500/10" />
           
           {/* Dark overlay */}
           <motion.div 
@@ -545,7 +545,7 @@ Lead Source: ${source}`;
                 delay: 0.3
               } : {}
             }}
-            className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl shadow-emerald-500/10 p-8 md:p-12 border border-white/20"
+            className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl shadow-[#6daead]/10 p-8 md:p-12 border border-white/20"
           >
             {/* Form Header */}
             <div className="text-center mb-12">
@@ -565,18 +565,18 @@ Lead Source: ${source}`;
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -20, scale: 0.95 }}
                   transition={{ duration: 0.5 }}
-                  className="mb-8 p-6 bg-gradient-to-br from-emerald-50 to-green-50 rounded-3xl border-2 border-emerald-200/50 shadow-lg"
+                  className="mb-8 p-6 bg-gradient-to-br from-[#6daead]/5 to-[#1c2d36]/5 rounded-3xl border-2 border-[#6daead]/20 shadow-lg"
                 >
                   <div className="flex items-start gap-4">
                     <div className="flex-shrink-0">
-                      <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-500 rounded-full flex items-center justify-center">
+                      <div className="w-12 h-12 bg-gradient-to-br from-[#6daead] to-[#1c2d36] rounded-full flex items-center justify-center">
                         <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                         </svg>
                       </div>
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-semibold text-emerald-900 mb-1">
+                      <p className="text-sm font-semibold text-[#1c2d36] mb-1">
                         Hi {formData.first_name}! Here's our investment wisdom:
                       </p>
                       <p className="text-lg text-slate-700 italic leading-relaxed">
@@ -682,7 +682,7 @@ Lead Source: ${source}`;
                   id="budget"
                   value={formData.budget}
                   onChange={(e) => handleInputChange('budget', e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 placeholder-slate-400 bg-white focus:border-emerald-500 focus:outline-none transition-colors duration-200"
+                  className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 placeholder-slate-400 bg-white focus:border-[#6daead] focus:outline-none transition-colors duration-200"
                   placeholder="e.g., 100,000 AED"
                 />
               </div>
@@ -697,7 +697,7 @@ Lead Source: ${source}`;
                   value={formData.description}
                   onChange={(e) => handleInputChange('description', e.target.value)}
                   rows={4}
-                  className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 placeholder-slate-400 bg-white focus:border-emerald-500 focus:outline-none transition-colors duration-200 resize-none"
+                  className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 placeholder-slate-400 bg-white focus:border-[#6daead] focus:outline-none transition-colors duration-200 resize-none"
                   placeholder="Tell us about your investment goals..."
                 />
               </div>
@@ -708,7 +708,7 @@ Lead Source: ${source}`;
                 disabled={isSubmitting}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full py-5 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 disabled:from-slate-400 disabled:to-slate-500 text-white text-lg font-semibold rounded-2xl shadow-lg shadow-emerald-500/30 transition-all duration-300"
+                className="w-full py-5 bg-gradient-to-r from-[#6daead] to-[#1c2d36] hover:from-[#5a9a99] hover:to-[#1a252b] disabled:from-slate-400 disabled:to-slate-500 text-white text-lg font-semibold rounded-2xl shadow-lg shadow-[#6daead]/30 transition-all duration-300"
               >
                 {isSubmitting ? (
                   <span className="flex items-center justify-center gap-3">
@@ -737,7 +737,7 @@ Lead Source: ${source}`;
             exit={{ opacity: 0, y: 50 }}
             className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50"
           >
-            <div className="bg-emerald-500 text-white px-8 py-4 rounded-full shadow-2xl flex items-center gap-3">
+            <div className="bg-[#6daead] text-white px-8 py-4 rounded-full shadow-2xl flex items-center gap-3">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
@@ -772,15 +772,15 @@ Lead Source: ${source}`;
           {/* Key Features Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12 text-center">
             <div>
-              <div className="text-emerald-400 font-semibold mb-2">Proven Track Record</div>
+              <div className="text-[#6daead] font-semibold mb-2">Proven Track Record</div>
               <p className="text-slate-400 text-sm">Years of successful real estate investments</p>
             </div>
             <div>
-              <div className="text-emerald-400 font-semibold mb-2">Secure Investments</div>
+              <div className="text-[#6daead] font-semibold mb-2">Secure Investments</div>
               <p className="text-slate-400 text-sm">Your capital is protected and managed wisely</p>
             </div>
             <div>
-              <div className="text-emerald-400 font-semibold mb-2">Consistent Returns</div>
+              <div className="text-[#6daead] font-semibold mb-2">Consistent Returns</div>
               <p className="text-slate-400 text-sm">Reliable growth for your investment portfolio</p>
             </div>
           </div>
@@ -796,7 +796,7 @@ Lead Source: ${source}`;
                 href="https://cloudastick.com" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-emerald-400 hover:text-emerald-300 font-semibold transition-colors duration-200"
+                className="text-[#6daead] hover:text-[#5a9a99] font-semibold transition-colors duration-200"
               >
                 Cloudastick
               </a>

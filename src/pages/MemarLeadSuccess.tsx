@@ -138,7 +138,7 @@ const MemarLeadSuccess: React.FC = () => {
       
       {/* Fallback gradient background */}
       {videoFailedBackground && (
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-900 via-slate-900 to-green-900" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#1c2d36] via-slate-900 to-[#6daead]" />
       )}
       
       {/* Dark Overlay */}
@@ -171,7 +171,7 @@ const MemarLeadSuccess: React.FC = () => {
                   repeat: Infinity,
                   ease: 'easeInOut',
                 }}
-                className="absolute inset-0 bg-gradient-to-br from-emerald-400/30 to-green-400/30 rounded-full blur-3xl"
+                className="absolute inset-0 bg-gradient-to-br from-[#6daead]/30 to-[#1c2d36]/30 rounded-full blur-3xl"
               />
               <div className="w-full h-full bg-white rounded-3xl shadow-2xl flex items-center justify-center p-4 md:p-6 relative z-10">
                 <img
@@ -237,7 +237,7 @@ const MemarLeadSuccess: React.FC = () => {
                 transition={{ duration: 0.5, delay: 1.2 }}
                 className="flex items-start gap-4"
               >
-                <div className="flex-shrink-0 w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                <div className="flex-shrink-0 w-12 h-12 bg-[#6daead] rounded-full flex items-center justify-center text-white font-bold text-lg">
                   1
                 </div>
                 <div>
@@ -252,7 +252,7 @@ const MemarLeadSuccess: React.FC = () => {
                 transition={{ duration: 0.5, delay: 1.4 }}
                 className="flex items-start gap-4"
               >
-                <div className="flex-shrink-0 w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                <div className="flex-shrink-0 w-12 h-12 bg-[#6daead] rounded-full flex items-center justify-center text-white font-bold text-lg">
                   2
                 </div>
                 <div>
@@ -267,7 +267,7 @@ const MemarLeadSuccess: React.FC = () => {
                 transition={{ duration: 0.5, delay: 1.6 }}
                 className="flex items-start gap-4"
               >
-                <div className="flex-shrink-0 w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                <div className="flex-shrink-0 w-12 h-12 bg-[#6daead] rounded-full flex items-center justify-center text-white font-bold text-lg">
                   3
                 </div>
                 <div>
@@ -313,7 +313,7 @@ const MemarLeadSuccess: React.FC = () => {
               href="https://cloudastick.com" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-emerald-400 hover:text-emerald-300 font-semibold transition-colors duration-200"
+                className="text-[#6daead] hover:text-[#5a9a99] font-semibold transition-colors duration-200"
             >
               Cloudastick
             </a>
