@@ -18,6 +18,8 @@ import Learn from "./pages/Learn";
 import NotFound from "./pages/NotFound";
 import TarwtlLeadCapture from "./pages/TarwtlLeadCapture";
 import TarwtlLeadSuccess from "./pages/TarwtlLeadSuccess";
+import MemarLeadCapture from "./pages/MemarLeadCapture";
+import MemarLeadSuccess from "./pages/MemarLeadSuccess";
 import SalesforceApps from "./pages/SalesforceApps";
 
 const queryClient = new QueryClient();
@@ -64,6 +66,11 @@ const App = () => {
             <Route path="/tarwtl" element={<TarwtlLeadCapture />} />
             <Route path="/tarwtl-lead-capture" element={<TarwtlLeadCapture />} />
             <Route path="/tarwtl-success" element={<TarwtlLeadSuccess />} />
+            
+            {/* Special routes for Memar - no standard startup or layout */}
+            <Route path="/memar" element={<MemarLeadCapture />} />
+            <Route path="/memar-lead-capture" element={<MemarLeadCapture />} />
+            <Route path="/memar-success" element={<MemarLeadSuccess />} />
             
             {/* Standard routes with startup sequence and layout */}
             <Route path="/*" element={
