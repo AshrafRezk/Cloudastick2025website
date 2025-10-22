@@ -173,11 +173,13 @@ const MemarLeadSuccess: React.FC = () => {
                 }}
                 className="absolute inset-0 bg-gradient-to-br from-emerald-400/30 to-green-400/30 rounded-full blur-3xl"
               />
-              <img
-                src="/Assets/Cityscape/Memar/Memar_Logo.png"
-                alt="Memar"
-                className="w-full h-full object-contain relative z-10"
-              />
+              <div className="w-full h-full bg-white rounded-3xl shadow-2xl flex items-center justify-center p-4 md:p-6 relative z-10">
+                <img
+                  src="/Assets/Cityscape/Memar/Memar_Logo.png"
+                  alt="Memar"
+                  className="w-full h-full object-contain"
+                />
+              </div>
             </div>
           </motion.div>
 

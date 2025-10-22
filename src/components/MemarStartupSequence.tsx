@@ -166,11 +166,13 @@ const MemarStartupSequence: React.FC<MemarStartupSequenceProps> = ({ onComplete 
                 >
                   <div className="w-32 h-32 mx-auto mb-6 relative">
                     <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/30 to-green-400/30 rounded-full blur-3xl" />
-                    <img
-                      src="/Assets/Cityscape/Memar/Memar_Logo.png"
-                      alt="Memar"
-                      className="w-full h-full object-contain relative z-10"
-                    />
+                    <div className="w-full h-full bg-white rounded-3xl shadow-2xl flex items-center justify-center p-4 relative z-10">
+                      <img
+                        src="/Assets/Cityscape/Memar/Memar_Logo.png"
+                        alt="Memar"
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
                   </div>
                 </motion.div>
 
@@ -246,11 +248,13 @@ const MemarStartupSequence: React.FC<MemarStartupSequenceProps> = ({ onComplete 
                             }}
                             className="absolute inset-0 bg-gradient-to-br from-emerald-400/40 to-green-400/40 rounded-full blur-3xl"
                           />
-                          <img
-                            src="/Assets/Cityscape/Memar/Memar_Logo.png"
-                            alt="Memar"
-                            className="w-full h-full object-contain relative z-10"
-                          />
+                          <div className="w-full h-full bg-white rounded-3xl shadow-2xl flex items-center justify-center p-6 relative z-10">
+                            <img
+                              src="/Assets/Cityscape/Memar/Memar_Logo.png"
+                              alt="Memar"
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
                         </div>
                       </motion.div>
                     )}

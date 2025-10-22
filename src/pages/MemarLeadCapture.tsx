@@ -351,11 +351,13 @@ Lead Source: ${source}`;
                 }}
                 className="absolute inset-0 bg-gradient-to-br from-emerald-400/30 to-green-400/30 rounded-full blur-3xl"
               />
-              <img
-                src="/Assets/Cityscape/Memar/Memar_Logo.png"
-                alt="Memar"
-                className="w-full h-full object-contain relative z-10"
-              />
+              <div className="w-full h-full bg-white rounded-3xl shadow-2xl flex items-center justify-center p-6 relative z-10">
+                <img
+                  src="/Assets/Cityscape/Memar/Memar_Logo.png"
+                  alt="Memar"
+                  className="w-full h-full object-contain"
+                />
+              </div>
             </div>
           </motion.div>
 
@@ -751,11 +753,13 @@ Lead Source: ${source}`;
           {/* Logo and Tagline */}
           <div className="text-center mb-12">
             <div className="flex items-center justify-center mb-6">
-              <img
-                src="/Assets/Cityscape/Memar/Memar_Logo.png"
-                alt="Memar"
-                className="h-16 object-contain opacity-90"
-              />
+              <div className="h-16 w-16 bg-white rounded-2xl shadow-lg flex items-center justify-center p-3">
+                <img
+                  src="/Assets/Cityscape/Memar/Memar_Logo.png"
+                  alt="Memar"
+                  className="h-full w-full object-contain"
+                />
+              </div>
             </div>
             <p className="text-slate-300 text-lg mb-2">
               Invest and Grow Your Capital with Memar
