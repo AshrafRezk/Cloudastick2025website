@@ -53,15 +53,15 @@ const MemarLeadCapture: React.FC = () => {
     ],
     ar: [
       "أمن مستقبلك بأفضل فرص الاستثمار الآمنة.",
-      "نم رأس مالك بثبات مع سجل ميمار المثبت.",
-      "نجاح الاستثمار يبدأ مع الشريك المناسب - ميمار للتطوير.",
+      "نم رأس مالك بثبات مع سجل معمار المثبت.",
+      "نجاح الاستثمار يبدأ مع الشريك المناسب - معمار للتطوير.",
       "ابن ثروة تدوم لأجيال مع استثمارات عقارية ذكية.",
       "أمانك المالي هو أولويتنا - استثمر بثقة.",
       "العقارات: الأصول الخالدة التي تزداد قيمتها مع العناية.",
-      "دع أموالك تعمل من أجلك مع استثمارات ميمار الاستراتيجية.",
-      "الاستقرار يلتقي بالنمو في كل مشروع تطويري من ميمار.",
-      "المستثمرون الأذكياء يختارون ميمار للعوائد الموثوقة والمستمرة.",
-      "حول رأس مالك إلى ثروة دائمة مع ميمار.",
+      "دع أموالك تعمل من أجلك مع استثمارات معمار الاستراتيجية.",
+      "الاستقرار يلتقي بالنمو في كل مشروع تطويري من معمار.",
+      "المستثمرون الأذكياء يختارون معمار للعوائد الموثوقة والمستمرة.",
+      "حول رأس مالك إلى ثروة دائمة مع معمار.",
     ]
   };
 
@@ -95,22 +95,22 @@ const MemarLeadCapture: React.FC = () => {
       }
     },
     ar: {
-      title: "استثمر ونم رأس مالك مع ميمار",
+      title: "استثمر ونم رأس مالك مع معمار",
       subtitle: "أأمن استثمار لأي شخص يسعى لعوائد مستقرة وموثوقة",
       benefits: ["سجل مثبت", "استثمارات آمنة", "عوائد مستمرة"],
-      formTitle: "احجز استشارة مع خبير استثمار ميمار",
+      formTitle: "احجز استشارة مع خبير استثمار معمار",
       formSubtitle: "دعنا نناقش كيف يمكنك تنمية رأس مالك بأمان وثقة",
       firstName: "الاسم الأول",
       lastName: "اسم العائلة",
       email: "البريد الإلكتروني",
       mobile: "رقم الجوال",
-      budget: "ميزانية الاستثمار (اختياري)",
-      budgetPlaceholder: "مثال: 100,000 درهم",
-      description: "تعليقات إضافية",
-      descriptionPlaceholder: "أخبرنا عن أهدافك الاستثمارية...",
+      budget: "الميزانية الاستثمارية (اختياري)",
+      budgetPlaceholder: "مثال: 100,000 درهم إماراتي",
+      description: "ملاحظات إضافية",
+      descriptionPlaceholder: "حدثنا عن أهدافك الاستثمارية...",
       submitButton: "احجز الاستشارة",
       successMessage: "تم إرسال بياناتك بنجاح!",
-      footerTitle: "استثمر ونم رأس مالك مع ميمار",
+      footerTitle: "استثمر ونم رأس مالك مع معمار",
       footerSubtitle: "أأمن استثمار لأي شخص يسعى لعوائد مستقرة",
       features: {
         trackRecord: "سجل مثبت",
@@ -477,7 +477,7 @@ Lead Source: ${source}`;
               <>
                 استثمر ونم رأس مالك{' '}
                 <span className="bg-gradient-to-r from-[#6daead] to-[#1c2d36] bg-clip-text text-transparent">
-                  مع ميمار
+                  مع معمار
                 </span>
               </>
             )}
@@ -585,7 +585,7 @@ Lead Source: ${source}`;
                 }}
                 className="text-xs font-bold mt-1"
               >
-                Start
+                {currentLanguage === 'en' ? 'Start' : 'ابدأ الآن'}
               </motion.div>
             </motion.div>
           </motion.button>
@@ -735,8 +735,8 @@ Lead Source: ${source}`;
               {/* Email & Mobile */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="email" className="block text-sm font-semibold text-slate-700 mb-2">
-                    Email *
+                  <label htmlFor="email" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                    {content[currentLanguage].email} *
                   </label>
                   <input
                     type="email"
@@ -745,8 +745,9 @@ Lead Source: ${source}`;
                     onChange={(e) => handleInputChange('email', e.target.value)}
                     className={`w-full px-4 py-3 rounded-2xl border-2 text-slate-900 placeholder-slate-400 bg-white ${
                       errors.email ? 'border-red-500' : 'border-slate-200'
-                    } focus:border-emerald-500 focus:outline-none transition-colors duration-200`}
+                    } focus:border-[#6daead] focus:outline-none transition-colors duration-200`}
                     placeholder="john.doe@email.com"
+                    dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
                   />
                   {errors.email && (
                     <p className="text-red-500 text-sm mt-1">{errors.email}</p>
@@ -754,8 +755,8 @@ Lead Source: ${source}`;
                 </div>
 
                 <div>
-                  <label htmlFor="mobile" className="block text-sm font-semibold text-slate-700 mb-2">
-                    Mobile *
+                  <label htmlFor="mobile" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                    {content[currentLanguage].mobile} *
                   </label>
                   <input
                     type="tel"
@@ -764,8 +765,9 @@ Lead Source: ${source}`;
                     onChange={(e) => handleInputChange('mobile', e.target.value)}
                     className={`w-full px-4 py-3 rounded-2xl border-2 text-slate-900 placeholder-slate-400 bg-white ${
                       errors.mobile ? 'border-red-500' : 'border-slate-200'
-                    } focus:border-emerald-500 focus:outline-none transition-colors duration-200`}
+                    } focus:border-[#6daead] focus:outline-none transition-colors duration-200`}
                     placeholder="+971 50 123 4567"
+                    dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
                   />
                   {errors.mobile && (
                     <p className="text-red-500 text-sm mt-1">{errors.mobile}</p>
@@ -775,8 +777,8 @@ Lead Source: ${source}`;
 
               {/* Budget */}
               <div>
-                <label htmlFor="budget" className="block text-sm font-semibold text-slate-700 mb-2">
-                  Investment Budget (Optional)
+                <label htmlFor="budget" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                  {content[currentLanguage].budget}
                 </label>
                 <input
                   type="text"
@@ -784,14 +786,15 @@ Lead Source: ${source}`;
                   value={formData.budget}
                   onChange={(e) => handleInputChange('budget', e.target.value)}
                   className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 placeholder-slate-400 bg-white focus:border-[#6daead] focus:outline-none transition-colors duration-200"
-                  placeholder="e.g., 100,000 AED"
+                  placeholder={content[currentLanguage].budgetPlaceholder}
+                  dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
                 />
               </div>
 
               {/* Description */}
               <div>
-                <label htmlFor="description" className="block text-sm font-semibold text-slate-700 mb-2">
-                  Additional Comments
+                <label htmlFor="description" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                  {content[currentLanguage].description}
                 </label>
                 <textarea
                   id="description"
@@ -799,7 +802,8 @@ Lead Source: ${source}`;
                   onChange={(e) => handleInputChange('description', e.target.value)}
                   rows={4}
                   className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 placeholder-slate-400 bg-white focus:border-[#6daead] focus:outline-none transition-colors duration-200 resize-none"
-                  placeholder="Tell us about your investment goals..."
+                  placeholder={content[currentLanguage].descriptionPlaceholder}
+                  dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
                 />
               </div>
 
@@ -818,10 +822,10 @@ Lead Source: ${source}`;
                       transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                       className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
                     />
-                    Submitting...
+                    {currentLanguage === 'en' ? 'Submitting...' : 'جاري الإرسال...'}
                   </span>
                 ) : (
-                  'Book Consultation'
+                  content[currentLanguage].submitButton
                 )}
               </motion.button>
             </form>
