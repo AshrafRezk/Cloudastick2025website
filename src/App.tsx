@@ -20,6 +20,9 @@ import TarwtlLeadCapture from "./pages/TarwtlLeadCapture";
 import TarwtlLeadSuccess from "./pages/TarwtlLeadSuccess";
 import MemarLeadCapture from "./pages/MemarLeadCapture";
 import MemarLeadSuccess from "./pages/MemarLeadSuccess";
+import CityscapeStart from "./pages/CityscapeStart";
+import CityscapeLeadCapture from "./pages/CityscapeLeadCapture";
+import CityscapeLeadSuccess from "./pages/CityscapeLeadSuccess";
 import SalesforceApps from "./pages/SalesforceApps";
 
 const queryClient = new QueryClient();
@@ -71,6 +74,12 @@ const App = () => {
             <Route path="/memar" element={<MemarLeadCapture />} />
             <Route path="/memar-lead-capture" element={<MemarLeadCapture />} />
             <Route path="/memar-success" element={<MemarLeadSuccess />} />
+            
+            {/* Special routes for Cityscape - no standard startup or layout */}
+            <Route path="/cityscape" element={<CityscapeStart />} />
+            <Route path="/cityscape-start" element={<CityscapeStart />} />
+            <Route path="/cityscape-lead-capture" element={<CityscapeLeadCapture />} />
+            <Route path="/cityscape-success" element={<CityscapeLeadSuccess />} />
             
             {/* Standard routes with startup sequence and layout */}
             <Route path="/*" element={
