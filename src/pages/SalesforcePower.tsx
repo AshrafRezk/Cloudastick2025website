@@ -53,20 +53,21 @@ const HubAndSpokeVisualization = React.memo(({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
   const [dimensions, setDimensions] = useState({ 
-    width: window.innerWidth < 768 ? Math.min(window.innerWidth - 32, 400) : 800,
-    height: window.innerWidth < 768 ? 400 : 600 
+    width: typeof window !== 'undefined' && window.innerWidth < 768 ? Math.min(window.innerWidth - 32, 400) : 800,
+    height: typeof window !== 'undefined' && window.innerWidth < 768 ? 400 : 600 
   });
 
   // Calculate positions once and memoize
   const productPositions = useMemo(() => {
     const centerX = dimensions.width / 2;
     const centerY = dimensions.height / 2;
-    const cardSize = window.innerWidth < 768 ? 60 : 80; // Smaller cards on mobile
+    const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
+    const cardSize = isMobile ? 60 : 80; // Smaller cards on mobile
     const centerCircleRadius = 40; // Center hub radius
     
     // Calculate radius: ensure cards don't overlap center and have proper spacing
     // Radius = (center circle radius) + (spacing) + (half card size)
-    const spacing = window.innerWidth < 768 ? 40 : 60; // Less spacing on mobile
+    const spacing = isMobile ? 40 : 60; // Less spacing on mobile
     const radius = centerCircleRadius + spacing + (cardSize / 2);
     
     return products.map((product, index) => {
@@ -136,7 +137,8 @@ const HubAndSpokeVisualization = React.memo(({
   // Optimized animation loop with reduced frequency
   useEffect(() => {
     let lastTime = 0;
-    const targetFPS = window.innerWidth < 768 ? 20 : 30; // Lower FPS on mobile
+    const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
+    const targetFPS = isMobile ? 20 : 30; // Lower FPS on mobile
     const frameInterval = 1000 / targetFPS;
 
     const animate = (currentTime: number) => {
@@ -307,6 +309,8 @@ const SalesforcePower = () => {
 
   // Handle hash navigation to comparison table
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     const handleHashChange = () => {
       if (window.location.hash === '#comparison-table') {
         const tableElement = document.getElementById('comparison-table');
