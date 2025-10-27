@@ -202,8 +202,18 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
     
     if (typeof value !== 'string') {
-      console.warn(`Translation missing for key: ${key}`);
-      return key;
+      // Return a fallback instead of the key to prevent console warnings
+      const fallback = translations.en;
+      let fallbackValue: any = fallback;
+      for (const k of keys) {
+        fallbackValue = fallbackValue?.[k];
+      }
+      if (typeof fallbackValue === 'string') {
+        value = fallbackValue;
+      } else {
+        console.warn(`Translation missing for key: ${key}`);
+        return key;
+      }
     }
     
     // Replace parameters

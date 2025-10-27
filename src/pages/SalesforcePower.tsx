@@ -58,10 +58,11 @@ const HubAndSpokeVisualization = React.memo(({
   const productPositions = useMemo(() => {
     const centerX = dimensions.width / 2;
     const centerY = dimensions.height / 2;
-    const radius = Math.min(dimensions.width, dimensions.height) * 0.3;
+    const radius = Math.min(dimensions.width, dimensions.height) * 0.25; // Reduced radius for better alignment
     
     return products.map((product, index) => {
-      const angle = (index * 360) / products.length;
+      // Start from -90 degrees (top) and distribute evenly
+      const angle = -90 + (index * 360) / products.length;
       const x = centerX + Math.cos((angle * Math.PI) / 180) * radius;
       const y = centerY + Math.sin((angle * Math.PI) / 180) * radius;
       return { ...product, x, y, angle };
@@ -83,15 +84,15 @@ const HubAndSpokeVisualization = React.memo(({
       const centerX = dimensions.width / 2;
       const centerY = dimensions.height / 2;
 
-      // Draw connection lines with batching
-      ctx.strokeStyle = 'rgba(6, 182, 212, 0.3)';
-      ctx.lineWidth = 2;
+    // Draw connection lines with batching
+    ctx.strokeStyle = 'rgba(6, 182, 212, 0.3)';
+    ctx.lineWidth = 2;
+    productPositions.forEach(({ x, y }) => {
       ctx.beginPath();
-      productPositions.forEach(({ x, y }) => {
-        ctx.moveTo(centerX, centerY);
-        ctx.lineTo(x, y);
-      });
+      ctx.moveTo(centerX, centerY);
+      ctx.lineTo(x, y);
       ctx.stroke();
+    });
 
       // Draw center hub with gradient
       const gradient = ctx.createRadialGradient(centerX - 10, centerY - 10, 0, centerX, centerY, 40);
@@ -183,6 +184,7 @@ const HubAndSpokeVisualization = React.memo(({
             style={{
               left: product.x - 40,
               top: product.y - 40,
+              transform: 'translate(0, 0)', // Ensure no additional transforms
             }}
             onMouseEnter={() => onProductHover(product.id)}
             onMouseLeave={() => onProductHover(null)}
@@ -245,17 +247,23 @@ const SalesforcePower = () => {
 
   // Handle industry selection
   const handleIndustrySelect = (industryId: string) => {
-    triggerHaptic([20, 10, 20]);
-    setSelectedIndustry(industryId);
-    setCurrentSection(1);
-    
-    // Smooth scroll to platform overview
-    setTimeout(() => {
-      platformRef.current?.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'start'
-      });
-    }, 500);
+    try {
+      triggerHaptic([20, 10, 20]);
+      setSelectedIndustry(industryId);
+      setCurrentSection(1);
+      
+      // Smooth scroll to platform overview
+      setTimeout(() => {
+        if (platformRef.current) {
+          platformRef.current.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      }, 500);
+    } catch (error) {
+      console.error('Error in handleIndustrySelect:', error);
+    }
   };
 
   // Handle section navigation
@@ -278,6 +286,19 @@ const SalesforcePower = () => {
 
   // Core products for platform overview - use first 6 products for better visualization
   const coreProducts = salesforceProducts.slice(0, 6);
+
+  // Error boundary for the component
+  if (!t) {
+    console.error('Translation function not available');
+    return (
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Loading...</h1>
+          <p className="text-gray-400">Please wait while we load the page.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-900 text-white" dir={isRTL ? 'rtl' : 'ltr'}>
