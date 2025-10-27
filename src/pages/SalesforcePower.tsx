@@ -1193,26 +1193,55 @@ const SalesforcePower = () => {
                   <Button
                     variant="secondary"
                     size="sm"
-                    onClick={() => {
-                      navigator.vibrate?.(100);
-                      const url = `${window.location.origin}/salesforce-power${selectedIndustry ? `?industry=${selectedIndustry}&lang=${language}` : `?lang=${language}`}#comparison-table`;
-                      navigator.clipboard.writeText(url).then(() => {
+                    onClick={async () => {
+                      try {
+                        navigator.vibrate?.(100);
+                        const url = `${window.location.origin}/salesforce-power${selectedIndustry ? `?industry=${selectedIndustry}&lang=${language}` : `?lang=${language}`}#comparison-table`;
+                        
+                        // Try to copy to clipboard
+                        if (navigator.clipboard && window.isSecureContext) {
+                          await navigator.clipboard.writeText(url);
+                        } else {
+                          // Fallback for older browsers
+                          const textArea = document.createElement('textarea');
+                          textArea.value = url;
+                          textArea.style.position = 'fixed';
+                          textArea.style.left = '-999999px';
+                          textArea.style.top = '-999999px';
+                          document.body.appendChild(textArea);
+                          textArea.focus();
+                          textArea.select();
+                          document.execCommand('copy');
+                          textArea.remove();
+                        }
+                        
                         // Show success feedback
                         const button = document.querySelector('[data-share-table-button]') as HTMLElement;
                         if (button) {
-                          const originalText = button.textContent;
-                          button.textContent = t('power.table.copied');
+                          const originalContent = button.innerHTML;
+                          button.innerHTML = `
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            ${t('power.table.copied')}
+                          `;
+                          button.classList.add('bg-green-500/20', 'text-green-400', 'border-green-500/30');
+                          button.classList.remove('bg-cyan-500/20', 'text-cyan-400', 'border-cyan-500/30');
+                          
                           setTimeout(() => {
-                            button.textContent = originalText;
-                          }, 2000);
+                            button.innerHTML = originalContent;
+                            button.classList.remove('bg-green-500/20', 'text-green-400', 'border-green-500/30');
+                            button.classList.add('bg-cyan-500/20', 'text-cyan-400', 'border-cyan-500/30');
+                          }, 3000);
                         }
-                      }).catch(() => {
+                      } catch (error) {
+                        console.error('Failed to copy link:', error);
                         // Fallback to alert
-                        alert(t('power.table.shareTitle') + ': ' + url);
-                      });
+                        alert(`${t('power.table.shareTitle')}: ${url}`);
+                      }
                     }}
                     data-share-table-button
-                    className="bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 border-cyan-500/30 ml-4"
+                    className="bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 border-cyan-500/30 ml-4 transition-all duration-300"
                   >
                     <Share2 className="w-4 h-4 mr-2" />
                     {t('power.table.share')}
@@ -1328,26 +1357,55 @@ const SalesforcePower = () => {
                 <Button
                   variant="secondary"
                   size="sm"
-                  onClick={() => {
-                    navigator.vibrate?.(100);
-                    const url = `${window.location.origin}/salesforce-power${selectedIndustry ? `?industry=${selectedIndustry}&lang=${language}` : `?lang=${language}`}#comparison-table`;
-                    navigator.clipboard.writeText(url).then(() => {
+                  onClick={async () => {
+                    try {
+                      navigator.vibrate?.(100);
+                      const url = `${window.location.origin}/salesforce-power${selectedIndustry ? `?industry=${selectedIndustry}&lang=${language}` : `?lang=${language}`}#comparison-table`;
+                      
+                      // Try to copy to clipboard
+                      if (navigator.clipboard && window.isSecureContext) {
+                        await navigator.clipboard.writeText(url);
+                      } else {
+                        // Fallback for older browsers
+                        const textArea = document.createElement('textarea');
+                        textArea.value = url;
+                        textArea.style.position = 'fixed';
+                        textArea.style.left = '-999999px';
+                        textArea.style.top = '-999999px';
+                        document.body.appendChild(textArea);
+                        textArea.focus();
+                        textArea.select();
+                        document.execCommand('copy');
+                        textArea.remove();
+                      }
+                      
                       // Show success feedback
                       const button = document.querySelector('[data-share-mobile-button]') as HTMLElement;
                       if (button) {
-                        const originalText = button.textContent;
-                        button.textContent = t('power.table.copied');
+                        const originalContent = button.innerHTML;
+                        button.innerHTML = `
+                          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                          </svg>
+                          ${t('power.table.copied')}
+                        `;
+                        button.classList.add('bg-green-500/20', 'text-green-400', 'border-green-500/30');
+                        button.classList.remove('bg-cyan-500/20', 'text-cyan-400', 'border-cyan-500/30');
+                        
                         setTimeout(() => {
-                          button.textContent = originalText;
-                        }, 2000);
+                          button.innerHTML = originalContent;
+                          button.classList.remove('bg-green-500/20', 'text-green-400', 'border-green-500/30');
+                          button.classList.add('bg-cyan-500/20', 'text-cyan-400', 'border-cyan-500/30');
+                        }, 3000);
                       }
-                    }).catch(() => {
+                    } catch (error) {
+                      console.error('Failed to copy link:', error);
                       // Fallback to alert
-                      alert(t('power.table.shareTitle') + ': ' + url);
-                    });
+                      alert(`${t('power.table.shareTitle')}: ${url}`);
+                    }
                   }}
                   data-share-mobile-button
-                  className="bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 border-cyan-500/30"
+                  className="bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 border-cyan-500/30 transition-all duration-300"
                 >
                   <Share2 className="w-4 h-4 mr-2" />
                   {t('power.table.share')}
