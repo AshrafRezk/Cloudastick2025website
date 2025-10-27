@@ -8,8 +8,8 @@ const LanguageSwitcher: React.FC = () => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const languages = [
-    { code: 'en', name: 'English', flag: '🇺🇸' },
-    { code: 'ar', name: 'العربية', flag: '🇸🇦' }
+    { code: 'en', name: 'English', shortName: 'EN', flag: '🇺🇸' },
+    { code: 'ar', name: 'العربية', shortName: 'AR', flag: '🇸🇦' }
   ];
 
   const handleLanguageChange = (langCode: 'en' | 'ar') => {
@@ -29,8 +29,8 @@ const LanguageSwitcher: React.FC = () => {
         <span className="text-sm font-medium">
           {languages.find(lang => lang.code === language)?.flag}
         </span>
-        <span className="text-sm">
-          {languages.find(lang => lang.code === language)?.name}
+        <span className="text-sm font-semibold">
+          {languages.find(lang => lang.code === language)?.shortName}
         </span>
       </motion.button>
 
