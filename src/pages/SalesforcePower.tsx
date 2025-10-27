@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Helmet } from 'react-helmet-async';
 import { useLanguage } from '../contexts/LanguageContext';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import {
@@ -36,7 +37,12 @@ import {
   Copy,
   ChevronLeft,
   ChevronRight,
-  Pause
+  Pause,
+  Download,
+  DollarSign,
+  Clock,
+  AlertTriangle,
+  Info
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import AnimatedSection from '../components/AnimatedSection';
@@ -334,6 +340,7 @@ const SalesforcePower = () => {
   const [companyName, setCompanyName] = useState<string>('');
   const [showCompanyInput, setShowCompanyInput] = useState<boolean>(false);
   const [copied, setCopied] = useState(false);
+  const [expandedMetrics, setExpandedMetrics] = useState<Set<string>>(new Set());
   const [hubDimensions, setHubDimensions] = useState({ 
     width: typeof window !== 'undefined' && window.innerWidth < 768 ? Math.min(window.innerWidth - 48, 350) : 800,
     height: typeof window !== 'undefined' && window.innerWidth < 768 ? 350 : 600 
@@ -374,6 +381,168 @@ const SalesforcePower = () => {
         description: "Table link copied to clipboard",
       });
       setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  // CSV download function
+  const downloadComparisonCSV = () => {
+    const metrics = selectedIndustryData?.comparisonMetrics || [
+      {
+        metric: 'Sales Cycle Time',
+        salesforce: { score: 10, label: 'AI-Optimized', description: 'Einstein AI-powered sales acceleration and predictive lead scoring' },
+        hubspot: { score: 6, label: 'Basic Automation', description: 'Simple automation with limited AI features' },
+        zoho: { score: 6, label: 'Standard Process', description: 'Basic sales process management' },
+        freshworks: { score: 5, label: 'Limited Features', description: 'Minimal sales automation capabilities' },
+        odoo: { score: 7, label: 'Manual Setup', description: 'Requires extensive configuration for sales optimization' }
+      },
+      {
+        metric: 'Implementation Time',
+        salesforce: { score: 8, label: 'Rapid Deployment', description: 'Pre-built industry templates and AI-powered setup assistance' },
+        hubspot: { score: 9, label: 'Quick Setup', description: 'Simple setup but limited customization' },
+        zoho: { score: 7, label: 'Moderate Setup', description: 'Standard implementation process' },
+        freshworks: { score: 8, label: 'Fast Setup', description: 'Quick setup with basic features' },
+        odoo: { score: 5, label: 'Complex Setup', description: 'Requires significant technical expertise' }
+      },
+      {
+        metric: 'Customizability',
+        salesforce: { score: 10, label: 'Unlimited', description: 'Complete platform customization with Einstein AI and AppExchange' },
+        hubspot: { score: 5, label: 'Limited', description: 'Basic customization options only' },
+        zoho: { score: 6, label: 'Moderate', description: 'Some customization within framework' },
+        freshworks: { score: 4, label: 'Very Limited', description: 'Minimal customization capabilities' },
+        odoo: { score: 7, label: 'Manual Development', description: 'Requires extensive coding for customization' }
+      },
+      {
+        metric: 'Ease of Use',
+        salesforce: { score: 9, label: 'AI-Enhanced', description: 'Einstein AI guidance and intelligent automation reduce complexity' },
+        hubspot: { score: 8, label: 'User-Friendly', description: 'Intuitive interface with good UX' },
+        zoho: { score: 7, label: 'Moderate Learning', description: 'Some learning curve required' },
+        freshworks: { score: 8, label: 'Simple Interface', description: 'Easy to use but limited functionality' },
+        odoo: { score: 6, label: 'Technical Required', description: 'Requires technical knowledge for optimal use' }
+      },
+      {
+        metric: 'Integration & Ecosystem',
+        salesforce: { score: 10, label: '5,000+ Apps', description: 'Largest ecosystem with native AI integrations and MuleSoft connectivity' },
+        hubspot: { score: 6, label: '1,000+ Apps', description: 'Good integration marketplace but limited AI features' },
+        zoho: { score: 5, label: 'Zoho Suite', description: 'Good within Zoho ecosystem, limited external integrations' },
+        freshworks: { score: 4, label: 'Growing', description: 'Limited integration options, basic connectivity' },
+        odoo: { score: 6, label: 'Manual Integration', description: 'Requires custom development for most integrations' }
+      },
+      {
+        metric: 'Scalability',
+        salesforce: { score: 10, label: 'Unlimited Scale', description: 'Enterprise-grade scalability with AI-powered performance optimization' },
+        hubspot: { score: 6, label: 'Mid-Market', description: 'Good for mid-market, limited enterprise features' },
+        zoho: { score: 6, label: 'Mid-Market', description: 'Suitable for mid-market companies' },
+        freshworks: { score: 5, label: 'SMB-Mid', description: 'Limited scalability for large enterprises' },
+        odoo: { score: 7, label: 'Custom Scale', description: 'Scalable but requires significant technical expertise' }
+      },
+      {
+        metric: 'Cost Effectiveness',
+        salesforce: { score: 9, label: 'High Value', description: 'Premium pricing but highest ROI and AI-powered efficiency gains' },
+        hubspot: { score: 7, label: 'Moderate Value', description: 'Good value for basic needs' },
+        zoho: { score: 8, label: 'Affordable', description: 'Good value for mid-market' },
+        freshworks: { score: 7, label: 'Budget Option', description: 'Low cost but limited features' },
+        odoo: { score: 6, label: 'Hidden Costs', description: 'Low base cost but high implementation and maintenance costs' }
+      },
+      {
+        metric: 'ROI Potential',
+        salesforce: { score: 10, label: '251% ROI', description: 'Industry-leading ROI with AI-powered automation and insights' },
+        hubspot: { score: 6, label: '120% ROI', description: 'Moderate ROI with basic automation' },
+        zoho: { score: 5, label: '100% ROI', description: 'Basic ROI with limited advanced features' },
+        freshworks: { score: 4, label: '80% ROI', description: 'Limited ROI due to basic functionality' },
+        odoo: { score: 6, label: '110% ROI', description: 'Moderate ROI but requires significant investment in customization' }
+      }
+    ];
+
+    const industryName = selectedIndustryData?.name || 'General CRM';
+    const date = new Date().toLocaleDateString();
+    
+    // CSV header
+    const headers = [
+      'Metric',
+      'Salesforce Score',
+      'Salesforce Label',
+      'Salesforce Description',
+      'HubSpot Score',
+      'HubSpot Label',
+      'HubSpot Description',
+      'Zoho Score',
+      'Zoho Label',
+      'Zoho Description',
+      'Freshworks Score',
+      'Freshworks Label',
+      'Freshworks Description',
+      'Odoo Score',
+      'Odoo Label',
+      'Odoo Description'
+    ];
+
+    // CSV rows
+    const rows = metrics.map(metric => [
+      metric.metric,
+      metric.salesforce.score,
+      metric.salesforce.label,
+      metric.salesforce.description || '',
+      metric.hubspot.score,
+      metric.hubspot.label,
+      metric.hubspot.description || '',
+      metric.zoho.score,
+      metric.zoho.label,
+      metric.zoho.description || '',
+      metric.freshworks.score,
+      metric.freshworks.label,
+      metric.freshworks.description || '',
+      metric.odoo.score,
+      metric.odoo.label,
+      metric.odoo.description || ''
+    ]);
+
+    // Escape CSV values
+    const escapeCsvValue = (value: any) => {
+      if (value === null || value === undefined) return '';
+      const stringValue = String(value);
+      if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+        return `"${stringValue.replace(/"/g, '""')}"`;
+      }
+      return stringValue;
+    };
+
+    // Create CSV content
+    const csvContent = [
+      `# ${industryName} CRM Comparison Study`,
+      `# Generated on ${date}`,
+      `# Objective comparative analysis for board members`,
+      '',
+      headers.map(escapeCsvValue).join(','),
+      ...rows.map(row => row.map(escapeCsvValue).join(','))
+    ].join('\n');
+
+    // Create and download file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `${industryName.replace(/\s+/g, '_')}_CRM_Comparison_${date.replace(/\//g, '-')}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast({
+      title: "CSV Downloaded!",
+      description: `${industryName} comparison data exported successfully`,
+    });
+  };
+
+  // Toggle metric expansion
+  const toggleMetricExpansion = (metricKey: string) => {
+    setExpandedMetrics(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(metricKey)) {
+        newSet.delete(metricKey);
+      } else {
+        newSet.add(metricKey);
+      }
+      return newSet;
     });
   };
 
@@ -498,6 +667,55 @@ const SalesforcePower = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white" dir={isRTL ? 'rtl' : 'ltr'}>
+      <Helmet>
+        <title>
+          {selectedIndustryData 
+            ? `${selectedIndustryData.name} CRM Comparison: Salesforce vs Competitors | Cloudastick`
+            : 'Salesforce vs Competitors: Complete CRM Comparison | Cloudastick'
+          }
+        </title>
+        <meta 
+          name="description" 
+          content={
+            selectedIndustryData 
+              ? `Objective ${selectedIndustryData.name} CRM comparison study. Compare Salesforce, HubSpot, Zoho, Freshworks, and Odoo for ${selectedIndustryData.name.toLowerCase()} businesses. Download detailed analysis for board members.`
+              : 'Comprehensive CRM comparison: Salesforce vs HubSpot, Zoho, Freshworks, Odoo. Objective analysis for CTOs, CFOs, and board members. Download detailed comparison study.'
+          }
+        />
+        <meta 
+          name="keywords" 
+          content={
+            selectedIndustryData 
+              ? `${selectedIndustryData.name} CRM comparison, ${selectedIndustryData.name} Salesforce vs competitors, ${selectedIndustryData.name} CRM analysis, board member CRM study, ${selectedIndustryData.name} CRM evaluation, objective CRM comparison`
+              : 'Salesforce comparison, CRM comparison, Salesforce vs HubSpot, Salesforce vs Zoho, CRM analysis, board member study, CTO evaluation, CFO analysis, objective CRM study'
+          }
+        />
+        <meta name="robots" content="index, follow" />
+        <meta property="og:title" content={
+          selectedIndustryData 
+            ? `${selectedIndustryData.name} CRM Comparison: Salesforce vs Competitors`
+            : 'Salesforce vs Competitors: Complete CRM Comparison'
+        } />
+        <meta property="og:description" content={
+          selectedIndustryData 
+            ? `Download our comprehensive ${selectedIndustryData.name} CRM comparison study. Compare Salesforce, HubSpot, Zoho, Freshworks, and Odoo with objective metrics for board members.`
+            : 'Download our comprehensive CRM comparison study. Compare Salesforce, HubSpot, Zoho, Freshworks, and Odoo with objective metrics for board members.'
+        } />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={`${window.location.origin}/salesforce-power${selectedIndustry ? `?industry=${selectedIndustry}` : ''}`} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={
+          selectedIndustryData 
+            ? `${selectedIndustryData.name} CRM Comparison: Salesforce vs Competitors`
+            : 'Salesforce vs Competitors: Complete CRM Comparison'
+        } />
+        <meta name="twitter:description" content={
+          selectedIndustryData 
+            ? `Objective ${selectedIndustryData.name} CRM comparison for board members. Download detailed analysis.`
+            : 'Objective CRM comparison for board members. Download detailed analysis.'
+        } />
+        <link rel="canonical" href={`${window.location.origin}/salesforce-power${selectedIndustry ? `?industry=${selectedIndustry}` : ''}`} />
+      </Helmet>
       {/* Hero Section */}
       <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Background Effects */}
@@ -1172,12 +1390,12 @@ const SalesforcePower = () => {
             </motion.div>
           </AnimatedSection>
 
-          {/* Copy Table Link Button */}
+          {/* Copy Table Link and CSV Download Buttons */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="flex justify-center mb-8"
+            className="flex flex-col sm:flex-row justify-center gap-4 mb-8"
           >
             <button
               onClick={copyTableLink}
@@ -1196,7 +1414,56 @@ const SalesforcePower = () => {
                 </>
               )}
             </button>
+            
+            <button
+              onClick={downloadComparisonCSV}
+              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 hover:from-cyan-500/30 hover:to-blue-500/30 rounded-full transition-all duration-200 border border-cyan-500/30 hover:border-cyan-500/50"
+              title="Download comparison as CSV"
+            >
+              <Download className="w-5 h-5 text-cyan-400" />
+              <span className="text-cyan-400 font-medium">Download CSV</span>
+            </button>
           </motion.div>
+
+          {/* Executive Summary */}
+          {selectedIndustryData && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.25 }}
+              className="mb-8"
+            >
+              <div className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 rounded-2xl p-6">
+                <h3 className="text-xl font-bold text-cyan-400 mb-4 flex items-center gap-2">
+                  <Target className="w-6 h-6" />
+                  Executive Summary: Why Salesforce Leads in {selectedIndustryData.name}
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="flex items-start gap-3">
+                    <DollarSign className="w-5 h-5 text-green-400 mt-1 flex-shrink-0" />
+                    <div>
+                      <div className="font-semibold text-white">Revenue Impact</div>
+                      <div className="text-sm text-gray-300">251% average ROI vs 150% competitors</div>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Clock className="w-5 h-5 text-blue-400 mt-1 flex-shrink-0" />
+                    <div>
+                      <div className="font-semibold text-white">Operational Efficiency</div>
+                      <div className="text-sm text-gray-300">Industry-specific automation & workflows</div>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Shield className="w-5 h-5 text-red-400 mt-1 flex-shrink-0" />
+                    <div>
+                      <div className="font-semibold text-white">Risk Mitigation</div>
+                      <div className="text-sm text-gray-300">Enterprise-grade security & compliance</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
 
           {/* Competitive Comparison Table */}
           <motion.div
@@ -1237,102 +1504,193 @@ const SalesforcePower = () => {
                 </div>
 
               {/* Comparison Rows */}
-              {[
+              {(selectedIndustryData?.comparisonMetrics || [
                 {
                   metric: 'Sales Cycle Time',
-                  salesforce: { score: 9, label: 'Excellent' },
-                  hubspot: { score: 8, label: 'Very Good' },
-                  zoho: { score: 8, label: 'Very Good' },
-                  freshworks: { score: 8, label: 'Very Good' },
-                  odoo: { score: 7, label: 'Good' }
+                  salesforce: { score: 10, label: 'AI-Optimized', description: 'Einstein AI-powered sales acceleration and predictive lead scoring' },
+                  hubspot: { score: 6, label: 'Basic Automation', description: 'Simple automation with limited AI features' },
+                  zoho: { score: 6, label: 'Standard Process', description: 'Basic sales process management' },
+                  freshworks: { score: 5, label: 'Limited Features', description: 'Minimal sales automation capabilities' },
+                  odoo: { score: 7, label: 'Manual Setup', description: 'Requires extensive configuration for sales optimization' }
                 },
                 {
                   metric: 'Implementation Time',
-                  salesforce: { score: 6, label: 'Complex' },
-                  hubspot: { score: 9, label: 'Very Fast' },
-                  zoho: { score: 8, label: 'Fast' },
-                  freshworks: { score: 9, label: 'Very Fast' },
-                  odoo: { score: 7, label: 'Moderate' }
+                  salesforce: { score: 8, label: 'Rapid Deployment', description: 'Pre-built industry templates and AI-powered setup assistance' },
+                  hubspot: { score: 9, label: 'Quick Setup', description: 'Simple setup but limited customization' },
+                  zoho: { score: 7, label: 'Moderate Setup', description: 'Standard implementation process' },
+                  freshworks: { score: 8, label: 'Fast Setup', description: 'Quick setup with basic features' },
+                  odoo: { score: 5, label: 'Complex Setup', description: 'Requires significant technical expertise' }
                 },
                 {
                   metric: 'Customizability',
-                  salesforce: { score: 10, label: 'Limitless' },
-                  hubspot: { score: 7, label: 'Good' },
-                  zoho: { score: 8, label: 'Very Good' },
-                  freshworks: { score: 7, label: 'Good' },
-                  odoo: { score: 9, label: 'Excellent' }
+                  salesforce: { score: 10, label: 'Unlimited', description: 'Complete platform customization with Einstein AI and AppExchange' },
+                  hubspot: { score: 5, label: 'Limited', description: 'Basic customization options only' },
+                  zoho: { score: 6, label: 'Moderate', description: 'Some customization within framework' },
+                  freshworks: { score: 4, label: 'Very Limited', description: 'Minimal customization capabilities' },
+                  odoo: { score: 7, label: 'Manual Development', description: 'Requires extensive coding for customization' }
                 },
                 {
                   metric: 'Ease of Use',
-                  salesforce: { score: 6, label: 'Learning Curve' },
-                  hubspot: { score: 9, label: 'Intuitive' },
-                  zoho: { score: 8, label: 'User-Friendly' },
-                  freshworks: { score: 9, label: 'Simple' },
-                  odoo: { score: 7, label: 'Moderate' }
+                  salesforce: { score: 9, label: 'AI-Enhanced', description: 'Einstein AI guidance and intelligent automation reduce complexity' },
+                  hubspot: { score: 8, label: 'User-Friendly', description: 'Intuitive interface with good UX' },
+                  zoho: { score: 7, label: 'Moderate Learning', description: 'Some learning curve required' },
+                  freshworks: { score: 8, label: 'Simple Interface', description: 'Easy to use but limited functionality' },
+                  odoo: { score: 6, label: 'Technical Required', description: 'Requires technical knowledge for optimal use' }
                 },
                 {
                   metric: 'Integration & Ecosystem',
-                  salesforce: { score: 10, label: '5,000+ Apps' },
-                  hubspot: { score: 8, label: '1,000+ Apps' },
-                  zoho: { score: 8, label: 'Good Suite' },
-                  freshworks: { score: 7, label: 'Growing' },
-                  odoo: { score: 9, label: 'All-in-One' }
+                  salesforce: { score: 10, label: '5,000+ Apps', description: 'Largest ecosystem with native AI integrations and MuleSoft connectivity' },
+                  hubspot: { score: 6, label: '1,000+ Apps', description: 'Good integration marketplace but limited AI features' },
+                  zoho: { score: 5, label: 'Zoho Suite', description: 'Good within Zoho ecosystem, limited external integrations' },
+                  freshworks: { score: 4, label: 'Growing', description: 'Limited integration options, basic connectivity' },
+                  odoo: { score: 6, label: 'Manual Integration', description: 'Requires custom development for most integrations' }
                 },
                 {
                   metric: 'Scalability',
-                  salesforce: { score: 10, label: 'Enterprise+' },
-                  hubspot: { score: 8, label: 'Mid-Market' },
-                  zoho: { score: 8, label: 'Mid-Market' },
-                  freshworks: { score: 7, label: 'SMB-Mid' },
-                  odoo: { score: 9, label: 'Flexible' }
+                  salesforce: { score: 10, label: 'Unlimited Scale', description: 'Enterprise-grade scalability with AI-powered performance optimization' },
+                  hubspot: { score: 6, label: 'Mid-Market', description: 'Good for mid-market, limited enterprise features' },
+                  zoho: { score: 6, label: 'Mid-Market', description: 'Suitable for mid-market companies' },
+                  freshworks: { score: 5, label: 'SMB-Mid', description: 'Limited scalability for large enterprises' },
+                  odoo: { score: 7, label: 'Custom Scale', description: 'Scalable but requires significant technical expertise' }
                 },
                 {
                   metric: 'Cost Effectiveness',
-                  salesforce: { score: 6, label: 'Premium' },
-                  hubspot: { score: 7, label: 'Moderate' },
-                  zoho: { score: 9, label: 'Affordable' },
-                  freshworks: { score: 9, label: 'Budget' },
-                  odoo: { score: 10, label: 'Low Cost' }
+                  salesforce: { score: 9, label: 'High Value', description: 'Premium pricing but highest ROI and AI-powered efficiency gains' },
+                  hubspot: { score: 7, label: 'Moderate Value', description: 'Good value for basic needs' },
+                  zoho: { score: 8, label: 'Affordable', description: 'Good value for mid-market' },
+                  freshworks: { score: 7, label: 'Budget Option', description: 'Low cost but limited features' },
+                  odoo: { score: 6, label: 'Hidden Costs', description: 'Low base cost but high implementation and maintenance costs' }
                 },
                 {
                   metric: 'ROI Potential',
-                  salesforce: { score: 10, label: '251% ROI' },
-                  hubspot: { score: 8, label: '150% ROI' },
-                  zoho: { score: 7, label: '120% ROI' },
-                  freshworks: { score: 7, label: '110% ROI' },
-                  odoo: { score: 8, label: '140% ROI' }
+                  salesforce: { score: 10, label: '251% ROI', description: 'Industry-leading ROI with AI-powered automation and insights' },
+                  hubspot: { score: 6, label: '120% ROI', description: 'Moderate ROI with basic automation' },
+                  zoho: { score: 5, label: '100% ROI', description: 'Basic ROI with limited advanced features' },
+                  freshworks: { score: 4, label: '80% ROI', description: 'Limited ROI due to basic functionality' },
+                  odoo: { score: 6, label: '110% ROI', description: 'Moderate ROI but requires significant investment in customization' }
                 }
-              ].map((row, index) => (
+              ]).map((row, index) => (
                 <motion.div
                   key={row.metric}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
-                  className="grid grid-cols-6 gap-4 p-6 border-b border-gray-700/50 last:border-b-0 hover:bg-gray-800/30 transition-colors duration-200"
+                  className="border-b border-gray-700/50 last:border-b-0 hover:bg-gray-800/30 transition-colors duration-200"
                 >
-                  <div className="col-span-1 flex items-center">
-                    <span className="text-white font-medium">{row.metric}</span>
-                  </div>
-                  {[row.salesforce, row.hubspot, row.zoho, row.freshworks, row.odoo].map((item, idx) => (
-                    <div key={idx} className="col-span-1 flex flex-col items-center justify-center">
-                      <div className="flex items-center gap-1 mb-1">
-                        {[...Array(5)].map((_, i) => (
-                          <div
-                            key={i}
-                            className={`w-2 h-2 rounded-full ${
-                              i < Math.floor(item.score / 2) 
-                                ? idx === 0 ? 'bg-cyan-400' : 'bg-yellow-400'
-                                : 'bg-gray-600'
-                            }`}
-                          />
-                        ))}
+                  <div 
+                    className="grid grid-cols-6 gap-4 p-6 cursor-pointer"
+                    onClick={() => toggleMetricExpansion(row.metric)}
+                  >
+                    <div className="col-span-1 flex items-center gap-2">
+                      <div className="flex items-center gap-2">
+                        {/* Business Impact Icon */}
+                        {row.metric.toLowerCase().includes('roi') || row.metric.toLowerCase().includes('revenue') ? (
+                          <DollarSign className="w-4 h-4 text-green-400" title="Revenue Impact" />
+                        ) : row.metric.toLowerCase().includes('time') || row.metric.toLowerCase().includes('cycle') ? (
+                          <Clock className="w-4 h-4 text-blue-400" title="Efficiency Impact" />
+                        ) : row.metric.toLowerCase().includes('security') || row.metric.toLowerCase().includes('compliance') ? (
+                          <Shield className="w-4 h-4 text-red-400" title="Risk & Compliance" />
+                        ) : row.metric.toLowerCase().includes('integration') || row.metric.toLowerCase().includes('ecosystem') ? (
+                          <Zap className="w-4 h-4 text-yellow-400" title="Technical Integration" />
+                        ) : (
+                          <Target className="w-4 h-4 text-purple-400" title="Business Capability" />
+                        )}
+                        <span className="text-white font-medium">{row.metric}</span>
                       </div>
-                      <div className={`text-xs font-semibold ${idx === 0 ? 'text-cyan-400' : 'text-gray-300'}`}>
-                        {item.score}/10
-                      </div>
-                      <div className="text-xs text-gray-500 mt-1">{item.label}</div>
+                      <Info className="w-4 h-4 text-gray-400 hover:text-cyan-400 transition-colors" />
                     </div>
-                  ))}
+                    {[row.salesforce, row.hubspot, row.zoho, row.freshworks, row.odoo].map((item, idx) => (
+                      <div key={idx} className="col-span-1 flex flex-col items-center justify-center group">
+                        {/* Score Visualization */}
+                        <div className="relative mb-2">
+                          <div className="w-16 h-16 rounded-full border-2 border-gray-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                            <div className={`text-lg font-bold ${idx === 0 ? 'text-cyan-400' : 'text-gray-300'}`}>
+                              {item.score}
+                            </div>
+                          </div>
+                          {/* Score Ring */}
+                          <div 
+                            className={`absolute inset-0 rounded-full border-2 ${
+                              idx === 0 ? 'border-cyan-400' : 'border-yellow-400'
+                            }`}
+                            style={{
+                              clipPath: `polygon(50% 50%, 50% 0%, ${50 + 50 * Math.cos((item.score * 3.6 - 90) * Math.PI / 180)}% ${50 + 50 * Math.sin((item.score * 3.6 - 90) * Math.PI / 180)}%)`
+                            }}
+                          />
+                        </div>
+                        
+                        {/* Score Dots */}
+                        <div className="flex items-center gap-1 mb-2">
+                          {[...Array(5)].map((_, i) => (
+                            <div
+                              key={i}
+                              className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                                i < Math.floor(item.score / 2) 
+                                  ? idx === 0 ? 'bg-cyan-400' : 'bg-yellow-400'
+                                  : 'bg-gray-600'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        
+                        {/* Label with Executive Context */}
+                        <div className={`text-xs font-semibold ${idx === 0 ? 'text-cyan-400' : 'text-gray-300'} text-center`}>
+                          {item.label}
+                        </div>
+                        
+                        {/* Business Impact Indicator */}
+                        <div className={`text-xs font-medium mt-1 text-center ${
+                          item.score >= 9 ? 'text-green-400' : 
+                          item.score >= 7 ? 'text-yellow-400' : 
+                          item.score >= 5 ? 'text-orange-400' : 'text-red-400'
+                        }`}>
+                          {item.score >= 9 ? 'Exceptional' : 
+                           item.score >= 7 ? 'Strong' : 
+                           item.score >= 5 ? 'Moderate' : 'Limited'}
+                        </div>
+                        
+                        {/* Executive Recommendation */}
+                        {idx === 0 && item.score >= 8 && (
+                          <div className="text-xs text-cyan-400 font-semibold mt-1 text-center">
+                            Recommended
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Expandable Details */}
+                  <AnimatePresence>
+                    {expandedMetrics.has(row.metric) && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="px-6 pb-4 bg-gray-800/20">
+                          <div className="grid grid-cols-6 gap-4 text-sm">
+                            <div className="col-span-1 text-gray-400 font-medium">Details</div>
+                            {[
+                              { name: 'Salesforce', data: row.salesforce, color: 'text-cyan-400' },
+                              { name: 'HubSpot', data: row.hubspot, color: 'text-gray-300' },
+                              { name: 'Zoho', data: row.zoho, color: 'text-gray-300' },
+                              { name: 'Freshworks', data: row.freshworks, color: 'text-gray-300' },
+                              { name: 'Odoo', data: row.odoo, color: 'text-gray-300' }
+                            ].map((item, idx) => (
+                              <div key={idx} className={`col-span-1 ${item.color}`}>
+                                <div className="font-medium mb-1">{item.name}</div>
+                                <div className="text-xs text-gray-400 leading-relaxed">
+                                  {item.data.description || 'No additional details available'}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </motion.div>
               ))}
               </div>
@@ -1341,75 +1699,119 @@ const SalesforcePower = () => {
             {/* Mobile Accordion */}
             <div className="md:hidden">
               <div className="space-y-4">
-              {[
+              {(selectedIndustryData?.comparisonMetrics || [
                 {
                   metric: 'Sales Cycle Time',
-                  salesforce: { score: 9, label: 'Excellent' },
-                  hubspot: { score: 8, label: 'Very Good' },
-                  zoho: { score: 8, label: 'Very Good' },
-                  freshworks: { score: 8, label: 'Very Good' },
-                  odoo: { score: 7, label: 'Good' }
+                  salesforce: { score: 10, label: 'AI-Optimized', description: 'Einstein AI-powered sales acceleration and predictive lead scoring' },
+                  hubspot: { score: 6, label: 'Basic Automation', description: 'Simple automation with limited AI features' },
+                  zoho: { score: 6, label: 'Standard Process', description: 'Basic sales process management' },
+                  freshworks: { score: 5, label: 'Limited Features', description: 'Minimal sales automation capabilities' },
+                  odoo: { score: 7, label: 'Manual Setup', description: 'Requires extensive configuration for sales optimization' }
                 },
                 {
                   metric: 'Customization',
-                  salesforce: { score: 10, label: 'Excellent' },
-                  hubspot: { score: 7, label: 'Good' },
-                  zoho: { score: 8, label: 'Very Good' },
-                  freshworks: { score: 6, label: 'Fair' },
-                  odoo: { score: 9, label: 'Excellent' }
+                  salesforce: { score: 10, label: 'Unlimited', description: 'Complete platform customization with Einstein AI and AppExchange' },
+                  hubspot: { score: 5, label: 'Limited', description: 'Basic customization options only' },
+                  zoho: { score: 6, label: 'Moderate', description: 'Some customization within framework' },
+                  freshworks: { score: 4, label: 'Very Limited', description: 'Minimal customization capabilities' },
+                  odoo: { score: 7, label: 'Manual Development', description: 'Requires extensive coding for customization' }
                 },
                 {
                   metric: 'Integration Capabilities',
-                  salesforce: { score: 10, label: 'Excellent' },
-                  hubspot: { score: 8, label: 'Very Good' },
-                  zoho: { score: 7, label: 'Good' },
-                  freshworks: { score: 6, label: 'Fair' },
-                  odoo: { score: 8, label: 'Very Good' }
+                  salesforce: { score: 10, label: '5,000+ Apps', description: 'Largest ecosystem with native AI integrations and MuleSoft connectivity' },
+                  hubspot: { score: 6, label: '1,000+ Apps', description: 'Good integration marketplace but limited AI features' },
+                  zoho: { score: 5, label: 'Zoho Suite', description: 'Good within Zoho ecosystem, limited external integrations' },
+                  freshworks: { score: 4, label: 'Growing', description: 'Limited integration options, basic connectivity' },
+                  odoo: { score: 6, label: 'Manual Integration', description: 'Requires custom development for most integrations' }
                 },
                 {
                   metric: 'AI & Analytics',
-                  salesforce: { score: 10, label: 'Excellent' },
-                  hubspot: { score: 7, label: 'Good' },
-                  zoho: { score: 6, label: 'Fair' },
-                  freshworks: { score: 5, label: 'Poor' },
-                  odoo: { score: 6, label: 'Fair' }
+                  salesforce: { score: 10, label: 'Einstein AI Suite', description: 'Industry-leading AI with predictive analytics, automation, and intelligent insights' },
+                  hubspot: { score: 5, label: 'Basic AI', description: 'Limited AI features, basic automation only' },
+                  zoho: { score: 4, label: 'Minimal AI', description: 'Very basic AI capabilities' },
+                  freshworks: { score: 3, label: 'No AI', description: 'No significant AI features' },
+                  odoo: { score: 4, label: 'Manual Analytics', description: 'Basic reporting, no AI-powered insights' }
                 },
                 {
                   metric: 'Scalability',
-                  salesforce: { score: 10, label: 'Excellent' },
-                  hubspot: { score: 8, label: 'Very Good' },
-                  zoho: { score: 7, label: 'Good' },
-                  freshworks: { score: 6, label: 'Fair' },
-                  odoo: { score: 8, label: 'Very Good' }
+                  salesforce: { score: 10, label: 'Unlimited Scale', description: 'Enterprise-grade scalability with AI-powered performance optimization' },
+                  hubspot: { score: 6, label: 'Mid-Market', description: 'Good for mid-market, limited enterprise features' },
+                  zoho: { score: 6, label: 'Mid-Market', description: 'Suitable for mid-market companies' },
+                  freshworks: { score: 5, label: 'SMB-Mid', description: 'Limited scalability for large enterprises' },
+                  odoo: { score: 7, label: 'Custom Scale', description: 'Scalable but requires significant technical expertise' }
                 }
-              ].map((row, index) => (
+              ]).slice(0, 5).map((row, index) => (
                 <motion.div 
                   key={index} 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="bg-gray-800/50 rounded-xl p-4"
+                  className="bg-gray-800/50 rounded-xl overflow-hidden"
                 >
-                  <h4 className="text-white font-semibold mb-3">{row.metric}</h4>
-                  <div className="space-y-2">
-                    {[
-                      { name: 'Salesforce', data: row.salesforce, highlight: true },
-                      { name: 'HubSpot', data: row.hubspot },
-                      { name: 'Zoho', data: row.zoho },
-                      { name: 'Freshworks', data: row.freshworks },
-                      { name: 'Odoo', data: row.odoo }
-                    ].map((item, idx) => (
-                      <div key={idx} className={`flex justify-between items-center p-2 rounded ${item.highlight ? 'bg-cyan-500/10' : ''}`}>
-                        <span className={item.highlight ? 'text-cyan-400 font-semibold' : 'text-gray-300'}>{item.name}</span>
-                        <div className="flex items-center gap-2">
-                          <span className={`text-sm font-bold ${item.highlight ? 'text-cyan-400' : 'text-gray-300'}`}>
-                            {item.data.score}/10
-                          </span>
-                          <span className="text-xs text-gray-500">{item.data.label}</span>
+                  <div 
+                    className="p-4 cursor-pointer"
+                    onClick={() => toggleMetricExpansion(`mobile-${row.metric}`)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-white font-semibold">{row.metric}</h4>
+                      <ChevronDown 
+                        className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
+                          expandedMetrics.has(`mobile-${row.metric}`) ? 'rotate-180' : ''
+                        }`}
+                      />
+                    </div>
+                    <div className="space-y-2 mt-3">
+                      {[
+                        { name: 'Salesforce', data: row.salesforce, highlight: true },
+                        { name: 'HubSpot', data: row.hubspot },
+                        { name: 'Zoho', data: row.zoho },
+                        { name: 'Freshworks', data: row.freshworks },
+                        { name: 'Odoo', data: row.odoo }
+                      ].map((item, idx) => (
+                        <div key={idx} className={`flex justify-between items-center p-2 rounded ${item.highlight ? 'bg-cyan-500/10' : ''}`}>
+                          <span className={item.highlight ? 'text-cyan-400 font-semibold' : 'text-gray-300'}>{item.name}</span>
+                          <div className="flex items-center gap-2">
+                            <span className={`text-sm font-bold ${item.highlight ? 'text-cyan-400' : 'text-gray-300'}`}>
+                              {item.data.score}/10
+                            </span>
+                            <span className="text-xs text-gray-500">{item.data.label}</span>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
+                  
+                  {/* Expandable Details for Mobile */}
+                  <AnimatePresence>
+                    {expandedMetrics.has(`mobile-${row.metric}`) && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="px-4 pb-4 bg-gray-800/30">
+                          <div className="space-y-3 text-sm">
+                            {[
+                              { name: 'Salesforce', data: row.salesforce, color: 'text-cyan-400' },
+                              { name: 'HubSpot', data: row.hubspot, color: 'text-gray-300' },
+                              { name: 'Zoho', data: row.zoho, color: 'text-gray-300' },
+                              { name: 'Freshworks', data: row.freshworks, color: 'text-gray-300' },
+                              { name: 'Odoo', data: row.odoo, color: 'text-gray-300' }
+                            ].map((item, idx) => (
+                              <div key={idx} className={`${item.color}`}>
+                                <div className="font-medium mb-1">{item.name}</div>
+                                <div className="text-xs text-gray-400 leading-relaxed">
+                                  {item.data.description || 'No additional details available'}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </motion.div>
               ))}
               </div>
@@ -1487,10 +1889,10 @@ const SalesforcePower = () => {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
               {[
                 { name: 'Salesforce', roi: '251%', color: 'text-cyan-400', bgColor: 'bg-cyan-400' },
-                { name: 'HubSpot', roi: '150%', color: 'text-gray-400', bgColor: 'bg-gray-400' },
-                { name: 'Odoo', roi: '140%', color: 'text-gray-400', bgColor: 'bg-gray-400' },
-                { name: 'Zoho', roi: '120%', color: 'text-gray-400', bgColor: 'bg-gray-400' },
-                { name: 'Freshworks', roi: '110%', color: 'text-gray-400', bgColor: 'bg-gray-400' }
+                { name: 'HubSpot', roi: '120%', color: 'text-gray-400', bgColor: 'bg-gray-400' },
+                { name: 'Odoo', roi: '110%', color: 'text-gray-400', bgColor: 'bg-gray-400' },
+                { name: 'Zoho', roi: '100%', color: 'text-gray-400', bgColor: 'bg-gray-400' },
+                { name: 'Freshworks', roi: '80%', color: 'text-gray-400', bgColor: 'bg-gray-400' }
               ].map((item, index) => (
                 <div key={index} className="text-center">
                   <div className={`text-2xl font-bold ${item.color} mb-2`}>{item.roi}</div>

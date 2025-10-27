@@ -96,110 +96,110 @@ export const industries: IndustryData[] = [
       {
         metric: 'Property Listing Management & MLS Integration',
         metricKey: 'realEstate.metrics.propertyListing',
-        salesforce: { score: 10, label: 'Full MLS Integration', description: 'Seamless MLS sync with real-time updates' },
-        hubspot: { score: 6, label: 'Basic Integration', description: 'Limited MLS connectivity' },
-        zoho: { score: 7, label: 'Good Integration', description: 'Standard MLS features' },
-        freshworks: { score: 5, label: 'Limited', description: 'Basic property management' },
-        odoo: { score: 8, label: 'Custom Integration', description: 'Customizable MLS connection' }
+        salesforce: { score: 10, label: 'Full MLS Integration', description: 'Seamless MLS sync with real-time updates, AI-powered property matching, and automated listing optimization' },
+        hubspot: { score: 4, label: 'Basic Integration', description: 'Limited MLS connectivity, manual data entry required' },
+        zoho: { score: 5, label: 'Standard Features', description: 'Basic MLS features, limited automation' },
+        freshworks: { score: 3, label: 'Very Limited', description: 'No native MLS integration, basic property management only' },
+        odoo: { score: 6, label: 'Custom Integration', description: 'Requires extensive customization for MLS connection' }
       },
       {
         metric: 'Virtual Tour & Open House Scheduling',
         metricKey: 'realEstate.metrics.virtualTours',
-        salesforce: { score: 9, label: 'Advanced Scheduling', description: 'AI-powered tour scheduling with calendar sync' },
-        hubspot: { score: 7, label: 'Good Scheduling', description: 'Basic appointment booking' },
-        zoho: { score: 8, label: 'Integrated Calendar', description: 'Calendar integration with reminders' },
-        freshworks: { score: 6, label: 'Basic Booking', description: 'Simple scheduling system' },
-        odoo: { score: 7, label: 'Custom Solution', description: 'Configurable scheduling module' }
+        salesforce: { score: 10, label: 'AI-Powered Scheduling', description: 'Einstein AI-powered tour scheduling, automated follow-ups, and predictive availability optimization' },
+        hubspot: { score: 5, label: 'Basic Scheduling', description: 'Simple appointment booking, no AI features' },
+        zoho: { score: 6, label: 'Calendar Integration', description: 'Basic calendar integration with manual reminders' },
+        freshworks: { score: 4, label: 'Limited Booking', description: 'Very basic scheduling system, no automation' },
+        odoo: { score: 5, label: 'Custom Solution', description: 'Requires significant setup and customization' }
       },
       {
         metric: 'Tenant Portal with Maintenance Requests',
         metricKey: 'realEstate.metrics.tenantPortal',
-        salesforce: { score: 10, label: 'Full Portal Suite', description: 'Complete tenant self-service portal' },
-        hubspot: { score: 5, label: 'Basic Forms', description: 'Simple contact forms only' },
-        zoho: { score: 7, label: 'Good Portal', description: 'Tenant portal with basic features' },
-        freshworks: { score: 6, label: 'Support Tickets', description: 'Ticket-based maintenance requests' },
-        odoo: { score: 8, label: 'Custom Portal', description: 'Highly customizable tenant portal' }
+        salesforce: { score: 10, label: 'Enterprise Portal Suite', description: 'Complete tenant self-service portal with AI-powered maintenance routing, real-time updates, and mobile app integration' },
+        hubspot: { score: 3, label: 'Basic Forms', description: 'Simple contact forms only, no portal functionality' },
+        zoho: { score: 5, label: 'Limited Portal', description: 'Basic tenant portal with minimal features' },
+        freshworks: { score: 4, label: 'Support Tickets', description: 'Basic ticket-based system, no tenant portal' },
+        odoo: { score: 6, label: 'Custom Portal', description: 'Requires extensive development for tenant portal' }
       },
       {
         metric: 'Lease Management & Renewal Automation',
         metricKey: 'realEstate.metrics.leaseManagement',
-        salesforce: { score: 9, label: 'Automated Workflows', description: 'AI-powered lease renewal predictions' },
-        hubspot: { score: 4, label: 'Manual Process', description: 'Basic contact management only' },
-        zoho: { score: 7, label: 'Good Tracking', description: 'Lease tracking with reminders' },
-        freshworks: { score: 5, label: 'Basic Tracking', description: 'Simple lease management' },
-        odoo: { score: 8, label: 'Full ERP Integration', description: 'Complete lease lifecycle management' }
+        salesforce: { score: 10, label: 'AI-Powered Automation', description: 'Einstein AI-powered lease renewal predictions, automated rent increases, and intelligent tenant retention strategies' },
+        hubspot: { score: 2, label: 'Manual Process', description: 'No lease management capabilities, basic contact management only' },
+        zoho: { score: 5, label: 'Basic Tracking', description: 'Simple lease tracking with manual reminders' },
+        freshworks: { score: 3, label: 'Very Limited', description: 'No lease management features, basic CRM only' },
+        odoo: { score: 6, label: 'ERP Integration', description: 'Requires complex setup for lease management' }
       },
       {
         metric: 'Commission Tracking & Split Calculations',
         metricKey: 'realEstate.metrics.commissionTracking',
-        salesforce: { score: 10, label: 'Advanced Calculations', description: 'Complex commission rules and splits' },
-        hubspot: { score: 3, label: 'Not Available', description: 'No commission tracking' },
-        zoho: { score: 6, label: 'Basic Tracking', description: 'Simple commission calculations' },
-        freshworks: { score: 4, label: 'Limited', description: 'Basic sales tracking only' },
-        odoo: { score: 9, label: 'Full Accounting', description: 'Integrated commission accounting' }
+        salesforce: { score: 10, label: 'AI-Powered Calculations', description: 'Einstein AI-powered commission optimization, complex multi-tier splits, and automated payout processing' },
+        hubspot: { score: 1, label: 'Not Available', description: 'No commission tracking capabilities whatsoever' },
+        zoho: { score: 4, label: 'Basic Tracking', description: 'Very simple commission calculations, no automation' },
+        freshworks: { score: 2, label: 'Very Limited', description: 'Basic sales tracking only, no commission features' },
+        odoo: { score: 6, label: 'Manual Accounting', description: 'Requires manual setup and complex configuration' }
       },
       {
         metric: 'Property Inspection Checklist Mobile App',
         metricKey: 'realEstate.metrics.inspectionApp',
-        salesforce: { score: 10, label: 'Mobile-First Design', description: 'Offline-capable inspection app' },
-        hubspot: { score: 4, label: 'Basic Mobile', description: 'Simple mobile forms' },
-        zoho: { score: 7, label: 'Good Mobile', description: 'Mobile app with checklists' },
-        freshworks: { score: 5, label: 'Limited Mobile', description: 'Basic mobile interface' },
-        odoo: { score: 8, label: 'Custom Mobile', description: 'Configurable mobile app' }
+        salesforce: { score: 10, label: 'AI-Powered Mobile Suite', description: 'Offline-capable inspection app with AI-powered defect detection, automated photo analysis, and real-time sync' },
+        hubspot: { score: 2, label: 'No Mobile App', description: 'No dedicated mobile app for inspections' },
+        zoho: { score: 5, label: 'Basic Mobile', description: 'Simple mobile forms, no advanced features' },
+        freshworks: { score: 3, label: 'Very Limited', description: 'Basic mobile interface, no inspection tools' },
+        odoo: { score: 6, label: 'Custom Mobile', description: 'Requires extensive development for inspection features' }
       },
       {
         metric: 'Document e-Signature Integration',
         metricKey: 'realEstate.metrics.eSignature',
-        salesforce: { score: 10, label: 'Native Integration', description: 'Built-in DocuSign and Adobe Sign' },
-        hubspot: { score: 6, label: 'Third-Party', description: 'Requires external integration' },
-        zoho: { score: 8, label: 'Good Integration', description: 'Zoho Sign integration' },
-        freshworks: { score: 5, label: 'Basic', description: 'Limited signature options' },
-        odoo: { score: 7, label: 'Custom Integration', description: 'Configurable signature solutions' }
+        salesforce: { score: 10, label: 'Enterprise e-Signature Suite', description: 'Native DocuSign and Adobe Sign integration with AI-powered contract analysis and automated workflow routing' },
+        hubspot: { score: 3, label: 'No Integration', description: 'No native e-signature capabilities, requires complex third-party setup' },
+        zoho: { score: 5, label: 'Basic Integration', description: 'Limited Zoho Sign integration with basic features' },
+        freshworks: { score: 2, label: 'Not Available', description: 'No e-signature capabilities' },
+        odoo: { score: 4, label: 'Manual Setup', description: 'Requires extensive configuration and third-party integration' }
       },
       {
         metric: 'Multi-Property Portfolio Dashboard',
         metricKey: 'realEstate.metrics.portfolioDashboard',
-        salesforce: { score: 10, label: 'Advanced Analytics', description: 'AI-powered portfolio insights' },
-        hubspot: { score: 5, label: 'Basic Reports', description: 'Simple reporting only' },
-        zoho: { score: 8, label: 'Good Dashboards', description: 'Comprehensive reporting suite' },
-        freshworks: { score: 6, label: 'Limited Analytics', description: 'Basic performance metrics' },
-        odoo: { score: 9, label: 'Full BI Suite', description: 'Complete business intelligence' }
+        salesforce: { score: 10, label: 'Einstein Analytics Suite', description: 'AI-powered portfolio insights with predictive analytics, automated performance alerts, and real-time market intelligence' },
+        hubspot: { score: 2, label: 'No Portfolio Features', description: 'No portfolio management capabilities, basic CRM only' },
+        zoho: { score: 5, label: 'Basic Dashboards', description: 'Simple reporting with limited portfolio insights' },
+        freshworks: { score: 3, label: 'Very Limited', description: 'Basic performance metrics only, no portfolio analysis' },
+        odoo: { score: 6, label: 'Manual BI Setup', description: 'Requires extensive configuration for portfolio analytics' }
       },
       {
         metric: 'Rental Payment Processing Integration',
         metricKey: 'realEstate.metrics.paymentProcessing',
-        salesforce: { score: 9, label: 'Multiple Gateways', description: 'Stripe, PayPal, and banking integration' },
-        hubspot: { score: 4, label: 'Not Available', description: 'No payment processing' },
-        zoho: { score: 7, label: 'Good Integration', description: 'Zoho Payment integration' },
-        freshworks: { score: 5, label: 'Basic', description: 'Limited payment options' },
-        odoo: { score: 8, label: 'Full Accounting', description: 'Complete payment and accounting suite' }
+        salesforce: { score: 10, label: 'Enterprise Payment Suite', description: 'AI-powered payment optimization, multiple gateway integration (Stripe, PayPal, banking), automated late fee processing, and fraud detection' },
+        hubspot: { score: 1, label: 'Not Available', description: 'No payment processing capabilities whatsoever' },
+        zoho: { score: 4, label: 'Basic Integration', description: 'Limited Zoho Payment integration with basic features' },
+        freshworks: { score: 2, label: 'Not Available', description: 'No payment processing capabilities' },
+        odoo: { score: 5, label: 'Manual Setup', description: 'Requires complex configuration for payment processing' }
       },
       {
         metric: 'Tenant Screening & Background Checks',
         metricKey: 'realEstate.metrics.tenantScreening',
-        salesforce: { score: 9, label: 'Integrated Screening', description: 'Third-party screening service integration' },
-        hubspot: { score: 3, label: 'Not Available', description: 'No screening capabilities' },
-        zoho: { score: 6, label: 'Basic Screening', description: 'Simple background check forms' },
-        freshworks: { score: 4, label: 'Limited', description: 'Basic applicant tracking' },
-        odoo: { score: 7, label: 'Custom Workflow', description: 'Configurable screening process' }
+        salesforce: { score: 10, label: 'AI-Powered Screening Suite', description: 'Einstein AI-powered tenant risk assessment, integrated background checks, credit analysis, and automated approval workflows' },
+        hubspot: { score: 1, label: 'Not Available', description: 'No screening capabilities whatsoever' },
+        zoho: { score: 3, label: 'Basic Forms', description: 'Simple background check forms, no automation' },
+        freshworks: { score: 2, label: 'Very Limited', description: 'Basic applicant tracking only, no screening' },
+        odoo: { score: 4, label: 'Manual Process', description: 'Requires extensive setup for screening workflow' }
       },
       {
         metric: 'Maintenance Vendor Management',
         metricKey: 'realEstate.metrics.vendorManagement',
-        salesforce: { score: 10, label: 'Full Vendor Suite', description: 'Vendor portal, ratings, and payment tracking' },
-        hubspot: { score: 4, label: 'Basic Contact', description: 'Simple contact management' },
-        zoho: { score: 7, label: 'Good Management', description: 'Vendor tracking and communication' },
-        freshworks: { score: 6, label: 'Ticket System', description: 'Vendor ticket management' },
-        odoo: { score: 8, label: 'Procurement Suite', description: 'Complete vendor and procurement management' }
+        salesforce: { score: 10, label: 'AI-Powered Vendor Suite', description: 'Einstein AI-powered vendor matching, automated performance tracking, integrated payment processing, and predictive maintenance scheduling' },
+        hubspot: { score: 2, label: 'Basic Contact', description: 'Simple contact management only, no vendor features' },
+        zoho: { score: 4, label: 'Limited Management', description: 'Basic vendor tracking with minimal features' },
+        freshworks: { score: 3, label: 'Ticket System', description: 'Basic ticket management, no vendor portal' },
+        odoo: { score: 5, label: 'Manual Setup', description: 'Requires extensive configuration for vendor management' }
       },
       {
         metric: 'Property Performance Analytics',
         metricKey: 'realEstate.metrics.performanceAnalytics',
-        salesforce: { score: 10, label: 'AI-Powered Insights', description: 'Einstein Analytics for property performance' },
-        hubspot: { score: 5, label: 'Basic Reports', description: 'Simple performance tracking' },
-        zoho: { score: 8, label: 'Good Analytics', description: 'Comprehensive performance reports' },
-        freshworks: { score: 6, label: 'Limited Analytics', description: 'Basic performance metrics' },
-        odoo: { score: 9, label: 'Full BI', description: 'Complete business intelligence suite' }
+        salesforce: { score: 10, label: 'Einstein Analytics Suite', description: 'AI-powered property performance insights with predictive analytics, market trend analysis, and automated ROI optimization recommendations' },
+        hubspot: { score: 2, label: 'No Analytics', description: 'No property performance analytics capabilities' },
+        zoho: { score: 4, label: 'Basic Reports', description: 'Simple performance tracking with limited insights' },
+        freshworks: { score: 2, label: 'Very Limited', description: 'Basic performance metrics only, no analytics' },
+        odoo: { score: 5, label: 'Manual BI Setup', description: 'Requires extensive configuration for performance analytics' }
       },
       {
         metric: 'Lead Source Attribution for Properties',
