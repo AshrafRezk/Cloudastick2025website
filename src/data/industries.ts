@@ -205,6 +205,12 @@ export const industries: IndustryData[] = [
       'Service activation complexity',
       'Billing and payment management'
     ],
+    painPoints: [
+      'Fragmented customer communication channels',
+      'Poor call center efficiency',
+      'Manual case routing and management',
+      'Inefficient customer interaction tracking'
+    ],
     marketSize: '$1.7 trillion globally',
     growthRate: '3.2% annually'
   },
@@ -234,6 +240,12 @@ export const industries: IndustryData[] = [
       'Client data security',
       'Complex product offerings',
       'Digital transformation needs'
+    ],
+    painPoints: [
+      'Complex regulatory compliance requirements',
+      'Poor client relationship management',
+      'Manual wealth management processes',
+      'Inefficient risk assessment and reporting'
     ],
     marketSize: '$2.5 trillion globally',
     growthRate: '5.5% annually'
@@ -265,6 +277,12 @@ export const industries: IndustryData[] = [
       'Personalization at scale',
       'Seasonal demand fluctuations'
     ],
+    painPoints: [
+      'Disconnected online and offline experiences',
+      'Poor inventory management across channels',
+      'Manual customer service processes',
+      'Inefficient loyalty program management'
+    ],
     marketSize: '$4.9 trillion globally',
     growthRate: '7.2% annually'
   },
@@ -293,6 +311,12 @@ export const industries: IndustryData[] = [
       'Complex pricing structures',
       'Long sales cycles',
       'Account-based selling',
+      'Integration with ERP systems'
+    ],
+    painPoints: [
+      'Complex B2B sales processes',
+      'Manual quote and order management',
+      'Poor customer self-service',
       'Integration with ERP systems'
     ],
     marketSize: '$1.2 trillion globally',
@@ -325,6 +349,12 @@ export const industries: IndustryData[] = [
       'Client relationship management',
       'Knowledge sharing and collaboration'
     ],
+    painPoints: [
+      'Poor project resource allocation',
+      'Manual time and expense tracking',
+      'Inefficient client communication',
+      'Fragmented knowledge management'
+    ],
     marketSize: '$4.2 trillion globally',
     growthRate: '6.1% annually'
   },
@@ -354,6 +384,12 @@ export const industries: IndustryData[] = [
       'Dealership network coordination',
       'Service and maintenance scheduling',
       'Customer loyalty and retention'
+    ],
+    painPoints: [
+      'Disconnected production and sales data',
+      'Poor supply chain visibility',
+      'Manual quality control processes',
+      'Inefficient equipment maintenance scheduling'
     ],
     marketSize: '$2.7 trillion globally',
     growthRate: '3.8% annually'
@@ -385,6 +421,12 @@ export const industries: IndustryData[] = [
       'Multi-channel booking management',
       'Service recovery and support'
     ],
+    painPoints: [
+      'Fragmented booking and reservation systems',
+      'Poor customer journey tracking',
+      'Manual loyalty program management',
+      'Inefficient customer service processes'
+    ],
     marketSize: '$1.6 trillion globally',
     growthRate: '4.7% annually'
   },
@@ -414,6 +456,12 @@ export const industries: IndustryData[] = [
       'Quality control and compliance',
       'Product safety and recalls',
       'Seasonal demand management'
+    ],
+    painPoints: [
+      'Complex supply chain operations',
+      'Manual quality control processes',
+      'Poor product traceability',
+      'Inefficient distributor management'
     ],
     marketSize: '$8.9 trillion globally',
     growthRate: '5.3% annually'
@@ -445,6 +493,12 @@ export const industries: IndustryData[] = [
       'Field service management',
       'Billing and payment processing'
     ],
+    painPoints: [
+      'Complex regulatory compliance requirements',
+      'Poor customer service efficiency',
+      'Manual field service scheduling',
+      'Inefficient billing and payment processes'
+    ],
     marketSize: '$1.8 trillion globally',
     growthRate: '3.5% annually'
   },
@@ -474,6 +528,12 @@ export const industries: IndustryData[] = [
       'Regulatory compliance',
       'Digital transformation',
       'Process automation'
+    ],
+    painPoints: [
+      'Poor citizen service delivery',
+      'Complex regulatory compliance processes',
+      'Manual document management',
+      'Inefficient case processing'
     ],
     marketSize: '$2.2 trillion globally',
     growthRate: '4.2% annually'
