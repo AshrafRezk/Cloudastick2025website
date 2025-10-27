@@ -91,8 +91,8 @@ const SalesforcePower = () => {
   const industryProducts = selectedIndustry ? getProductsByIndustry(selectedIndustry) : [];
   const selectedIndustryData = selectedIndustry ? getIndustryById(selectedIndustry) : null;
 
-  // Core products for platform overview
-  const coreProducts = salesforceProducts.filter(p => p.category === 'Core');
+  // Core products for platform overview - use first 6 products for better visualization
+  const coreProducts = salesforceProducts.slice(0, 6);
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -247,13 +247,19 @@ const SalesforcePower = () => {
                   className="w-20 h-20 object-contain"
                 />
               </div>
+              {/* Pulsing ring around center */}
+              <motion.div
+                className="absolute inset-0 rounded-full border-2 border-cyan-400/30"
+                animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5] }}
+                transition={{ duration: 3, repeat: Infinity }}
+              />
             </motion.div>
 
             {/* Product Spokes */}
             <div className="relative h-96">
               {coreProducts.map((product, index) => {
                 const angle = (index * 360) / coreProducts.length;
-                const radius = 150;
+                const radius = 180;
                 const x = Math.cos((angle * Math.PI) / 180) * radius;
                 const y = Math.sin((angle * Math.PI) / 180) * radius;
                 
@@ -272,31 +278,47 @@ const SalesforcePower = () => {
                   >
                     <motion.div
                       whileHover={{ scale: 1.1 }}
-                      className={`w-20 h-20 bg-gradient-to-br ${product.gradient} rounded-xl flex items-center justify-center cursor-pointer shadow-lg group`}
+                      className={`w-20 h-20 bg-gradient-to-br ${product.gradient} rounded-xl flex items-center justify-center cursor-pointer shadow-lg group relative`}
                     >
                       <product.icon className="w-8 h-8 text-white" />
+                      {/* Hover glow effect */}
+                      <div className="absolute inset-0 rounded-xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    </motion.div>
+                    
+                    {/* Product Label */}
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 1.2 + index * 0.1 }}
+                      className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 text-center"
+                    >
+                      <div className="text-xs text-gray-300 font-medium whitespace-nowrap">
+                        {product.shortName}
+                      </div>
                     </motion.div>
                     
                     {/* Connection Line */}
                     <svg
                       className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none"
                       style={{ zIndex: -1 }}
+                      width="400"
+                      height="400"
                     >
-                      <line
-                        x1="0"
-                        y1="0"
-                        x2={-x}
-                        y2={-y}
-                        stroke="url(#gradient)"
-                        strokeWidth="2"
-                        className="opacity-50"
-                      />
                       <defs>
-                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <linearGradient id={`gradient-${index}`} x1="0%" y1="0%" x2="100%" y2="100%">
                           <stop offset="0%" stopColor="#06b6d4" />
                           <stop offset="100%" stopColor="#3b82f6" />
                         </linearGradient>
                       </defs>
+                      <line
+                        x1="200"
+                        y1="200"
+                        x2={200 + x}
+                        y2={200 + y}
+                        stroke={`url(#gradient-${index})`}
+                        strokeWidth="2"
+                        className="opacity-60"
+                      />
                     </svg>
                   </motion.div>
                 );
