@@ -10,6 +10,7 @@ interface FormData {
   budget: string;
   description: string;
   lead_source: string;
+  interest: string;
 }
 
 const MemarLeadCapture: React.FC = () => {
@@ -22,6 +23,7 @@ const MemarLeadCapture: React.FC = () => {
     budget: '',
     description: '',
     lead_source: '',
+    interest: '',
   });
   const [deviceInfo, setDeviceInfo] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -79,6 +81,12 @@ const MemarLeadCapture: React.FC = () => {
       mobile: "Mobile",
       budget: "Investment Budget (Optional)",
       budgetPlaceholder: "e.g., 100,000 AED",
+      interest: "What is your interest?",
+      interestOptions: {
+        invest: "Invest",
+        supply: "Supply",
+        operate: "Operate"
+      },
       description: "Additional Comments",
       descriptionPlaceholder: "Tell us about your investment goals...",
       submitButton: "Book Consultation",
@@ -106,6 +114,12 @@ const MemarLeadCapture: React.FC = () => {
       mobile: "رقم الجوال",
       budget: "الميزانية الاستثمارية (اختياري)",
       budgetPlaceholder: "مثال: 100,000 درهم إماراتي",
+      interest: "ما هو اهتمامك؟",
+      interestOptions: {
+        invest: "استثمار",
+        supply: "توريد",
+        operate: "تشغيل"
+      },
       description: "ملاحظات إضافية",
       descriptionPlaceholder: "حدثنا عن أهدافك الاستثمارية...",
       submitButton: "احجز الاستشارة",
@@ -238,6 +252,7 @@ Lead Source: ${source}`;
     if (!formData.email.trim()) newErrors.email = 'Email is required';
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Invalid email format';
     if (!formData.mobile.trim()) newErrors.mobile = 'Mobile number is required';
+    if (!formData.interest.trim()) newErrors.interest = 'Please select your interest';
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -280,6 +295,7 @@ Lead Source: ${source}`;
       addField('00NQE000000wSwn', formData.budget); // Budget custom field
       addField('description', formData.description);
       addField('lead_source', formData.lead_source);
+      addField('00NOm000003yFaM', formData.interest); // Interest dropdown field
 
       // Create hidden iframe for submission
       let iframe = document.getElementById('salesforce-iframe') as HTMLIFrameElement;
@@ -789,6 +805,67 @@ Lead Source: ${source}`;
                   placeholder={content[currentLanguage].budgetPlaceholder}
                   dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
                 />
+              </div>
+
+              {/* Interest Selection */}
+              <div>
+                <label className={`block text-sm font-semibold text-slate-700 mb-4 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                  {content[currentLanguage].interest} *
+                </label>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {Object.entries(content[currentLanguage].interestOptions).map(([key, label]) => (
+                    <motion.label
+                      key={key}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className={`relative cursor-pointer p-4 rounded-2xl border-2 transition-all duration-200 ${
+                        formData.interest === key
+                          ? 'border-[#6daead] bg-[#6daead]/5 shadow-lg shadow-[#6daead]/20'
+                          : 'border-slate-200 bg-white hover:border-[#6daead]/50 hover:bg-[#6daead]/2'
+                      } ${errors.interest ? 'border-red-500' : ''}`}
+                    >
+                      <input
+                        type="radio"
+                        name="interest"
+                        value={key}
+                        checked={formData.interest === key}
+                        onChange={(e) => {
+                          handleInputChange('interest', e.target.value);
+                          if (selection1Ref.current) {
+                            selection1Ref.current.currentTime = 0;
+                            selection1Ref.current.play().catch(() => {});
+                          }
+                          triggerHaptic(1);
+                        }}
+                        className="sr-only"
+                      />
+                      <div className="flex items-center justify-center gap-3">
+                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                          formData.interest === key
+                            ? 'border-[#6daead] bg-[#6daead]'
+                            : 'border-slate-300'
+                        }`}>
+                          {formData.interest === key && (
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ duration: 0.2 }}
+                              className="w-2 h-2 bg-white rounded-full"
+                            />
+                          )}
+                        </div>
+                        <span className={`font-semibold ${
+                          formData.interest === key ? 'text-[#6daead]' : 'text-slate-700'
+                        }`}>
+                          {label}
+                        </span>
+                      </div>
+                    </motion.label>
+                  ))}
+                </div>
+                {errors.interest && (
+                  <p className="text-red-500 text-sm mt-2">{errors.interest}</p>
+                )}
               </div>
 
               {/* Description */}
