@@ -292,6 +292,31 @@ const SalesforcePower = () => {
     setTimeout(() => setIsScrolling(false), 1000);
   };
 
+  // Handle hash navigation to comparison table
+  useEffect(() => {
+    const handleHashChange = () => {
+      if (window.location.hash === '#comparison-table') {
+        const tableElement = document.getElementById('comparison-table');
+        if (tableElement) {
+          tableElement.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      }
+    };
+
+    // Check on mount
+    handleHashChange();
+
+    // Listen for hash changes
+    window.addEventListener('hashchange', handleHashChange);
+    
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
+  }, []);
+
   // Get industry-specific products
   const industryProducts = selectedIndustry ? getProductsByIndustry(selectedIndustry) : [];
   const selectedIndustryData = selectedIndustry ? getIndustryById(selectedIndustry) : null;
@@ -941,6 +966,7 @@ const SalesforcePower = () => {
 
           {/* Competitive Comparison Table */}
           <motion.div
+            id="comparison-table"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
@@ -949,8 +975,9 @@ const SalesforcePower = () => {
             {/* Desktop Table - hidden on mobile */}
             <div className="hidden md:block">
               <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700">
-                {/* Table Header */}
-                <div className="grid grid-cols-6 gap-4 p-6 bg-gray-800/80 border-b border-gray-700">
+                {/* Table Header with Share Button */}
+                <div className="flex justify-between items-center p-6 bg-gray-800/80 border-b border-gray-700">
+                  <div className="grid grid-cols-6 gap-4 flex-1">
                   <div className="col-span-1 text-gray-400 text-sm font-semibold">Metric</div>
                   <div className="col-span-1 text-center">
                     <div className="text-cyan-400 font-bold text-lg mb-1">Salesforce</div>
@@ -972,6 +999,36 @@ const SalesforcePower = () => {
                     <div className="text-white font-semibold">Odoo</div>
                     <div className="text-xs text-gray-400">Open Source</div>
                   </div>
+                  </div>
+                  
+                  {/* Share Button */}
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => {
+                      navigator.vibrate?.(100);
+                      const url = `${window.location.origin}/salesforce-power#comparison-table${selectedIndustry ? `?industry=${selectedIndustry}&lang=${language}` : `?lang=${language}`}`;
+                      navigator.clipboard.writeText(url).then(() => {
+                        // Show success feedback
+                        const button = document.querySelector('[data-share-table-button]') as HTMLElement;
+                        if (button) {
+                          const originalText = button.textContent;
+                          button.textContent = t('power.table.copied');
+                          setTimeout(() => {
+                            button.textContent = originalText;
+                          }, 2000);
+                        }
+                      }).catch(() => {
+                        // Fallback to alert
+                        alert(t('power.table.shareTitle') + ': ' + url);
+                      });
+                    }}
+                    data-share-table-button
+                    className="bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 border-cyan-500/30 ml-4"
+                  >
+                    <Share2 className="w-4 h-4 mr-2" />
+                    {t('power.table.share')}
+                  </Button>
                 </div>
 
               {/* Comparison Rows */}
@@ -1077,7 +1134,39 @@ const SalesforcePower = () => {
             </div>
 
             {/* Mobile Accordion */}
-            <div className="md:hidden space-y-4">
+            <div className="md:hidden">
+              {/* Mobile Share Button */}
+              <div className="flex justify-center mb-6">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => {
+                    navigator.vibrate?.(100);
+                    const url = `${window.location.origin}/salesforce-power#comparison-table${selectedIndustry ? `?industry=${selectedIndustry}&lang=${language}` : `?lang=${language}`}`;
+                    navigator.clipboard.writeText(url).then(() => {
+                      // Show success feedback
+                      const button = document.querySelector('[data-share-mobile-button]') as HTMLElement;
+                      if (button) {
+                        const originalText = button.textContent;
+                        button.textContent = t('power.table.copied');
+                        setTimeout(() => {
+                          button.textContent = originalText;
+                        }, 2000);
+                      }
+                    }).catch(() => {
+                      // Fallback to alert
+                      alert(t('power.table.shareTitle') + ': ' + url);
+                    });
+                  }}
+                  data-share-mobile-button
+                  className="bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 border-cyan-500/30"
+                >
+                  <Share2 className="w-4 h-4 mr-2" />
+                  {t('power.table.share')}
+                </Button>
+              </div>
+              
+              <div className="space-y-4">
               {[
                 {
                   metric: 'Sales Cycle Time',
@@ -1149,6 +1238,7 @@ const SalesforcePower = () => {
                   </div>
                 </motion.div>
               ))}
+              </div>
             </div>
           </motion.div>
 
@@ -1290,21 +1380,6 @@ const SalesforcePower = () => {
                   Start Over
                 </Button>
                 
-                <Button 
-                  variant="secondary" 
-                  size="lg"
-                  onClick={() => {
-                    navigator.vibrate?.(100);
-                    const url = selectedIndustry 
-                      ? `/salesforce-comparison?industry=${selectedIndustry}&lang=${language}`
-                      : `/salesforce-comparison?lang=${language}`;
-                    window.open(url, '_blank');
-                  }}
-                  className="bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 border-cyan-500/30"
-                >
-                  <Share2 className={`h-5 w-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
-                  {t('power.comparison.viewTable')}
-                </Button>
               </div>
             </motion.div>
           </AnimatedSection>
