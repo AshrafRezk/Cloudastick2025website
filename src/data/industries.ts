@@ -82,7 +82,9 @@ export const industries: IndustryData[] = [
       'Property Management Systems (Yardi, AppFolio)',
       'MLS (Multiple Listing Service) platforms',
       'Accounting software (QuickBooks, Xero)',
-      'Marketing automation tools'
+      'Marketing automation tools',
+      'MuleSoft for API integrations',
+      'Informatica for data quality and governance'
     ],
     dataSources: [
       'Property databases and MLS feeds',
@@ -492,7 +494,7 @@ export const industries: IndustryData[] = [
     icon: Factory,
     gradient: 'from-gray-500 to-slate-600',
     description: 'Streamline production, supply chain, and customer relationships in manufacturing operations.',
-    recommendedProducts: ['manufacturing-cloud', 'sales-cloud', 'service-cloud', 'mulesoft', 'data-cloud'],
+    recommendedProducts: ['manufacturing-cloud', 'sales-cloud', 'service-cloud', 'field-service-cloud', 'mulesoft', 'data-cloud'],
     useCases: [
       'Production Planning & Scheduling',
       'Supply Chain Management',
@@ -704,7 +706,7 @@ export const industries: IndustryData[] = [
     icon: Phone,
     gradient: 'from-cyan-500 to-blue-600',
     description: 'Manage network operations, customer lifecycle, and service delivery in telecom environments.',
-    recommendedProducts: ['communications-cloud', 'sales-cloud', 'service-cloud', 'marketing-cloud', 'data-cloud'],
+    recommendedProducts: ['communications-cloud', 'sales-cloud', 'service-cloud', 'field-service-cloud', 'marketing-cloud', 'data-cloud'],
     useCases: [
       'Network Asset Management',
       'Customer Lifecycle Management',
@@ -917,7 +919,7 @@ export const industries: IndustryData[] = [
     icon: CreditCard,
     gradient: 'from-emerald-500 to-teal-600',
     description: 'Compliance-focused solutions for banking, insurance, and wealth management organizations.',
-    recommendedProducts: ['financial-services-cloud', 'sales-cloud', 'service-cloud', 'marketing-cloud', 'data-cloud'],
+    recommendedProducts: ['financial-services-cloud', 'sales-cloud', 'service-cloud', 'marketing-cloud', 'data-cloud', 'informatica'],
     useCases: [
       'Client Relationship Management',
       'Wealth Management & Advisory',

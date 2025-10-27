@@ -18,7 +18,9 @@ import {
   Shield,
   Target,
   TrendingUp,
-  Settings
+  Settings,
+  Wrench,
+  Network
 } from 'lucide-react';
 
 export interface SalesforceProduct {
@@ -415,6 +417,60 @@ export const salesforceProducts: SalesforceProduct[] = [
     category: 'Integration',
     marketShare: '#1 Integration Platform',
     customerCount: '2,000+ companies'
+  },
+  {
+    id: 'field-service-cloud',
+    name: 'Field Service Cloud',
+    shortName: 'Field Service',
+    description: 'Intelligent field service management platform powered by AI agents to optimize scheduling, dispatch, and customer service.',
+    icon: Wrench,
+    gradient: 'from-sky-500 to-blue-600',
+    industries: ['Manufacturing', 'Utilities', 'Healthcare', 'Telecommunications', 'Construction', 'HVAC'],
+    useCases: [
+      'Intelligent Scheduling & Dispatch',
+      'Mobile Field Service',
+      'Asset Management',
+      'Preventive Maintenance',
+      'Agentforce-Powered Automation'
+    ],
+    integrations: ['Service Cloud', 'Sales Cloud', 'Commerce Cloud', 'MuleSoft', 'ERP Systems'],
+    keyFeatures: [
+      'Agentforce AI Agents',
+      'Optimized Scheduling Engine',
+      'Mobile Field Management',
+      'Asset Tracking',
+      'Real-time Service Updates'
+    ],
+    category: 'Industry',
+    marketShare: '#1 Field Service Platform',
+    customerCount: '3,000+ companies'
+  },
+  {
+    id: 'informatica',
+    name: 'Informatica',
+    shortName: 'Informatica',
+    description: 'Enterprise data integration and management platform for data quality, governance, and cloud data integration.',
+    icon: Network,
+    gradient: 'from-green-600 to-emerald-700',
+    industries: ['Financial Services', 'Healthcare', 'Manufacturing', 'Retail', 'Government'],
+    useCases: [
+      'Data Quality Management',
+      'Data Governance',
+      'Cloud Data Integration',
+      'Master Data Management',
+      'Enterprise Data Catalog'
+    ],
+    integrations: ['Data Cloud', 'MuleSoft', 'All ERPs', 'Cloud Data Warehouses', 'Big Data Platforms'],
+    keyFeatures: [
+      'AI-Powered Data Quality',
+      'Enterprise Data Catalog',
+      'Cloud Data Integration',
+      'Master Data Management',
+      'Data Governance'
+    ],
+    category: 'Integration',
+    marketShare: '#1 Data Management Platform',
+    customerCount: '7,000+ companies'
   },
   {
     id: 'einstein-ai',

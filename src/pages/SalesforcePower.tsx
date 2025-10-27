@@ -725,7 +725,7 @@ const SalesforcePower = () => {
                 hoveredProduct={hoveredProduct}
               />
             </div>
-
+          </div>
 
           {/* Stats Section */}
           <motion.div

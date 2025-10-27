@@ -295,7 +295,7 @@ const translations = {
     // Salesforce Power Page
     'power.hero.badge': 'Beyond CRM - Complete Platform',
     'power.hero.title': 'Discover the Full Power of Salesforce',
-    'power.hero.subtitle': 'Choose your industry to explore how Salesforce transforms businesses beyond traditional CRM',
+    'power.hero.subtitle': 'Choose your industry to explore how Salesforce transforms businesses beyond traditional CRM with Agentforce AI agents, intelligent automation, and enterprise-grade integrations.',
     'power.hero.cta': 'Get Started Now',
     'power.hero.explore': 'Explore Solutions',
     'power.hero.selectIndustry': 'Select Your Industry',
@@ -305,7 +305,7 @@ const translations = {
     'power.hero.personalize': 'Personalize',
     'power.hero.personalizedFor': 'Personalized for {company}',
     'power.hero.title.personalized': 'Discover the Full Power of Salesforce for {company}',
-    'power.hero.subtitle.personalized': 'Transform {company} with industry-leading CRM and business solutions',
+    'power.hero.subtitle.personalized': 'Transform {company} with industry-leading CRM powered by Agentforce AI agents, intelligent automation, and enterprise integrations including MuleSoft and Informatica.',
     
     // Onboarding Modal
     'power.onboarding.title': 'Personalize Your Experience',
@@ -317,16 +317,16 @@ const translations = {
     'power.onboarding.submit': 'Continue',
     'power.onboarding.required': 'Please fill in all fields',
     'power.platform.title.personalized': 'More Than Just CRM for {company}',
-    'power.platform.subtitle.personalized': 'Salesforce provides {company} with specialized clouds and workflows that address your unique business challenges',
+    'power.platform.subtitle.personalized': 'Salesforce provides {company} with specialized clouds and workflows powered by Agentforce AI agents, addressing your unique business challenges with intelligent automation and MuleSoft integration.',
     'power.erp.title.personalized': 'Seamlessly Connects to {company} Systems',
-    'power.erp.subtitle.personalized': 'Salesforce integrates with {company}\'s existing ERP systems to unify your data and streamline workflows',
+    'power.erp.subtitle.personalized': 'Salesforce integrates with {company}\'s existing ERP systems via MuleSoft and Informatica, with Agentforce agents automating workflows and data synchronization.',
     'power.datacloud.title.personalized': 'Data Cloud: Connect {company} Data',
-    'power.datacloud.subtitle.personalized': 'One unified view of {company}\'s customers and operations, regardless of where data lives across your systems',
+    'power.datacloud.subtitle.personalized': 'One unified view of {company}\'s customers and operations powered by Agentforce agents and Informatica data quality, connecting data across all systems via MuleSoft.',
     'power.industry.title.personalized': 'Tailored Solutions for {company}',
     'power.comparison.title.personalized': 'Why {company} Chooses Salesforce',
-    'power.comparison.subtitle.personalized': 'See how {company} achieves superior results compared to competitors',
+    'power.comparison.subtitle.personalized': 'See how {company} achieves superior results with Agentforce AI automation, MuleSoft integrations, and Informatica data management compared to competitors',
     'power.cta.title.personalized': 'Ready to Transform {company}?',
-    'power.cta.subtitle.personalized': 'Join thousands of companies like {company} who trust Salesforce to power their growth',
+    'power.cta.subtitle.personalized': 'Join thousands of companies like {company} who trust Salesforce powered by Agentforce AI agents, MuleSoft integrations, and Informatica data quality to accelerate growth.',
     
     // Platform Overview
     'power.platform.title': 'More Than Just CRM',
@@ -782,7 +782,7 @@ const translations = {
     // Salesforce Power Page
     'power.hero.badge': 'أكثر من CRM - منصة شاملة',
     'power.hero.title': 'اكتشف القوة الكاملة لـ Salesforce',
-    'power.hero.subtitle': 'اختر صناعتك لاستكشاف كيف يحول Salesforce الشركات إلى ما هو أبعد من CRM التقليدي',
+    'power.hero.subtitle': 'اختر صناعتك لاستكشاف كيف يحول Salesforce الشركات إلى ما هو أبعد من CRM التقليدي مع وكلاء Agentforce الذكاء الاصطناعي، والأتمتة الذكية، والتكاملات على مستوى المؤسسة',
     'power.hero.cta': 'ابدأ الآن',
     'power.hero.explore': 'استكشف الحلول',
     'power.hero.selectIndustry': 'اختر صناعتك',
@@ -792,7 +792,7 @@ const translations = {
     'power.hero.personalize': 'تخصيص',
     'power.hero.personalizedFor': 'مخصص لـ {company}',
     'power.hero.title.personalized': 'اكتشف القوة الكاملة لـ Salesforce لـ {company}',
-    'power.hero.subtitle.personalized': 'حول {company} مع حلول CRM و الأعمال الرائدة في الصناعة',
+    'power.hero.subtitle.personalized': 'حول {company} مع حلول CRM الرائدة في الصناعة والتي تعمل بواسطة وكلاء Agentforce الذكاء الاصطناعي، والأتمتة الذكية، وتكاملات المؤسسة بما في ذلك MuleSoft و Informatica',
     
     // Onboarding Modal
     'power.onboarding.title': 'خصص تجربتك',
@@ -804,16 +804,16 @@ const translations = {
     'power.onboarding.submit': 'متابعة',
     'power.onboarding.required': 'يرجى ملء جميع الحقول',
     'power.platform.title.personalized': 'أكثر من مجرد CRM لـ {company}',
-    'power.platform.subtitle.personalized': 'يوفر Salesforce لـ {company} سحابات متخصصة وسير عمل يتعامل مع تحديات الأعمال الفريدة',
+    'power.platform.subtitle.personalized': 'يوفر Salesforce لـ {company} سحابات متخصصة وسير عمل مدعومة بوكلاء Agentforce الذكاء الاصطناعي، والتعامل مع تحديات الأعمال الفريدة من خلال الأتمتة الذكية والتكامل مع MuleSoft',
     'power.erp.title.personalized': 'يتصل بسلاسة مع أنظمة {company}',
-    'power.erp.subtitle.personalized': 'يتكامل Salesforce مع أنظمة ERP الموجودة لـ {company} لتوحيد البيانات وتبسيط سير العمل',
+    'power.erp.subtitle.personalized': 'يتكامل Salesforce مع أنظمة ERP الموجودة لـ {company} عبر MuleSoft و Informatica، مع وكلاء Agentforce لأتمتة سير العمل ومزامنة البيانات',
     'power.datacloud.title.personalized': 'سحابة البيانات: ربط بيانات {company}',
-    'power.datacloud.subtitle.personalized': 'نظرة موحدة لعملاء {company} وعملياتها، بغض النظر عن مكان وجود البيانات عبر أنظمتها',
+    'power.datacloud.subtitle.personalized': 'نظرة موحدة لعملاء {company} وعملياتها مدعومة بوكلاء Agentforce وجودة بيانات Informatica، وربط البيانات عبر جميع الأنظمة عبر MuleSoft',
     'power.industry.title.personalized': 'حلول مخصصة لـ {company}',
     'power.comparison.title.personalized': 'لماذا تختار {company} Salesforce',
-    'power.comparison.subtitle.personalized': 'شاهد كيف تحقق {company} نتائج متفوقة مقارنة بالمنافسين',
+    'power.comparison.subtitle.personalized': 'شاهد كيف تحقق {company} نتائج متفوقة مع أتمتة Agentforce الذكاء الاصطناعي، وتكاملات MuleSoft، وإدارة بيانات Informatica مقارنة بالمنافسين',
     'power.cta.title.personalized': 'مستعد لتحويل {company}؟',
-    'power.cta.subtitle.personalized': 'انضم إلى آلاف الشركات مثل {company} التي تثق في Salesforce لدفع نموها',
+    'power.cta.subtitle.personalized': 'انضم إلى آلاف الشركات مثل {company} التي تثق في Salesforce مدعوم بوكلاء Agentforce الذكاء الاصطناعي، وتكاملات MuleSoft، وجودة بيانات Informatica لتسريع النمو',
     
     // Platform Overview
     'power.platform.title': 'أكثر من مجرد CRM',
