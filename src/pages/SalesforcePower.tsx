@@ -53,8 +53,8 @@ const HubAndSpokeVisualization = React.memo(({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
   const [dimensions, setDimensions] = useState({ 
-    width: typeof window !== 'undefined' && window.innerWidth < 768 ? Math.min(window.innerWidth - 32, 400) : 800,
-    height: typeof window !== 'undefined' && window.innerWidth < 768 ? 400 : 600 
+    width: typeof window !== 'undefined' && window.innerWidth < 768 ? Math.min(window.innerWidth - 48, 350) : 800,
+    height: typeof window !== 'undefined' && window.innerWidth < 768 ? 350 : 600 
   });
 
   // Calculate positions once and memoize
@@ -62,12 +62,12 @@ const HubAndSpokeVisualization = React.memo(({
     const centerX = dimensions.width / 2;
     const centerY = dimensions.height / 2;
     const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
-    const cardSize = isMobile ? 60 : 80; // Smaller cards on mobile
-    const centerCircleRadius = 40; // Center hub radius
+    const cardSize = isMobile ? 50 : 80; // Smaller cards on mobile
+    const centerCircleRadius = isMobile ? 30 : 40; // Smaller center on mobile
     
     // Calculate radius: ensure cards don't overlap center and have proper spacing
     // Radius = (center circle radius) + (spacing) + (half card size)
-    const spacing = isMobile ? 40 : 60; // Less spacing on mobile
+    const spacing = isMobile ? 30 : 60; // Less spacing on mobile
     const radius = centerCircleRadius + spacing + (cardSize / 2);
     
     return products.map((product, index) => {
@@ -106,24 +106,26 @@ const HubAndSpokeVisualization = React.memo(({
     });
 
       // Draw center hub with gradient
-      const gradient = ctx.createRadialGradient(centerX - 10, centerY - 10, 0, centerX, centerY, 40);
+      const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
+      const centerRadius = isMobile ? 30 : 40;
+      const gradient = ctx.createRadialGradient(centerX - 10, centerY - 10, 0, centerX, centerY, centerRadius);
       gradient.addColorStop(0, '#3b82f6');
       gradient.addColorStop(1, '#06b6d4');
       ctx.fillStyle = gradient;
       ctx.beginPath();
-      ctx.arc(centerX, centerY, 40, 0, 2 * Math.PI);
+      ctx.arc(centerX, centerY, centerRadius, 0, 2 * Math.PI);
       ctx.fill();
 
       // Draw center logo (Cloud icon)
       ctx.fillStyle = 'white';
-      ctx.font = '24px Arial';
+      ctx.font = isMobile ? '18px Arial' : '24px Arial';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText('☁', centerX, centerY);
 
       // Draw pulsing ring with optimized animation
       const time = Date.now() * 0.001;
-      const pulseRadius = 40 + Math.sin(time * 2) * 5;
+      const pulseRadius = centerRadius + Math.sin(time * 2) * 5;
       ctx.strokeStyle = `rgba(6, 182, 212, ${0.3 + Math.sin(time * 2) * 0.2})`;
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -192,7 +194,7 @@ const HubAndSpokeVisualization = React.memo(({
             initial={{ opacity: 0, scale: 0 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.8 + index * 0.1 }}
-            className="absolute pointer-events-auto"
+            className="absolute pointer-events-auto p-2 sm:p-4"
             style={{
               left: `${product.x}px`,
               top: `${product.y}px`,
@@ -200,14 +202,21 @@ const HubAndSpokeVisualization = React.memo(({
             }}
             onMouseEnter={() => onProductHover(product.id)}
             onMouseLeave={() => onProductHover(null)}
-            onTouchStart={() => onProductHover(product.id)}
-            onTouchEnd={() => onProductHover(null)}
+            onTouchStart={(e) => {
+              e.preventDefault();
+              onProductHover(product.id);
+            }}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              // Delay hiding to allow user to see the panel
+              setTimeout(() => onProductHover(null), 2000);
+            }}
           >
             <motion.div
               whileHover={{ scale: 1.1 }}
-              className={`w-20 h-20 bg-gradient-to-br ${product.gradient} rounded-xl flex items-center justify-center cursor-pointer shadow-lg group relative`}
+              className={`w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br ${product.gradient} rounded-xl flex items-center justify-center cursor-pointer shadow-lg group relative touch-manipulation`}
             >
-              <product.icon className="w-8 h-8 text-white" />
+              <product.icon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
               <div className="absolute inset-0 rounded-xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </motion.div>
             
@@ -216,9 +225,9 @@ const HubAndSpokeVisualization = React.memo(({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1.2 + index * 0.1 }}
-              className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 text-center"
+              className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 sm:mt-2 text-center"
             >
-              <div className="text-xs text-gray-300 font-medium whitespace-nowrap">
+              <div className="text-xs sm:text-sm text-gray-300 font-medium whitespace-nowrap px-1">
                 {product.shortName}
               </div>
             </motion.div>
@@ -240,6 +249,10 @@ const SalesforcePower = () => {
   const [isScrolling, setIsScrolling] = useState(false);
   const [companyName, setCompanyName] = useState<string>('');
   const [showCompanyInput, setShowCompanyInput] = useState<boolean>(false);
+  const [hubDimensions, setHubDimensions] = useState({ 
+    width: typeof window !== 'undefined' && window.innerWidth < 768 ? Math.min(window.innerWidth - 48, 350) : 800,
+    height: typeof window !== 'undefined' && window.innerWidth < 768 ? 350 : 600 
+  });
 
   // Memoized hover handler to prevent unnecessary re-renders
   const handleProductHover = useCallback((productId: string | null) => {
@@ -328,9 +341,32 @@ const SalesforcePower = () => {
 
     // Listen for hash changes
     window.addEventListener('hashchange', handleHashChange);
-    
+
     return () => {
       window.removeEventListener('hashchange', handleHashChange);
+    };
+  }, []);
+
+  // Handle hub dimensions resize
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    const handleResize = () => {
+      const isMobile = window.innerWidth < 768;
+      setHubDimensions({
+        width: isMobile ? Math.min(window.innerWidth - 48, 350) : 800,
+        height: isMobile ? 350 : 600
+      });
+    };
+
+    // Set initial dimensions
+    handleResize();
+
+    // Listen for resize events
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
     };
   }, []);
 
@@ -563,36 +599,85 @@ const SalesforcePower = () => {
           </AnimatedSection>
 
           {/* Optimized Hub and Spoke Visualization */}
-          <div className="relative">
-            <HubAndSpokeVisualization
-              products={coreProducts}
-              onProductHover={handleProductHover}
-              hoveredProduct={hoveredProduct}
-            />
+          <div className="relative flex justify-center items-center min-h-[400px] sm:min-h-[500px] lg:min-h-[600px] px-4 sm:px-8">
+            <div className="relative w-full max-w-4xl">
+              <HubAndSpokeVisualization
+                products={coreProducts}
+                onProductHover={handleProductHover}
+                hoveredProduct={hoveredProduct}
+              />
+            </div>
 
             {/* Product Details Panel */}
             <AnimatePresence>
-            {hoveredProduct && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                className="absolute top-full left-1/2 transform -translate-x-1/2 mt-4 bg-gray-800/95 backdrop-blur-sm rounded-2xl p-6 max-w-lg border border-gray-700 z-30 shadow-2xl"
-              >
-                {(() => {
-                  const product = coreProducts.find(p => p.id === hoveredProduct);
-                  return product ? (
-                    <>
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className={`w-10 h-10 bg-gradient-to-br ${product.gradient} rounded-lg flex items-center justify-center`}>
-                          <product.icon className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-bold text-white">{product.name}</h3>
-                          <p className="text-cyan-400 text-sm">{product.category}</p>
-                        </div>
-                      </div>
-                      <p className="text-gray-300 text-sm mb-4">{product.description}</p>
+            {hoveredProduct && (() => {
+              const product = coreProducts.find(p => p.id === hoveredProduct);
+              if (!product) return null;
+              
+              // Calculate product position for contextual placement
+              const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
+              const centerX = hubDimensions.width / 2;
+              const centerY = hubDimensions.height / 2;
+              const cardSize = isMobile ? 50 : 80;
+              const centerCircleRadius = isMobile ? 30 : 40;
+              const spacing = isMobile ? 30 : 60;
+              const radius = centerCircleRadius + spacing + (cardSize / 2);
+              
+              const productIndex = coreProducts.findIndex(p => p.id === hoveredProduct);
+              const angle = (productIndex * 360) / coreProducts.length;
+              const productX = centerX + Math.cos((angle * Math.PI) / 180) * radius;
+              const productY = centerY + Math.sin((angle * Math.PI) / 180) * radius;
+              
+              const panelWidth = isMobile ? 280 : 320;
+              const panelHeight = isMobile ? 200 : 240;
+              
+              // Calculate position relative to the hovered product
+              let panelX = productX;
+              let panelY = productY;
+              
+              // Adjust position to avoid going off-screen
+              if (panelX < panelWidth / 2) {
+                panelX = panelWidth / 2 + 20; // Keep some margin from edge
+              } else if (panelX > hubDimensions.width - panelWidth / 2) {
+                panelX = hubDimensions.width - panelWidth / 2 - 20;
+              }
+              
+              // Position above the product icon on mobile, beside on desktop
+              if (isMobile) {
+                panelY = productY - 120; // Above the icon
+              } else {
+                panelY = productY - panelHeight / 2; // Beside the icon
+                // If product is on the left side, show panel to the right
+                if (productX < hubDimensions.width / 2) {
+                  panelX = productX + 100;
+                } else {
+                  panelX = productX - panelWidth - 100;
+                }
+              }
+              
+              return (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  className="absolute bg-gray-800/95 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-gray-700 z-30 shadow-2xl"
+                  style={{
+                    left: `${panelX}px`,
+                    top: `${panelY}px`,
+                    width: `${panelWidth}px`,
+                    transform: 'translate(-50%, -50%)',
+                  }}
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className={`w-10 h-10 bg-gradient-to-br ${product.gradient} rounded-lg flex items-center justify-center`}>
+                      <product.icon className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-white">{product.name}</h3>
+                      <p className="text-cyan-400 text-sm">{product.category}</p>
+                    </div>
+                  </div>
+                  <p className="text-gray-300 text-sm mb-4">{product.description}</p>
                       
                       {/* Key Challenges Solved */}
                       <div className="mb-4">
@@ -735,11 +820,9 @@ const SalesforcePower = () => {
                           ))}
                         </div>
                       </div>
-                    </>
-                  ) : null;
-                })()}
-              </motion.div>
-            )}
+                </motion.div>
+              );
+            })()}
             </AnimatePresence>
           </div>
 
@@ -748,19 +831,19 @@ const SalesforcePower = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1.5 }}
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mt-8"
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 mt-12 sm:mt-16"
           >
             {[
               { label: 'Companies Using Salesforce', value: '150,000+', icon: Users },
               { label: 'AppExchange Apps', value: '5,000+', icon: Settings },
               { label: 'Market Share', value: '#1 CRM', icon: TrendingUp },
             ].map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <stat.icon className="w-8 h-8 text-white" />
+              <div key={index} className="text-center p-4 sm:p-6">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <stat.icon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                 </div>
-                <div className="text-3xl font-bold text-white mb-2">{stat.value}</div>
-                <div className="text-gray-400">{stat.label}</div>
+                <div className="text-2xl sm:text-3xl font-bold text-white mb-2">{stat.value}</div>
+                <div className="text-sm sm:text-base text-gray-400">{stat.label}</div>
               </div>
             ))}
           </motion.div>
