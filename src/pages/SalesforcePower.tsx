@@ -617,6 +617,78 @@ const SalesforcePower = () => {
                                 'Poor customer self-service',
                                 'Manual content management',
                                 'Limited community engagement'
+                              ],
+                              'slack': [
+                                'Scattered team communication across tools',
+                                'Slow decision-making processes',
+                                'Poor knowledge sharing and collaboration',
+                                'Inefficient project coordination'
+                              ],
+                              'tableau-crm': [
+                                'Data scattered across multiple systems',
+                                'Manual reporting and analysis processes',
+                                'Poor data visualization and insights',
+                                'Slow decision-making due to data delays'
+                              ],
+                              'life-sciences-cloud': [
+                                'Complex regulatory compliance requirements',
+                                'Manual clinical trial management',
+                                'Poor patient data integration',
+                                'Inefficient drug development processes'
+                              ],
+                              'health-cloud': [
+                                'Fragmented patient data across systems',
+                                'Poor care coordination between providers',
+                                'Manual patient engagement processes',
+                                'Inefficient population health management'
+                              ],
+                              'financial-services-cloud': [
+                                'Complex regulatory compliance challenges',
+                                'Poor client relationship management',
+                                'Manual wealth management processes',
+                                'Inefficient risk assessment and reporting'
+                              ],
+                              'manufacturing-cloud': [
+                                'Disconnected production and sales data',
+                                'Poor supply chain visibility',
+                                'Manual quality control processes',
+                                'Inefficient equipment maintenance scheduling'
+                              ],
+                              'retail-cloud': [
+                                'Disconnected online and offline experiences',
+                                'Poor inventory management across channels',
+                                'Manual customer service processes',
+                                'Inefficient loyalty program management'
+                              ],
+                              'communications-cloud': [
+                                'Fragmented customer communication channels',
+                                'Poor call center efficiency',
+                                'Manual case routing and management',
+                                'Inefficient customer interaction tracking'
+                              ],
+                              'financial-services-cloud': [
+                                'Complex regulatory compliance challenges',
+                                'Poor client relationship management',
+                                'Manual wealth management processes',
+                                'Inefficient risk assessment and reporting'
+                              ],
+                              'data-cloud': [
+                                'Data silos across multiple systems',
+                                'Poor data quality and consistency',
+                                'Manual data integration processes',
+                                'Inefficient real-time data processing'
+                              ],
+                              'mulesoft': [
+                                'Complex system integration challenges',
+                                'Manual API development and management',
+                                'Poor data connectivity between systems',
+                                'Inefficient legacy system modernization'
+                              ],
+                              'einstein-ai': [
+                                'Manual data analysis and insights',
+                                'Poor predictive capabilities',
+                                'Inefficient decision-making processes',
+                                'Limited automation opportunities'
                               ]
                             };
                             
