@@ -24,10 +24,13 @@ export interface IndustryData {
   description: string;
   recommendedProducts: string[];
   useCases: string[];
-  successMetrics: string[];
+  successMetrics: Array<{ value: string; description: string }>;
   keyChallenges: string[];
   marketSize: string;
   growthRate: string;
+  painPoints: string[];
+  integrations: string[];
+  dataSources: string[];
 }
 
 export const industries: IndustryData[] = [
@@ -47,10 +50,10 @@ export const industries: IndustryData[] = [
       'Service Management for Maintenance'
     ],
     successMetrics: [
-      '40% increase in lead conversion',
-      '30% faster property sales cycles',
-      '50% improvement in tenant satisfaction',
-      '25% reduction in maintenance costs'
+      { value: '40%', description: 'increase in lead conversion' },
+      { value: '30%', description: 'faster property sales cycles' },
+      { value: '50%', description: 'improvement in tenant satisfaction' },
+      { value: '25%', description: 'reduction in maintenance costs' }
     ],
     keyChallenges: [
       'Managing multiple property portfolios',
@@ -59,7 +62,25 @@ export const industries: IndustryData[] = [
       'Marketing across multiple channels'
     ],
     marketSize: '$3.69 trillion globally',
-    growthRate: '5.2% annually'
+    growthRate: '5.2% annually',
+    painPoints: [
+      'Fragmented data across multiple systems',
+      'Long sales cycles with poor lead tracking',
+      'Difficulty managing tenant relationships',
+      'Inefficient property maintenance coordination'
+    ],
+    integrations: [
+      'Property Management Systems (Yardi, AppFolio)',
+      'MLS (Multiple Listing Service) platforms',
+      'Accounting software (QuickBooks, Xero)',
+      'Marketing automation tools'
+    ],
+    dataSources: [
+      'Property databases and MLS feeds',
+      'Tenant and prospect information',
+      'Financial and accounting systems',
+      'Marketing and lead generation platforms'
+    ]
   },
   {
     id: 'healthcare-life-sciences',
@@ -77,10 +98,10 @@ export const industries: IndustryData[] = [
       'Medical Affairs Management'
     ],
     successMetrics: [
-      '60% improvement in HCP engagement',
-      '45% faster clinical trial enrollment',
-      '90% compliance rate maintenance',
-      '35% increase in patient satisfaction'
+      { value: '60%', description: 'improvement in HCP engagement' },
+      { value: '45%', description: 'faster clinical trial enrollment' },
+      { value: '90%', description: 'compliance rate maintenance' },
+      { value: '35%', description: 'increase in patient satisfaction' }
     ],
     keyChallenges: [
       'Regulatory compliance requirements',
@@ -89,7 +110,25 @@ export const industries: IndustryData[] = [
       'Data privacy and security'
     ],
     marketSize: '$2.83 trillion globally',
-    growthRate: '6.8% annually'
+    growthRate: '6.8% annually',
+    painPoints: [
+      'Strict regulatory compliance requirements',
+      'Complex multi-stakeholder approval processes',
+      'HCP relationship management at scale',
+      'Data privacy and security concerns'
+    ],
+    integrations: [
+      'Electronic Health Records (Epic, Cerner)',
+      'Clinical trial management systems',
+      'Regulatory compliance platforms',
+      'Medical device integration systems'
+    ],
+    dataSources: [
+      'Electronic Health Records (EHR)',
+      'Clinical trial databases',
+      'HCP engagement platforms',
+      'Regulatory and compliance systems'
+    ]
   },
   {
     id: 'manufacturing',
@@ -107,10 +146,10 @@ export const industries: IndustryData[] = [
       'Field Service for Equipment'
     ],
     successMetrics: [
-      '25% reduction in production costs',
-      '40% improvement in on-time delivery',
-      '30% increase in customer satisfaction',
-      '50% reduction in quality issues'
+      { value: '25%', description: 'reduction in production costs' },
+      { value: '40%', description: 'improvement in on-time delivery' },
+      { value: '30%', description: 'increase in customer satisfaction' },
+      { value: '50%', description: 'reduction in quality issues' }
     ],
     keyChallenges: [
       'Complex supply chain management',
@@ -119,7 +158,25 @@ export const industries: IndustryData[] = [
       'Customer order fulfillment'
     ],
     marketSize: '$2.1 trillion globally',
-    growthRate: '4.1% annually'
+    growthRate: '4.1% annually',
+    painPoints: [
+      'Fragmented production and supply chain data',
+      'Quality control and compliance tracking',
+      'Production planning and scheduling complexity',
+      'Customer order fulfillment inefficiencies'
+    ],
+    integrations: [
+      'ERP systems (SAP, Oracle, NetSuite)',
+      'Manufacturing Execution Systems (MES)',
+      'Supply chain management platforms',
+      'Quality management systems'
+    ],
+    dataSources: [
+      'Production and manufacturing systems',
+      'Supply chain and logistics data',
+      'Quality control and compliance records',
+      'Customer order and fulfillment data'
+    ]
   },
   {
     id: 'telecommunications',

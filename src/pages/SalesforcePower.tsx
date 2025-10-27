@@ -314,19 +314,19 @@ const SalesforcePower = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <span className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 text-cyan-400 text-sm font-medium mb-6">
-                <Sparkles className="w-4 h-4 mr-2" />
+              <span className="inline-flex items-center px-6 py-3 rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 text-cyan-400 text-sm font-semibold mb-8 backdrop-blur-sm">
+                <Sparkles className="w-5 h-5 mr-2" />
                 Beyond CRM - Complete Platform
               </span>
               
-              <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
+              <h1 className="text-5xl md:text-7xl font-bold text-white mb-8 leading-tight">
                 Discover the Full
-                <span className="block mt-2 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
+                <span className="block mt-3 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
                   Power of Salesforce
                 </span>
               </h1>
               
-              <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto mb-12">
+              <p className="text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto mb-16 leading-relaxed">
                 Choose your industry to explore how Salesforce transforms businesses beyond traditional CRM
               </p>
             </motion.div>
@@ -336,7 +336,7 @@ const SalesforcePower = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.3 }}
-              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-w-6xl mx-auto"
+              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-7xl mx-auto"
             >
               {industries.slice(0, 8).map((industry, index) => (
                 <motion.div
@@ -344,30 +344,35 @@ const SalesforcePower = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.1 * index }}
-                  whileHover={{ scale: 1.05, y: -5 }}
+                  whileHover={{ scale: 1.05, y: -8 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => handleIndustrySelect(industry.id)}
-                  className={`relative bg-gradient-to-br ${industry.gradient} rounded-2xl p-6 cursor-pointer group transition-all duration-300 hover:shadow-2xl`}
+                  className={`relative bg-gradient-to-br ${industry.gradient} rounded-2xl p-8 cursor-pointer group transition-all duration-300 hover:shadow-2xl border border-white/20 backdrop-blur-sm`}
                 >
                   <div className="absolute inset-0 bg-white/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   
                   <div className="relative z-10">
-                    <industry.icon className="w-12 h-12 text-white mb-4 mx-auto" />
-                    <h3 className="text-lg font-bold text-white mb-2">
+                    <div className="flex items-center justify-center w-16 h-16 bg-white/20 rounded-xl mb-6 group-hover:bg-white/30 transition-colors duration-300">
+                      <industry.icon className="w-8 h-8 text-white group-hover:scale-110 transition-transform duration-300" />
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-3 group-hover:text-cyan-200 transition-colors duration-300">
                       {industry.shortName}
                     </h3>
-                    <p className="text-white/80 text-sm">
+                    <p className="text-white/90 text-sm leading-relaxed mb-4">
                       {industry.description.split('.')[0]}.
                     </p>
+                    <div className="flex items-center text-white/70 text-xs font-medium">
+                      <span>Explore Solutions</span>
+                      <ArrowRight className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform duration-300" />
+                    </div>
                   </div>
                   
-                  <motion.div
-                    className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <ArrowRight className="w-5 h-5 text-white" />
-                  </motion.div>
+                  {/* Selection Indicator */}
+                  {selectedIndustry === industry.id && (
+                    <div className="absolute top-4 right-4 w-6 h-6 bg-cyan-400 rounded-full flex items-center justify-center">
+                      <CheckCircle2 className="w-4 h-4 text-white" />
+                    </div>
+                  )}
                 </motion.div>
               ))}
             </motion.div>
@@ -404,11 +409,30 @@ const SalesforcePower = () => {
               transition={{ duration: 0.8 }}
             >
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                More Than Just CRM
+                {selectedIndustryData ? `More Than Just CRM for ${selectedIndustryData.name}` : 'More Than Just CRM'}
               </h2>
-              <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-                Salesforce is a complete platform with specialized clouds for every business need
+              <p className="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
+                {selectedIndustryData 
+                  ? `Salesforce provides specialized solutions for ${selectedIndustryData.name.toLowerCase()} with industry-specific clouds and workflows that address your unique challenges.`
+                  : 'Salesforce is a complete platform with specialized clouds for every business need'
+                }
               </p>
+              
+              {selectedIndustryData && (
+                <div className="mt-8 p-6 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-2xl border border-cyan-500/30 max-w-4xl mx-auto">
+                  <h3 className="text-lg font-semibold text-cyan-400 mb-3">
+                    Key Challenges We Solve for {selectedIndustryData.name}:
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                    {selectedIndustryData.painPoints?.slice(0, 4).map((painPoint, index) => (
+                      <div key={index} className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-cyan-400 rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="text-gray-300 text-sm">{painPoint}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </motion.div>
           </AnimatedSection>
 
@@ -493,11 +517,30 @@ const SalesforcePower = () => {
               transition={{ duration: 0.8 }}
             >
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                Seamlessly Connects to Your Existing Systems
+                {selectedIndustryData ? `Seamlessly Connects to Your ${selectedIndustryData.name} Systems` : 'Seamlessly Connects to Your Existing Systems'}
               </h2>
-              <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-                Salesforce integrates with all major ERP systems for unified business operations
+              <p className="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
+                {selectedIndustryData 
+                  ? `Salesforce integrates with major ERP systems used in ${selectedIndustryData.name.toLowerCase()} to unify your data and streamline ${selectedIndustryData.name.toLowerCase()} workflows`
+                  : 'Salesforce integrates with all major ERP systems for unified business operations'
+                }
               </p>
+              
+              {selectedIndustryData && (
+                <div className="mt-8 p-6 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-2xl border border-blue-500/30 max-w-4xl mx-auto">
+                  <h3 className="text-lg font-semibold text-blue-400 mb-3">
+                    Common {selectedIndustryData.name} Integrations:
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                    {selectedIndustryData.integrations?.slice(0, 4).map((integration, index) => (
+                      <div key={index} className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-blue-400 rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="text-gray-300 text-sm">{integration}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </motion.div>
           </AnimatedSection>
 
@@ -607,11 +650,30 @@ const SalesforcePower = () => {
               transition={{ duration: 0.8 }}
             >
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                Data Cloud: Connect Everything
+                {selectedIndustryData ? `Data Cloud: Connect Your ${selectedIndustryData.name} Data` : 'Data Cloud: Connect Everything'}
               </h2>
-              <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-                One unified view of your customer, regardless of where data lives
+              <p className="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
+                {selectedIndustryData 
+                  ? `One unified view of your ${selectedIndustryData.name.toLowerCase()} customers and operations, regardless of where data lives across your systems`
+                  : 'One unified view of your customer, regardless of where data lives'
+                }
               </p>
+              
+              {selectedIndustryData && (
+                <div className="mt-8 p-6 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-2xl border border-purple-500/30 max-w-4xl mx-auto">
+                  <h3 className="text-lg font-semibold text-purple-400 mb-3">
+                    {selectedIndustryData.name} Data Sources We Connect:
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                    {selectedIndustryData.dataSources?.slice(0, 4).map((source, index) => (
+                      <div key={index} className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-purple-400 rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="text-gray-300 text-sm">{source}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </motion.div>
           </AnimatedSection>
 
@@ -736,40 +798,59 @@ const SalesforcePower = () => {
                 <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
                   Tailored Solutions for {selectedIndustryData.name}
                 </h2>
-                <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+                <p className="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed mb-8">
                   {selectedIndustryData.description}
                 </p>
+                
+                {/* Industry Success Metrics */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                  {selectedIndustryData.successMetrics?.slice(0, 3).map((metric, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
+                      className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-xl p-6 border border-cyan-500/30"
+                    >
+                      <div className="text-2xl font-bold text-cyan-400 mb-2">{metric.value}</div>
+                      <div className="text-gray-300 text-sm">{metric.description}</div>
+                    </motion.div>
+                  ))}
+                </div>
               </motion.div>
             </AnimatedSection>
 
             {/* Industry Products */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
               {industryProducts.slice(0, 6).map((product, index) => (
                 <motion.div
                   key={product.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  className={`bg-gradient-to-br ${product.gradient} rounded-2xl p-6 group`}
+                  whileHover={{ scale: 1.05, y: -8 }}
+                  className={`bg-gradient-to-br ${product.gradient} rounded-2xl p-8 group border border-white/20 backdrop-blur-sm hover:shadow-2xl transition-all duration-300`}
                 >
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center flex-shrink-0">
-                      <product.icon className="w-6 h-6 text-white" />
+                  <div className="flex items-start gap-6">
+                    <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-white/30 transition-colors duration-300">
+                      <product.icon className="w-8 h-8 text-white group-hover:scale-110 transition-transform duration-300" />
                     </div>
                     <div className="flex-grow">
-                      <h3 className="text-xl font-bold text-white mb-2">{product.name}</h3>
-                      <p className="text-white/80 text-sm mb-4">{product.description}</p>
-                      <div className="space-y-1">
+                      <h3 className="text-xl font-bold text-white mb-3 group-hover:text-cyan-200 transition-colors duration-300">{product.name}</h3>
+                      <p className="text-white/90 text-sm mb-6 leading-relaxed">{product.description}</p>
+                      <div className="space-y-2">
                         {product.keyFeatures.slice(0, 3).map((feature, idx) => (
-                          <div key={idx} className="flex items-center gap-2 text-sm text-white/90">
-                            <CheckCircle2 className="w-4 h-4 text-green-400" />
-                            {feature}
+                          <div key={idx} className="flex items-center gap-3 text-sm text-white/90">
+                            <CheckCircle2 className="w-4 h-4 text-green-400 flex-shrink-0" />
+                            <span>{feature}</span>
                           </div>
                         ))}
                       </div>
                     </div>
                   </div>
+                  
+                  {/* Hover Effect */}
+                  <div className="absolute inset-0 bg-white/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </motion.div>
               ))}
             </div>
