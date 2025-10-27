@@ -26,7 +26,8 @@ import {
   Sparkles,
   Star,
   ArrowDown,
-  RefreshCw
+  RefreshCw,
+  Headphones
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import AnimatedSection from '../components/AnimatedSection';
