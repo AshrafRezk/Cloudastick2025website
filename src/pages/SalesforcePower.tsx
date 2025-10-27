@@ -679,7 +679,7 @@ const SalesforcePower = () => {
         </section>
       )}
 
-      {/* Why Salesforce Comparison */}
+      {/* Competitive Analysis Comparison */}
       <section ref={comparisonRef} className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900"></div>
         
@@ -691,72 +691,239 @@ const SalesforcePower = () => {
               transition={{ duration: 0.8 }}
             >
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                Why Choose Salesforce?
+                Salesforce vs The Competition
               </h2>
-              <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-                See how Salesforce compares to traditional CRM solutions
+              <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-4">
+                See how Salesforce outperforms leading CRM alternatives in key metrics
+              </p>
+              <p className="text-sm text-gray-400 max-w-2xl mx-auto">
+                Based on industry analysis and customer satisfaction data
               </p>
             </motion.div>
           </AnimatedSection>
 
-          {/* Comparison Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              {
-                title: 'Platform vs CRM',
-                description: 'Complete platform vs basic CRM functionality',
-                score: 10,
-                icon: Settings
-              },
-              {
-                title: 'Customization',
-                description: 'AppExchange with 5,000+ apps vs limited options',
-                score: 10,
-                icon: Target
-              },
-              {
-                title: 'Scalability',
-                description: 'Startup to enterprise vs limited growth',
-                score: 9,
-                icon: TrendingUp
-              },
-              {
-                title: 'Innovation',
-                description: 'AI, automation, analytics built-in vs basic features',
-                score: 10,
-                icon: Brain
-              }
-            ].map((item, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700"
-              >
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center">
-                    <item.icon className="w-6 h-6 text-white" />
+          {/* Competitive Comparison Table */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="mb-16"
+          >
+            <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700">
+              {/* Table Header */}
+              <div className="grid grid-cols-6 gap-4 p-6 bg-gray-800/80 border-b border-gray-700">
+                <div className="col-span-1 text-gray-400 text-sm font-semibold">Metric</div>
+                <div className="col-span-1 text-center">
+                  <div className="text-cyan-400 font-bold text-lg mb-1">Salesforce</div>
+                  <div className="text-xs text-gray-400">#1 CRM</div>
+                </div>
+                <div className="col-span-1 text-center">
+                  <div className="text-white font-semibold">HubSpot</div>
+                  <div className="text-xs text-gray-400">SMB Focus</div>
+                </div>
+                <div className="col-span-1 text-center">
+                  <div className="text-white font-semibold">Zoho</div>
+                  <div className="text-xs text-gray-400">Budget</div>
+                </div>
+                <div className="col-span-1 text-center">
+                  <div className="text-white font-semibold">Freshworks</div>
+                  <div className="text-xs text-gray-400">Mid-Market</div>
+                </div>
+                <div className="col-span-1 text-center">
+                  <div className="text-white font-semibold">Odoo</div>
+                  <div className="text-xs text-gray-400">Open Source</div>
+                </div>
+              </div>
+
+              {/* Comparison Rows */}
+              {[
+                {
+                  metric: 'Sales Cycle Time',
+                  salesforce: { score: 9, label: 'Excellent' },
+                  hubspot: { score: 8, label: 'Very Good' },
+                  zoho: { score: 8, label: 'Very Good' },
+                  freshworks: { score: 8, label: 'Very Good' },
+                  odoo: { score: 7, label: 'Good' }
+                },
+                {
+                  metric: 'Implementation Time',
+                  salesforce: { score: 6, label: 'Complex' },
+                  hubspot: { score: 9, label: 'Very Fast' },
+                  zoho: { score: 8, label: 'Fast' },
+                  freshworks: { score: 9, label: 'Very Fast' },
+                  odoo: { score: 7, label: 'Moderate' }
+                },
+                {
+                  metric: 'Customizability',
+                  salesforce: { score: 10, label: 'Limitless' },
+                  hubspot: { score: 7, label: 'Good' },
+                  zoho: { score: 8, label: 'Very Good' },
+                  freshworks: { score: 7, label: 'Good' },
+                  odoo: { score: 9, label: 'Excellent' }
+                },
+                {
+                  metric: 'Ease of Use',
+                  salesforce: { score: 6, label: 'Learning Curve' },
+                  hubspot: { score: 9, label: 'Intuitive' },
+                  zoho: { score: 8, label: 'User-Friendly' },
+                  freshworks: { score: 9, label: 'Simple' },
+                  odoo: { score: 7, label: 'Moderate' }
+                },
+                {
+                  metric: 'Integration & Ecosystem',
+                  salesforce: { score: 10, label: '5,000+ Apps' },
+                  hubspot: { score: 8, label: '1,000+ Apps' },
+                  zoho: { score: 8, label: 'Good Suite' },
+                  freshworks: { score: 7, label: 'Growing' },
+                  odoo: { score: 9, label: 'All-in-One' }
+                },
+                {
+                  metric: 'Scalability',
+                  salesforce: { score: 10, label: 'Enterprise+' },
+                  hubspot: { score: 8, label: 'Mid-Market' },
+                  zoho: { score: 8, label: 'Mid-Market' },
+                  freshworks: { score: 7, label: 'SMB-Mid' },
+                  odoo: { score: 9, label: 'Flexible' }
+                },
+                {
+                  metric: 'Cost Effectiveness',
+                  salesforce: { score: 6, label: 'Premium' },
+                  hubspot: { score: 7, label: 'Moderate' },
+                  zoho: { score: 9, label: 'Affordable' },
+                  freshworks: { score: 9, label: 'Budget' },
+                  odoo: { score: 10, label: 'Low Cost' }
+                },
+                {
+                  metric: 'ROI Potential',
+                  salesforce: { score: 10, label: '251% ROI' },
+                  hubspot: { score: 8, label: '150% ROI' },
+                  zoho: { score: 7, label: '120% ROI' },
+                  freshworks: { score: 7, label: '110% ROI' },
+                  odoo: { score: 8, label: '140% ROI' }
+                }
+              ].map((row, index) => (
+                <motion.div
+                  key={row.metric}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
+                  className="grid grid-cols-6 gap-4 p-6 border-b border-gray-700/50 last:border-b-0 hover:bg-gray-800/30 transition-colors duration-200"
+                >
+                  <div className="col-span-1 flex items-center">
+                    <span className="text-white font-medium">{row.metric}</span>
                   </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-white">{item.title}</h3>
-                    <div className="flex items-center gap-2">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`w-4 h-4 ${
-                            i < Math.floor(item.score / 2) ? 'text-yellow-400 fill-current' : 'text-gray-600'
-                          }`}
-                        />
-                      ))}
-                      <span className="text-cyan-400 font-bold ml-2">{item.score}/10</span>
+                  {[row.salesforce, row.hubspot, row.zoho, row.freshworks, row.odoo].map((item, idx) => (
+                    <div key={idx} className="col-span-1 flex flex-col items-center justify-center">
+                      <div className="flex items-center gap-1 mb-1">
+                        {[...Array(5)].map((_, i) => (
+                          <div
+                            key={i}
+                            className={`w-2 h-2 rounded-full ${
+                              i < Math.floor(item.score / 2) 
+                                ? idx === 0 ? 'bg-cyan-400' : 'bg-yellow-400'
+                                : 'bg-gray-600'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <div className={`text-xs font-semibold ${idx === 0 ? 'text-cyan-400' : 'text-gray-300'}`}>
+                        {item.score}/10
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">{item.label}</div>
+                    </div>
+                  ))}
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Key Differentiators */}
+          <AnimatedSection className="mb-16">
+            <h3 className="text-3xl font-bold text-white text-center mb-8">
+              Why Salesforce Delivers Superior ROI
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                {
+                  title: 'Complete Platform',
+                  description: 'Not just CRM - Sales, Service, Marketing, Commerce, Analytics all integrated',
+                  icon: Settings,
+                  stat: '20+ Clouds'
+                },
+                {
+                  title: 'AppExchange',
+                  description: '5,000+ pre-built apps and integrations vs limited options',
+                  icon: Target,
+                  stat: '5,000+ Apps'
+                },
+                {
+                  title: 'Enterprise Scale',
+                  description: 'From startup to Fortune 500 - unlimited scalability',
+                  icon: TrendingUp,
+                  stat: '150K+ Customers'
+                },
+                {
+                  title: 'AI Innovation',
+                  description: 'Einstein AI built-in - predictive analytics and automation',
+                  icon: Brain,
+                  stat: 'AI-Powered'
+                }
+              ].map((item, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700 hover:border-cyan-500/50 transition-all duration-300"
+                >
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center">
+                      <item.icon className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-bold text-white">{item.title}</h4>
+                      <div className="text-cyan-400 text-sm font-semibold">{item.stat}</div>
                     </div>
                   </div>
+                  <p className="text-gray-400 text-sm">{item.description}</p>
+                </motion.div>
+              ))}
+            </div>
+          </AnimatedSection>
+
+          {/* ROI Comparison */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.8 }}
+            className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 rounded-2xl p-8 text-center"
+          >
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <TrendingUp className="w-8 h-8 text-cyan-400" />
+              <h3 className="text-3xl font-bold text-white">251% Average ROI</h3>
+            </div>
+            <p className="text-lg text-gray-300 mb-6">
+              Salesforce customers see an average ROI of 251% within 3 years - significantly higher than competitors
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              {[
+                { name: 'Salesforce', roi: '251%', color: 'text-cyan-400', bgColor: 'bg-cyan-400' },
+                { name: 'HubSpot', roi: '150%', color: 'text-gray-400', bgColor: 'bg-gray-400' },
+                { name: 'Odoo', roi: '140%', color: 'text-gray-400', bgColor: 'bg-gray-400' },
+                { name: 'Zoho', roi: '120%', color: 'text-gray-400', bgColor: 'bg-gray-400' },
+                { name: 'Freshworks', roi: '110%', color: 'text-gray-400', bgColor: 'bg-gray-400' }
+              ].map((item, index) => (
+                <div key={index} className="text-center">
+                  <div className={`text-2xl font-bold ${item.color} mb-2`}>{item.roi}</div>
+                  <div className={`h-2 ${item.bgColor} rounded-full mb-2`} style={{ width: item.name === 'Salesforce' ? '100%' : `${parseInt(item.roi) / 2.51}%` }}></div>
+                  <div className="text-sm text-gray-400">{item.name}</div>
                 </div>
-                <p className="text-gray-400 text-sm">{item.description}</p>
-              </motion.div>
-            ))}
-          </div>
+              ))}
+            </div>
+            <p className="text-xs text-gray-500 mt-6">
+              *ROI data based on industry studies and customer surveys. Actual results may vary.
+            </p>
+          </motion.div>
         </div>
       </section>
 
