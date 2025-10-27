@@ -291,6 +291,127 @@ const translations = {
     'apps.modal.download': 'Download',
     'apps.modal.share': 'Share',
     
+    // Salesforce Power Page
+    'power.hero.badge': 'Beyond CRM - Complete Platform',
+    'power.hero.title': 'Discover the Full Power of Salesforce',
+    'power.hero.subtitle': 'Choose your industry to explore how Salesforce transforms businesses beyond traditional CRM',
+    'power.hero.cta': 'Get Started Now',
+    'power.hero.explore': 'Explore Solutions',
+    'power.hero.selectIndustry': 'Select Your Industry',
+    'power.hero.selectIndustry.desc': 'Choose your industry to see how Salesforce can transform your business',
+    
+    // Platform Overview
+    'power.platform.title': 'More Than Just CRM',
+    'power.platform.title.industry': 'More Than Just CRM for {industry}',
+    'power.platform.subtitle': 'Salesforce is a complete platform with specialized clouds for every business need',
+    'power.platform.subtitle.industry': 'Salesforce provides specialized solutions for {industry} with industry-specific clouds and workflows that address your unique challenges.',
+    'power.platform.challenges': 'Key Challenges We Solve for {industry}:',
+    'power.platform.explore': 'Explore Platform',
+    'power.platform.learnMore': 'Learn More',
+    
+    // ERP Integration
+    'power.erp.title': 'Seamlessly Connects to Your Existing Systems',
+    'power.erp.title.industry': 'Seamlessly Connects to Your {industry} Systems',
+    'power.erp.subtitle': 'Salesforce integrates with all major ERP systems for unified business operations',
+    'power.erp.subtitle.industry': 'Salesforce integrates with major ERP systems used in {industry} to unify your data and streamline {industry} workflows',
+    'power.erp.integrations': 'Common {industry} Integrations:',
+    'power.erp.viewAll': 'View All Integrations',
+    
+    // Data Cloud
+    'power.data.title': 'Data Cloud: Connect Everything',
+    'power.data.title.industry': 'Data Cloud: Connect Your {industry} Data',
+    'power.data.subtitle': 'One unified view of your customer, regardless of where data lives',
+    'power.data.subtitle.industry': 'One unified view of your {industry} customers and operations, regardless of where data lives across your systems',
+    'power.data.sources': '{industry} Data Sources We Connect:',
+    'power.data.explore': 'Explore Data Cloud',
+    
+    // Industry Solutions
+    'power.industry.title': 'Tailored Solutions for {industry}',
+    'power.industry.products': 'Industry Products',
+    'power.industry.metrics': 'Success Metrics',
+    'power.industry.useCases': 'Use Cases',
+    'power.industry.seeComparison': 'See Full Comparison',
+    'power.industry.customize': 'Customize for Your Industry',
+    
+    // Competitive Analysis
+    'power.comparison.title': 'Why Salesforce Leads the Market',
+    'power.comparison.title.industry': 'Why Salesforce Leads {industry}',
+    'power.comparison.subtitle': 'Comprehensive comparison with other CRM platforms',
+    'power.comparison.subtitle.industry': 'See how Salesforce outperforms competitors in {industry}',
+    'power.comparison.viewTable': 'View Comparison Table',
+    'power.comparison.shareTable': 'Share This Table',
+    'power.comparison.downloadTable': 'Download Table',
+    
+    // Table/Comparison
+    'power.table.title': 'Salesforce vs Competitors',
+    'power.table.title.industry': 'Salesforce vs Competitors in {industry}',
+    'power.table.selectIndustry': 'Select Industry for Comparison',
+    'power.table.selectIndustry.desc': 'Choose your industry to see a customized comparison table',
+    'power.table.share': 'Share Table',
+    'power.table.download': 'Download PDF',
+    'power.table.copy': 'Copy Link',
+    'power.table.copied': 'Link Copied!',
+    'power.table.shareTitle': 'Share Comparison Table',
+    'power.table.shareDesc': 'Share this industry-specific comparison with your team',
+    
+    // Comparison Metrics
+    'power.comparison.metric': 'Overall Performance',
+    'power.comparison.roi': 'Average ROI',
+    'power.comparison.differentiators': 'Key Differentiators',
+    'power.comparison.completePlatform': 'Complete Platform',
+    'power.comparison.completePlatform.desc': '20+ specialized clouds in one integrated platform',
+    'power.comparison.einstein': 'Einstein AI',
+    'power.comparison.einstein.desc': 'Built-in artificial intelligence for predictive insights',
+    'power.comparison.appexchange': 'AppExchange',
+    'power.comparison.appexchange.desc': 'Largest marketplace of business applications',
+    'power.comparison.scalability': 'Enterprise Scalability',
+    'power.comparison.scalability.desc': 'Scales from startup to Fortune 500',
+    'power.comparison.averageROI': 'Average ROI Comparison',
+    'power.comparison.roiDescription': 'Based on industry studies and customer surveys',
+    
+    // CTA Section
+    'power.cta.title': 'Ready to Transform Your Business?',
+    'power.cta.title.industry': 'Ready to Transform Your {industry} Business?',
+    'power.cta.subtitle': 'Let\'s discuss how Salesforce can revolutionize your operations',
+    'power.cta.subtitle.industry': 'Let\'s discuss how Salesforce can revolutionize your {industry} operations',
+    'power.cta.contact': 'Contact Us',
+    'power.cta.schedule': 'Schedule Demo',
+    'power.cta.learnMore': 'Learn More',
+    
+    // Navigation
+    'power.nav.overview': 'Platform Overview',
+    'power.nav.erp': 'ERP Integration',
+    'power.nav.data': 'Data Cloud',
+    'power.nav.industry': 'Industry Solutions',
+    'power.nav.comparison': 'Comparison',
+    'power.nav.cta': 'Get Started',
+    
+    // Industry-specific content
+    'power.industry.realEstate.challenges': [
+      'Lead management across multiple properties',
+      'Client relationship tracking',
+      'Property portfolio optimization',
+      'Commission tracking and reporting'
+    ],
+    'power.industry.healthcare.challenges': [
+      'Patient data management',
+      'HIPAA compliance',
+      'Care coordination',
+      'Revenue cycle management'
+    ],
+    'power.industry.manufacturing.challenges': [
+      'Supply chain visibility',
+      'Quality control tracking',
+      'Equipment maintenance',
+      'Production planning'
+    ],
+    'power.industry.retail.challenges': [
+      'Customer journey mapping',
+      'Inventory management',
+      'Omnichannel experience',
+      'Sales performance tracking'
+    ],
+    
     // Team Roles
     'team.founder': 'Founder of Cloudastick Systems',
     'team.marketingConsultant': 'Marketing Cloud Consultant',
@@ -627,6 +748,127 @@ const translations = {
     'apps.modal.fullscreen': 'ملء الشاشة',
     'apps.modal.download': 'تحميل',
     'apps.modal.share': 'مشاركة',
+    
+    // Salesforce Power Page
+    'power.hero.badge': 'أكثر من CRM - منصة شاملة',
+    'power.hero.title': 'اكتشف القوة الكاملة لـ Salesforce',
+    'power.hero.subtitle': 'اختر صناعتك لاستكشاف كيف يحول Salesforce الشركات إلى ما هو أبعد من CRM التقليدي',
+    'power.hero.cta': 'ابدأ الآن',
+    'power.hero.explore': 'استكشف الحلول',
+    'power.hero.selectIndustry': 'اختر صناعتك',
+    'power.hero.selectIndustry.desc': 'اختر صناعتك لترى كيف يمكن لـ Salesforce تحويل عملك',
+    
+    // Platform Overview
+    'power.platform.title': 'أكثر من مجرد CRM',
+    'power.platform.title.industry': 'أكثر من مجرد CRM لـ {industry}',
+    'power.platform.subtitle': 'Salesforce هو منصة شاملة مع سحابات متخصصة لكل احتياجات الأعمال',
+    'power.platform.subtitle.industry': 'يوفر Salesforce حلولاً متخصصة لـ {industry} مع سحابات وسير عمل مخصصة للصناعة تتعامل مع تحدياتك الفريدة.',
+    'power.platform.challenges': 'التحديات الرئيسية التي نحلها لـ {industry}:',
+    'power.platform.explore': 'استكشف المنصة',
+    'power.platform.learnMore': 'اعرف المزيد',
+    
+    // ERP Integration
+    'power.erp.title': 'يتصل بسلاسة مع أنظمتك الموجودة',
+    'power.erp.title.industry': 'يتصل بسلاسة مع أنظمة {industry} الخاصة بك',
+    'power.erp.subtitle': 'يتكامل Salesforce مع جميع أنظمة ERP الرئيسية لعمليات أعمال موحدة',
+    'power.erp.subtitle.industry': 'يتكامل Salesforce مع أنظمة ERP الرئيسية المستخدمة في {industry} لتوحيد بياناتك وتبسيط سير عمل {industry}',
+    'power.erp.integrations': 'التكاملات الشائعة لـ {industry}:',
+    'power.erp.viewAll': 'عرض جميع التكاملات',
+    
+    // Data Cloud
+    'power.data.title': 'Data Cloud: اربط كل شيء',
+    'power.data.title.industry': 'Data Cloud: اربط بيانات {industry} الخاصة بك',
+    'power.data.subtitle': 'نظرة موحدة لعملائك، بغض النظر عن مكان وجود البيانات',
+    'power.data.subtitle.industry': 'نظرة موحدة لعملاء {industry} وعملياتك، بغض النظر عن مكان وجود البيانات عبر أنظمتك',
+    'power.data.sources': 'مصادر بيانات {industry} التي نربطها:',
+    'power.data.explore': 'استكشف Data Cloud',
+    
+    // Industry Solutions
+    'power.industry.title': 'حلول مخصصة لـ {industry}',
+    'power.industry.products': 'منتجات الصناعة',
+    'power.industry.metrics': 'مقاييس النجاح',
+    'power.industry.useCases': 'حالات الاستخدام',
+    'power.industry.seeComparison': 'شاهد المقارنة الكاملة',
+    'power.industry.customize': 'خصص لصناعتك',
+    
+    // Competitive Analysis
+    'power.comparison.title': 'لماذا يقود Salesforce السوق',
+    'power.comparison.title.industry': 'لماذا يقود Salesforce {industry}',
+    'power.comparison.subtitle': 'مقارنة شاملة مع منصات CRM الأخرى',
+    'power.comparison.subtitle.industry': 'شاهد كيف يتفوق Salesforce على المنافسين في {industry}',
+    'power.comparison.viewTable': 'عرض جدول المقارنة',
+    'power.comparison.shareTable': 'شارك هذا الجدول',
+    'power.comparison.downloadTable': 'تحميل الجدول',
+    
+    // Table/Comparison
+    'power.table.title': 'Salesforce مقابل المنافسين',
+    'power.table.title.industry': 'Salesforce مقابل المنافسين في {industry}',
+    'power.table.selectIndustry': 'اختر الصناعة للمقارنة',
+    'power.table.selectIndustry.desc': 'اختر صناعتك لرؤية جدول مقارنة مخصص',
+    'power.table.share': 'شارك الجدول',
+    'power.table.download': 'تحميل PDF',
+    'power.table.copy': 'نسخ الرابط',
+    'power.table.copied': 'تم نسخ الرابط!',
+    'power.table.shareTitle': 'شارك جدول المقارنة',
+    'power.table.shareDesc': 'شارك هذه المقارنة المخصصة للصناعة مع فريقك',
+    
+    // Comparison Metrics
+    'power.comparison.metric': 'الأداء العام',
+    'power.comparison.roi': 'متوسط عائد الاستثمار',
+    'power.comparison.differentiators': 'المميزات الرئيسية',
+    'power.comparison.completePlatform': 'منصة شاملة',
+    'power.comparison.completePlatform.desc': '20+ سحابة متخصصة في منصة متكاملة واحدة',
+    'power.comparison.einstein': 'Einstein AI',
+    'power.comparison.einstein.desc': 'ذكاء اصطناعي مدمج للرؤى التنبؤية',
+    'power.comparison.appexchange': 'AppExchange',
+    'power.comparison.appexchange.desc': 'أكبر سوق لتطبيقات الأعمال',
+    'power.comparison.scalability': 'قابلية التوسع المؤسسية',
+    'power.comparison.scalability.desc': 'يتوسع من الشركات الناشئة إلى Fortune 500',
+    'power.comparison.averageROI': 'مقارنة متوسط عائد الاستثمار',
+    'power.comparison.roiDescription': 'بناءً على دراسات الصناعة واستطلاعات العملاء',
+    
+    // CTA Section
+    'power.cta.title': 'مستعد لتحويل عملك؟',
+    'power.cta.title.industry': 'مستعد لتحويل أعمال {industry} الخاصة بك؟',
+    'power.cta.subtitle': 'دعنا نناقش كيف يمكن لـ Salesforce أن يحدث ثورة في عملياتك',
+    'power.cta.subtitle.industry': 'دعنا نناقش كيف يمكن لـ Salesforce أن يحدث ثورة في عمليات {industry} الخاصة بك',
+    'power.cta.contact': 'اتصل بنا',
+    'power.cta.schedule': 'جدولة عرض توضيحي',
+    'power.cta.learnMore': 'اعرف المزيد',
+    
+    // Navigation
+    'power.nav.overview': 'نظرة عامة على المنصة',
+    'power.nav.erp': 'تكامل ERP',
+    'power.nav.data': 'Data Cloud',
+    'power.nav.industry': 'حلول الصناعة',
+    'power.nav.comparison': 'المقارنة',
+    'power.nav.cta': 'ابدأ الآن',
+    
+    // Industry-specific content
+    'power.industry.realEstate.challenges': [
+      'إدارة العملاء المحتملين عبر عقارات متعددة',
+      'تتبع علاقات العملاء',
+      'تحسين محفظة العقارات',
+      'تتبع وتقرير العمولات'
+    ],
+    'power.industry.healthcare.challenges': [
+      'إدارة بيانات المرضى',
+      'الامتثال لـ HIPAA',
+      'تنسيق الرعاية',
+      'إدارة دورة الإيرادات'
+    ],
+    'power.industry.manufacturing.challenges': [
+      'رؤية سلسلة التوريد',
+      'تتبع مراقبة الجودة',
+      'صيانة المعدات',
+      'تخطيط الإنتاج'
+    ],
+    'power.industry.retail.challenges': [
+      'رسم خريطة رحلة العميل',
+      'إدارة المخزون',
+      'تجربة متعددة القنوات',
+      'تتبع أداء المبيعات'
+    ],
     
     // Team Roles
     'team.founder': 'مؤسس Cloudastick Systems',

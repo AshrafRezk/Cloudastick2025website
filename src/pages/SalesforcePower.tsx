@@ -342,7 +342,7 @@ const SalesforcePower = () => {
             >
               <span className="inline-flex items-center px-6 py-3 rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 text-cyan-400 text-sm font-semibold mb-8 backdrop-blur-sm">
                 <Sparkles className="w-5 h-5 mr-2" />
-                {t('hero.badge')}
+                {t('power.hero.badge')}
               </span>
               
               {/* Salesforce Logo */}
@@ -355,11 +355,11 @@ const SalesforcePower = () => {
               </div>
               
               <h1 className="text-5xl md:text-7xl font-bold text-white mb-8 leading-tight">
-                {t('hero.title')}
+                {t('power.hero.title')}
               </h1>
               
               <p className="text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto mb-16 leading-relaxed">
-                {t('hero.subtitle')}
+                {t('power.hero.subtitle')}
               </p>
             </motion.div>
 
@@ -394,7 +394,7 @@ const SalesforcePower = () => {
                       {industry.description.split('.')[0]}.
                     </p>
                     <div className="flex items-center text-white/70 text-xs font-medium">
-                      <span>{t('hero.explore')}</span>
+                      <span>{t('power.hero.explore')}</span>
                       <ArrowRight className={`w-3 h-3 ${isRTL ? 'mr-1' : 'ml-1'} group-hover:translate-x-1 transition-transform duration-300`} />
                     </div>
                   </div>
@@ -441,19 +441,22 @@ const SalesforcePower = () => {
               transition={{ duration: 0.8 }}
             >
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                {selectedIndustryData ? `More Than Just CRM for ${selectedIndustryData.name}` : 'More Than Just CRM'}
+                {selectedIndustryData 
+                  ? t('power.platform.title.industry', { industry: selectedIndustryData.name })
+                  : t('power.platform.title')
+                }
               </h2>
               <p className="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
                 {selectedIndustryData 
-                  ? `Salesforce provides specialized solutions for ${selectedIndustryData.name.toLowerCase()} with industry-specific clouds and workflows that address your unique challenges.`
-                  : 'Salesforce is a complete platform with specialized clouds for every business need'
+                  ? t('power.platform.subtitle.industry', { industry: selectedIndustryData.name })
+                  : t('power.platform.subtitle')
                 }
               </p>
               
               {selectedIndustryData && (
                 <div className="mt-8 p-6 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-2xl border border-cyan-500/30 max-w-4xl mx-auto">
                   <h3 className="text-lg font-semibold text-cyan-400 mb-3">
-                    Key Challenges We Solve for {selectedIndustryData.name}:
+                    {t('power.platform.challenges', { industry: selectedIndustryData.name })}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
                     {selectedIndustryData.painPoints?.slice(0, 4).map((painPoint, index) => (
@@ -920,13 +923,19 @@ const SalesforcePower = () => {
               transition={{ duration: 0.8 }}
             >
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                Salesforce vs The Competition
+                {selectedIndustryData 
+                  ? t('power.comparison.title.industry', { industry: selectedIndustryData.name })
+                  : t('power.comparison.title')
+                }
               </h2>
               <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-4">
-                See how Salesforce outperforms leading CRM alternatives in key metrics
+                {selectedIndustryData 
+                  ? t('power.comparison.subtitle.industry', { industry: selectedIndustryData.name })
+                  : t('power.comparison.subtitle')
+                }
               </p>
               <p className="text-sm text-gray-400 max-w-2xl mx-auto">
-                Based on industry analysis and customer satisfaction data
+                {t('power.comparison.roiDescription')}
               </p>
             </motion.div>
           </AnimatedSection>
@@ -1169,19 +1178,22 @@ const SalesforcePower = () => {
               transition={{ duration: 0.8 }}
             >
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                Ready to Transform Your Business?
+                {selectedIndustryData 
+                  ? t('power.cta.title.industry', { industry: selectedIndustryData.name })
+                  : t('power.cta.title')
+                }
               </h2>
               <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
                 {selectedIndustryData 
-                  ? `Let's build your Salesforce solution for ${selectedIndustryData.name}`
-                  : 'Discover how Salesforce can revolutionize your business operations'
+                  ? t('power.cta.subtitle.industry', { industry: selectedIndustryData.name })
+                  : t('power.cta.subtitle')
                 }
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link to="/salesforce-power-lead-capture">
                   <Button variant="primary" size="lg" className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700">
-                    {t('hero.cta')}
+                    {t('power.cta.contact')}
                     <ArrowRight className={`h-5 w-5 ${isRTL ? 'mr-2' : 'ml-2'}`} />
                   </Button>
                 </Link>
@@ -1214,7 +1226,7 @@ const SalesforcePower = () => {
                   className="bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 border-cyan-500/30"
                 >
                   <Share2 className={`h-5 w-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
-                  {t('table.share')}
+                  {t('power.comparison.viewTable')}
                 </Button>
               </div>
             </motion.div>

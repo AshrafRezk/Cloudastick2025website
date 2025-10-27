@@ -63,19 +63,32 @@ const SalesforceComparisonTable = () => {
     setIsSharing(true);
     try {
       const url = `${window.location.origin}/salesforce-comparison?industry=${selectedIndustry}&lang=${language}`;
-      await navigator.clipboard.writeText(url);
       
-      // Show success message
-      const button = document.querySelector('[data-share-button]') as HTMLElement;
-      if (button) {
-        const originalText = button.textContent;
-        button.textContent = t('table.copy') + ' ✓';
-        setTimeout(() => {
-          button.textContent = originalText;
-        }, 2000);
+      // Try to use Web Share API if available (mobile)
+      if (navigator.share) {
+        await navigator.share({
+          title: t('power.table.shareTitle'),
+          text: t('power.table.shareDesc'),
+          url: url
+        });
+      } else {
+        // Fallback to clipboard
+        await navigator.clipboard.writeText(url);
+        
+        // Show success message
+        const button = document.querySelector('[data-share-button]') as HTMLElement;
+        if (button) {
+          const originalText = button.textContent;
+          button.textContent = t('power.table.copied');
+          setTimeout(() => {
+            button.textContent = originalText;
+          }, 2000);
+        }
       }
     } catch (err) {
-      console.error('Failed to copy URL:', err);
+      console.error('Failed to share:', err);
+      // Fallback to alert
+      alert(t('power.table.shareTitle') + ': ' + url);
     } finally {
       setIsSharing(false);
     }
@@ -87,80 +100,70 @@ const SalesforceComparisonTable = () => {
     alert(t('table.download') + ' - Feature coming soon!');
   };
 
-  const comparisonData = [
-    {
-      metric: t('comparison.metric'),
-      salesforce: { score: 10, label: 'Excellent', color: 'text-cyan-400' },
-      hubspot: { score: 8, label: 'Very Good', color: 'text-gray-400' },
-      zoho: { score: 8, label: 'Very Good', color: 'text-gray-400' },
-      freshworks: { score: 8, label: 'Very Good', color: 'text-gray-400' },
-      odoo: { score: 7, label: 'Good', color: 'text-gray-400' }
-    },
-    {
-      metric: 'Sales Cycle Time',
-      salesforce: { score: 9, label: 'Excellent' },
-      hubspot: { score: 8, label: 'Very Good' },
-      zoho: { score: 8, label: 'Very Good' },
-      freshworks: { score: 8, label: 'Very Good' },
-      odoo: { score: 7, label: 'Good' }
-    },
-    {
-      metric: 'Customization',
-      salesforce: { score: 10, label: 'Excellent' },
-      hubspot: { score: 7, label: 'Good' },
-      zoho: { score: 8, label: 'Very Good' },
-      freshworks: { score: 6, label: 'Fair' },
-      odoo: { score: 9, label: 'Excellent' }
-    },
-    {
-      metric: 'Integration Capabilities',
-      salesforce: { score: 10, label: 'Excellent' },
-      hubspot: { score: 8, label: 'Very Good' },
-      zoho: { score: 7, label: 'Good' },
-      freshworks: { score: 6, label: 'Fair' },
-      odoo: { score: 8, label: 'Very Good' }
-    },
-    {
-      metric: 'AI & Analytics',
-      salesforce: { score: 10, label: 'Excellent' },
-      hubspot: { score: 7, label: 'Good' },
-      zoho: { score: 6, label: 'Fair' },
-      freshworks: { score: 5, label: 'Poor' },
-      odoo: { score: 6, label: 'Fair' }
-    },
-    {
-      metric: 'Scalability',
-      salesforce: { score: 10, label: 'Excellent' },
-      hubspot: { score: 8, label: 'Very Good' },
-      zoho: { score: 7, label: 'Good' },
-      freshworks: { score: 6, label: 'Fair' },
-      odoo: { score: 8, label: 'Very Good' }
-    },
-    {
-      metric: 'Mobile Experience',
-      salesforce: { score: 9, label: 'Excellent' },
-      hubspot: { score: 8, label: 'Very Good' },
-      zoho: { score: 8, label: 'Very Good' },
-      freshworks: { score: 7, label: 'Good' },
-      odoo: { score: 7, label: 'Good' }
-    },
-    {
-      metric: 'Support Quality',
-      salesforce: { score: 9, label: 'Excellent' },
-      hubspot: { score: 8, label: 'Very Good' },
-      zoho: { score: 7, label: 'Good' },
-      freshworks: { score: 8, label: 'Very Good' },
-      odoo: { score: 7, label: 'Good' }
-    },
-    {
-      metric: t('comparison.roi'),
-      salesforce: { score: 10, label: '251% ROI' },
-      hubspot: { score: 8, label: '150% ROI' },
-      zoho: { score: 7, label: '120% ROI' },
-      freshworks: { score: 7, label: '110% ROI' },
-      odoo: { score: 8, label: '140% ROI' }
-    }
-  ];
+  // Industry-specific comparison data
+  const getIndustrySpecificData = (industryId: string | null) => {
+    const baseData = [
+      {
+        metric: t('power.comparison.metric'),
+        salesforce: { score: 10, label: 'Excellent', color: 'text-cyan-400' },
+        hubspot: { score: 8, label: 'Very Good', color: 'text-gray-400' },
+        zoho: { score: 8, label: 'Very Good', color: 'text-gray-400' },
+        freshworks: { score: 8, label: 'Very Good', color: 'text-gray-400' },
+        odoo: { score: 7, label: 'Good', color: 'text-gray-400' }
+      },
+    ];
+
+    // Industry-specific metrics
+    const industryMetrics = {
+      'real-estate': [
+        { metric: 'Lead Management', salesforce: 10, hubspot: 7, zoho: 6, freshworks: 6, odoo: 5 },
+        { metric: 'Property Portfolio', salesforce: 9, hubspot: 5, zoho: 6, freshworks: 4, odoo: 7 },
+        { metric: 'Commission Tracking', salesforce: 10, hubspot: 6, zoho: 7, freshworks: 5, odoo: 8 },
+        { metric: 'Client Relationship', salesforce: 10, hubspot: 8, zoho: 7, freshworks: 7, odoo: 6 }
+      ],
+      'healthcare': [
+        { metric: 'HIPAA Compliance', salesforce: 10, hubspot: 6, zoho: 5, freshworks: 4, odoo: 3 },
+        { metric: 'Patient Data Mgmt', salesforce: 10, hubspot: 7, zoho: 6, freshworks: 5, odoo: 6 },
+        { metric: 'Care Coordination', salesforce: 9, hubspot: 6, zoho: 5, freshworks: 4, odoo: 5 },
+        { metric: 'Revenue Cycle', salesforce: 10, hubspot: 7, zoho: 6, freshworks: 5, odoo: 7 }
+      ],
+      'manufacturing': [
+        { metric: 'Supply Chain', salesforce: 9, hubspot: 5, zoho: 6, freshworks: 4, odoo: 8 },
+        { metric: 'Quality Control', salesforce: 10, hubspot: 6, zoho: 7, freshworks: 5, odoo: 8 },
+        { metric: 'Equipment Maint', salesforce: 8, hubspot: 4, zoho: 5, freshworks: 3, odoo: 7 },
+        { metric: 'Production Planning', salesforce: 9, hubspot: 5, zoho: 6, freshworks: 4, odoo: 8 }
+      ],
+      'retail': [
+        { metric: 'Customer Journey', salesforce: 10, hubspot: 8, zoho: 7, freshworks: 6, odoo: 6 },
+        { metric: 'Inventory Mgmt', salesforce: 9, hubspot: 6, zoho: 7, freshworks: 5, odoo: 8 },
+        { metric: 'Omnichannel', salesforce: 10, hubspot: 7, zoho: 6, freshworks: 5, odoo: 6 },
+        { metric: 'Sales Performance', salesforce: 10, hubspot: 8, zoho: 7, freshworks: 7, odoo: 6 }
+      ]
+    };
+
+    const industrySpecific = industryId && industryMetrics[industryId as keyof typeof industryMetrics] 
+      ? industryMetrics[industryId as keyof typeof industryMetrics].map(item => ({
+          metric: item.metric,
+          salesforce: { score: item.salesforce, label: getScoreLabel(item.salesforce), color: 'text-cyan-400' },
+          hubspot: { score: item.hubspot, label: getScoreLabel(item.hubspot), color: 'text-gray-400' },
+          zoho: { score: item.zoho, label: getScoreLabel(item.zoho), color: 'text-gray-400' },
+          freshworks: { score: item.freshworks, label: getScoreLabel(item.freshworks), color: 'text-gray-400' },
+          odoo: { score: item.odoo, label: getScoreLabel(item.odoo), color: 'text-gray-400' }
+        }))
+      : [];
+
+    return [...baseData, ...industrySpecific];
+  };
+
+  const getScoreLabel = (score: number) => {
+    if (score >= 9) return 'Excellent';
+    if (score >= 7) return 'Very Good';
+    if (score >= 5) return 'Good';
+    if (score >= 3) return 'Fair';
+    return 'Poor';
+  };
+
+  const comparisonData = getIndustrySpecificData(selectedIndustry);
 
   if (showIndustrySelector) {
     return (
@@ -174,10 +177,10 @@ const SalesforceComparisonTable = () => {
             <div className="mb-8">
               <Globe className="w-16 h-16 text-cyan-400 mx-auto mb-4" />
               <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                {t('table.selectIndustry')}
+                {t('power.table.selectIndustry')}
               </h1>
               <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-                {t('table.selectIndustry.desc')}
+                {t('power.table.selectIndustry.desc')}
               </p>
             </div>
 
@@ -233,8 +236,8 @@ const SalesforceComparisonTable = () => {
             <div>
               <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
                 {selectedIndustryData 
-                  ? t('table.title.industry', { industry: selectedIndustryData.name })
-                  : t('table.title')
+                  ? t('power.table.title.industry', { industry: selectedIndustryData.name })
+                  : t('power.table.title')
                 }
               </h1>
               {selectedIndustryData && (
@@ -253,7 +256,7 @@ const SalesforceComparisonTable = () => {
                 className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2"
               >
                 <Share2 className="w-4 h-4" />
-                {t('table.share')}
+                {t('power.table.share')}
               </Button>
               
               <Button
@@ -261,7 +264,7 @@ const SalesforceComparisonTable = () => {
                 className="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2"
               >
                 <Download className="w-4 h-4" />
-                {t('table.download')}
+                {t('power.table.download')}
               </Button>
             </div>
           </div>
@@ -347,31 +350,31 @@ const SalesforceComparisonTable = () => {
           className="mt-12"
         >
           <h3 className="text-3xl font-bold text-white text-center mb-8">
-            {t('comparison.differentiators')}
+            {t('power.comparison.differentiators')}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               {
-                title: t('comparison.completePlatform'),
-                description: t('comparison.completePlatform.desc'),
+                title: t('power.comparison.completePlatform'),
+                description: t('power.comparison.completePlatform.desc'),
                 icon: Settings,
                 stat: '20+ Clouds'
               },
               {
-                title: t('comparison.einstein'),
-                description: t('comparison.einstein.desc'),
+                title: t('power.comparison.einstein'),
+                description: t('power.comparison.einstein.desc'),
                 icon: Sparkles,
                 stat: 'AI-Powered'
               },
               {
-                title: t('comparison.appexchange'),
-                description: t('comparison.appexchange.desc'),
+                title: t('power.comparison.appexchange'),
+                description: t('power.comparison.appexchange.desc'),
                 icon: Star,
                 stat: '5000+ Apps'
               },
               {
-                title: t('comparison.scalability'),
-                description: t('comparison.scalability.desc'),
+                title: t('power.comparison.scalability'),
+                description: t('power.comparison.scalability.desc'),
                 icon: TrendingUp,
                 stat: 'Enterprise'
               }
@@ -407,10 +410,10 @@ const SalesforceComparisonTable = () => {
         >
           <div className="flex items-center justify-center gap-2 mb-4">
             <TrendingUp className="w-8 h-8 text-cyan-400" />
-            <h3 className="text-3xl font-bold text-white">{t('comparison.averageROI')}</h3>
+            <h3 className="text-3xl font-bold text-white">{t('power.comparison.averageROI')}</h3>
           </div>
           <p className="text-lg text-gray-300 mb-6">
-            {t('comparison.roiDescription')}
+            {t('power.comparison.roiDescription')}
           </p>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {[
