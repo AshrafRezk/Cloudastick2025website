@@ -31,7 +31,9 @@ import {
   RefreshCw,
   Headphones,
   Cloud,
-  Share2
+  Share2,
+  Check,
+  Copy
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import AnimatedSection from '../components/AnimatedSection';
@@ -39,6 +41,7 @@ import Button from '../components/Button';
 import { salesforceProducts, getProductsByIndustry } from '../data/salesforceProducts';
 import { erpIntegrations } from '../data/erpIntegrations';
 import { industries, getIndustryById } from '../data/industries';
+import { useToast } from '../hooks/use-toast';
 
 // Optimized Hub and Spoke Component
 const HubAndSpokeVisualization = React.memo(({ 
@@ -241,7 +244,8 @@ const HubAndSpokeVisualization = React.memo(({
 HubAndSpokeVisualization.displayName = 'HubAndSpokeVisualization';
 
 const SalesforcePower = () => {
-  const { t, isRTL } = useLanguage();
+  const { t, isRTL, language } = useLanguage();
+  const { toast } = useToast();
   const [selectedIndustry, setSelectedIndustry] = useState<string | null>(null);
   const [currentSection, setCurrentSection] = useState(0);
   const [showPlatformOverview, setShowPlatformOverview] = useState(false);
@@ -249,6 +253,7 @@ const SalesforcePower = () => {
   const [isScrolling, setIsScrolling] = useState(false);
   const [companyName, setCompanyName] = useState<string>('');
   const [showCompanyInput, setShowCompanyInput] = useState<boolean>(false);
+  const [copied, setCopied] = useState(false);
   const [hubDimensions, setHubDimensions] = useState({ 
     width: typeof window !== 'undefined' && window.innerWidth < 768 ? Math.min(window.innerWidth - 48, 350) : 800,
     height: typeof window !== 'undefined' && window.innerWidth < 768 ? 350 : 600 
@@ -258,6 +263,39 @@ const SalesforcePower = () => {
   const handleProductHover = useCallback((productId: string | null) => {
     setHoveredProduct(productId);
   }, []);
+
+  // Copy table link function
+  const copyTableLink = () => {
+    const url = `${window.location.origin}/salesforce-power${selectedIndustry ? `?industry=${selectedIndustry}&lang=${language}` : `?lang=${language}`}#comparison-table`;
+    
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      toast({
+        title: "Link Copied!",
+        description: "Table link copied to clipboard",
+      });
+      setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = url;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      document.execCommand('copy');
+      textArea.remove();
+      
+      setCopied(true);
+      toast({
+        title: "Link Copied!",
+        description: "Table link copied to clipboard",
+      });
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
 
   // Function to personalize text with company name
   const personalizeText = useCallback((text: string, fallback: string = 'your company', industryName?: string) => {
@@ -1271,6 +1309,32 @@ const SalesforcePower = () => {
             </motion.div>
           </AnimatedSection>
 
+          {/* Copy Table Link Button */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="flex justify-center mb-8"
+          >
+            <button
+              onClick={copyTableLink}
+              className="flex items-center gap-2 px-6 py-3 bg-gray-800/80 hover:bg-gray-700/80 rounded-full transition-colors duration-200 border border-gray-600 hover:border-gray-500"
+              title="Copy table link"
+            >
+              {copied ? (
+                <>
+                  <Check className="w-5 h-5 text-green-400" />
+                  <span className="text-green-400 font-medium">Link Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-5 h-5 text-white" />
+                  <span className="text-white font-medium">Copy Table Link</span>
+                </>
+              )}
+            </button>
+          </motion.div>
+
           {/* Competitive Comparison Table */}
           <motion.div
             id="comparison-table"
@@ -1282,89 +1346,31 @@ const SalesforcePower = () => {
             {/* Desktop Table - hidden on mobile */}
             <div className="hidden md:block">
               <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700">
-                {/* Table Header with Share Button */}
-                <div className="flex justify-between items-center p-6 bg-gray-800/80 border-b border-gray-700">
-                  <div className="grid grid-cols-6 gap-4 flex-1">
-                  <div className="col-span-1 text-gray-400 text-sm font-semibold">Metric</div>
-                  <div className="col-span-1 text-center">
-                    <div className="text-cyan-400 font-bold text-lg mb-1">Salesforce</div>
-                    <div className="text-xs text-gray-400">#1 CRM</div>
+                {/* Table Header */}
+                <div className="p-6 bg-gray-800/80 border-b border-gray-700">
+                  <div className="grid grid-cols-6 gap-4">
+                    <div className="col-span-1 text-gray-400 text-sm font-semibold">Metric</div>
+                    <div className="col-span-1 text-center">
+                      <div className="text-cyan-400 font-bold text-lg mb-1">Salesforce</div>
+                      <div className="text-xs text-gray-400">#1 CRM</div>
+                    </div>
+                    <div className="col-span-1 text-center">
+                      <div className="text-white font-semibold">HubSpot</div>
+                      <div className="text-xs text-gray-400">SMB Focus</div>
+                    </div>
+                    <div className="col-span-1 text-center">
+                      <div className="text-white font-semibold">Zoho</div>
+                      <div className="text-xs text-gray-400">Budget</div>
+                    </div>
+                    <div className="col-span-1 text-center">
+                      <div className="text-white font-semibold">Freshworks</div>
+                      <div className="text-xs text-gray-400">Mid-Market</div>
+                    </div>
+                    <div className="col-span-1 text-center">
+                      <div className="text-white font-semibold">Odoo</div>
+                      <div className="text-xs text-gray-400">Open Source</div>
+                    </div>
                   </div>
-                  <div className="col-span-1 text-center">
-                    <div className="text-white font-semibold">HubSpot</div>
-                    <div className="text-xs text-gray-400">SMB Focus</div>
-                  </div>
-                  <div className="col-span-1 text-center">
-                    <div className="text-white font-semibold">Zoho</div>
-                    <div className="text-xs text-gray-400">Budget</div>
-                  </div>
-                  <div className="col-span-1 text-center">
-                    <div className="text-white font-semibold">Freshworks</div>
-                    <div className="text-xs text-gray-400">Mid-Market</div>
-                  </div>
-                  <div className="col-span-1 text-center">
-                    <div className="text-white font-semibold">Odoo</div>
-                    <div className="text-xs text-gray-400">Open Source</div>
-                  </div>
-                  </div>
-                  
-                  {/* Share Button */}
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={async () => {
-                      try {
-                        navigator.vibrate?.(100);
-                        const url = `${window.location.origin}/salesforce-power${selectedIndustry ? `?industry=${selectedIndustry}&lang=${language}` : `?lang=${language}`}#comparison-table`;
-                        
-                        // Try to copy to clipboard
-                        if (navigator.clipboard && window.isSecureContext) {
-                          await navigator.clipboard.writeText(url);
-                        } else {
-                          // Fallback for older browsers
-                          const textArea = document.createElement('textarea');
-                          textArea.value = url;
-                          textArea.style.position = 'fixed';
-                          textArea.style.left = '-999999px';
-                          textArea.style.top = '-999999px';
-                          document.body.appendChild(textArea);
-                          textArea.focus();
-                          textArea.select();
-                          document.execCommand('copy');
-                          textArea.remove();
-                        }
-                        
-                        // Show success feedback
-                        const button = document.querySelector('[data-share-table-button]') as HTMLElement;
-                        if (button) {
-                          const originalContent = button.innerHTML;
-                          button.innerHTML = `
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            ${t('power.table.copied')}
-                          `;
-                          button.classList.add('bg-green-500/20', 'text-green-400', 'border-green-500/30');
-                          button.classList.remove('bg-cyan-500/20', 'text-cyan-400', 'border-cyan-500/30');
-                          
-                          setTimeout(() => {
-                            button.innerHTML = originalContent;
-                            button.classList.remove('bg-green-500/20', 'text-green-400', 'border-green-500/30');
-                            button.classList.add('bg-cyan-500/20', 'text-cyan-400', 'border-cyan-500/30');
-                          }, 3000);
-                        }
-                      } catch (error) {
-                        console.error('Failed to copy link:', error);
-                        // Fallback to alert
-                        alert(`${t('power.table.shareTitle')}: ${url}`);
-                      }
-                    }}
-                    data-share-table-button
-                    className="bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 border-cyan-500/30 ml-4 transition-all duration-300"
-                  >
-                    <Share2 className="w-4 h-4 mr-2" />
-                    {t('power.table.share')}
-                  </Button>
                 </div>
 
               {/* Comparison Rows */}
@@ -1471,66 +1477,6 @@ const SalesforcePower = () => {
 
             {/* Mobile Accordion */}
             <div className="md:hidden">
-              {/* Mobile Share Button */}
-              <div className="flex justify-center mb-6">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={async () => {
-                    try {
-                      navigator.vibrate?.(100);
-                      const url = `${window.location.origin}/salesforce-power${selectedIndustry ? `?industry=${selectedIndustry}&lang=${language}` : `?lang=${language}`}#comparison-table`;
-                      
-                      // Try to copy to clipboard
-                      if (navigator.clipboard && window.isSecureContext) {
-                        await navigator.clipboard.writeText(url);
-                      } else {
-                        // Fallback for older browsers
-                        const textArea = document.createElement('textarea');
-                        textArea.value = url;
-                        textArea.style.position = 'fixed';
-                        textArea.style.left = '-999999px';
-                        textArea.style.top = '-999999px';
-                        document.body.appendChild(textArea);
-                        textArea.focus();
-                        textArea.select();
-                        document.execCommand('copy');
-                        textArea.remove();
-                      }
-                      
-                      // Show success feedback
-                      const button = document.querySelector('[data-share-mobile-button]') as HTMLElement;
-                      if (button) {
-                        const originalContent = button.innerHTML;
-                        button.innerHTML = `
-                          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                          </svg>
-                          ${t('power.table.copied')}
-                        `;
-                        button.classList.add('bg-green-500/20', 'text-green-400', 'border-green-500/30');
-                        button.classList.remove('bg-cyan-500/20', 'text-cyan-400', 'border-cyan-500/30');
-                        
-                        setTimeout(() => {
-                          button.innerHTML = originalContent;
-                          button.classList.remove('bg-green-500/20', 'text-green-400', 'border-green-500/30');
-                          button.classList.add('bg-cyan-500/20', 'text-cyan-400', 'border-cyan-500/30');
-                        }, 3000);
-                      }
-                    } catch (error) {
-                      console.error('Failed to copy link:', error);
-                      // Fallback to alert
-                      alert(`${t('power.table.shareTitle')}: ${url}`);
-                    }
-                  }}
-                  data-share-mobile-button
-                  className="bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 border-cyan-500/30 transition-all duration-300"
-                >
-                  <Share2 className="w-4 h-4 mr-2" />
-                  {t('power.table.share')}
-                </Button>
-              </div>
-              
               <div className="space-y-4">
               {[
                 {
