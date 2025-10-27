@@ -5,7 +5,7 @@ export type Language = 'en' | 'ar';
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, string>) => string;
   isRTL: boolean;
 }
 
@@ -194,14 +194,18 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, [language]);
 
   const t = (key: string, params?: Record<string, string>): string => {
+    console.log('Looking up key:', key, 'in language:', language);
     const keys = key.split('.');
     let value: any = translations[language];
+    console.log('Starting with:', value);
     
     for (const k of keys) {
       value = value?.[k];
+      console.log('After key', k, ':', value);
     }
     
     if (typeof value !== 'string') {
+      console.log('Value not found, trying fallback...');
       // Return a fallback instead of the key to prevent console warnings
       const fallback = translations.en;
       let fallbackValue: any = fallback;
@@ -209,6 +213,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         fallbackValue = fallbackValue?.[k];
       }
       if (typeof fallbackValue === 'string') {
+        console.log('Found fallback:', fallbackValue);
         value = fallbackValue;
       } else {
         // Only log warning once per key to reduce console spam
@@ -222,6 +227,8 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         return key;
       }
     }
+    
+    console.log('Final value:', value);
     
     // Replace parameters
     if (params) {
