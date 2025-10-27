@@ -396,11 +396,17 @@ const SalesforcePower = () => {
               </div>
               
               <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-8 leading-tight">
-                {personalizeText(t('power.hero.title'))}
+                {companyName 
+                  ? personalizeText(t('power.hero.title.personalized'), 'your company', selectedIndustryData?.name)
+                  : personalizeText(t('power.hero.title'))
+                }
               </h1>
               
               <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-300 max-w-4xl mx-auto mb-8 leading-relaxed">
-                {personalizeText(t('power.hero.subtitle'))}
+                {companyName 
+                  ? personalizeText(t('power.hero.subtitle.personalized'), 'your company', selectedIndustryData?.name)
+                  : personalizeText(t('power.hero.subtitle'))
+                }
               </p>
 
               {/* Company Name Input */}
@@ -517,22 +523,31 @@ const SalesforcePower = () => {
               transition={{ duration: 0.8 }}
             >
               <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">
-                {personalizeText(selectedIndustryData 
-                  ? t('power.platform.title.industry', { industry: selectedIndustryData.name })
-                  : t('power.platform.title'), 'your company', selectedIndustryData?.name
-                )}
+                {companyName 
+                  ? personalizeText(t('power.platform.title.personalized'), 'your company', selectedIndustryData?.name)
+                  : personalizeText(selectedIndustryData 
+                    ? t('power.platform.title.industry', { industry: selectedIndustryData.name })
+                    : t('power.platform.title'), 'your company', selectedIndustryData?.name
+                  )
+                }
               </h2>
               <p className="text-base sm:text-lg md:text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
-                {personalizeText(selectedIndustryData 
-                  ? t('power.platform.subtitle.industry', { industry: selectedIndustryData.name })
-                  : t('power.platform.subtitle'), 'your company', selectedIndustryData?.name
-                )}
+                {companyName 
+                  ? personalizeText(t('power.platform.subtitle.personalized'), 'your company', selectedIndustryData?.name)
+                  : personalizeText(selectedIndustryData 
+                    ? t('power.platform.subtitle.industry', { industry: selectedIndustryData.name })
+                    : t('power.platform.subtitle'), 'your company', selectedIndustryData?.name
+                  )
+                }
               </p>
               
               {selectedIndustryData && (
                 <div className="mt-8 p-6 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-2xl border border-cyan-500/30 max-w-4xl mx-auto">
                   <h3 className="text-lg font-semibold text-cyan-400 mb-3">
-                    {personalizeText(t('power.platform.challenges', { industry: selectedIndustryData.name }), 'your company', selectedIndustryData.name)}
+                    {companyName 
+                      ? personalizeText(t('power.platform.challenges.personalized', { company: companyName, industry: selectedIndustryData.name }), 'your company', selectedIndustryData.name)
+                      : personalizeText(t('power.platform.challenges', { industry: selectedIndustryData.name }), 'your company', selectedIndustryData.name)
+                    }
                   </h3>
                   <div className="grid grid-cols-1 gap-4 text-left">
                     {selectedIndustryData.painPoints?.slice(0, 4).map((painPoint, index) => (
@@ -764,12 +779,18 @@ const SalesforcePower = () => {
               transition={{ duration: 0.8 }}
             >
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                {selectedIndustryData ? `Seamlessly Connects to Your ${selectedIndustryData.name} Systems` : 'Seamlessly Connects to Your Existing Systems'}
+                {companyName 
+                  ? personalizeText(t('power.erp.title.personalized'), 'your company', selectedIndustryData?.name)
+                  : (selectedIndustryData ? `Seamlessly Connects to Your ${selectedIndustryData.name} Systems` : 'Seamlessly Connects to Your Existing Systems')
+                }
               </h2>
               <p className="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
-                {selectedIndustryData 
-                  ? `Salesforce integrates with major ERP systems used in ${selectedIndustryData.name.toLowerCase()} to unify your data and streamline ${selectedIndustryData.name.toLowerCase()} workflows`
-                  : 'Salesforce integrates with all major ERP systems for unified business operations'
+                {companyName 
+                  ? personalizeText(t('power.erp.subtitle.personalized'), 'your company', selectedIndustryData?.name)
+                  : (selectedIndustryData 
+                    ? `Salesforce integrates with major ERP systems used in ${selectedIndustryData.name.toLowerCase()} to unify your data and streamline ${selectedIndustryData.name.toLowerCase()} workflows`
+                    : 'Salesforce integrates with all major ERP systems for unified business operations'
+                  )
                 }
               </p>
               
@@ -897,12 +918,18 @@ const SalesforcePower = () => {
               transition={{ duration: 0.8 }}
             >
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                {selectedIndustryData ? `Data Cloud: Connect Your ${selectedIndustryData.name} Data` : 'Data Cloud: Connect Everything'}
+                {companyName 
+                  ? personalizeText(t('power.datacloud.title.personalized'), 'your company', selectedIndustryData?.name)
+                  : (selectedIndustryData ? `Data Cloud: Connect Your ${selectedIndustryData.name} Data` : 'Data Cloud: Connect Everything')
+                }
               </h2>
               <p className="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
-                {selectedIndustryData 
-                  ? `One unified view of your ${selectedIndustryData.name.toLowerCase()} customers and operations, regardless of where data lives across your systems`
-                  : 'One unified view of your customer, regardless of where data lives'
+                {companyName 
+                  ? personalizeText(t('power.datacloud.subtitle.personalized'), 'your company', selectedIndustryData?.name)
+                  : (selectedIndustryData 
+                    ? `One unified view of your ${selectedIndustryData.name.toLowerCase()} customers and operations, regardless of where data lives across your systems`
+                    : 'One unified view of your customer, regardless of where data lives'
+                  )
                 }
               </p>
               
@@ -1043,7 +1070,10 @@ const SalesforcePower = () => {
                 transition={{ duration: 0.8 }}
               >
                 <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                  Tailored Solutions for {selectedIndustryData.name}
+                  {companyName 
+                    ? personalizeText(t('power.industry.title.personalized'), 'your company', selectedIndustryData?.name)
+                    : `Tailored Solutions for ${selectedIndustryData.name}`
+                  }
                 </h2>
                 <p className="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed mb-8">
                   {selectedIndustryData.description}
@@ -1135,15 +1165,21 @@ const SalesforcePower = () => {
               transition={{ duration: 0.8 }}
             >
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                {selectedIndustryData 
-                  ? t('power.comparison.title.industry', { industry: selectedIndustryData.name })
-                  : t('power.comparison.title')
+                {companyName 
+                  ? personalizeText(t('power.comparison.title.personalized'), 'your company', selectedIndustryData?.name)
+                  : (selectedIndustryData 
+                    ? t('power.comparison.title.industry', { industry: selectedIndustryData.name })
+                    : t('power.comparison.title')
+                  )
                 }
               </h2>
               <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-4">
-                {selectedIndustryData 
-                  ? t('power.comparison.subtitle.industry', { industry: selectedIndustryData.name })
-                  : t('power.comparison.subtitle')
+                {companyName 
+                  ? personalizeText(t('power.comparison.subtitle.personalized'), 'your company', selectedIndustryData?.name)
+                  : (selectedIndustryData 
+                    ? t('power.comparison.subtitle.industry', { industry: selectedIndustryData.name })
+                    : t('power.comparison.subtitle')
+                  )
                 }
               </p>
               <p className="text-sm text-gray-400 max-w-2xl mx-auto">
@@ -1591,15 +1627,21 @@ const SalesforcePower = () => {
               transition={{ duration: 0.8 }}
             >
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                {selectedIndustryData 
-                  ? t('power.cta.title.industry', { industry: selectedIndustryData.name })
-                  : t('power.cta.title')
+                {companyName 
+                  ? personalizeText(t('power.cta.title.personalized'), 'your company', selectedIndustryData?.name)
+                  : (selectedIndustryData 
+                    ? t('power.cta.title.industry', { industry: selectedIndustryData.name })
+                    : t('power.cta.title')
+                  )
                 }
               </h2>
               <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-                {selectedIndustryData 
-                  ? t('power.cta.subtitle.industry', { industry: selectedIndustryData.name })
-                  : t('power.cta.subtitle')
+                {companyName 
+                  ? personalizeText(t('power.cta.subtitle.personalized'), 'your company', selectedIndustryData?.name)
+                  : (selectedIndustryData 
+                    ? t('power.cta.subtitle.industry', { industry: selectedIndustryData.name })
+                    : t('power.cta.subtitle')
+                  )
                 }
               </p>
               
