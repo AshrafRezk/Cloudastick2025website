@@ -194,10 +194,10 @@ export const industries: IndustryData[] = [
       'Field Service Operations'
     ],
     successMetrics: [
-      '35% improvement in customer retention',
-      '50% faster service activation',
-      '40% reduction in churn rate',
-      '25% increase in ARPU (Average Revenue Per User)'
+      { value: '35%', description: 'improvement in customer retention' },
+      { value: '50%', description: 'faster service activation' },
+      { value: '40%', description: 'reduction in churn rate' },
+      { value: '25%', description: 'increase in ARPU (Average Revenue Per User)' }
     ],
     keyChallenges: [
       'Complex network infrastructure',
@@ -210,6 +210,19 @@ export const industries: IndustryData[] = [
       'Poor call center efficiency',
       'Manual case routing and management',
       'Inefficient customer interaction tracking'
+    ],
+    integrations: [
+      'SAP',
+      'Oracle',
+      'Microsoft Dynamics',
+      'ServiceNow',
+      'Zendesk'
+    ],
+    dataSources: [
+      'Customer databases',
+      'Network management systems',
+      'Billing platforms',
+      'Service ticketing systems'
     ],
     marketSize: '$1.7 trillion globally',
     growthRate: '3.2% annually'
@@ -230,10 +243,10 @@ export const industries: IndustryData[] = [
       'Digital Banking Services'
     ],
     successMetrics: [
-      '45% improvement in client satisfaction',
-      '30% increase in cross-selling',
-      '60% faster loan processing',
-      '25% reduction in compliance costs'
+      { value: '45%', description: 'improvement in client satisfaction' },
+      { value: '30%', description: 'increase in cross-selling' },
+      { value: '60%', description: 'faster loan processing' },
+      { value: '25%', description: 'reduction in compliance costs' }
     ],
     keyChallenges: [
       'Regulatory compliance requirements',
@@ -246,6 +259,19 @@ export const industries: IndustryData[] = [
       'Poor client relationship management',
       'Manual wealth management processes',
       'Inefficient risk assessment and reporting'
+    ],
+    integrations: [
+      'SAP Banking',
+      'Oracle Financial Services',
+      'FISERV',
+      'Fiserv',
+      'Temenos'
+    ],
+    dataSources: [
+      'Core banking systems',
+      'Investment platforms',
+      'Risk management systems',
+      'Compliance databases'
     ],
     marketSize: '$2.5 trillion globally',
     growthRate: '5.5% annually'
@@ -266,10 +292,10 @@ export const industries: IndustryData[] = [
       'Customer Service & Support'
     ],
     successMetrics: [
-      '50% increase in online sales',
-      '35% improvement in customer lifetime value',
-      '40% increase in email open rates',
-      '25% reduction in cart abandonment'
+      { value: '50%', description: 'increase in online sales' },
+      { value: '35%', description: 'improvement in customer lifetime value' },
+      { value: '40%', description: 'increase in email open rates' },
+      { value: '25%', description: 'reduction in cart abandonment' }
     ],
     keyChallenges: [
       'Omnichannel customer experience',
@@ -282,6 +308,19 @@ export const industries: IndustryData[] = [
       'Poor inventory management across channels',
       'Manual customer service processes',
       'Inefficient loyalty program management'
+    ],
+    integrations: [
+      'Shopify',
+      'Magento',
+      'WooCommerce',
+      'BigCommerce',
+      'Amazon'
+    ],
+    dataSources: [
+      'E-commerce platforms',
+      'POS systems',
+      'Inventory management',
+      'Customer databases'
     ],
     marketSize: '$4.9 trillion globally',
     growthRate: '7.2% annually'
@@ -302,10 +341,10 @@ export const industries: IndustryData[] = [
       'Contract & Pricing Management'
     ],
     successMetrics: [
-      '40% increase in average order value',
-      '30% faster quote-to-cash cycles',
-      '50% improvement in sales productivity',
-      '25% reduction in pricing errors'
+      { value: '40%', description: 'increase in average order value' },
+      { value: '30%', description: 'faster quote-to-cash cycles' },
+      { value: '50%', description: 'improvement in sales productivity' },
+      { value: '25%', description: 'reduction in pricing errors' }
     ],
     keyChallenges: [
       'Complex pricing structures',
@@ -318,6 +357,19 @@ export const industries: IndustryData[] = [
       'Manual quote and order management',
       'Poor customer self-service',
       'Integration with ERP systems'
+    ],
+    integrations: [
+      'SAP Ariba',
+      'Oracle Procurement',
+      'Coupa',
+      'Jaggaer',
+      'Basware'
+    ],
+    dataSources: [
+      'Procurement systems',
+      'Supplier databases',
+      'Contract management',
+      'Pricing systems'
     ],
     marketSize: '$1.2 trillion globally',
     growthRate: '8.5% annually'
@@ -338,10 +390,10 @@ export const industries: IndustryData[] = [
       'Client Portal & Collaboration'
     ],
     successMetrics: [
-      '35% improvement in project profitability',
-      '40% increase in billable hours',
-      '30% faster project delivery',
-      '50% improvement in client satisfaction'
+      { value: '35%', description: 'improvement in project profitability' },
+      { value: '40%', description: 'increase in billable hours' },
+      { value: '30%', description: 'faster project delivery' },
+      { value: '50%', description: 'improvement in client satisfaction' }
     ],
     keyChallenges: [
       'Resource allocation and utilization',
@@ -354,6 +406,19 @@ export const industries: IndustryData[] = [
       'Manual time and expense tracking',
       'Inefficient client communication',
       'Fragmented knowledge management'
+    ],
+    integrations: [
+      'Microsoft Project',
+      'Asana',
+      'Monday.com',
+      'Smartsheet',
+      'Jira'
+    ],
+    dataSources: [
+      'Project management systems',
+      'Time tracking tools',
+      'Client databases',
+      'Financial systems'
     ],
     marketSize: '$4.2 trillion globally',
     growthRate: '6.1% annually'
@@ -374,10 +439,10 @@ export const industries: IndustryData[] = [
       'Customer Loyalty Programs'
     ],
     successMetrics: [
-      '30% increase in vehicle sales',
-      '40% improvement in service efficiency',
-      '25% increase in customer retention',
-      '35% reduction in service costs'
+      { value: '30%', description: 'increase in vehicle sales' },
+      { value: '40%', description: 'improvement in service efficiency' },
+      { value: '25%', description: 'increase in customer retention' },
+      { value: '35%', description: 'reduction in service costs' }
     ],
     keyChallenges: [
       'Complex supply chain management',
@@ -390,6 +455,19 @@ export const industries: IndustryData[] = [
       'Poor supply chain visibility',
       'Manual quality control processes',
       'Inefficient equipment maintenance scheduling'
+    ],
+    integrations: [
+      'SAP Automotive',
+      'Oracle Automotive',
+      'DealerSocket',
+      'CDK Global',
+      'Reynolds & Reynolds'
+    ],
+    dataSources: [
+      'Dealer management systems',
+      'Parts inventory systems',
+      'Service scheduling',
+      'Customer databases'
     ],
     marketSize: '$2.7 trillion globally',
     growthRate: '3.8% annually'
@@ -410,10 +488,10 @@ export const industries: IndustryData[] = [
       'Marketing & Promotions'
     ],
     successMetrics: [
-      '45% increase in customer loyalty',
-      '30% improvement in booking conversion',
-      '40% increase in repeat bookings',
-      '25% reduction in customer service costs'
+      { value: '45%', description: 'increase in customer loyalty' },
+      { value: '30%', description: 'improvement in booking conversion' },
+      { value: '40%', description: 'increase in repeat bookings' },
+      { value: '25%', description: 'reduction in customer service costs' }
     ],
     keyChallenges: [
       'Seasonal demand fluctuations',
@@ -426,6 +504,19 @@ export const industries: IndustryData[] = [
       'Poor customer journey tracking',
       'Manual loyalty program management',
       'Inefficient customer service processes'
+    ],
+    integrations: [
+      'Amadeus',
+      'Sabre',
+      'Travelport',
+      'Booking.com',
+      'Expedia'
+    ],
+    dataSources: [
+      'Booking systems',
+      'Reservation platforms',
+      'Customer databases',
+      'Loyalty programs'
     ],
     marketSize: '$1.6 trillion globally',
     growthRate: '4.7% annually'
@@ -446,10 +537,10 @@ export const industries: IndustryData[] = [
       'Marketing & Promotions'
     ],
     successMetrics: [
-      '35% improvement in supply chain efficiency',
-      '40% reduction in product recalls',
-      '30% increase in distributor satisfaction',
-      '25% improvement in quality compliance'
+      { value: '35%', description: 'improvement in supply chain efficiency' },
+      { value: '40%', description: 'reduction in product recalls' },
+      { value: '30%', description: 'increase in distributor satisfaction' },
+      { value: '25%', description: 'improvement in quality compliance' }
     ],
     keyChallenges: [
       'Supply chain complexity',
@@ -462,6 +553,19 @@ export const industries: IndustryData[] = [
       'Manual quality control processes',
       'Poor product traceability',
       'Inefficient distributor management'
+    ],
+    integrations: [
+      'SAP Food & Beverage',
+      'Oracle Food & Beverage',
+      'Infor Food & Beverage',
+      'Epicor',
+      'Sage'
+    ],
+    dataSources: [
+      'Supply chain systems',
+      'Quality management',
+      'Distribution networks',
+      'Regulatory databases'
     ],
     marketSize: '$8.9 trillion globally',
     growthRate: '5.3% annually'
@@ -482,10 +586,10 @@ export const industries: IndustryData[] = [
       'Energy Usage Analytics'
     ],
     successMetrics: [
-      '40% improvement in customer satisfaction',
-      '30% reduction in service call volume',
-      '25% increase in payment collection',
-      '35% improvement in field service efficiency'
+      { value: '40%', description: 'improvement in customer satisfaction' },
+      { value: '30%', description: 'reduction in service call volume' },
+      { value: '25%', description: 'increase in payment collection' },
+      { value: '35%', description: 'improvement in field service efficiency' }
     ],
     keyChallenges: [
       'Regulatory compliance requirements',
@@ -498,6 +602,19 @@ export const industries: IndustryData[] = [
       'Poor customer service efficiency',
       'Manual field service scheduling',
       'Inefficient billing and payment processes'
+    ],
+    integrations: [
+      'SAP Utilities',
+      'Oracle Utilities',
+      'CISCO',
+      'GE Digital',
+      'Schneider Electric'
+    ],
+    dataSources: [
+      'Customer information systems',
+      'Metering systems',
+      'Billing platforms',
+      'Field service systems'
     ],
     marketSize: '$1.8 trillion globally',
     growthRate: '3.5% annually'
@@ -518,10 +635,10 @@ export const industries: IndustryData[] = [
       'Compliance & Reporting'
     ],
     successMetrics: [
-      '50% improvement in citizen satisfaction',
-      '40% reduction in processing times',
-      '35% increase in digital service adoption',
-      '30% improvement in compliance rates'
+      { value: '50%', description: 'improvement in citizen satisfaction' },
+      { value: '40%', description: 'reduction in processing times' },
+      { value: '35%', description: 'increase in digital service adoption' },
+      { value: '30%', description: 'improvement in compliance rates' }
     ],
     keyChallenges: [
       'Citizen service delivery',
@@ -534,6 +651,19 @@ export const industries: IndustryData[] = [
       'Complex regulatory compliance processes',
       'Manual document management',
       'Inefficient case processing'
+    ],
+    integrations: [
+      'Microsoft Government',
+      'Oracle Government',
+      'SAP Public Sector',
+      'ServiceNow',
+      'Salesforce Government Cloud'
+    ],
+    dataSources: [
+      'Citizen databases',
+      'Case management systems',
+      'Document repositories',
+      'Compliance systems'
     ],
     marketSize: '$2.2 trillion globally',
     growthRate: '4.2% annually'

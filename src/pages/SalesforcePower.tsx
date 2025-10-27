@@ -773,13 +773,13 @@ const SalesforcePower = () => {
                 }
               </p>
               
-              {selectedIndustryData && (
+              {selectedIndustryData && selectedIndustryData.integrations && selectedIndustryData.integrations.length > 0 && (
                 <div className="mt-8 p-6 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-2xl border border-blue-500/30 max-w-4xl mx-auto">
                   <h3 className="text-lg font-semibold text-blue-400 mb-3">
-                    Common {selectedIndustryData.name} Integrations:
+                    Common {selectedIndustryData.name} Integrations
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-                    {selectedIndustryData.integrations?.slice(0, 4).map((integration, index) => (
+                    {selectedIndustryData.integrations.slice(0, 4).map((integration, index) => (
                       <div key={index} className="flex items-start gap-3">
                         <div className="w-2 h-2 bg-blue-400 rounded-full mt-2 flex-shrink-0"></div>
                         <span className="text-gray-300 text-sm">{integration}</span>
@@ -906,13 +906,13 @@ const SalesforcePower = () => {
                 }
               </p>
               
-              {selectedIndustryData && (
+              {selectedIndustryData && selectedIndustryData.dataSources && selectedIndustryData.dataSources.length > 0 && (
                 <div className="mt-8 p-6 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-2xl border border-purple-500/30 max-w-4xl mx-auto">
                   <h3 className="text-lg font-semibold text-purple-400 mb-3">
-                    {selectedIndustryData.name} Data Sources We Connect:
+                    {selectedIndustryData.name} Data Sources We Connect
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-                    {selectedIndustryData.dataSources?.slice(0, 4).map((source, index) => (
+                    {selectedIndustryData.dataSources.slice(0, 4).map((source, index) => (
                       <div key={index} className="flex items-start gap-3">
                         <div className="w-2 h-2 bg-purple-400 rounded-full mt-2 flex-shrink-0"></div>
                         <span className="text-gray-300 text-sm">{source}</span>
