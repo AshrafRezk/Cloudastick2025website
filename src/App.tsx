@@ -27,6 +27,8 @@ import SalesforceApps from "./pages/SalesforceApps";
 import SalesforcePower from "./pages/SalesforcePower";
 import SalesforcePowerLeadCapture from "./pages/SalesforcePowerLeadCapture";
 import SalesforcePowerSuccess from "./pages/SalesforcePowerSuccess";
+import SalesforceComparisonTable from "./pages/SalesforceComparisonTable";
+import { LanguageProvider } from "./contexts/LanguageContext";
 
 const queryClient = new QueryClient();
 
@@ -63,11 +65,12 @@ const App = () => {
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-          <ScrollToTop />
-          <Routes>
+          <LanguageProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+            <ScrollToTop />
+            <Routes>
             {/* Special routes for Tarwtl - no standard startup or layout */}
             <Route path="/tarwtl" element={<TarwtlLeadCapture />} />
             <Route path="/tarwtl-lead-capture" element={<TarwtlLeadCapture />} />
@@ -99,9 +102,10 @@ const App = () => {
                       <Route path="/contact" element={<Contact />} />
                       <Route path="/learn" element={<Learn />} />
                       <Route path="/salesforce-apps" element={<SalesforceApps />} />
-                      <Route path="/salesforce-power" element={<SalesforcePower />} />
-                      <Route path="/salesforce-power-lead-capture" element={<SalesforcePowerLeadCapture />} />
-                      <Route path="/salesforce-power-success" element={<SalesforcePowerSuccess />} />
+                          <Route path="/salesforce-power" element={<SalesforcePower />} />
+                          <Route path="/salesforce-power-lead-capture" element={<SalesforcePowerLeadCapture />} />
+                          <Route path="/salesforce-power-success" element={<SalesforcePowerSuccess />} />
+                          <Route path="/salesforce-comparison" element={<SalesforceComparisonTable />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </Layout>
@@ -109,11 +113,12 @@ const App = () => {
               </>
             } />
           </Routes>
-        </BrowserRouter>
-        </TooltipProvider>
-      </QueryClientProvider>
-    </HelmetProvider>
-  );
-};
+            </BrowserRouter>
+            </LanguageProvider>
+            </TooltipProvider>
+          </QueryClientProvider>
+        </HelmetProvider>
+      );
+    };
 
 export default App;

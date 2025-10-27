@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '../contexts/LanguageContext';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 import {
   ArrowRight,
   ChevronDown,
@@ -28,7 +30,8 @@ import {
   ArrowDown,
   RefreshCw,
   Headphones,
-  Cloud
+  Cloud,
+  Share2
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import AnimatedSection from '../components/AnimatedSection';
@@ -213,6 +216,7 @@ const HubAndSpokeVisualization = React.memo(({
 HubAndSpokeVisualization.displayName = 'HubAndSpokeVisualization';
 
 const SalesforcePower = () => {
+  const { t, isRTL } = useLanguage();
   const [selectedIndustry, setSelectedIndustry] = useState<string | null>(null);
   const [currentSection, setCurrentSection] = useState(0);
   const [showPlatformOverview, setShowPlatformOverview] = useState(false);
@@ -276,7 +280,11 @@ const SalesforcePower = () => {
   const coreProducts = salesforceProducts.slice(0, 6);
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="min-h-screen bg-gray-900 text-white" dir={isRTL ? 'rtl' : 'ltr'}>
+      {/* Language Switcher */}
+      <div className="fixed top-4 right-4 z-50">
+        <LanguageSwitcher />
+      </div>
       {/* Hero Section */}
       <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Background Effects */}
@@ -316,18 +324,15 @@ const SalesforcePower = () => {
             >
               <span className="inline-flex items-center px-6 py-3 rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 text-cyan-400 text-sm font-semibold mb-8 backdrop-blur-sm">
                 <Sparkles className="w-5 h-5 mr-2" />
-                Beyond CRM - Complete Platform
+                {t('hero.badge')}
               </span>
               
               <h1 className="text-5xl md:text-7xl font-bold text-white mb-8 leading-tight">
-                Discover the Full
-                <span className="block mt-3 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
-                  Power of Salesforce
-                </span>
+                {t('hero.title')}
               </h1>
               
               <p className="text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto mb-16 leading-relaxed">
-                Choose your industry to explore how Salesforce transforms businesses beyond traditional CRM
+                {t('hero.subtitle')}
               </p>
             </motion.div>
 
@@ -362,8 +367,8 @@ const SalesforcePower = () => {
                       {industry.description.split('.')[0]}.
                     </p>
                     <div className="flex items-center text-white/70 text-xs font-medium">
-                      <span>Explore Solutions</span>
-                      <ArrowRight className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform duration-300" />
+                      <span>{t('hero.explore')}</span>
+                      <ArrowRight className={`w-3 h-3 ${isRTL ? 'mr-1' : 'ml-1'} group-hover:translate-x-1 transition-transform duration-300`} />
                     </div>
                   </div>
                   
@@ -1148,8 +1153,8 @@ const SalesforcePower = () => {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link to="/salesforce-power-lead-capture">
                   <Button variant="primary" size="lg" className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700">
-                    Get Started Now
-                    <ArrowRight className="ml-2 h-5 w-5" />
+                    {t('hero.cta')}
+                    <ArrowRight className={`h-5 w-5 ${isRTL ? 'mr-2' : 'ml-2'}`} />
                   </Button>
                 </Link>
                 
@@ -1164,8 +1169,24 @@ const SalesforcePower = () => {
                   }}
                   className="bg-white/10 hover:bg-white/20 text-white border-white/20"
                 >
-                  <RefreshCw className="mr-2 h-5 w-5" />
+                  <RefreshCw className={`h-5 w-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
                   Start Over
+                </Button>
+                
+                <Button 
+                  variant="secondary" 
+                  size="lg"
+                  onClick={() => {
+                    navigator.vibrate?.(100);
+                    const url = selectedIndustry 
+                      ? `/salesforce-comparison?industry=${selectedIndustry}&lang=${language}`
+                      : `/salesforce-comparison?lang=${language}`;
+                    window.open(url, '_blank');
+                  }}
+                  className="bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 border-cyan-500/30"
+                >
+                  <Share2 className={`h-5 w-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
+                  {t('table.share')}
                 </Button>
               </div>
             </motion.div>
