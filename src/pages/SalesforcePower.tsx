@@ -52,17 +52,24 @@ const HubAndSpokeVisualization = React.memo(({
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
-  const [dimensions, setDimensions] = useState({ width: 800, height: 400 });
+  const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
 
   // Calculate positions once and memoize
   const productPositions = useMemo(() => {
     const centerX = dimensions.width / 2;
     const centerY = dimensions.height / 2;
-    const radius = Math.min(dimensions.width, dimensions.height) * 0.25; // Reduced radius for better alignment
+    const cardSize = 80; // Card is 80x80 (w-20 h-20)
+    const centerCircleRadius = 40; // Center hub radius
+    
+    // Calculate radius: ensure cards don't overlap center and have proper spacing
+    // Radius = (center circle radius) + (spacing) + (half card size)
+    const spacing = 60; // Gap between center edge and card edge
+    const radius = centerCircleRadius + spacing + (cardSize / 2);
     
     return products.map((product, index) => {
-      // Start from -90 degrees (top) and distribute evenly
-      const angle = -90 + (index * 360) / products.length;
+      // For hexagonal layout with 6 items: 0°, 60°, 120°, 180°, 240°, 300°
+      // Start at 0° (right side) for even distribution
+      const angle = (index * 360) / products.length;
       const x = centerX + Math.cos((angle * Math.PI) / 180) * radius;
       const y = centerY + Math.sin((angle * Math.PI) / 180) * radius;
       return { ...product, x, y, angle };
@@ -151,10 +158,10 @@ const HubAndSpokeVisualization = React.memo(({
     const handleResize = () => {
       const container = canvasRef.current?.parentElement;
       if (container) {
-        setDimensions({
-          width: Math.min(container.offsetWidth, 800),
-          height: 400
-        });
+    setDimensions({
+      width: Math.min(container.offsetWidth, 800),
+      height: 600 // Increase to accommodate circular layout
+    });
       }
     };
 
@@ -182,9 +189,9 @@ const HubAndSpokeVisualization = React.memo(({
             transition={{ duration: 0.5, delay: 0.8 + index * 0.1 }}
             className="absolute pointer-events-auto"
             style={{
-              left: product.x - 40,
-              top: product.y - 40,
-              transform: 'translate(0, 0)', // Ensure no additional transforms
+              left: `${product.x}px`,
+              top: `${product.y}px`,
+              transform: 'translate(-50%, -50%)', // Center the card on the calculated position
             }}
             onMouseEnter={() => onProductHover(product.id)}
             onMouseLeave={() => onProductHover(null)}
