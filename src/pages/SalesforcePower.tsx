@@ -287,24 +287,14 @@ const SalesforcePower = () => {
   // Core products for platform overview - use first 6 products for better visualization
   const coreProducts = salesforceProducts.slice(0, 6);
 
-  // Error boundary for the component
-  if (!t) {
-    console.error('Translation function not available');
-    return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Loading...</h1>
-          <p className="text-gray-400">Please wait while we load the page.</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-900 text-white" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Language Switcher */}
+      {/* Language Switcher with error boundary */}
       <div className="fixed top-4 right-4 z-50">
-        <LanguageSwitcher />
+        <React.Suspense fallback={<div className="w-32 h-10 bg-gray-800 rounded-lg" />}>
+          <LanguageSwitcher />
+        </React.Suspense>
       </div>
       {/* Hero Section */}
       <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">

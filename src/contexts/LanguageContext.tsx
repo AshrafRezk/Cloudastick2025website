@@ -211,7 +211,14 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       if (typeof fallbackValue === 'string') {
         value = fallbackValue;
       } else {
-        console.warn(`Translation missing for key: ${key}`);
+        // Only log warning once per key to reduce console spam
+        if (!window.translationWarnings) {
+          window.translationWarnings = new Set();
+        }
+        if (!window.translationWarnings.has(key)) {
+          console.warn(`Translation missing for key: ${key}`);
+          window.translationWarnings.add(key);
+        }
         return key;
       }
     }
