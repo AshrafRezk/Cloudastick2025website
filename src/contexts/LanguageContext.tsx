@@ -306,6 +306,16 @@ const translations = {
     'power.hero.personalizedFor': 'Personalized for {company}',
     'power.hero.title.personalized': 'Discover the Full Power of Salesforce for {company}',
     'power.hero.subtitle.personalized': 'Transform {company} with industry-leading CRM and business solutions',
+    
+    // Onboarding Modal
+    'power.onboarding.title': 'Personalize Your Experience',
+    'power.onboarding.subtitle': 'Tell us about your company to get a customized view',
+    'power.onboarding.companyLabel': 'Company Name',
+    'power.onboarding.companyPlaceholder': 'Enter your company name',
+    'power.onboarding.industryLabel': 'Industry',
+    'power.onboarding.industryPlaceholder': 'Select your industry',
+    'power.onboarding.submit': 'Continue',
+    'power.onboarding.required': 'Please fill in all fields',
     'power.platform.title.personalized': 'More Than Just CRM for {company}',
     'power.platform.subtitle.personalized': 'Salesforce provides {company} with specialized clouds and workflows that address your unique business challenges',
     'power.erp.title.personalized': 'Seamlessly Connects to {company} Systems',
@@ -783,6 +793,16 @@ const translations = {
     'power.hero.personalizedFor': 'مخصص لـ {company}',
     'power.hero.title.personalized': 'اكتشف القوة الكاملة لـ Salesforce لـ {company}',
     'power.hero.subtitle.personalized': 'حول {company} مع حلول CRM و الأعمال الرائدة في الصناعة',
+    
+    // Onboarding Modal
+    'power.onboarding.title': 'خصص تجربتك',
+    'power.onboarding.subtitle': 'أخبرنا عن شركتك للحصول على عرض مخصص',
+    'power.onboarding.companyLabel': 'اسم الشركة',
+    'power.onboarding.companyPlaceholder': 'أدخل اسم شركتك',
+    'power.onboarding.industryLabel': 'الصناعة',
+    'power.onboarding.industryPlaceholder': 'اختر صناعتك',
+    'power.onboarding.submit': 'متابعة',
+    'power.onboarding.required': 'يرجى ملء جميع الحقول',
     'power.platform.title.personalized': 'أكثر من مجرد CRM لـ {company}',
     'power.platform.subtitle.personalized': 'يوفر Salesforce لـ {company} سحابات متخصصة وسير عمل يتعامل مع تحديات الأعمال الفريدة',
     'power.erp.title.personalized': 'يتصل بسلاسة مع أنظمة {company}',

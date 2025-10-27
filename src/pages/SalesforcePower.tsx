@@ -33,7 +33,10 @@ import {
   Cloud,
   Share2,
   Check,
-  Copy
+  Copy,
+  ChevronLeft,
+  ChevronRight,
+  Pause
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import AnimatedSection from '../components/AnimatedSection';
@@ -43,7 +46,7 @@ import { erpIntegrations } from '../data/erpIntegrations';
 import { industries, getIndustryById } from '../data/industries';
 import { useToast } from '../hooks/use-toast';
 
-// Optimized Hub and Spoke Component
+// Modern Carousel Hub and Spoke Component
 const HubAndSpokeVisualization = React.memo(({ 
   products, 
   onProductHover, 
@@ -53,190 +56,267 @@ const HubAndSpokeVisualization = React.memo(({
   onProductHover: (id: string | null) => void, 
   hoveredProduct: string | null 
 }) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationRef = useRef<number>();
-  const [dimensions, setDimensions] = useState({ 
-    width: typeof window !== 'undefined' && window.innerWidth < 768 ? Math.min(window.innerWidth - 48, 350) : 800,
-    height: typeof window !== 'undefined' && window.innerWidth < 768 ? 350 : 600 
-  });
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const carouselRef = useRef<HTMLDivElement>(null);
 
-  // Calculate positions once and memoize
-  const productPositions = useMemo(() => {
-    const centerX = dimensions.width / 2;
-    const centerY = dimensions.height / 2;
-    const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
-    const cardSize = isMobile ? 50 : 80; // Smaller cards on mobile
-    const centerCircleRadius = isMobile ? 30 : 40; // Smaller center on mobile
+  // Auto-play functionality
+  useEffect(() => {
+    if (!isAutoPlaying) return;
     
-    // Calculate radius: ensure cards don't overlap center and have proper spacing
-    // Radius = (center circle radius) + (spacing) + (half card size)
-    const spacing = isMobile ? 30 : 60; // Less spacing on mobile
-    const radius = centerCircleRadius + spacing + (cardSize / 2);
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % products.length);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [isAutoPlaying, products.length]);
+
+  // Touch handling for mobile
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX);
+    setIsAutoPlaying(false);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
     
-    return products.map((product, index) => {
-      // For hexagonal layout with 6 items: 0°, 60°, 120°, 180°, 240°, 300°
-      // Start at 0° (right side) for even distribution
-      const angle = (index * 360) / products.length;
-      const x = centerX + Math.cos((angle * Math.PI) / 180) * radius;
-      const y = centerY + Math.sin((angle * Math.PI) / 180) * radius;
-      return { ...product, x, y, angle };
-    });
-  }, [products, dimensions]);
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
 
-  // Draw canvas with error handling and performance optimization
-  const drawCanvas = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    try {
-      // Clear canvas
-      ctx.clearRect(0, 0, dimensions.width, dimensions.height);
-
-      const centerX = dimensions.width / 2;
-      const centerY = dimensions.height / 2;
-
-    // Draw connection lines with batching
-    ctx.strokeStyle = 'rgba(6, 182, 212, 0.3)';
-    ctx.lineWidth = 2;
-    productPositions.forEach(({ x, y }) => {
-      ctx.beginPath();
-      ctx.moveTo(centerX, centerY);
-      ctx.lineTo(x, y);
-      ctx.stroke();
-    });
-
-      // Draw center hub with gradient
-      const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
-      const centerRadius = isMobile ? 30 : 40;
-      const gradient = ctx.createRadialGradient(centerX - 10, centerY - 10, 0, centerX, centerY, centerRadius);
-      gradient.addColorStop(0, '#3b82f6');
-      gradient.addColorStop(1, '#06b6d4');
-      ctx.fillStyle = gradient;
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, centerRadius, 0, 2 * Math.PI);
-      ctx.fill();
-
-      // Draw center logo (Cloud icon)
-      ctx.fillStyle = 'white';
-      ctx.font = isMobile ? '18px Arial' : '24px Arial';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('☁', centerX, centerY);
-
-      // Draw pulsing ring with optimized animation
-      const time = Date.now() * 0.001;
-      const pulseRadius = centerRadius + Math.sin(time * 2) * 5;
-      ctx.strokeStyle = `rgba(6, 182, 212, ${0.3 + Math.sin(time * 2) * 0.2})`;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, pulseRadius, 0, 2 * Math.PI);
-      ctx.stroke();
-    } catch (error) {
-      console.warn('Canvas drawing error:', error);
+    if (isLeftSwipe && currentIndex < products.length - 1) {
+      setCurrentIndex(currentIndex + 1);
     }
-  }, [productPositions, dimensions]);
+    if (isRightSwipe && currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+    }
 
-  // Optimized animation loop with reduced frequency
+    setTouchStart(null);
+    setTouchEnd(null);
+  };
+
+  // Keyboard navigation
   useEffect(() => {
-    let lastTime = 0;
-    const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
-    const targetFPS = isMobile ? 20 : 30; // Lower FPS on mobile
-    const frameInterval = 1000 / targetFPS;
-
-    const animate = (currentTime: number) => {
-      if (currentTime - lastTime >= frameInterval) {
-        drawCanvas();
-        lastTime = currentTime;
-      }
-      animationRef.current = requestAnimationFrame(animate);
-    };
-    
-    animationRef.current = requestAnimationFrame(animate);
-
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, [drawCanvas]);
-
-  // Handle resize
-  useEffect(() => {
-    const handleResize = () => {
-      const container = canvasRef.current?.parentElement;
-      if (container) {
-    setDimensions({
-      width: Math.min(container.offsetWidth, 800),
-      height: 600 // Increase to accommodate circular layout
-    });
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft' && currentIndex > 0) {
+        setCurrentIndex(currentIndex - 1);
+        setIsAutoPlaying(false);
+      } else if (e.key === 'ArrowRight' && currentIndex < products.length - 1) {
+        setCurrentIndex(currentIndex + 1);
+        setIsAutoPlaying(false);
       }
     };
 
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentIndex, products.length]);
+
+  const currentProduct = products[currentIndex];
+  const nextProduct = products[(currentIndex + 1) % products.length];
+  const prevProduct = products[currentIndex === 0 ? products.length - 1 : currentIndex - 1];
 
   return (
     <div className="relative w-full max-w-4xl mx-auto">
-      <canvas
-        ref={canvasRef}
-        width={dimensions.width}
-        height={dimensions.height}
-        className="w-full h-auto"
-      />
-      
-      {/* Product Icons Overlay */}
-      <div className="absolute inset-0 pointer-events-none">
-        {productPositions.map((product, index) => (
+      {/* Main Carousel Container */}
+      <div 
+        ref={carouselRef}
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-sm border border-gray-700/50"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onMouseEnter={() => setIsAutoPlaying(false)}
+        onMouseLeave={() => setIsAutoPlaying(true)}
+      >
+        {/* Central Hub */}
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
           <motion.div
-            key={product.id}
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.8 + index * 0.1 }}
-            className="absolute pointer-events-auto p-2 sm:p-4"
-            style={{
-              left: `${product.x}px`,
-              top: `${product.y}px`,
-              transform: 'translate(-50%, -50%)', // Center the card on the calculated position
-            }}
-            onMouseEnter={() => onProductHover(product.id)}
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            className="relative"
+          >
+            {/* Central Cloud Icon */}
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-2xl border-4 border-white/20">
+              <Cloud className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+            </div>
+            
+            {/* Pulsing Ring */}
+            <motion.div
+              animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0, 0.5] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="absolute inset-0 rounded-full border-2 border-blue-400/50"
+            />
+          </motion.div>
+        </div>
+
+        {/* Product Cards Carousel */}
+        <div className="relative h-80 sm:h-96">
+          {/* Current Product - Center */}
+          <motion.div
+            key={`current-${currentIndex}`}
+            initial={{ scale: 0.8, opacity: 0, x: 0, y: 0 }}
+            animate={{ scale: 1, opacity: 1, x: 0, y: 0 }}
+            exit={{ scale: 0.8, opacity: 0, x: 0, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10"
+            onMouseEnter={() => onProductHover(currentProduct.id)}
             onMouseLeave={() => onProductHover(null)}
-            onTouchStart={(e) => {
-              e.preventDefault();
-              onProductHover(product.id);
-            }}
-            onTouchEnd={(e) => {
-              e.preventDefault();
-              // Delay hiding to allow user to see the panel
-              setTimeout(() => onProductHover(null), 2000);
-            }}
+            onTouchStart={() => onProductHover(currentProduct.id)}
+            onTouchEnd={() => setTimeout(() => onProductHover(null), 2000)}
           >
             <motion.div
-              whileHover={{ scale: 1.1 }}
-              className={`w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br ${product.gradient} rounded-xl flex items-center justify-center cursor-pointer shadow-lg group relative touch-manipulation`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br ${currentProduct.gradient} rounded-2xl flex flex-col items-center justify-center cursor-pointer shadow-2xl group relative touch-manipulation border-2 border-white/20`}
             >
-              <product.icon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
-              <div className="absolute inset-0 rounded-xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </motion.div>
-            
-            {/* Product Label */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.2 + index * 0.1 }}
-              className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 sm:mt-2 text-center"
-            >
-              <div className="text-xs sm:text-sm text-gray-300 font-medium whitespace-nowrap px-1">
-                {product.shortName}
+              <currentProduct.icon className="w-8 h-8 sm:w-12 sm:h-12 text-white mb-1" />
+              <div className="text-xs sm:text-sm text-white font-semibold text-center px-2">
+                {currentProduct.shortName}
               </div>
+              <div className="absolute inset-0 rounded-2xl bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </motion.div>
           </motion.div>
-        ))}
+
+          {/* Next Product - Right */}
+          <motion.div
+            key={`next-${currentIndex}`}
+            initial={{ scale: 0.7, opacity: 0.6, x: 200, y: 0 }}
+            animate={{ scale: 0.8, opacity: 0.7, x: 120, y: 0 }}
+            exit={{ scale: 0.7, opacity: 0.6, x: 200, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-5"
+            onMouseEnter={() => onProductHover(nextProduct.id)}
+            onMouseLeave={() => onProductHover(null)}
+          >
+            <div className={`w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br ${nextProduct.gradient} rounded-xl flex items-center justify-center cursor-pointer shadow-lg group relative opacity-70`}>
+              <nextProduct.icon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+            </div>
+          </motion.div>
+
+          {/* Previous Product - Left */}
+          <motion.div
+            key={`prev-${currentIndex}`}
+            initial={{ scale: 0.7, opacity: 0.6, x: -200, y: 0 }}
+            animate={{ scale: 0.8, opacity: 0.7, x: -120, y: 0 }}
+            exit={{ scale: 0.7, opacity: 0.6, x: -200, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-5"
+            onMouseEnter={() => onProductHover(prevProduct.id)}
+            onMouseLeave={() => onProductHover(null)}
+          >
+            <div className={`w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br ${prevProduct.gradient} rounded-xl flex items-center justify-center cursor-pointer shadow-lg group relative opacity-70`}>
+              <prevProduct.icon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Navigation Dots */}
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+          {products.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => {
+                setCurrentIndex(index);
+                setIsAutoPlaying(false);
+              }}
+              className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${
+                index === currentIndex 
+                  ? 'bg-blue-500 scale-125' 
+                  : 'bg-gray-500 hover:bg-gray-400'
+              }`}
+            />
+          ))}
+        </div>
+
+        {/* Navigation Arrows */}
+        <button
+          onClick={() => {
+            setCurrentIndex(currentIndex === 0 ? products.length - 1 : currentIndex - 1);
+            setIsAutoPlaying(false);
+          }}
+          className="absolute left-4 top-1/2 transform -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-gray-800/80 hover:bg-gray-700/80 rounded-full flex items-center justify-center text-white transition-all duration-200 hover:scale-110 z-10"
+        >
+          <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+        </button>
+        
+        <button
+          onClick={() => {
+            setCurrentIndex((currentIndex + 1) % products.length);
+            setIsAutoPlaying(false);
+          }}
+          className="absolute right-4 top-1/2 transform -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-gray-800/80 hover:bg-gray-700/80 rounded-full flex items-center justify-center text-white transition-all duration-200 hover:scale-110 z-10"
+        >
+          <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+        </button>
+
+        {/* Play/Pause Button */}
+        <button
+          onClick={() => setIsAutoPlaying(!isAutoPlaying)}
+          className="absolute top-4 right-4 w-8 h-8 sm:w-10 sm:h-10 bg-gray-800/80 hover:bg-gray-700/80 rounded-full flex items-center justify-center text-white transition-all duration-200 z-10"
+        >
+          {isAutoPlaying ? (
+            <Pause className="w-4 h-4 sm:w-5 sm:h-5" />
+          ) : (
+            <Play className="w-4 h-4 sm:w-5 sm:h-5" />
+          )}
+        </button>
       </div>
+
+      {/* Product Info Panel */}
+      <AnimatePresence>
+        {hoveredProduct && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            transition={{ duration: 0.3 }}
+            className="absolute top-full left-1/2 transform -translate-x-1/2 mt-4 z-30 w-80 sm:w-96"
+          >
+            <div className="bg-gray-900/95 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-gray-700/50 shadow-2xl">
+              {(() => {
+                const product = products.find(p => p.id === hoveredProduct);
+                if (!product) return null;
+                
+                return (
+                  <>
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className={`w-10 h-10 bg-gradient-to-br ${product.gradient} rounded-lg flex items-center justify-center`}>
+                        <product.icon className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-white">{product.name}</h3>
+                        <p className="text-sm text-gray-400">{product.shortName}</p>
+                      </div>
+                    </div>
+                    <p className="text-gray-300 text-sm leading-relaxed">
+                      {product.description}
+                    </p>
+                    {product.challenges && product.challenges.length > 0 && (
+                      <div className="mt-4">
+                        <h4 className="text-sm font-medium text-blue-400 mb-2">Key Challenges Solved:</h4>
+                        <ul className="space-y-1">
+                          {product.challenges.slice(0, 3).map((challenge: string, index: number) => (
+                            <li key={index} className="text-xs text-gray-400 flex items-start gap-2">
+                              <span className="text-blue-500 mt-1">•</span>
+                              {challenge}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 });
@@ -646,223 +726,6 @@ const SalesforcePower = () => {
               />
             </div>
 
-            {/* Product Details Panel */}
-            <AnimatePresence>
-            {hoveredProduct && (() => {
-              const product = coreProducts.find(p => p.id === hoveredProduct);
-              if (!product) return null;
-              
-              // Calculate product position for contextual placement
-              const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
-              const centerX = hubDimensions.width / 2;
-              const centerY = hubDimensions.height / 2;
-              const cardSize = isMobile ? 50 : 80;
-              const centerCircleRadius = isMobile ? 30 : 40;
-              const spacing = isMobile ? 30 : 60;
-              const radius = centerCircleRadius + spacing + (cardSize / 2);
-              
-              const productIndex = coreProducts.findIndex(p => p.id === hoveredProduct);
-              const angle = (productIndex * 360) / coreProducts.length;
-              const productX = centerX + Math.cos((angle * Math.PI) / 180) * radius;
-              const productY = centerY + Math.sin((angle * Math.PI) / 180) * radius;
-              
-              const panelWidth = isMobile ? 280 : 320;
-              const panelHeight = isMobile ? 200 : 240;
-              
-              // Calculate position relative to the hovered product
-              let panelX = productX;
-              let panelY = productY;
-              
-              // Adjust position to avoid going off-screen
-              if (panelX < panelWidth / 2) {
-                panelX = panelWidth / 2 + 20; // Keep some margin from edge
-              } else if (panelX > hubDimensions.width - panelWidth / 2) {
-                panelX = hubDimensions.width - panelWidth / 2 - 20;
-              }
-              
-              // Position above the product icon on mobile, beside on desktop
-              if (isMobile) {
-                panelY = productY - 120; // Above the icon
-              } else {
-                panelY = productY - panelHeight / 2; // Beside the icon
-                // If product is on the left side, show panel to the right
-                if (productX < hubDimensions.width / 2) {
-                  panelX = productX + 100;
-                } else {
-                  panelX = productX - panelWidth - 100;
-                }
-              }
-              
-              return (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  className="absolute bg-gray-800/95 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-gray-700 z-30 shadow-2xl"
-                  style={{
-                    left: `${panelX}px`,
-                    top: `${panelY}px`,
-                    width: `${panelWidth}px`,
-                    transform: 'translate(-50%, -50%)',
-                  }}
-                >
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className={`w-10 h-10 bg-gradient-to-br ${product.gradient} rounded-lg flex items-center justify-center`}>
-                      <product.icon className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-bold text-white">{product.name}</h3>
-                      <p className="text-cyan-400 text-sm">{product.category}</p>
-                    </div>
-                  </div>
-                  <p className="text-gray-300 text-sm mb-4">{product.description}</p>
-                      
-                      {/* Key Challenges Solved */}
-                      <div className="mb-4">
-                        <h4 className="text-cyan-400 text-sm font-semibold mb-2">Key Challenges Solved:</h4>
-                        <div className="space-y-2">
-                          {(() => {
-                            // Define challenges for each product
-                            const challenges = {
-                              'sales-cloud': [
-                                'Fragmented sales data across systems',
-                                'Manual lead qualification processes',
-                                'Poor visibility into sales pipeline',
-                                'Inefficient follow-up tracking'
-                              ],
-                              'service-cloud': [
-                                'Disconnected customer support channels',
-                                'Slow response times to customer issues',
-                                'Lack of customer history visibility',
-                                'Manual case management processes'
-                              ],
-                              'marketing-cloud': [
-                                'Disjointed marketing campaigns',
-                                'Poor customer segmentation',
-                                'Low email engagement rates',
-                                'Manual campaign management'
-                              ],
-                              'commerce-cloud-b2c': [
-                                'Complex e-commerce operations',
-                                'Poor customer shopping experience',
-                                'Inventory management challenges',
-                                'Mobile commerce limitations'
-                              ],
-                              'commerce-cloud-b2b': [
-                                'Complex B2B sales processes',
-                                'Manual quote and order management',
-                                'Poor customer self-service',
-                                'Integration with ERP systems'
-                              ],
-                              'experience-cloud': [
-                                'Disconnected digital experiences',
-                                'Poor customer self-service',
-                                'Manual content management',
-                                'Limited community engagement'
-                              ],
-                              'slack': [
-                                'Scattered team communication across tools',
-                                'Slow decision-making processes',
-                                'Poor knowledge sharing and collaboration',
-                                'Inefficient project coordination'
-                              ],
-                              'tableau-crm': [
-                                'Data scattered across multiple systems',
-                                'Manual reporting and analysis processes',
-                                'Poor data visualization and insights',
-                                'Slow decision-making due to data delays'
-                              ],
-                              'life-sciences-cloud': [
-                                'Complex regulatory compliance requirements',
-                                'Manual clinical trial management',
-                                'Poor patient data integration',
-                                'Inefficient drug development processes'
-                              ],
-                              'health-cloud': [
-                                'Fragmented patient data across systems',
-                                'Poor care coordination between providers',
-                                'Manual patient engagement processes',
-                                'Inefficient population health management'
-                              ],
-                              'financial-services-cloud': [
-                                'Complex regulatory compliance challenges',
-                                'Poor client relationship management',
-                                'Manual wealth management processes',
-                                'Inefficient risk assessment and reporting'
-                              ],
-                              'manufacturing-cloud': [
-                                'Disconnected production and sales data',
-                                'Poor supply chain visibility',
-                                'Manual quality control processes',
-                                'Inefficient equipment maintenance scheduling'
-                              ],
-                              'retail-cloud': [
-                                'Disconnected online and offline experiences',
-                                'Poor inventory management across channels',
-                                'Manual customer service processes',
-                                'Inefficient loyalty program management'
-                              ],
-                              'communications-cloud': [
-                                'Fragmented customer communication channels',
-                                'Poor call center efficiency',
-                                'Manual case routing and management',
-                                'Inefficient customer interaction tracking'
-                              ],
-                              'financial-services-cloud': [
-                                'Complex regulatory compliance challenges',
-                                'Poor client relationship management',
-                                'Manual wealth management processes',
-                                'Inefficient risk assessment and reporting'
-                              ],
-                              'data-cloud': [
-                                'Data silos across multiple systems',
-                                'Poor data quality and consistency',
-                                'Manual data integration processes',
-                                'Inefficient real-time data processing'
-                              ],
-                              'mulesoft': [
-                                'Complex system integration challenges',
-                                'Manual API development and management',
-                                'Poor data connectivity between systems',
-                                'Inefficient legacy system modernization'
-                              ],
-                              'einstein-ai': [
-                                'Manual data analysis and insights',
-                                'Poor predictive capabilities',
-                                'Inefficient decision-making processes',
-                                'Limited automation opportunities'
-                              ]
-                            };
-                            
-                            const productChallenges = challenges[product.id as keyof typeof challenges] || product.keyFeatures.slice(0, 3);
-                            
-                            return productChallenges.slice(0, 3).map((challenge, idx) => (
-                              <div key={idx} className="flex items-start gap-2 text-sm text-gray-300">
-                                <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full mt-2 flex-shrink-0"></div>
-                                <span>{challenge}</span>
-                              </div>
-                            ));
-                          })()}
-                        </div>
-                      </div>
-                      
-                      {/* Key Features */}
-                      <div>
-                        <h4 className="text-cyan-400 text-sm font-semibold mb-2">Key Features:</h4>
-                        <div className="space-y-2">
-                          {product.keyFeatures.slice(0, 2).map((feature, idx) => (
-                            <div key={idx} className="flex items-center gap-2 text-sm text-gray-400">
-                              <CheckCircle2 className="w-4 h-4 text-green-400" />
-                              {feature}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                </motion.div>
-              );
-            })()}
-            </AnimatePresence>
-          </div>
 
           {/* Stats Section */}
           <motion.div
