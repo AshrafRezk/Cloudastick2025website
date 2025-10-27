@@ -47,6 +47,7 @@ import {
 import { Link } from 'react-router-dom';
 import AnimatedSection from '../components/AnimatedSection';
 import Button from '../components/Button';
+import LeadCaptureModal from '../components/LeadCaptureModal';
 import { salesforceProducts, getProductsByIndustry } from '../data/salesforceProducts';
 import { erpIntegrations } from '../data/erpIntegrations';
 import { industries, getIndustryById } from '../data/industries';
@@ -341,6 +342,8 @@ const SalesforcePower = () => {
   const [showCompanyInput, setShowCompanyInput] = useState<boolean>(false);
   const [copied, setCopied] = useState(false);
   const [expandedMetrics, setExpandedMetrics] = useState<Set<string>>(new Set());
+  const [showLeadModal, setShowLeadModal] = useState<boolean>(false);
+  const [isDirectAccess, setIsDirectAccess] = useState<boolean>(false);
   const [hubDimensions, setHubDimensions] = useState({ 
     width: typeof window !== 'undefined' && window.innerWidth < 768 ? Math.min(window.innerWidth - 48, 350) : 800,
     height: typeof window !== 'undefined' && window.innerWidth < 768 ? 350 : 600 
@@ -382,6 +385,34 @@ const SalesforcePower = () => {
       });
       setTimeout(() => setCopied(false), 2000);
     });
+  };
+
+  // Handle lead modal success
+  const handleLeadModalSuccess = (data: { companyName: string; industry: string }) => {
+    setCompanyName(data.companyName);
+    setSelectedIndustry(data.industry);
+    setShowLeadModal(false);
+    setIsDirectAccess(false);
+    
+    // Scroll to comparison table after a short delay
+    setTimeout(() => {
+      const tableElement = document.getElementById('comparison-table');
+      if (tableElement) {
+        tableElement.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    }, 300);
+  };
+
+  // Handle lead modal close
+  const handleLeadModalClose = () => {
+    setShowLeadModal(false);
+    if (isDirectAccess) {
+      // If it was a direct access and user closes modal, redirect to main page
+      window.location.href = '/salesforce-power';
+    }
   };
 
   // CSV download function
@@ -613,12 +644,19 @@ const SalesforcePower = () => {
     
     const handleHashChange = () => {
       if (window.location.hash === '#comparison-table') {
-        const tableElement = document.getElementById('comparison-table');
-        if (tableElement) {
-          tableElement.scrollIntoView({ 
-            behavior: 'smooth',
-            block: 'start'
-          });
+        // Check if this is a direct access (no company name set)
+        if (!companyName) {
+          setIsDirectAccess(true);
+          setShowLeadModal(true);
+        } else {
+          // If company name is already set, just scroll to the table
+          const tableElement = document.getElementById('comparison-table');
+          if (tableElement) {
+            tableElement.scrollIntoView({ 
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
         }
       }
     };
@@ -632,7 +670,7 @@ const SalesforcePower = () => {
     return () => {
       window.removeEventListener('hashchange', handleHashChange);
     };
-  }, []);
+  }, [companyName]);
 
   // Handle hub dimensions resize
   useEffect(() => {
@@ -1989,6 +2027,15 @@ const SalesforcePower = () => {
           ))}
         </div>
       </div>
+
+      {/* Lead Capture Modal */}
+      <LeadCaptureModal
+        isOpen={showLeadModal}
+        onClose={handleLeadModalClose}
+        onSuccess={handleLeadModalSuccess}
+        title={isDirectAccess ? "Get Your Personalized Analysis" : "Complete Your Profile"}
+        subtitle={isDirectAccess ? "Tell us about your company to receive a customized comparison report" : "Add your company details to personalize your experience"}
+      />
     </div>
   );
 };
