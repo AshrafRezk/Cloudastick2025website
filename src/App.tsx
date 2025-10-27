@@ -24,6 +24,9 @@ import CityscapeStart from "./pages/CityscapeStart";
 import CityscapeLeadCapture from "./pages/CityscapeLeadCapture";
 import CityscapeLeadSuccess from "./pages/CityscapeLeadSuccess";
 import SalesforceApps from "./pages/SalesforceApps";
+import SalesforcePower from "./pages/SalesforcePower";
+import SalesforcePowerLeadCapture from "./pages/SalesforcePowerLeadCapture";
+import SalesforcePowerSuccess from "./pages/SalesforcePowerSuccess";
 
 const queryClient = new QueryClient();
 
@@ -96,6 +99,9 @@ const App = () => {
                       <Route path="/contact" element={<Contact />} />
                       <Route path="/learn" element={<Learn />} />
                       <Route path="/salesforce-apps" element={<SalesforceApps />} />
+                      <Route path="/salesforce-power" element={<SalesforcePower />} />
+                      <Route path="/salesforce-power-lead-capture" element={<SalesforcePowerLeadCapture />} />
+                      <Route path="/salesforce-power-success" element={<SalesforcePowerSuccess />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </Layout>
