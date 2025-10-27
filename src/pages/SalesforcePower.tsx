@@ -236,11 +236,19 @@ const SalesforcePower = () => {
   const [showPlatformOverview, setShowPlatformOverview] = useState(false);
   const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
   const [isScrolling, setIsScrolling] = useState(false);
+  const [companyName, setCompanyName] = useState<string>('');
+  const [showCompanyInput, setShowCompanyInput] = useState<boolean>(false);
 
   // Memoized hover handler to prevent unnecessary re-renders
   const handleProductHover = useCallback((productId: string | null) => {
     setHoveredProduct(productId);
   }, []);
+
+  // Function to personalize text with company name
+  const personalizeText = useCallback((text: string, fallback: string = 'your company') => {
+    if (!companyName) return text;
+    return text.replace(/\{company\}/g, companyName).replace(/\{industry\}/g, selectedIndustryData?.name || fallback);
+  }, [companyName, selectedIndustryData]);
   
   const heroRef = useRef<HTMLDivElement>(null);
   const platformRef = useRef<HTMLDivElement>(null);
@@ -264,7 +272,10 @@ const SalesforcePower = () => {
       setSelectedIndustry(industryId);
       setCurrentSection(1);
       
-      // Smooth scroll to platform overview
+      // Add smooth slide animation
+      setIsScrolling(true);
+      
+      // Smooth scroll to platform overview with slide effect
       setTimeout(() => {
         if (platformRef.current) {
           platformRef.current.scrollIntoView({ 
@@ -272,7 +283,9 @@ const SalesforcePower = () => {
             block: 'start'
           });
         }
-      }, 500);
+        // Reset scrolling state after animation completes
+        setTimeout(() => setIsScrolling(false), 1000);
+      }, 300);
     } catch (error) {
       console.error('Error in handleIndustrySelect:', error);
     }
@@ -379,12 +392,47 @@ const SalesforcePower = () => {
               </div>
               
               <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-8 leading-tight">
-                {t('power.hero.title')}
+                {personalizeText(t('power.hero.title'))}
               </h1>
               
-              <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-300 max-w-4xl mx-auto mb-16 leading-relaxed">
-                {t('power.hero.subtitle')}
+              <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-300 max-w-4xl mx-auto mb-8 leading-relaxed">
+                {personalizeText(t('power.hero.subtitle'))}
               </p>
+
+              {/* Company Name Input */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.3 }}
+                className="mb-8"
+              >
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-2xl mx-auto">
+                  <div className="flex-1 w-full">
+                    <input
+                      type="text"
+                      placeholder={t('power.hero.companyPlaceholder')}
+                      value={companyName}
+                      onChange={(e) => setCompanyName(e.target.value)}
+                      className="w-full px-6 py-4 bg-gray-800/50 backdrop-blur-sm border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-300 text-center sm:text-left"
+                    />
+                  </div>
+                  <button
+                    onClick={() => setShowCompanyInput(!showCompanyInput)}
+                    className="px-6 py-4 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-semibold rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                  >
+                    {companyName ? t('power.hero.personalize') : t('power.hero.addCompany')}
+                  </button>
+                </div>
+                {companyName && (
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="text-cyan-400 text-sm mt-2"
+                  >
+                    {t('power.hero.personalizedFor', { company: companyName })}
+                  </motion.p>
+                )}
+              </motion.div>
             </motion.div>
 
             {/* Industry Selection Cards */}
@@ -465,22 +513,22 @@ const SalesforcePower = () => {
               transition={{ duration: 0.8 }}
             >
               <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">
-                {selectedIndustryData 
+                {personalizeText(selectedIndustryData 
                   ? t('power.platform.title.industry', { industry: selectedIndustryData.name })
                   : t('power.platform.title')
-                }
+                )}
               </h2>
               <p className="text-base sm:text-lg md:text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
-                {selectedIndustryData 
+                {personalizeText(selectedIndustryData 
                   ? t('power.platform.subtitle.industry', { industry: selectedIndustryData.name })
                   : t('power.platform.subtitle')
-                }
+                )}
               </p>
               
               {selectedIndustryData && (
                 <div className="mt-8 p-6 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-2xl border border-cyan-500/30 max-w-4xl mx-auto">
                   <h3 className="text-lg font-semibold text-cyan-400 mb-3">
-                    {t('power.platform.challenges', { industry: selectedIndustryData.name })}
+                    {personalizeText(t('power.platform.challenges', { industry: selectedIndustryData.name }))}
                   </h3>
                   <div className="grid grid-cols-1 gap-4 text-left">
                     {selectedIndustryData.painPoints?.slice(0, 4).map((painPoint, index) => (
@@ -1071,7 +1119,7 @@ const SalesforcePower = () => {
                     size="sm"
                     onClick={() => {
                       navigator.vibrate?.(100);
-                      const url = `${window.location.origin}/salesforce-power#comparison-table${selectedIndustry ? `?industry=${selectedIndustry}&lang=${language}` : `?lang=${language}`}`;
+                      const url = `${window.location.origin}/salesforce-power${selectedIndustry ? `?industry=${selectedIndustry}&lang=${language}` : `?lang=${language}`}#comparison-table`;
                       navigator.clipboard.writeText(url).then(() => {
                         // Show success feedback
                         const button = document.querySelector('[data-share-table-button]') as HTMLElement;
@@ -1206,7 +1254,7 @@ const SalesforcePower = () => {
                   size="sm"
                   onClick={() => {
                     navigator.vibrate?.(100);
-                    const url = `${window.location.origin}/salesforce-power#comparison-table${selectedIndustry ? `?industry=${selectedIndustry}&lang=${language}` : `?lang=${language}`}`;
+                    const url = `${window.location.origin}/salesforce-power${selectedIndustry ? `?industry=${selectedIndustry}&lang=${language}` : `?lang=${language}`}#comparison-table`;
                     navigator.clipboard.writeText(url).then(() => {
                       // Show success feedback
                       const button = document.querySelector('[data-share-mobile-button]') as HTMLElement;

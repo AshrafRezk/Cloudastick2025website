@@ -300,6 +300,10 @@ const translations = {
     'power.hero.explore': 'Explore Solutions',
     'power.hero.selectIndustry': 'Select Your Industry',
     'power.hero.selectIndustry.desc': 'Choose your industry to see how Salesforce can transform your business',
+    'power.hero.companyPlaceholder': 'Enter your company name',
+    'power.hero.addCompany': 'Add Company',
+    'power.hero.personalize': 'Personalize',
+    'power.hero.personalizedFor': 'Personalized for {company}',
     
     // Platform Overview
     'power.platform.title': 'More Than Just CRM',
@@ -759,6 +763,10 @@ const translations = {
     'power.hero.explore': 'استكشف الحلول',
     'power.hero.selectIndustry': 'اختر صناعتك',
     'power.hero.selectIndustry.desc': 'اختر صناعتك لترى كيف يمكن لـ Salesforce تحويل عملك',
+    'power.hero.companyPlaceholder': 'أدخل اسم شركتك',
+    'power.hero.addCompany': 'إضافة شركة',
+    'power.hero.personalize': 'تخصيص',
+    'power.hero.personalizedFor': 'مخصص لـ {company}',
     
     // Platform Overview
     'power.platform.title': 'أكثر من مجرد CRM',
