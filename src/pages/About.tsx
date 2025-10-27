@@ -8,177 +8,180 @@ import {
   Globe, Database, Shield as ShieldIcon, Star
 } from "lucide-react";
 import AnimatedSection from "../components/AnimatedSection";
+import { useLanguage } from "../contexts/LanguageContext";
 
-// Team member images with role-specific icons and hover elements
+const About = () => {
+  const { t } = useLanguage();
+
+  // Team member images with role-specific icons and hover elements
   const teamMembers = [
     { 
       name: "Mina Michel", 
-      role: "Founder of Cloudastick Systems", 
+      role: t('team.founder'), 
       image: "/Assets/Company Members/Mina_Michel_Founder_of_Cloudastick_Systems.png",
       icons: [Star, Lightbulb],
-      hoverElements: ["Vision", "Leadership"],
+      hoverElements: [t('team.hoverElements.vision'), t('team.hoverElements.leadership')],
       color: "from-yellow-400 to-orange-500"
     },
     { 
       name: "Mireille Rafik", 
-      role: "Marketing Cloud Consultant", 
+      role: t('team.marketingConsultant'), 
       image: "/Assets/Company Members/Mireille_Rafik_Marketing_Cloud_Consultant.png",
       icons: [MessageSquare, BarChart3],
-      hoverElements: ["Campaigns", "Analytics"],
+      hoverElements: [t('team.hoverElements.campaigns'), t('team.hoverElements.analytics')],
       color: "from-pink-400 to-purple-500"
     },
     { 
       name: "Omar El Borae", 
-      role: "Customer Success Manager", 
+      role: t('team.customerSuccess'), 
       image: "/Assets/Company Members/Omar_El_Borae_Customer_Success_Manager.png",
       icons: [Headphones, UserCheck],
-      hoverElements: ["Support", "Success"],
+      hoverElements: [t('team.hoverElements.support'), t('team.hoverElements.success')],
       color: "from-green-400 to-teal-500"
     },
     { 
       name: "Carine Felix", 
-      role: "Brand and People Experience Specialist", 
+      role: t('team.brandSpecialist'), 
       image: "/Assets/Company Members/Carine_Felix_Brand_and_People_Experience_Specialist.png",
       icons: [Palette, Users2],
-      hoverElements: ["Brand", "Culture"],
+      hoverElements: [t('team.hoverElements.brand'), t('team.hoverElements.culture')],
       color: "from-purple-400 to-pink-500"
     },
     { 
       name: "Luay Aladin", 
-      role: "Salesforce Consultant", 
+      role: t('team.salesforceConsultant'), 
       image: "/Assets/Company Members/Luay_Aladin_Salesforce_Consultant.png",
       icons: [Code, Settings],
-      hoverElements: ["Development", "Configuration"],
+      hoverElements: [t('team.hoverElements.development'), t('team.hoverElements.configuration')],
       color: "from-blue-400 to-cyan-500"
     },
     { 
       name: "Shady Thomas", 
-      role: "Salesforce Consultant", 
+      role: t('team.salesforceConsultant'), 
       image: "/Assets/Company Members/Shady_Thomas_Salesforce_Consultant.png",
       icons: [Wrench, Database],
-      hoverElements: ["Integration", "Data"],
+      hoverElements: [t('team.hoverElements.integration'), t('team.hoverElements.data')],
       color: "from-indigo-400 to-blue-500"
     },
     { 
       name: "Ashraf Rezk", 
-      role: "Head of Tech", 
+      role: t('team.headOfTech'), 
       image: "/Assets/Company Members/Ashraf_Rezk_Head_of_Tech.png",
       icons: [ShieldIcon, Globe],
-      hoverElements: ["Security", "Architecture"],
+      hoverElements: [t('team.hoverElements.security'), t('team.hoverElements.architecture')],
       color: "from-red-400 to-orange-500"
     },
     { 
       name: "Martin Ashraf", 
-      role: "Salesforce Consultant", 
+      role: t('team.salesforceConsultant'), 
       image: "/Assets/Company Members/Martin_Ashraf_Salesforce_Consultant.png",
       icons: [Target, TrendingUp],
-      hoverElements: ["Strategy", "Growth"],
+      hoverElements: [t('team.hoverElements.strategy'), t('team.hoverElements.growth')],
       color: "from-emerald-400 to-green-500"
     },
     { 
       name: "Ahmed Salah", 
-      role: "Salesforce Consultant", 
+      role: t('team.salesforceConsultant'), 
       image: "/Assets/Company Members/Ahmed_Salah_Salesforce_Consultant.png",
       icons: [Award, Briefcase],
-      hoverElements: ["Excellence", "Delivery"],
+      hoverElements: [t('team.hoverElements.excellence'), t('team.hoverElements.delivery')],
       color: "from-amber-400 to-yellow-500"
     },
     { 
       name: "Maheen Imran", 
-      role: "Salesforce Consultant", 
+      role: t('team.salesforceConsultant'), 
       image: "/Assets/Company Members/Maheen_Imran_Salesforce_Consultant.png",
       icons: [Users, Zap],
-      hoverElements: ["Collaboration", "Innovation"],
+      hoverElements: [t('team.hoverElements.collaboration'), t('team.hoverElements.innovation')],
       color: "from-cyan-400 to-blue-500"
     },
     { 
       name: "Fady Maged", 
-      role: "Salesforce Consultant", 
+      role: t('team.salesforceConsultant'), 
       image: "/Assets/Company Members/Fady_Maged_Salesforce_Consultant.png",
       icons: [Code, BarChart3],
-      hoverElements: ["Development", "Analytics"],
+      hoverElements: [t('team.hoverElements.development'), t('team.hoverElements.analytics')],
       color: "from-violet-400 to-purple-500"
     },
     { 
       name: "Andrew Osama", 
-      role: "Salesforce Consultant", 
+      role: t('team.salesforceConsultant'), 
       image: "/Assets/Company Members/Andrew_Osama_Salesforce_Consultant.png",
       icons: [Settings, Wrench],
-      hoverElements: ["Configuration", "Customization"],
+      hoverElements: [t('team.hoverElements.configuration'), t('team.hoverElements.customization')],
       color: "from-teal-400 to-cyan-500"
     },
     { 
       name: "Abdullah", 
-      role: "Salesforce Consultant", 
+      role: t('team.salesforceConsultant'), 
       image: "/Assets/Company Members/Abdullah_Salesforce_Consultant.png",
       icons: [Database, Globe],
-      hoverElements: ["Data Management", "Integration"],
+      hoverElements: [t('team.hoverElements.dataManagement'), t('team.hoverElements.integration')],
       color: "from-orange-400 to-red-500"
     },
     { 
       name: "Farida Esam", 
-      role: "Marketing Cloud Consultant", 
+      role: t('team.marketingConsultant'), 
       image: "/Assets/Company Members/Farida_Esam_Marketing_Cloud_Consultant.png",
       icons: [MessageSquare, BarChart3],
-      hoverElements: ["Email Marketing", "Campaigns"],
+      hoverElements: [t('team.hoverElements.emailMarketing'), t('team.hoverElements.campaigns')],
       color: "from-rose-400 to-pink-500"
     },
     { 
       name: "Andrea Makary", 
-      role: "Technical Architect", 
+      role: t('team.technicalArchitect'), 
       image: "/Assets/Company Members/Andrea_Makary_Technical_Architect.png",
       icons: [ShieldIcon, Globe],
-      hoverElements: ["Architecture", "Security"],
+      hoverElements: [t('team.hoverElements.architecture'), t('team.hoverElements.security')],
       color: "from-slate-400 to-gray-500"
     },
     { 
       name: "Mariam Mamdouh", 
-      role: "Project Manager", 
+      role: t('team.projectManager'), 
       image: "/Assets/Company Members/Mariam_Mamdouh_Project_Manager.png",
       icons: [Briefcase, Target],
-      hoverElements: ["Project Delivery", "Timeline"],
+      hoverElements: [t('team.hoverElements.projectDelivery'), t('team.hoverElements.timeline')],
       color: "from-lime-400 to-green-500"
     }
   ];
 
-const About = () => {
   const values = [
     {
       icon: Heart,
-      title: "Reverence",
-      description: "We begin with respect. We respect the craft of technology and consulting, striving for excellence in every detail. We respect each other's views, knowing that diverse perspectives strengthen our solutions. We respect everyone in the Salesforce ecosystem including healthy competition because it drives us all forward. Most importantly, we deeply respect our customers, treating their trust as our greatest responsibility.",
+      title: t('about.values.reverence'),
+      description: t('about.values.reverence.desc'),
       color: "from-red-500 to-pink-500",
       bgColor: "bg-red-50",
       iconColor: "text-red-600"
     },
     {
       icon: Zap,
-      title: "Efficiency",
-      description: "We believe in doing things right and doing them smart. Efficiency means removing waste, optimizing processes, and ensuring our clients see measurable value from every engagement.",
+      title: t('about.values.efficiency'),
+      description: t('about.values.efficiency.desc'),
       color: "from-yellow-500 to-orange-500",
       bgColor: "bg-yellow-50",
       iconColor: "text-yellow-600"
     },
     {
       icon: Users,
-      title: "Inclusion",
-      description: "We practice strategic inclusivity, every member, partner, and client is part of the same Cloudastick boat, moving forward together. We welcome and celebrate diverse operational ideas, skills, and viewpoints not only as a matter of fairness, but as a deliberate strategy to fuel creativity, strengthen collaboration, and ensure collective success.",
+      title: t('about.values.inclusion'),
+      description: t('about.values.inclusion.desc'),
       color: "from-blue-500 to-cyan-500",
       bgColor: "bg-blue-50",
       iconColor: "text-blue-600"
     },
     {
       icon: Eye,
-      title: "Transparency",
-      description: "We commit to clarity at every level. Internally, we practice open communication about all matters to ensure alignment and trust. Externally, we engage in proactive communication with our customers, keeping everyone in the know, anticipating questions, and ensuring there are no surprises.",
+      title: t('about.values.transparency'),
+      description: t('about.values.transparency.desc'),
       color: "from-green-500 to-emerald-500",
       bgColor: "bg-green-50",
       iconColor: "text-green-600"
     },
     {
       icon: Shield,
-      title: "Consistency",
-      description: "We maintain and commit to what we do. At Cloudastick, we don't just start initiatives, we see them through to completion. Our consistency is about perseverance, reliability, and honoring our commitments, ensuring that what we promise is what we deliver, every time.",
+      title: t('about.values.consistency'),
+      description: t('about.values.consistency.desc'),
       color: "from-purple-500 to-indigo-500",
       bgColor: "bg-purple-50",
       iconColor: "text-purple-600"
@@ -192,10 +195,10 @@ const About = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <AnimatedSection className="text-center">
             <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6">
-              About Us
+              {t('about.hero.title')}
             </h1>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              We help Fortune 500 companies and startups alike build the CRM of their dreams.
+              {t('about.hero.subtitle')}
             </p>
           </AnimatedSection>
         </div>
@@ -208,17 +211,13 @@ const About = () => {
             <AnimatedSection direction="left">
               <div className="space-y-6">
                 <h2 className="text-4xl font-bold text-white">
-                  Our Story
+                  {t('about.story.title')}
                 </h2>
                 <p className="text-lg text-gray-300 leading-relaxed">
-                  Founded by industry veterans who understand that one size doesn't fit all, 
-                  Cloudastick emerged from the need for personalized CRM solutions that truly 
-                  understand your business.
+                  {t('about.story.content')}
                 </p>
                 <p className="text-lg text-gray-300 leading-relaxed">
-                  With decades of combined experience in Salesforce consulting and business 
-                  transformation, we've helped hundreds of companies optimize their customer 
-                  relationships and drive growth.
+                  {t('about.story.experience')}
                 </p>
               </div>
             </AnimatedSection>
@@ -227,16 +226,16 @@ const About = () => {
               <div className="bg-gradient-to-br from-cyan-500/10 to-blue-600/10 rounded-2xl p-8 border border-cyan-500/20">
                 <div className="text-center">
                   <div className="text-5xl font-bold text-cyan-400 mb-2">500+</div>
-                  <div className="text-gray-300">Successful Projects</div>
+                  <div className="text-gray-300">{t('about.stats.projects')}</div>
                 </div>
                 <div className="grid grid-cols-2 gap-8 mt-8">
                   <div className="text-center">
                     <div className="text-3xl font-bold text-white mb-1">98%</div>
-                    <div className="text-gray-400 text-sm">Client Satisfaction</div>
+                    <div className="text-gray-400 text-sm">{t('about.stats.satisfaction')}</div>
                   </div>
                   <div className="text-center">
                     <div className="text-3xl font-bold text-white mb-1">24/7</div>
-                    <div className="text-gray-400 text-sm">Support</div>
+                    <div className="text-gray-400 text-sm">{t('about.stats.support')}</div>
                   </div>
                 </div>
               </div>
@@ -250,16 +249,16 @@ const About = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <AnimatedSection className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-8">
-              What Sets Us Apart
+              {t('about.differentiators.title')}
             </h2>
           </AnimatedSection>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              "Industry-Smart CRM Design",
-              "Boutique Attention", 
-              "Salesforce Expertise",
-              "End-to-End Services"
+              t('about.differentiators.industry'),
+              t('about.differentiators.boutique'), 
+              t('about.differentiators.expertise'),
+              t('about.differentiators.services')
             ].map((feature, index) => (
               <AnimatedSection
                 key={feature}
@@ -318,10 +317,10 @@ const About = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <AnimatedSection className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-6">
-              Our Values
+              {t('about.values.title')}
             </h2>
             <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-              The principles that guide everything we do at Cloudastick.
+              {t('about.values.subtitle')}
             </p>
           </AnimatedSection>
 
@@ -385,10 +384,10 @@ const About = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <AnimatedSection className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-6">
-              Leadership Team
+              {t('about.team.title')}
             </h2>
             <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-              Meet the experts behind Cloudastick's success.
+              {t('about.team.subtitle')}
             </p>
           </AnimatedSection>
 

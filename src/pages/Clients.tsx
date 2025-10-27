@@ -32,8 +32,10 @@ import {
 } from "lucide-react";
 import AnimatedSection from "../components/AnimatedSection";
 import Button from "../components/Button";
+import { useLanguage } from "../contexts/LanguageContext";
 
 const Clients = () => {
+  const { t } = useLanguage();
   const [currentSection, setCurrentSection] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
 
@@ -65,7 +67,7 @@ const Clients = () => {
   const clientSections = [
     {
       id: 1,
-      title: "Real-estate Customers",
+      title: t('clients.sections.realEstate'),
       bgColor: "from-blue-900/20 to-cyan-900/20",
       logos: [
         { name: "Benoit Properties", text: "benoitproperties", subtitle: "INTERNATIONAL", location: "USA & UK", iconType: "real-estate" },
@@ -80,7 +82,7 @@ const Clients = () => {
     },
     {
       id: 2,
-      title: "Health-sector Customers",
+      title: t('clients.sections.healthcare'),
       bgColor: "from-green-900/20 to-emerald-900/20",
       logos: [
         { name: "Meddbase", text: "meddbase", subtitle: "by carity", location: "Europe", iconType: "healthcare" },
@@ -91,7 +93,7 @@ const Clients = () => {
     },
     {
       id: 3,
-      title: "Manufacturing Customers",
+      title: t('clients.sections.manufacturing'),
       bgColor: "from-orange-900/20 to-red-900/20",
       logos: [
         { name: "Global Scales", text: "GLOBAL SCALES", subtitle: "& SYSTEMS CO. LTD.", location: "EG", iconType: "manufacturing" },
@@ -103,7 +105,7 @@ const Clients = () => {
     },
     {
       id: 4,
-      title: "Retail Customers",
+      title: t('clients.sections.retail'),
       bgColor: "from-purple-900/20 to-pink-900/20",
       logos: [
         { name: "Avon", text: "AVON", subtitle: "", location: "", iconType: "beauty" },
@@ -158,10 +160,10 @@ const Clients = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <AnimatedSection className="text-center">
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight">
-              Our Clients
+              {t('clients.hero.title')}
             </h1>
             <p className="text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
-              Trusted by industry leaders across multiple sectors worldwide
+              {t('clients.hero.subtitle')}
             </p>
           </AnimatedSection>
         </div>

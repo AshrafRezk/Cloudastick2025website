@@ -7,8 +7,10 @@ import Button from "../components/Button";
 import { ArrowRight } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 import { useToast } from "../hooks/use-toast";
+import { useLanguage } from "../contexts/LanguageContext";
 
 const SalesforceApps = () => {
+  const { t } = useLanguage();
   const [activeVideoModal, setActiveVideoModal] = useState<number | null>(null);
   const [showAppModal, setShowAppModal] = useState<number | null>(null);
   const vipCarouselRef = useRef<HTMLDivElement>(null);
@@ -26,9 +28,9 @@ const SalesforceApps = () => {
     {
       id: "calendar",
       icon: Calendar,
-      title: "Advanced Sleek Calendar",
-      tagline: "Google Calendar meets Salesforce",
-      description: "A powerful, modern calendar solution that brings the familiar Google Calendar experience directly into your Salesforce environment. Perfect for field service management, sales teams on the ground, and territory management with intelligent route planning and real-time scheduling capabilities.",
+      title: t('apps.calendar.title'),
+      tagline: t('apps.calendar.tagline'),
+      description: t('apps.calendar.desc'),
       gradient: "from-purple-500 to-pink-600",
       videoEmbed: `<div style="padding:56.25% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/1127676690?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="Advanced Sleek Calendar by Cloudastick"></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>`,
       category: "Productivity",
@@ -40,43 +42,43 @@ const SalesforceApps = () => {
       features: [
         {
           icon: Calendar,
-          title: "Responsive Calendar Interface",
-          description: "Beautiful, intuitive calendar design that works seamlessly across all devices"
+          title: t('apps.features.responsive'),
+          description: t('apps.features.responsive.desc')
         },
         {
           icon: Zap,
-          title: "Universal Object Support",
-          description: "Log activities on any Salesforce object - Leads, Contacts, Accounts, Opportunities, and custom objects"
+          title: t('apps.features.universal'),
+          description: t('apps.features.universal.desc')
         },
         {
           icon: Clock,
-          title: "Smart Follow-up Scheduling",
-          description: "Easily schedule follow-up activities with drag-and-drop functionality"
+          title: t('apps.features.smart'),
+          description: t('apps.features.smart.desc')
         },
         {
           icon: Sparkles,
-          title: "Customizable Visual Design",
-          description: "Personalize your calendar view with color-coding and visual representations for maximum productivity"
+          title: t('apps.features.customizable'),
+          description: t('apps.features.customizable.desc')
         },
         {
           icon: Filter,
-          title: "Advanced Filtering",
-          description: "Filter by activity type, customer type, assigned user, status, and more"
+          title: t('apps.features.filtering'),
+          description: t('apps.features.filtering.desc')
         },
         {
           icon: Users,
-          title: "Timeline View",
-          description: "Advanced timeline visualization to see your activities across time and teams"
+          title: t('apps.features.timeline'),
+          description: t('apps.features.timeline.desc')
         },
         {
           icon: Target,
-          title: "Field Service Management",
-          description: "Perfect for field service teams - schedule service appointments, track technician locations, and manage on-site activities"
+          title: t('apps.features.fieldService'),
+          description: t('apps.features.fieldService.desc')
         },
         {
           icon: TrendingUp,
-          title: "Route Optimization",
-          description: "Intelligent route planning for sales reps and field workers to maximize daily visits and minimize travel time"
+          title: t('apps.features.route'),
+          description: t('apps.features.route.desc')
         },
         {
           icon: Users,
@@ -575,14 +577,11 @@ const SalesforceApps = () => {
             </motion.div>
             
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
-              Cloudastick
-              <span className="block mt-2 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
-                VIP Apps Store
-              </span>
+              {t('apps.hero.title')}
             </h1>
             
             <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto">
-              Browse our premium collection of Salesforce applications
+              {t('apps.hero.subtitle')}
             </p>
           </AnimatedSection>
         </div>

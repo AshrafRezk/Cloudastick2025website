@@ -4,21 +4,24 @@ import { motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import Mira from "./Mira";
+import LanguageSwitcher from "./LanguageSwitcher";
+import { useLanguage } from "../contexts/LanguageContext";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { t } = useLanguage();
 
   const navItems = [
-    { name: "Home", path: "/" },
-    { name: "About", path: "/about" },
-    { name: "Services", path: "/services" },
-    { name: "Apps", path: "/salesforce-apps" },
-    { name: "Salesforce Platform", path: "/salesforce-power" },
-    { name: "Clients", path: "/clients" },
-    { name: "Learn", path: "/learn" },
-    { name: "Feedback", path: "/feedback" },
-    { name: "Contact", path: "/contact" },
+    { name: t('nav.home'), path: "/" },
+    { name: t('nav.about'), path: "/about" },
+    { name: t('nav.services'), path: "/services" },
+    { name: t('nav.apps'), path: "/salesforce-apps" },
+    { name: t('nav.salesforcePlatform'), path: "/salesforce-power" },
+    { name: t('nav.clients'), path: "/clients" },
+    { name: t('nav.learn'), path: "/learn" },
+    { name: t('nav.feedback'), path: "/feedback" },
+    { name: t('nav.contact'), path: "/contact" },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -54,7 +57,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <div className="hidden md:flex items-center space-x-8">
               {navItems.map((item) => (
                 <Link
-                  key={item.name}
+                  key={item.path}
                   to={item.path}
                   className={`relative px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     isActive(item.path)
@@ -73,15 +76,19 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                   )}
                 </Link>
               ))}
+              <LanguageSwitcher />
             </div>
 
-            {/* Mobile menu button */}
-            <button
-              className="md:hidden p-2 rounded-md text-muted-foreground hover:text-foreground"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
+            {/* Mobile menu button and language switcher */}
+            <div className="md:hidden flex items-center space-x-2">
+              <LanguageSwitcher />
+              <button
+                className="p-2 rounded-md text-muted-foreground hover:text-foreground"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              >
+                {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+            </div>
           </div>
         </div>
 

@@ -13,139 +13,141 @@ import AnimatedSection from "../components/AnimatedSection";
 import Button from "../components/Button";
 import BlogShifter from "../components/BlogShifter";
 import ProductCarousel from "../components/ProductCarousel";
+import { useLanguage } from "../contexts/LanguageContext";
 
 const Home = () => {
   // State for animated hero
   const [currentMemberIndex, setCurrentMemberIndex] = useState(0);
   const [isAutoPlaying] = useState(true);
+  const { t } = useLanguage();
 
   // Team members data for hero visuals - Ordered as requested with role-specific icons and descriptions
   const teamMembers = [
     { 
-      id: 5, name: "Mina Michel", role: "Founder of Cloudastick Systems", 
+      id: 5, name: "Mina Michel", role: t('team.founder'), 
       image: "/Assets/Company Members/Mina_Michel_Founder_of_Cloudastick_Systems.png",
       icons: [Star, Lightbulb],
-      hoverElements: ["Vision", "Leadership"],
+      hoverElements: [t('team.hoverElements.vision'), t('team.hoverElements.leadership')],
       color: "from-yellow-400 to-orange-500",
       description: "Leading Cloudastick's vision as a trusted Salesforce partner, Mina drives innovation in the ecosystem while building lasting relationships with clients across the Middle East and Africa."
     },
     { 
-      id: 9, name: "Mireille Rafik", role: "Marketing Cloud Consultant", 
+      id: 9, name: "Mireille Rafik", role: t('team.marketingConsultant'), 
       image: "/Assets/Company Members/Mireille_Rafik_Marketing_Cloud_Consultant.png",
       icons: [MessageSquare, BarChart3],
-      hoverElements: ["Campaigns", "Analytics"],
+      hoverElements: [t('team.hoverElements.campaigns'), t('team.hoverElements.analytics')],
       color: "from-pink-400 to-purple-500",
       description: "Specializing in Salesforce Marketing Cloud, Mireille helps businesses create personalized customer journeys and drive engagement through data-driven marketing automation strategies."
     },
     { 
-      id: 12, name: "Omar El Borae", role: "Customer Success Manager", 
+      id: 12, name: "Omar El Borae", role: t('team.customerSuccess'), 
       image: "/Assets/Company Members/Omar_El_Borae_Customer_Success_Manager.png",
       icons: [Headphones, UserCheck],
-      hoverElements: ["Support", "Success"],
+      hoverElements: [t('team.hoverElements.support'), t('team.hoverElements.success')],
       color: "from-green-400 to-teal-500",
       description: "Ensuring customer success in the Salesforce ecosystem, Omar works closely with clients to maximize their platform investment and achieve their business transformation goals."
     },
     { 
-      id: 10, name: "Carine Felix", role: "Brand and People Experience Specialist", 
+      id: 10, name: "Carine Felix", role: t('team.brandSpecialist'), 
       image: "/Assets/Company Members/Carine_Felix_Brand_and_People_Experience_Specialist.png",
       icons: [Palette, Users2],
-      hoverElements: ["Brand", "Culture"],
+      hoverElements: [t('team.hoverElements.brand'), t('team.hoverElements.culture')],
       color: "from-purple-400 to-pink-500",
       description: "Shaping Cloudastick's culture and brand experience, Carine ensures our Salesforce partner services reflect our commitment to excellence and human-centered approach."
     },
     { 
-      id: 6, name: "Luay Aladin", role: "Salesforce Consultant", 
+      id: 6, name: "Luay Aladin", role: t('team.salesforceConsultant'), 
       image: "/Assets/Company Members/Luay_Aladin_Salesforce_Consultant.png",
       icons: [Code, Settings],
-      hoverElements: ["Development", "Configuration"],
+      hoverElements: [t('team.hoverElements.development'), t('team.hoverElements.configuration')],
       color: "from-blue-400 to-cyan-500",
       description: "Expert in Salesforce development and configuration, Luay delivers custom solutions that extend the platform's capabilities to meet unique business requirements."
     },
     { 
-      id: 11, name: "Shady Thomas", role: "Salesforce Consultant", 
+      id: 11, name: "Shady Thomas", role: t('team.salesforceConsultant'), 
       image: "/Assets/Company Members/Shady_Thomas_Salesforce_Consultant.png",
       icons: [Wrench, Database],
-      hoverElements: ["Integration", "Data"],
+      hoverElements: [t('team.hoverElements.integration'), t('team.hoverElements.data')],
       color: "from-indigo-400 to-blue-500",
       description: "Specializing in Salesforce integrations and data management, Shady connects disparate systems and ensures seamless data flow across the entire business ecosystem."
     },
     { 
-      id: 3, name: "Ashraf Rezk", role: "Head of Tech", 
+      id: 3, name: "Ashraf Rezk", role: t('team.headOfTech'), 
       image: "/Assets/Company Members/Ashraf_Rezk_Head_of_Tech.png",
       icons: [ShieldIcon, Globe],
-      hoverElements: ["Security", "Architecture"],
+      hoverElements: [t('team.hoverElements.security'), t('team.hoverElements.architecture')],
       color: "from-red-400 to-orange-500",
       description: "Leading Cloudastick's technical strategy, Ashraf ensures our Salesforce implementations follow best practices for security, scalability, and enterprise architecture."
     },
     { 
-      id: 2, name: "Martin Ashraf", role: "Salesforce Consultant", 
+      id: 2, name: "Martin Ashraf", role: t('team.salesforceConsultant'), 
       image: "/Assets/Company Members/Martin_Ashraf_Salesforce_Consultant.png",
       icons: [Target, TrendingUp],
-      hoverElements: ["Strategy", "Growth"],
+      hoverElements: [t('team.hoverElements.strategy'), t('team.hoverElements.growth')],
       color: "from-emerald-400 to-green-500",
       description: "Focused on strategic Salesforce implementations, Martin helps businesses align their CRM strategy with growth objectives and optimize their sales processes."
     },
     { 
-      id: 14, name: "Ahmed Salah", role: "Salesforce Consultant", 
+      id: 14, name: "Ahmed Salah", role: t('team.salesforceConsultant'), 
       image: "/Assets/Company Members/Ahmed_Salah_Salesforce_Consultant.png",
       icons: [Award, Briefcase],
-      hoverElements: ["Excellence", "Delivery"],
+      hoverElements: [t('team.hoverElements.excellence'), t('team.hoverElements.delivery')],
       color: "from-amber-400 to-yellow-500",
       description: "Delivering excellence in Salesforce consulting, Ahmed ensures every implementation meets the highest standards of quality and delivers measurable business value."
     },
     { 
-      id: 16, name: "Maheen Imran", role: "Salesforce Consultant", 
+      id: 16, name: "Maheen Imran", role: t('team.salesforceConsultant'), 
       image: "/Assets/Company Members/Maheen_Imran_Salesforce_Consultant.png",
       icons: [Users, Zap],
-      hoverElements: ["Collaboration", "Innovation"],
+      hoverElements: [t('team.hoverElements.collaboration'), t('team.hoverElements.innovation')],
       color: "from-cyan-400 to-blue-500",
       description: "Driving innovation through collaborative Salesforce solutions, Maheen works with cross-functional teams to deliver transformative customer experiences."
     },
     { 
-      id: 1, name: "Fady Maged", role: "Salesforce Consultant", 
+      id: 1, name: "Fady Maged", role: t('team.salesforceConsultant'), 
       image: "/Assets/Company Members/Fady_Maged_Salesforce_Consultant.png",
       icons: [Code, BarChart3],
-      hoverElements: ["Development", "Analytics"],
+      hoverElements: [t('team.hoverElements.development'), t('team.hoverElements.analytics')],
       color: "from-violet-400 to-purple-500",
       description: "Combining development expertise with analytics insights, Fady creates powerful Salesforce solutions that provide actionable business intelligence and reporting."
     },
     { 
-      id: 4, name: "Andrew Osama", role: "Salesforce Consultant", 
+      id: 4, name: "Andrew Osama", role: t('team.salesforceConsultant'), 
       image: "/Assets/Company Members/Andrew_Osama_Salesforce_Consultant.png",
       icons: [Settings, Wrench],
-      hoverElements: ["Configuration", "Customization"],
+      hoverElements: [t('team.hoverElements.configuration'), t('team.hoverElements.customization')],
       color: "from-teal-400 to-cyan-500",
       description: "Expert in Salesforce configuration and customization, Andrew tailors the platform to fit unique business processes and workflow requirements."
     },
     { 
-      id: 7, name: "Abdullah", role: "Salesforce Consultant", 
+      id: 7, name: "Abdullah", role: t('team.salesforceConsultant'), 
       image: "/Assets/Company Members/Abdullah_Salesforce_Consultant.png",
       icons: [Database, Globe],
-      hoverElements: ["Data Management", "Integration"],
+      hoverElements: [t('team.hoverElements.dataManagement'), t('team.hoverElements.integration')],
       color: "from-orange-400 to-red-500",
       description: "Specializing in data management and global integrations, Abdullah ensures seamless connectivity between Salesforce and enterprise systems worldwide."
     },
     { 
-      id: 8, name: "Farida Esam", role: "Marketing Cloud Consultant", 
+      id: 8, name: "Farida Esam", role: t('team.marketingConsultant'), 
       image: "/Assets/Company Members/Farida_Esam_Marketing_Cloud_Consultant.png",
       icons: [MessageSquare, BarChart3],
-      hoverElements: ["Email Marketing", "Campaigns"],
+      hoverElements: [t('team.hoverElements.emailMarketing'), t('team.hoverElements.campaigns')],
       color: "from-rose-400 to-pink-500",
       description: "Focused on Marketing Cloud excellence, Farida designs and executes sophisticated email marketing campaigns that drive customer engagement and ROI."
     },
     { 
-      id: 13, name: "Andrea Makary", role: "Technical Architect", 
+      id: 13, name: "Andrea Makary", role: t('team.technicalArchitect'), 
       image: "/Assets/Company Members/Andrea_Makary_Technical_Architect.png",
       icons: [ShieldIcon, Globe],
-      hoverElements: ["Architecture", "Security"],
+      hoverElements: [t('team.hoverElements.architecture'), t('team.hoverElements.security')],
       color: "from-slate-400 to-gray-500",
       description: "Designing enterprise-grade Salesforce architectures, Andrea ensures scalable, secure, and maintainable solutions that support long-term business growth."
     },
     { 
-      id: 15, name: "Mariam Mamdouh", role: "Project Manager", 
+      id: 15, name: "Mariam Mamdouh", role: t('team.projectManager'), 
       image: "/Assets/Company Members/Mariam_Mamdouh_Project_Manager.png",
       icons: [Briefcase, Target],
-      hoverElements: ["Project Delivery", "Timeline"],
+      hoverElements: [t('team.hoverElements.projectDelivery'), t('team.hoverElements.timeline')],
       color: "from-lime-400 to-green-500",
       description: "Ensuring successful project delivery, Mariam coordinates complex Salesforce implementations while maintaining timelines, budgets, and stakeholder satisfaction."
     }
@@ -168,18 +170,18 @@ const Home = () => {
   const features = [
     {
       icon: BarChart3,
-      title: "Advanced Analytics",
-      description: "Get deep insights into your business performance with our comprehensive analytics dashboard.",
+      title: t('home.features.analytics.title'),
+      description: t('home.features.analytics.desc'),
     },
     {
       icon: Users,
-      title: "Customer Management",
-      description: "Manage your customer relationships with powerful tools designed for modern businesses.",
+      title: t('home.features.customer.title'),
+      description: t('home.features.customer.desc'),
     },
     {
       icon: Zap,
-      title: "Automation",
-      description: "Automate your workflows and save time with our intelligent automation features.",
+      title: t('home.features.automation.title'),
+      description: t('home.features.automation.desc'),
     },
   ];
 
@@ -207,7 +209,7 @@ const Home = () => {
                   transition={{ duration: 0.5 }}
                 >
                   <h1 className="text-4xl md:text-6xl font-bold mb-6 gradient-text">
-                    Meet {currentMember.name.split(' ')[0]}
+                    {t('home.team.title')} {currentMember.name.split(' ')[0]}
                   </h1>
                   <h2 className="text-2xl md:text-4xl font-light mb-4 text-foreground">
                     {currentMember.role}
@@ -221,13 +223,13 @@ const Home = () => {
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <Link to="/contact">
                   <Button variant="primary" size="lg">
-                    Get Started Today
+                    {t('home.cta.button')}
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
                 <Link to="/about">
                   <Button variant="outline" size="lg">
-                    Meet the Full Team
+                    {t('home.cta.meetTeam')}
                   </Button>
                 </Link>
               </div>
@@ -310,10 +312,10 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <AnimatedSection className="text-center mb-16">
             <h2 className="text-4xl font-bold text-foreground mb-6">
-              Why Cloudastick?
+              {t('home.why.title')}
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              We've been a registered Salesforce.com partner since 2016, specializing in Salesforce cloud solutions and custom web development.
+              {t('home.why.desc')}
             </p>
           </AnimatedSection>
 
@@ -349,10 +351,10 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <AnimatedSection className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-6">
-              Latest Insights
+              {t('home.insights.title')}
             </h2>
             <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-              Stay updated with the latest trends and insights in CRM and business automation.
+              {t('home.insights.desc')}
             </p>
           </AnimatedSection>
 
@@ -365,14 +367,14 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <AnimatedSection>
             <h2 className="text-4xl font-bold text-white mb-6">
-              Ready to Transform Your Business?
+              {t('home.cta.title')}
             </h2>
             <p className="text-xl text-cyan-100 mb-8 max-w-2xl mx-auto">
-              Let's discuss how we can tailor our CRM solutions to your specific needs.
+              {t('home.cta.desc')}
             </p>
             <Link to="/contact">
               <Button variant="secondary" size="lg">
-                Get Started Today
+                {t('home.cta.button')}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>

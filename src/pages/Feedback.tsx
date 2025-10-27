@@ -4,8 +4,10 @@ import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Play, Pause, Star } from "lucide-react";
 import AnimatedSection from "../components/AnimatedSection";
 import Button from "../components/Button";
+import { useLanguage } from "../contexts/LanguageContext";
 
 const Feedback = () => {
+  const { t } = useLanguage();
   const [currentReview, setCurrentReview] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
 
@@ -114,10 +116,10 @@ const Feedback = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <AnimatedSection className="text-center">
             <h1 className="text-5xl md:text-6xl font-bold text-yellow-400 mb-6 tracking-tight">
-              Customer Reviews
+              {t('feedback.hero.title')}
             </h1>
             <p className="text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
-              Hear what our clients have to say about their experience with Cloudastick
+              {t('feedback.hero.subtitle')}
             </p>
           </AnimatedSection>
         </div>

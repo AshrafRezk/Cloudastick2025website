@@ -5,6 +5,7 @@ import { Mail, Phone, MapPin, Clock, Send, Calendar } from "lucide-react";
 import AnimatedSection from "../components/AnimatedSection";
 import Button from "../components/Button";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "../contexts/LanguageContext";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -15,6 +16,7 @@ const Contact = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,8 +28,8 @@ const Contact = () => {
     window.location.href = `mailto:arezk@cloudastick.com?subject=${subject}&body=${body}`;
     
     toast({
-      title: "Opening email client...",
-      description: "Your message will be sent via email.",
+      title: t('contact.success.title'),
+      description: t('contact.success.desc'),
     });
     
     setFormData({ name: "", email: "", company: "", message: "" });
@@ -44,25 +46,25 @@ const Contact = () => {
   const contactInfo = [
     {
       icon: Mail,
-      title: "Email",
+      title: t('contact.info.email'),
       content: "support@cloudastick.com",
       link: "mailto:support@cloudastick.com",
     },
     {
       icon: Phone,
-      title: "Phone",
+      title: t('contact.info.phone'),
       content: "+2010-05-298-308",
       link: "tel:+2010-05-298-308",
     },
     {
       icon: MapPin,
-      title: "Address",
+      title: t('contact.info.address'),
       content: "ArdelGolf, Nasr City, Cairo",
       link: "#",
     },
     {
       icon: Clock,
-      title: "Hours",
+      title: t('contact.info.hours'),
       content: "Sun-Thursday 9-5pm (Cairo time)",
       link: "#",
     },
@@ -75,10 +77,10 @@ const Contact = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <AnimatedSection className="text-center">
             <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-              Contact Us
+              {t('contact.hero.title')}
             </h1>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Ready to transform your business with tailored CRM solutions? Let's start the conversation.
+              {t('contact.hero.subtitle')}
             </p>
           </AnimatedSection>
         </div>
@@ -92,13 +94,13 @@ const Contact = () => {
             <AnimatedSection direction="left">
               <div className="bg-gray-800/50 rounded-2xl p-8 border border-gray-700 backdrop-blur-sm">
                 <h2 className="text-3xl font-bold text-white mb-6">
-                  Send us a message
+                  {t('contact.form.title')}
                 </h2>
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-300 mb-2">
-                        Name *
+                        {t('contact.form.name')} *
                       </label>
                       <input
                         type="text"
@@ -107,12 +109,12 @@ const Contact = () => {
                         onChange={handleChange}
                         required
                         className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
-                        placeholder="Your name"
+                        placeholder={t('contact.form.name')}
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-300 mb-2">
-                        Email *
+                        {t('contact.form.email')} *
                       </label>
                       <input
                         type="email"
@@ -121,14 +123,14 @@ const Contact = () => {
                         onChange={handleChange}
                         required
                         className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
-                        placeholder="your@email.com"
+                        placeholder={t('contact.form.email')}
                       />
                     </div>
                   </div>
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Company
+                      {t('contact.form.company')}
                     </label>
                     <input
                       type="text"
@@ -136,13 +138,13 @@ const Contact = () => {
                       value={formData.company}
                       onChange={handleChange}
                       className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"
-                      placeholder="Your company"
+                      placeholder={t('contact.form.company')}
                     />
                   </div>
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Message *
+                      {t('contact.form.message')} *
                     </label>
                     <textarea
                       name="message"
@@ -151,7 +153,7 @@ const Contact = () => {
                       required
                       rows={6}
                       className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all resize-none"
-                      placeholder="Tell us about your project..."
+                      placeholder={t('contact.form.message')}
                     />
                   </div>
                   
@@ -163,7 +165,7 @@ const Contact = () => {
                         disabled={isSubmitting}
                         className="w-full"
                       >
-                        {isSubmitting ? "Sending..." : "Send Message"}
+                        {isSubmitting ? t('contact.form.submitting') : t('contact.form.submit')}
                         <Send className="ml-2 h-5 w-5" />
                       </Button>
                     </motion.div>
@@ -175,7 +177,7 @@ const Contact = () => {
                         onClick={() => window.open("https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ2txdIQjDOXs9sMVSh5H8_yadDlAOlmJY16CCT86fqUQPYCw6SH3gD0dCiUv8TnITIy1iamOQwY", "_blank")}
                         className="w-full"
                       >
-                        Book a Meeting
+                        {t('contact.form.bookMeeting')}
                         <Calendar className="ml-2 h-5 w-5" />
                       </Button>
                     </motion.div>

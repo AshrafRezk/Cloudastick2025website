@@ -2,44 +2,47 @@
 import { motion } from "framer-motion";
 import { Settings, Database, Cloud, Shield, BarChart, Users } from "lucide-react";
 import AnimatedSection from "../components/AnimatedSection";
+import { useLanguage } from "../contexts/LanguageContext";
 
 const Services = () => {
+  const { t } = useLanguage();
+  
   const services = [
     {
       icon: Settings,
-      title: "Salesforce Implementation",
-      description: "Complete Salesforce setup and configuration tailored to your business needs.",
-      features: ["Custom object creation", "Workflow automation", "User training", "Data migration"],
+      title: t('services.implementation.title'),
+      description: t('services.implementation.desc'),
+      features: t('services.implementation.features'),
     },
     {
       icon: Database,
-      title: "Data Management",
-      description: "Clean, organize, and optimize your customer data for better insights.",
-      features: ["Data cleansing", "Duplicate management", "Import/export", "Data quality rules"],
+      title: t('services.data.title'),
+      description: t('services.data.desc'),
+      features: t('services.data.features'),
     },
     {
       icon: Cloud,
-      title: "Cloud Migration",
-      description: "Seamless migration from legacy systems to modern cloud-based CRM.",
-      features: ["Legacy system analysis", "Migration planning", "Data transfer", "Testing & validation"],
+      title: t('services.migration.title'),
+      description: t('services.migration.desc'),
+      features: t('services.migration.features'),
     },
     {
       icon: Shield,
-      title: "Security & Compliance",
-      description: "Ensure your CRM meets industry standards and security requirements.",
-      features: ["Security audit", "Compliance setup", "Permission management", "Monitoring"],
+      title: t('services.security.title'),
+      description: t('services.security.desc'),
+      features: t('services.security.features'),
     },
     {
       icon: BarChart,
-      title: "Analytics & Reporting",
-      description: "Custom dashboards and reports to track your business performance.",
-      features: ["Custom dashboards", "KPI tracking", "Automated reports", "Data visualization"],
+      title: t('services.analytics.title'),
+      description: t('services.analytics.desc'),
+      features: t('services.analytics.features'),
     },
     {
       icon: Users,
-      title: "Training & Support",
-      description: "Comprehensive training programs and ongoing support for your team.",
-      features: ["User training", "Admin certification", "24/7 support", "Best practices"],
+      title: t('services.training.title'),
+      description: t('services.training.desc'),
+      features: t('services.training.features'),
     },
   ];
 
@@ -50,10 +53,10 @@ const Services = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <AnimatedSection className="text-center">
             <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-              Our Services
+              {t('services.hero.title')}
             </h1>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Comprehensive CRM solutions designed to transform your business operations.
+              {t('services.hero.subtitle')}
             </p>
           </AnimatedSection>
         </div>

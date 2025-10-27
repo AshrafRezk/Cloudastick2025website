@@ -4,8 +4,10 @@ import { BookOpen, Clock, Users, Award, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import AnimatedSection from "../components/AnimatedSection";
 import Button from "../components/Button";
+import { useLanguage } from "../contexts/LanguageContext";
 
 const Learn = () => {
+  const { t } = useLanguage();
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -47,23 +49,23 @@ const Learn = () => {
   const features = [
     {
       icon: BookOpen,
-      title: "Vertical Certifications",
-      description: "Specialized certifications in specific industry verticals tailored to your business needs."
+      title: t('learn.features.vertical.title'),
+      description: t('learn.features.vertical.desc')
     },
     {
       icon: Award,
-      title: "Tiered Learning Paths",
-      description: "Progressive certification tiers from foundational to expert level expertise."
+      title: t('learn.features.tiered.title'),
+      description: t('learn.features.tiered.desc')
     },
     {
       icon: Users,
-      title: "Customer Exclusive",
-      description: "Available exclusively for Cloudastick customers with active support contracts."
+      title: t('learn.features.exclusive.title'),
+      description: t('learn.features.exclusive.desc')
     },
     {
       icon: Clock,
-      title: "Self-Paced Learning",
-      description: "Learn at your own pace with flexible scheduling and comprehensive study materials."
+      title: t('learn.features.paced.title'),
+      description: t('learn.features.paced.desc')
     }
   ];
 
@@ -80,14 +82,13 @@ const Learn = () => {
             transition={{ duration: 1 }}
           >
             <h1 className="text-4xl md:text-6xl font-bold mb-6 gradient-text">
-              The Cloudastick Education Portal
+              {t('learn.hero.title')}
             </h1>
             <h2 className="text-2xl md:text-4xl font-light mb-8 text-foreground">
-              is under maintenance for 2026 updates
+              {t('learn.hero.subtitle')}
             </h2>
             <p className="text-lg md:text-xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
-              We're building something amazing for our valued customers. Get ready for comprehensive 
-              vertical certifications and tiered learning paths designed specifically for your business needs.
+              {t('learn.hero.description')}
             </p>
           </motion.div>
 
@@ -99,14 +100,14 @@ const Learn = () => {
             className="mb-12"
           >
             <h3 className="text-2xl font-semibold text-foreground mb-8">
-              Launching in:
+              {t('learn.launching.title')}
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
               {[
-                { label: "Days", value: timeLeft.days },
-                { label: "Hours", value: timeLeft.hours },
-                { label: "Minutes", value: timeLeft.minutes },
-                { label: "Seconds", value: timeLeft.seconds }
+                { label: t('learn.countdown.days'), value: timeLeft.days },
+                { label: t('learn.countdown.hours'), value: timeLeft.hours },
+                { label: t('learn.countdown.minutes'), value: timeLeft.minutes },
+                { label: t('learn.countdown.seconds'), value: timeLeft.seconds }
               ].map((item, index) => (
                 <motion.div
                   key={item.label}
@@ -125,7 +126,7 @@ const Learn = () => {
               ))}
             </div>
             <p className="text-sm text-muted-foreground mt-4">
-              Expected launch: October 13th, {targetDate.getFullYear()}
+              {t('learn.launching.note')}
             </p>
           </motion.div>
 
@@ -138,13 +139,13 @@ const Learn = () => {
           >
             <Link to="/contact">
               <Button variant="primary" size="lg">
-                Get Notified When Live
+                {t('learn.cta.register')}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
             <Link to="/services">
               <Button variant="outline" size="lg">
-                Learn About Our Services
+                {t('learn.cta.learnMore')}
               </Button>
             </Link>
           </motion.div>
@@ -156,11 +157,10 @@ const Learn = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <AnimatedSection className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Our Certified Success Stories
+              {t('learn.success.title')}
             </h2>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-              See how our customers have successfully achieved their Salesforce certifications 
-              and transformed their businesses with our comprehensive training programs.
+              {t('learn.success.subtitle')}
             </p>
           </AnimatedSection>
 
