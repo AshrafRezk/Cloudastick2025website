@@ -52,6 +52,8 @@ import { salesforceProducts, getProductsByIndustry } from '../data/salesforcePro
 import { erpIntegrations } from '../data/erpIntegrations';
 import { industries, getIndustryById } from '../data/industries';
 import { useToast } from '../hooks/use-toast';
+import CompanyLogo from '../components/CompanyLogo';
+import { formatWebsiteUrl } from '../services/logoService';
 
 // Modern Carousel Hub and Spoke Component
 const HubAndSpokeVisualization = React.memo(({ 
@@ -339,6 +341,10 @@ const SalesforcePower = () => {
   const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
   const [isScrolling, setIsScrolling] = useState(false);
   const [companyName, setCompanyName] = useState<string>('');
+  const [companyWebsite, setCompanyWebsite] = useState<string>('');
+  const [companyLogo, setCompanyLogo] = useState<string | null>(null);
+  const [logoLoading, setLogoLoading] = useState<boolean>(false);
+  const [logoError, setLogoError] = useState<boolean>(false);
   const [showCompanyInput, setShowCompanyInput] = useState<boolean>(false);
   const [copied, setCopied] = useState(false);
   const [expandedMetrics, setExpandedMetrics] = useState<Set<string>>(new Set());
@@ -412,6 +418,62 @@ const SalesforcePower = () => {
     if (isDirectAccess) {
       // If it was a direct access and user closes modal, redirect to main page
       window.location.href = '/salesforce-power';
+    }
+  };
+
+  // Fetch company logo function
+  const fetchCompanyLogo = useCallback(async (website: string) => {
+    if (!website.trim()) return;
+    
+    setLogoLoading(true);
+    setLogoError(false);
+    
+    try {
+      const response = await fetch('/.netlify/functions/fetchLogo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ website: website.trim() }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch logo');
+      }
+
+      const data = await response.json();
+      
+      if (data.logoUrl) {
+        setCompanyLogo(data.logoUrl);
+        setLogoError(false);
+      } else {
+        setCompanyLogo(null);
+        setLogoError(true);
+      }
+    } catch (error) {
+      console.error('Error fetching company logo:', error);
+      setCompanyLogo(null);
+      setLogoError(true);
+    } finally {
+      setLogoLoading(false);
+    }
+  }, []);
+
+  // Handle website input change
+  const handleWebsiteChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setCompanyWebsite(value);
+    
+    // Auto-fetch logo when user stops typing (debounced)
+    if (value.trim()) {
+      const timeoutId = setTimeout(() => {
+        fetchCompanyLogo(value);
+      }, 1000);
+      
+      return () => clearTimeout(timeoutId);
+    } else {
+      setCompanyLogo(null);
+      setLogoError(false);
     }
   };
 
@@ -796,13 +858,44 @@ const SalesforcePower = () => {
                 {t('power.hero.badge')}
               </span>
               
-              {/* Salesforce Logo */}
+              {/* Logos */}
               <div className="mb-8">
-                <img 
-                  src="/Assets/Product Logos/salesforce.png" 
-                  alt="Salesforce" 
-                  className="w-24 h-24 mx-auto mb-6 object-contain"
-                />
+                <div className="flex items-center justify-center gap-4 mb-6">
+                  {/* Company Logo */}
+                  {companyLogo && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      <CompanyLogo 
+                        logoUrl={companyLogo} 
+                        companyName={companyName || 'Company'} 
+                        size="large"
+                        className="w-24 h-24"
+                      />
+                    </motion.div>
+                  )}
+                  
+                  {/* Plus sign when both logos are present */}
+                  {companyLogo && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.5, delay: 0.2 }}
+                      className="text-2xl text-cyan-400 font-bold"
+                    >
+                      +
+                    </motion.div>
+                  )}
+                  
+                  {/* Salesforce Logo */}
+                  <img 
+                    src="/Assets/Product Logos/salesforce.png" 
+                    alt="Salesforce" 
+                    className="w-24 h-24 object-contain"
+                  />
+                </div>
               </div>
               
               <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-8 leading-tight">
@@ -819,15 +912,16 @@ const SalesforcePower = () => {
                 }
               </p>
 
-              {/* Company Name Input */}
+              {/* Company Inputs */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.3 }}
                 className="mb-8"
               >
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 max-w-2xl mx-auto">
-                  <div className="flex-1 w-full">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-4xl mx-auto">
+                  {/* Company Name Input */}
+                  <div className="flex-1">
                     <input
                       type="text"
                       placeholder={t('power.hero.companyPlaceholder')}
@@ -836,21 +930,49 @@ const SalesforcePower = () => {
                       className="w-full px-6 py-4 bg-gray-800/50 backdrop-blur-sm border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-300 text-center sm:text-left"
                     />
                   </div>
-                  <button
-                    onClick={() => setShowCompanyInput(!showCompanyInput)}
-                    className="px-6 py-4 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-semibold rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg"
-                  >
-                    {companyName ? t('power.hero.personalize') : t('power.hero.addCompany')}
-                  </button>
+                  
+                  {/* Company Website Input */}
+                  <div className="flex-1">
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Company Website (e.g., example.com)"
+                        value={companyWebsite}
+                        onChange={handleWebsiteChange}
+                        className="w-full px-6 py-4 bg-gray-800/50 backdrop-blur-sm border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-300 text-center sm:text-left"
+                      />
+                      {logoLoading && (
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                          <div className="w-5 h-5 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                {companyName && (
-                  <motion.p
+                
+                {/* Personalization Status */}
+                {(companyName || companyLogo) && (
+                  <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="text-cyan-400 text-sm mt-2"
+                    className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-4 text-sm"
                   >
-                    {t('power.hero.personalizedFor', { company: companyName })}
-                  </motion.p>
+                    {companyName && (
+                      <span className="text-cyan-400">
+                        ✨ Personalized for {companyName}
+                      </span>
+                    )}
+                    {companyLogo && (
+                      <span className="text-green-400">
+                        🎨 Company logo loaded
+                      </span>
+                    )}
+                    {logoError && (
+                      <span className="text-yellow-400">
+                        ⚠️ Couldn't fetch logo
+                      </span>
+                    )}
+                  </motion.div>
                 )}
               </motion.div>
             </motion.div>
@@ -1018,12 +1140,22 @@ const SalesforcePower = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                {companyName 
-                  ? personalizeText(t('power.erp.title.personalized'), 'your company', selectedIndustryData?.name)
-                  : (selectedIndustryData ? `Seamlessly Connects to Your ${selectedIndustryData.name} Systems` : 'Seamlessly Connects to Your Existing Systems')
-                }
-              </h2>
+              <div className="flex items-center justify-center gap-4 mb-6">
+                {companyLogo && (
+                  <CompanyLogo 
+                    logoUrl={companyLogo} 
+                    companyName={companyName || 'Company'} 
+                    size="medium"
+                    className="w-12 h-12"
+                  />
+                )}
+                <h2 className="text-4xl md:text-5xl font-bold text-white">
+                  {companyName 
+                    ? personalizeText(t('power.erp.title.personalized'), 'your company', selectedIndustryData?.name)
+                    : (selectedIndustryData ? `Seamlessly Connects to Your ${selectedIndustryData.name} Systems` : 'Seamlessly Connects to Your Existing Systems')
+                  }
+                </h2>
+              </div>
               <p className="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
                 {companyName 
                   ? personalizeText(t('power.erp.subtitle.personalized'), 'your company', selectedIndustryData?.name)
@@ -1157,12 +1289,22 @@ const SalesforcePower = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                {companyName 
-                  ? personalizeText(t('power.datacloud.title.personalized'), 'your company', selectedIndustryData?.name)
-                  : (selectedIndustryData ? `Data Cloud: Connect Your ${selectedIndustryData.name} Data` : 'Data Cloud: Connect Everything')
-                }
-              </h2>
+              <div className="flex items-center justify-center gap-4 mb-6">
+                {companyLogo && (
+                  <CompanyLogo 
+                    logoUrl={companyLogo} 
+                    companyName={companyName || 'Company'} 
+                    size="medium"
+                    className="w-12 h-12"
+                  />
+                )}
+                <h2 className="text-4xl md:text-5xl font-bold text-white">
+                  {companyName 
+                    ? personalizeText(t('power.datacloud.title.personalized'), 'your company', selectedIndustryData?.name)
+                    : (selectedIndustryData ? `Data Cloud: Connect Your ${selectedIndustryData.name} Data` : 'Data Cloud: Connect Everything')
+                  }
+                </h2>
+              </div>
               <p className="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
                 {companyName 
                   ? personalizeText(t('power.datacloud.subtitle.personalized'), 'your company', selectedIndustryData?.name)
