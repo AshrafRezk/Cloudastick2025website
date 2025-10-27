@@ -338,6 +338,15 @@ const SalesforcePower = () => {
                 {t('hero.badge')}
               </span>
               
+              {/* Salesforce Logo */}
+              <div className="mb-8">
+                <img 
+                  src="/Assets/Product Logos/salesforce.png" 
+                  alt="Salesforce" 
+                  className="w-24 h-24 mx-auto mb-6 object-contain"
+                />
+              </div>
+              
               <h1 className="text-5xl md:text-7xl font-bold text-white mb-8 leading-tight">
                 {t('hero.title')}
               </h1>

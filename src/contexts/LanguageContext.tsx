@@ -194,41 +194,19 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, [language]);
 
   const t = (key: string, params?: Record<string, string>): string => {
-    console.log('Looking up key:', key, 'in language:', language);
-    const keys = key.split('.');
-    let value: any = translations[language];
-    console.log('Starting with:', value);
+    // Direct lookup using bracket notation
+    const currentTranslations = translations[language];
+    let value = currentTranslations[key];
     
-    for (const k of keys) {
-      value = value?.[k];
-      console.log('After key', k, ':', value);
+    // If not found, try English fallback
+    if (!value) {
+      value = translations.en[key];
     }
     
-    if (typeof value !== 'string') {
-      console.log('Value not found, trying fallback...');
-      // Return a fallback instead of the key to prevent console warnings
-      const fallback = translations.en;
-      let fallbackValue: any = fallback;
-      for (const k of keys) {
-        fallbackValue = fallbackValue?.[k];
-      }
-      if (typeof fallbackValue === 'string') {
-        console.log('Found fallback:', fallbackValue);
-        value = fallbackValue;
-      } else {
-        // Only log warning once per key to reduce console spam
-        if (!window.translationWarnings) {
-          window.translationWarnings = new Set();
-        }
-        if (!window.translationWarnings.has(key)) {
-          console.warn(`Translation missing for key: ${key}`);
-          window.translationWarnings.add(key);
-        }
-        return key;
-      }
+    // If still not found, return the key
+    if (!value) {
+      return key;
     }
-    
-    console.log('Final value:', value);
     
     // Replace parameters
     if (params) {
