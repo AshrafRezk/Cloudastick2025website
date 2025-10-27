@@ -892,7 +892,8 @@ const SalesforcePower = () => {
                   <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
                     <TrendingUp className="w-8 h-8 text-white" />
                   </div>
-                  <p className="text-white font-semibold">{metric}</p>
+                  <div className="text-2xl font-bold text-cyan-400 mb-2">{metric.value}</div>
+                  <p className="text-white font-semibold text-sm">{metric.description}</p>
                 </div>
               ))}
             </motion.div>
