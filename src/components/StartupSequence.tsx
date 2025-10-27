@@ -175,10 +175,11 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
-            className="fixed inset-0 z-50 flex items-center justify-center relative overflow-hidden w-full h-full"
+            className="fixed inset-0 z-50 flex items-center justify-center relative overflow-hidden w-full h-full cursor-pointer"
             onMouseMove={handleMouseMove}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
+            onClick={handleStartExperience}
             style={{ minHeight: '100vh', minWidth: '100vw' }}
           >
             {/* Video Background */}
@@ -403,7 +404,10 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
                   duration: 0.3,
                   ease: "easeOut"
                 }}
-                onClick={handleStartExperience}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleStartExperience();
+                }}
               >
                 <motion.div
                   className={`w-24 h-24 rounded-full flex items-center justify-center transition-all duration-300 ${
@@ -442,7 +446,10 @@ const StartupSequence: React.FC<StartupSequenceProps> = ({ onComplete }) => {
                 className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-20"
               >
                 <motion.button
-                  onClick={handleStartExperience}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleStartExperience();
+                  }}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-8 py-4 rounded-full font-medium text-sm hover:bg-white/20 transition-all duration-300 shadow-lg"

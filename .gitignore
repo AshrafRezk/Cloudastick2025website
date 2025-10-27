@@ -112,3 +112,6 @@ temp/
 # Large video files (exceed GitHub 100MB limit)
 public/Assets/Agrid -EN-3.mp4
 public/Assets/agrid-video.mp4
+
+# Local Netlify folder
+.netlify
