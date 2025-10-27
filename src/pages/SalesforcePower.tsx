@@ -533,19 +533,23 @@ const SalesforcePower = () => {
                   <motion.div
                     key={platform.name}
                     initial={{ opacity: 0, scale: 0 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5, delay: 0.8 + index * 0.1 }}
+                    animate={{ 
+                      opacity: 1, 
+                      scale: 1,
+                      rotate: 360,
+                    }}
+                    transition={{ 
+                      duration: 0.5, 
+                      delay: 0.8 + index * 0.1,
+                      rotate: {
+                        duration: 20,
+                        repeat: Infinity,
+                        ease: "linear",
+                      }
+                    }}
                     className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
                     style={{
                       transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`,
-                    }}
-                    animate={{
-                      rotate: 360,
-                    }}
-                    transition={{
-                      duration: 20,
-                      repeat: Infinity,
-                      ease: "linear",
                     }}
                   >
                     <motion.div
