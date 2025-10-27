@@ -245,10 +245,10 @@ const SalesforcePower = () => {
   }, []);
 
   // Function to personalize text with company name
-  const personalizeText = useCallback((text: string, fallback: string = 'your company') => {
+  const personalizeText = useCallback((text: string, fallback: string = 'your company', industryName?: string) => {
     if (!companyName) return text;
-    return text.replace(/\{company\}/g, companyName).replace(/\{industry\}/g, selectedIndustryData?.name || fallback);
-  }, [companyName, selectedIndustryData]);
+    return text.replace(/\{company\}/g, companyName).replace(/\{industry\}/g, industryName || fallback);
+  }, [companyName]);
   
   const heroRef = useRef<HTMLDivElement>(null);
   const platformRef = useRef<HTMLDivElement>(null);
@@ -515,20 +515,20 @@ const SalesforcePower = () => {
               <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">
                 {personalizeText(selectedIndustryData 
                   ? t('power.platform.title.industry', { industry: selectedIndustryData.name })
-                  : t('power.platform.title')
+                  : t('power.platform.title'), 'your company', selectedIndustryData?.name
                 )}
               </h2>
               <p className="text-base sm:text-lg md:text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
                 {personalizeText(selectedIndustryData 
                   ? t('power.platform.subtitle.industry', { industry: selectedIndustryData.name })
-                  : t('power.platform.subtitle')
+                  : t('power.platform.subtitle'), 'your company', selectedIndustryData?.name
                 )}
               </p>
               
               {selectedIndustryData && (
                 <div className="mt-8 p-6 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-2xl border border-cyan-500/30 max-w-4xl mx-auto">
                   <h3 className="text-lg font-semibold text-cyan-400 mb-3">
-                    {personalizeText(t('power.platform.challenges', { industry: selectedIndustryData.name }))}
+                    {personalizeText(t('power.platform.challenges', { industry: selectedIndustryData.name }), 'your company', selectedIndustryData.name)}
                   </h3>
                   <div className="grid grid-cols-1 gap-4 text-left">
                     {selectedIndustryData.painPoints?.slice(0, 4).map((painPoint, index) => (
