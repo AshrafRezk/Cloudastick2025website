@@ -496,20 +496,21 @@ const SalesforcePower = () => {
           </AnimatedSection>
 
           {/* Optimized Hub and Spoke Visualization */}
-          <HubAndSpokeVisualization
-            products={coreProducts}
-            onProductHover={handleProductHover}
-            hoveredProduct={hoveredProduct}
-          />
+          <div className="relative">
+            <HubAndSpokeVisualization
+              products={coreProducts}
+              onProductHover={handleProductHover}
+              hoveredProduct={hoveredProduct}
+            />
 
-          {/* Product Details Panel */}
-          <AnimatePresence>
+            {/* Product Details Panel */}
+            <AnimatePresence>
             {hoveredProduct && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 20 }}
-                className="absolute top-full left-1/2 transform -translate-x-1/2 mt-8 bg-gray-800/90 backdrop-blur-sm rounded-2xl p-6 max-w-md border border-gray-700 z-30"
+                className="absolute top-full left-1/2 transform -translate-x-1/2 mt-4 bg-gray-800/95 backdrop-blur-sm rounded-2xl p-6 max-w-lg border border-gray-700 z-30 shadow-2xl"
               >
                 {(() => {
                   const product = coreProducts.find(p => p.id === hoveredProduct);
@@ -525,27 +526,90 @@ const SalesforcePower = () => {
                         </div>
                       </div>
                       <p className="text-gray-300 text-sm mb-4">{product.description}</p>
-                      <div className="space-y-2">
-                        {product.keyFeatures.slice(0, 3).map((feature, idx) => (
-                          <div key={idx} className="flex items-center gap-2 text-sm text-gray-400">
-                            <CheckCircle2 className="w-4 h-4 text-green-400" />
-                            {feature}
-                          </div>
-                        ))}
+                      
+                      {/* Key Challenges Solved */}
+                      <div className="mb-4">
+                        <h4 className="text-cyan-400 text-sm font-semibold mb-2">Key Challenges Solved:</h4>
+                        <div className="space-y-2">
+                          {(() => {
+                            // Define challenges for each product
+                            const challenges = {
+                              'sales-cloud': [
+                                'Fragmented sales data across systems',
+                                'Manual lead qualification processes',
+                                'Poor visibility into sales pipeline',
+                                'Inefficient follow-up tracking'
+                              ],
+                              'service-cloud': [
+                                'Disconnected customer support channels',
+                                'Slow response times to customer issues',
+                                'Lack of customer history visibility',
+                                'Manual case management processes'
+                              ],
+                              'marketing-cloud': [
+                                'Disjointed marketing campaigns',
+                                'Poor customer segmentation',
+                                'Low email engagement rates',
+                                'Manual campaign management'
+                              ],
+                              'commerce-cloud-b2c': [
+                                'Complex e-commerce operations',
+                                'Poor customer shopping experience',
+                                'Inventory management challenges',
+                                'Mobile commerce limitations'
+                              ],
+                              'commerce-cloud-b2b': [
+                                'Complex B2B sales processes',
+                                'Manual quote and order management',
+                                'Poor customer self-service',
+                                'Integration with ERP systems'
+                              ],
+                              'experience-cloud': [
+                                'Disconnected digital experiences',
+                                'Poor customer self-service',
+                                'Manual content management',
+                                'Limited community engagement'
+                              ]
+                            };
+                            
+                            const productChallenges = challenges[product.id as keyof typeof challenges] || product.keyFeatures.slice(0, 3);
+                            
+                            return productChallenges.slice(0, 3).map((challenge, idx) => (
+                              <div key={idx} className="flex items-start gap-2 text-sm text-gray-300">
+                                <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full mt-2 flex-shrink-0"></div>
+                                <span>{challenge}</span>
+                              </div>
+                            ));
+                          })()}
+                        </div>
+                      </div>
+                      
+                      {/* Key Features */}
+                      <div>
+                        <h4 className="text-cyan-400 text-sm font-semibold mb-2">Key Features:</h4>
+                        <div className="space-y-2">
+                          {product.keyFeatures.slice(0, 2).map((feature, idx) => (
+                            <div key={idx} className="flex items-center gap-2 text-sm text-gray-400">
+                              <CheckCircle2 className="w-4 h-4 text-green-400" />
+                              {feature}
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </>
                   ) : null;
                 })()}
               </motion.div>
             )}
-          </AnimatePresence>
+            </AnimatePresence>
+          </div>
 
           {/* Stats Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1.5 }}
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mt-16"
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mt-8"
           >
             {[
               { label: 'Companies Using Salesforce', value: '150,000+', icon: Users },
