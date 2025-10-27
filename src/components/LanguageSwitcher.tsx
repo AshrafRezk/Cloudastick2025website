@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Globe, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const LanguageSwitcher: React.FC = () => {
@@ -23,9 +23,8 @@ const LanguageSwitcher: React.FC = () => {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-4 py-2 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 hover:border-cyan-500/50 transition-all duration-300 text-white"
+        className="flex items-center gap-2 px-3 py-2 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 hover:border-cyan-500/50 transition-all duration-300 text-white"
       >
-        <Globe className="w-4 h-4" />
         <span className="text-sm font-medium">
           {languages.find(lang => lang.code === language)?.flag}
         </span>

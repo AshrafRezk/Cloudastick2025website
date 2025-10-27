@@ -52,18 +52,21 @@ const HubAndSpokeVisualization = React.memo(({
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
-  const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
+  const [dimensions, setDimensions] = useState({ 
+    width: window.innerWidth < 768 ? Math.min(window.innerWidth - 32, 400) : 800,
+    height: window.innerWidth < 768 ? 400 : 600 
+  });
 
   // Calculate positions once and memoize
   const productPositions = useMemo(() => {
     const centerX = dimensions.width / 2;
     const centerY = dimensions.height / 2;
-    const cardSize = 80; // Card is 80x80 (w-20 h-20)
+    const cardSize = window.innerWidth < 768 ? 60 : 80; // Smaller cards on mobile
     const centerCircleRadius = 40; // Center hub radius
     
     // Calculate radius: ensure cards don't overlap center and have proper spacing
     // Radius = (center circle radius) + (spacing) + (half card size)
-    const spacing = 60; // Gap between center edge and card edge
+    const spacing = window.innerWidth < 768 ? 40 : 60; // Less spacing on mobile
     const radius = centerCircleRadius + spacing + (cardSize / 2);
     
     return products.map((product, index) => {
@@ -133,7 +136,7 @@ const HubAndSpokeVisualization = React.memo(({
   // Optimized animation loop with reduced frequency
   useEffect(() => {
     let lastTime = 0;
-    const targetFPS = 30; // Reduce from 60fps to 30fps for better performance
+    const targetFPS = window.innerWidth < 768 ? 20 : 30; // Lower FPS on mobile
     const frameInterval = 1000 / targetFPS;
 
     const animate = (currentTime: number) => {
@@ -195,6 +198,8 @@ const HubAndSpokeVisualization = React.memo(({
             }}
             onMouseEnter={() => onProductHover(product.id)}
             onMouseLeave={() => onProductHover(null)}
+            onTouchStart={() => onProductHover(product.id)}
+            onTouchEnd={() => onProductHover(null)}
           >
             <motion.div
               whileHover={{ scale: 1.1 }}
@@ -297,12 +302,6 @@ const SalesforcePower = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white" dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Language Switcher with error boundary */}
-      <div className="fixed top-4 right-4 z-50">
-        <React.Suspense fallback={<div className="w-32 h-10 bg-gray-800 rounded-lg" />}>
-          <LanguageSwitcher />
-        </React.Suspense>
-      </div>
       {/* Hero Section */}
       <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Background Effects */}
@@ -311,7 +310,7 @@ const SalesforcePower = () => {
         
         {/* Animated Background Elements */}
         <div className="absolute inset-0">
-          {[...Array(20)].map((_, i) => (
+          {[...Array(window.innerWidth < 768 ? 10 : 20)].map((_, i) => (
             <motion.div
               key={i}
               className="absolute w-2 h-2 bg-cyan-400/30 rounded-full"
@@ -354,11 +353,11 @@ const SalesforcePower = () => {
                 />
               </div>
               
-              <h1 className="text-5xl md:text-7xl font-bold text-white mb-8 leading-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-8 leading-tight">
                 {t('power.hero.title')}
               </h1>
               
-              <p className="text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto mb-16 leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-300 max-w-4xl mx-auto mb-16 leading-relaxed">
                 {t('power.hero.subtitle')}
               </p>
             </motion.div>
@@ -368,7 +367,7 @@ const SalesforcePower = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.3 }}
-              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-7xl mx-auto"
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 max-w-7xl mx-auto"
             >
               {industries.slice(0, 8).map((industry, index) => (
                 <motion.div
@@ -379,13 +378,13 @@ const SalesforcePower = () => {
                   whileHover={{ scale: 1.05, y: -8 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => handleIndustrySelect(industry.id)}
-                  className={`relative bg-gradient-to-br ${industry.gradient} rounded-2xl p-8 cursor-pointer group transition-all duration-300 hover:shadow-2xl border border-white/20 backdrop-blur-sm`}
+                  className={`relative bg-gradient-to-br ${industry.gradient} rounded-2xl p-4 sm:p-6 md:p-8 cursor-pointer group transition-all duration-300 hover:shadow-2xl border border-white/20 backdrop-blur-sm`}
                 >
                   <div className="absolute inset-0 bg-white/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   
                   <div className="relative z-10">
-                    <div className="flex items-center justify-center w-16 h-16 bg-white/20 rounded-xl mb-6 group-hover:bg-white/30 transition-colors duration-300">
-                      <industry.icon className="w-8 h-8 text-white group-hover:scale-110 transition-transform duration-300" />
+                    <div className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-white/20 rounded-xl mb-6 group-hover:bg-white/30 transition-colors duration-300">
+                      <industry.icon className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white group-hover:scale-110 transition-transform duration-300" />
                     </div>
                     <h3 className="text-xl font-bold text-white mb-3 group-hover:text-cyan-200 transition-colors duration-300">
                       {industry.shortName}
@@ -414,7 +413,7 @@ const SalesforcePower = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 1 }}
-              className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+              className="absolute bottom-8 left-1/2 transform -translate-x-1/2 hidden md:block"
             >
               <motion.div
                 animate={{ y: [0, 10, 0] }}
@@ -430,7 +429,7 @@ const SalesforcePower = () => {
       </section>
 
       {/* Platform Overview Section */}
-      <section ref={platformRef} className="py-20 relative overflow-hidden">
+      <section ref={platformRef} className="py-10 sm:py-16 md:py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-900 to-black"></div>
         
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -440,13 +439,13 @@ const SalesforcePower = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">
                 {selectedIndustryData 
                   ? t('power.platform.title.industry', { industry: selectedIndustryData.name })
                   : t('power.platform.title')
                 }
               </h2>
-              <p className="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
                 {selectedIndustryData 
                   ? t('power.platform.subtitle.industry', { industry: selectedIndustryData.name })
                   : t('power.platform.subtitle')
@@ -458,7 +457,7 @@ const SalesforcePower = () => {
                   <h3 className="text-lg font-semibold text-cyan-400 mb-3">
                     {t('power.platform.challenges', { industry: selectedIndustryData.name })}
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                  <div className="grid grid-cols-1 gap-4 text-left">
                     {selectedIndustryData.painPoints?.slice(0, 4).map((painPoint, index) => (
                       <div key={index} className="flex items-start gap-3">
                         <div className="w-2 h-2 bg-cyan-400 rounded-full mt-2 flex-shrink-0"></div>
@@ -521,7 +520,7 @@ const SalesforcePower = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1.5 }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16"
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mt-16"
           >
             {[
               { label: 'Companies Using Salesforce', value: '150,000+', icon: Users },
@@ -580,7 +579,7 @@ const SalesforcePower = () => {
           </AnimatedSection>
 
           {/* ERP Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {erpIntegrations.map((erp, index) => (
               <motion.div
                 key={erp.id}
@@ -618,7 +617,7 @@ const SalesforcePower = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
-            className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8"
+            className="mt-16 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8"
           >
             {[
               {
@@ -947,31 +946,33 @@ const SalesforcePower = () => {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="mb-16"
           >
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700">
-              {/* Table Header */}
-              <div className="grid grid-cols-6 gap-4 p-6 bg-gray-800/80 border-b border-gray-700">
-                <div className="col-span-1 text-gray-400 text-sm font-semibold">Metric</div>
-                <div className="col-span-1 text-center">
-                  <div className="text-cyan-400 font-bold text-lg mb-1">Salesforce</div>
-                  <div className="text-xs text-gray-400">#1 CRM</div>
+            {/* Desktop Table - hidden on mobile */}
+            <div className="hidden md:block">
+              <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700">
+                {/* Table Header */}
+                <div className="grid grid-cols-6 gap-4 p-6 bg-gray-800/80 border-b border-gray-700">
+                  <div className="col-span-1 text-gray-400 text-sm font-semibold">Metric</div>
+                  <div className="col-span-1 text-center">
+                    <div className="text-cyan-400 font-bold text-lg mb-1">Salesforce</div>
+                    <div className="text-xs text-gray-400">#1 CRM</div>
+                  </div>
+                  <div className="col-span-1 text-center">
+                    <div className="text-white font-semibold">HubSpot</div>
+                    <div className="text-xs text-gray-400">SMB Focus</div>
+                  </div>
+                  <div className="col-span-1 text-center">
+                    <div className="text-white font-semibold">Zoho</div>
+                    <div className="text-xs text-gray-400">Budget</div>
+                  </div>
+                  <div className="col-span-1 text-center">
+                    <div className="text-white font-semibold">Freshworks</div>
+                    <div className="text-xs text-gray-400">Mid-Market</div>
+                  </div>
+                  <div className="col-span-1 text-center">
+                    <div className="text-white font-semibold">Odoo</div>
+                    <div className="text-xs text-gray-400">Open Source</div>
+                  </div>
                 </div>
-                <div className="col-span-1 text-center">
-                  <div className="text-white font-semibold">HubSpot</div>
-                  <div className="text-xs text-gray-400">SMB Focus</div>
-                </div>
-                <div className="col-span-1 text-center">
-                  <div className="text-white font-semibold">Zoho</div>
-                  <div className="text-xs text-gray-400">Budget</div>
-                </div>
-                <div className="col-span-1 text-center">
-                  <div className="text-white font-semibold">Freshworks</div>
-                  <div className="text-xs text-gray-400">Mid-Market</div>
-                </div>
-                <div className="col-span-1 text-center">
-                  <div className="text-white font-semibold">Odoo</div>
-                  <div className="text-xs text-gray-400">Open Source</div>
-                </div>
-              </div>
 
               {/* Comparison Rows */}
               {[
@@ -1072,6 +1073,82 @@ const SalesforcePower = () => {
                   ))}
                 </motion.div>
               ))}
+              </div>
+            </div>
+
+            {/* Mobile Accordion */}
+            <div className="md:hidden space-y-4">
+              {[
+                {
+                  metric: 'Sales Cycle Time',
+                  salesforce: { score: 9, label: 'Excellent' },
+                  hubspot: { score: 8, label: 'Very Good' },
+                  zoho: { score: 8, label: 'Very Good' },
+                  freshworks: { score: 8, label: 'Very Good' },
+                  odoo: { score: 7, label: 'Good' }
+                },
+                {
+                  metric: 'Customization',
+                  salesforce: { score: 10, label: 'Excellent' },
+                  hubspot: { score: 7, label: 'Good' },
+                  zoho: { score: 8, label: 'Very Good' },
+                  freshworks: { score: 6, label: 'Fair' },
+                  odoo: { score: 9, label: 'Excellent' }
+                },
+                {
+                  metric: 'Integration Capabilities',
+                  salesforce: { score: 10, label: 'Excellent' },
+                  hubspot: { score: 8, label: 'Very Good' },
+                  zoho: { score: 7, label: 'Good' },
+                  freshworks: { score: 6, label: 'Fair' },
+                  odoo: { score: 8, label: 'Very Good' }
+                },
+                {
+                  metric: 'AI & Analytics',
+                  salesforce: { score: 10, label: 'Excellent' },
+                  hubspot: { score: 7, label: 'Good' },
+                  zoho: { score: 6, label: 'Fair' },
+                  freshworks: { score: 5, label: 'Poor' },
+                  odoo: { score: 6, label: 'Fair' }
+                },
+                {
+                  metric: 'Scalability',
+                  salesforce: { score: 10, label: 'Excellent' },
+                  hubspot: { score: 8, label: 'Very Good' },
+                  zoho: { score: 7, label: 'Good' },
+                  freshworks: { score: 6, label: 'Fair' },
+                  odoo: { score: 8, label: 'Very Good' }
+                }
+              ].map((row, index) => (
+                <motion.div 
+                  key={index} 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="bg-gray-800/50 rounded-xl p-4"
+                >
+                  <h4 className="text-white font-semibold mb-3">{row.metric}</h4>
+                  <div className="space-y-2">
+                    {[
+                      { name: 'Salesforce', data: row.salesforce, highlight: true },
+                      { name: 'HubSpot', data: row.hubspot },
+                      { name: 'Zoho', data: row.zoho },
+                      { name: 'Freshworks', data: row.freshworks },
+                      { name: 'Odoo', data: row.odoo }
+                    ].map((item, idx) => (
+                      <div key={idx} className={`flex justify-between items-center p-2 rounded ${item.highlight ? 'bg-cyan-500/10' : ''}`}>
+                        <span className={item.highlight ? 'text-cyan-400 font-semibold' : 'text-gray-300'}>{item.name}</span>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-sm font-bold ${item.highlight ? 'text-cyan-400' : 'text-gray-300'}`}>
+                            {item.data.score}/10
+                          </span>
+                          <span className="text-xs text-gray-500">{item.data.label}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              ))}
             </div>
           </motion.div>
 
@@ -1143,7 +1220,7 @@ const SalesforcePower = () => {
             <p className="text-lg text-gray-300 mb-6">
               Salesforce customers see an average ROI of 251% within 3 years - significantly higher than competitors
             </p>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
               {[
                 { name: 'Salesforce', roi: '251%', color: 'text-cyan-400', bgColor: 'bg-cyan-400' },
                 { name: 'HubSpot', roi: '150%', color: 'text-gray-400', bgColor: 'bg-gray-400' },

@@ -1,7 +1,7 @@
 
 import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Home } from "lucide-react";
 import { useState } from "react";
 import Mira from "./Mira";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -13,11 +13,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const { t } = useLanguage();
 
   const navItems = [
-    { name: t('nav.home'), path: "/" },
+    { name: 'home-icon', path: "/", isIcon: true },
     { name: t('nav.about'), path: "/about" },
     { name: t('nav.services'), path: "/services" },
     { name: t('nav.apps'), path: "/salesforce-apps" },
-    { name: t('nav.salesforcePlatform'), path: "/salesforce-power" },
+    { name: t('nav.salesforce'), path: "/salesforce-power" },
     { name: t('nav.clients'), path: "/clients" },
     { name: t('nav.learn'), path: "/learn" },
     { name: t('nav.feedback'), path: "/feedback" },
@@ -65,7 +65,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  {item.name}
+                  {item.isIcon ? (
+                    <Home className="w-5 h-5" />
+                  ) : (
+                    item.name
+                  )}
                   {isActive(item.path) && (
                     <motion.div
                       layoutId="activeTab"
@@ -103,16 +107,19 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <div className="px-2 pt-2 pb-3 space-y-1">
               {navItems.map((item) => (
                 <Link
-                  key={item.name}
+                  key={item.path}
                   to={item.path}
-                  className={`block px-3 py-2 rounded-md text-base font-medium ${
+                  className={`flex items-center gap-3 px-3 py-2 rounded-md text-base font-medium ${
                     isActive(item.path)
                       ? "text-brand-primary bg-brand-primary/10"
                       : "text-muted-foreground hover:text-foreground hover:bg-accent"
                   }`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  {item.name}
+                  {item.isIcon ? (
+                    <Home className="w-5 h-5" />
+                  ) : null}
+                  {item.isIcon ? 'Home' : item.name}
                 </Link>
               ))}
             </div>
