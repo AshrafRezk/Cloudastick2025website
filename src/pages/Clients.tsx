@@ -118,84 +118,75 @@ const Clients = () => {
                       Our Valued Clients
                     </h2>
                     <p className="text-xl md:text-2xl lg:text-3xl text-cyan-400 font-semibold break-words">
-                      {!selectedFilter ? 'Trusted by companies across all industries' : `Showing ${selectedFilter} clients`}
+                      Trusted by companies across all industries
                     </p>
                   </motion.div>
 
-                  {/* All Logos Grid - Grouped by Industry */}
-                  <div className="space-y-12">
-                    {clientSections.map((section, sectionIndex) => (
-                      <div key={section.id} className="space-y-6">
-                        {/* Section Title */}
+                  {/* All Logos Grid - Single Grid with Highlighted Filter */}
+                  <motion.div 
+                    className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 md:gap-6 lg:gap-8 max-w-7xl mx-auto"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.4, duration: 0.6 }}
+                  >
+                    {allLogos.map((logo, index) => {
+                      // Check if this logo belongs to the selected filter category
+                      const logoSection = allClientSections.find(section => section.logos.includes(logo));
+                      const isHighlighted = selectedFilter && logoSection?.title === selectedFilter;
+                      
+                      return (
                         <motion.div
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.4 + sectionIndex * 0.1, duration: 0.6 }}
-                          className="text-center"
+                          key={logo.name}
+                          initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          transition={{ 
+                            delay: 0.6 + index * 0.03, 
+                            duration: 0.5,
+                            ease: "easeOut"
+                          }}
+                          whileHover={{ 
+                            y: -8, 
+                            scale: 1.05,
+                            transition: { duration: 0.2 }
+                          }}
+                          className={`backdrop-blur-sm rounded-xl p-3 md:p-4 lg:p-6 border transition-all duration-300 group cursor-pointer min-h-[140px] md:min-h-[180px] flex flex-col justify-between ${
+                            isHighlighted
+                              ? 'bg-amber-600/30 border-amber-500/50 shadow-lg shadow-amber-600/30 hover:bg-amber-600/40 hover:border-amber-400/70'
+                              : 'bg-white/10 border-white/20 hover:bg-white/20 hover:border-cyan-400/50'
+                          }`}
                         >
-                          <h3 className={`text-2xl md:text-3xl lg:text-4xl font-bold mb-8 break-words ${
-                            selectedFilter === section.title 
-                              ? 'text-amber-400' 
-                              : 'text-white'
-                          }`}>
-                            {section.title}
-                          </h3>
+                          <div className="text-center space-y-2">
+                            <div className="flex justify-center mb-2 md:mb-3 group-hover:scale-110 transition-transform duration-300">
+                              <img
+                                src={logo.logoPath}
+                                alt={`${logo.name} logo`}
+                                className="w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 object-contain filter brightness-0 invert group-hover:brightness-100 group-hover:invert-0 transition-all duration-300"
+                                onError={(e) => {
+                                  // Fallback to a simple text display if image fails to load
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                  const parent = target.parentElement;
+                                  if (parent) {
+                                    parent.innerHTML = `<div class="w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 bg-cyan-400/20 rounded-lg flex items-center justify-center text-cyan-400 font-bold text-sm md:text-lg">${logo.name.charAt(0)}</div>`;
+                                  }
+                                }}
+                              />
+                            </div>
+                            <div className={`font-bold text-xs md:text-sm lg:text-base group-hover:text-cyan-300 transition-colors break-words ${
+                              isHighlighted ? 'text-amber-200' : 'text-white'
+                            }`}>
+                              {logo.name}
+                            </div>
+                            <div className={`text-xs break-words ${
+                              isHighlighted ? 'text-amber-300/80' : 'text-gray-300'
+                            }`}>
+                              {logo.industry}
+                            </div>
+                          </div>
                         </motion.div>
-
-                        {/* Logos Grid */}
-                        <motion.div 
-                          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 md:gap-6 lg:gap-8 max-w-7xl mx-auto"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ delay: 0.5 + sectionIndex * 0.1, duration: 0.6 }}
-                        >
-                          {section.logos.map((logo, index) => (
-                            <motion.div
-                              key={logo.name}
-                              initial={{ opacity: 0, y: 30, scale: 0.9 }}
-                              animate={{ opacity: 1, y: 0, scale: 1 }}
-                              transition={{ 
-                                delay: 0.6 + sectionIndex * 0.05 + index * 0.03, 
-                                duration: 0.5,
-                                ease: "easeOut"
-                              }}
-                              whileHover={{ 
-                                y: -8, 
-                                scale: 1.05,
-                                transition: { duration: 0.2 }
-                              }}
-                              className="bg-white/10 backdrop-blur-sm rounded-xl p-3 md:p-4 lg:p-6 border border-white/20 hover:bg-white/20 hover:border-cyan-400/50 transition-all duration-300 group cursor-pointer min-h-[140px] md:min-h-[180px] flex flex-col justify-between"
-                            >
-                              <div className="text-center space-y-2">
-                                <div className="flex justify-center mb-2 md:mb-3 group-hover:scale-110 transition-transform duration-300">
-                                  <img
-                                    src={logo.logoPath}
-                                    alt={`${logo.name} logo`}
-                                    className="w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 object-contain filter brightness-0 invert group-hover:brightness-100 group-hover:invert-0 transition-all duration-300"
-                                    onError={(e) => {
-                                      // Fallback to a simple text display if image fails to load
-                                      const target = e.target as HTMLImageElement;
-                                      target.style.display = 'none';
-                                      const parent = target.parentElement;
-                                      if (parent) {
-                                        parent.innerHTML = `<div class="w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 bg-cyan-400/20 rounded-lg flex items-center justify-center text-cyan-400 font-bold text-sm md:text-lg">${logo.name.charAt(0)}</div>`;
-                                      }
-                                    }}
-                                  />
-                                </div>
-                                <div className="text-white font-bold text-xs md:text-sm lg:text-base group-hover:text-cyan-300 transition-colors break-words">
-                                  {logo.name}
-                                </div>
-                                <div className="text-gray-300 text-xs break-words">
-                                  {logo.industry}
-                                </div>
-                              </div>
-                            </motion.div>
-                          ))}
-                        </motion.div>
-                      </div>
-                    ))}
-                  </div>
+                      );
+                    })}
+                  </motion.div>
 
                   {/* Cloudastick Badge */}
                   <motion.div
