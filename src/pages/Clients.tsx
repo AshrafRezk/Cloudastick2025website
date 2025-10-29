@@ -1,6 +1,6 @@
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -8,117 +8,33 @@ import {
   Pause, 
   Calendar, 
   Mail,
-  Building2,
-  Hammer,
-  Landmark,
-  MapPin,
-  Home,
-  Building,
-  Store,
-  Hospital,
-  Stethoscope,
-  Pill,
-  Activity,
-  Scale,
-  Apple,
-  BarChart3,
-  Leaf,
-  Factory,
-  ShoppingBag,
-  ShoppingCart,
-  Utensils,
-  Truck,
-  TrendingUp
+  Filter
 } from "lucide-react";
 import AnimatedSection from "../components/AnimatedSection";
 import Button from "../components/Button";
 import { useLanguage } from "../contexts/LanguageContext";
+import { parseLogoFiles, getIndustryFilters, ClientSection } from "../utils/logoParser";
 
 const Clients = () => {
   const { t } = useLanguage();
   const [currentSection, setCurrentSection] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
+  const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
 
-  // Icon mapping for different industries
-  const iconMap = {
-    'real-estate': Building2,
-    'construction': Hammer,
-    'heritage': Landmark,
-    'development': MapPin,
-    'residential': Home,
-    'commercial': Building,
-    'retail': Store,
-    'healthcare': Hospital,
-    'medical': Stethoscope,
-    'pharmaceutical': Pill,
-    'insurance': Activity,
-    'manufacturing': Scale,
-    'food': Apple,
-    'analytics': BarChart3,
-    'agriculture': Leaf,
-    'steel': Factory,
-    'beauty': ShoppingBag,
-    'shopping': ShoppingCart,
-    'diet': Utensils,
-    'logistics': Truck,
-    'insights': TrendingUp
-  };
-
-  const clientSections = [
-    {
-      id: 1,
-      title: t('clients.sections.realEstate'),
-      bgColor: "from-blue-900/20 to-cyan-900/20",
-      logos: [
-        { name: "Benoit Properties", text: "benoitproperties", subtitle: "INTERNATIONAL", location: "USA & UK", iconType: "real-estate" },
-        { name: "Prosperity", text: "PROSPERITY", subtitle: "REAL ESTATE", location: "EGY", iconType: "construction" },
-        { name: "Erth", text: "إرث", subtitle: "ERTH", location: "KSA", iconType: "heritage" },
-        { name: "Aldau", text: "ALDAU", subtitle: "DEVELOPMENT", location: "EGY", iconType: "development" },
-        { name: "Memar", text: "معمار", subtitle: "MEMAR", location: "KSA", iconType: "residential" },
-        { name: "Nile City", text: "NILE CITY", subtitle: "INVESTMENTS", location: "EGY", iconType: "commercial" },
-        { name: "Marakez", text: "MARAKEZ", subtitle: "EGY - KSA", location: "", iconType: "retail" },
-        { name: "Dorra", text: "DORRA", subtitle: "DEVELOPMENTS", location: "EGY", iconType: "construction" }
-      ]
-    },
-    {
-      id: 2,
-      title: t('clients.sections.healthcare'),
-      bgColor: "from-green-900/20 to-emerald-900/20",
-      logos: [
-        { name: "Meddbase", text: "meddbase", subtitle: "by carity", location: "Europe", iconType: "healthcare" },
-        { name: "Live Tula", text: "LIVE TULA", subtitle: "", location: "US", iconType: "medical" },
-        { name: "Avon", text: "AVON", subtitle: "", location: "Egypt", iconType: "pharmaceutical" },
-        { name: "Peraya", text: "peraya", subtitle: "Insurance Brokerage", location: "Egypt", iconType: "insurance" }
-      ]
-    },
-    {
-      id: 3,
-      title: t('clients.sections.manufacturing'),
-      bgColor: "from-orange-900/20 to-red-900/20",
-      logos: [
-        { name: "Global Scales", text: "GLOBAL SCALES", subtitle: "& SYSTEMS CO. LTD.", location: "EG", iconType: "manufacturing" },
-        { name: "Fruit Nation", text: "FRUIT NATION", subtitle: "", location: "", iconType: "food" },
-        { name: "Plan Form", text: "PLAN FORM", subtitle: "CONTROL YOUR VALUE CHAIN", location: "Egypt", iconType: "analytics" },
-        { name: "Galina", text: "Galina", subtitle: "Frozen Fruits & Vegetables", location: "", iconType: "agriculture" },
-        { name: "Beshay Steel", text: "بشاي الصلب", subtitle: "BESHAY STEEL", location: "Egypt", iconType: "steel" }
-      ]
-    },
-    {
-      id: 4,
-      title: t('clients.sections.retail'),
-      bgColor: "from-purple-900/20 to-pink-900/20",
-      logos: [
-        { name: "Avon", text: "AVON", subtitle: "", location: "", iconType: "beauty" },
-        { name: "March Al Shokh", text: "مارح الشوخ", subtitle: "", location: "", iconType: "shopping" },
-        { name: "Reef Diet", text: "الريف", subtitle: "REEF DIET", location: "", iconType: "diet" },
-        { name: "Town to Town Movers", text: "TOWN TO TOWN MOVERS", subtitle: "THE FRIENDLY MOVERS", location: "", iconType: "logistics" },
-        { name: "Retail Insights", text: "retailinsights", subtitle: "", location: "", iconType: "insights" }
-      ]
-    }
-  ];
+  // Parse logo files and create sections
+  const allClientSections = useMemo(() => parseLogoFiles(), []);
+  
+  // Get industry filters
+  const industryFilters = useMemo(() => getIndustryFilters(allClientSections), [allClientSections]);
+  
+  // Filter sections based on selected filter
+  const clientSections = useMemo(() => {
+    if (!selectedFilter) return allClientSections;
+    return allClientSections.filter(section => section.title === selectedFilter);
+  }, [allClientSections, selectedFilter]);
 
   useEffect(() => {
-    if (isPlaying) {
+    if (isPlaying && clientSections.length > 0) {
       const interval = setInterval(() => {
         setCurrentSection((prev) => (prev + 1) % clientSections.length);
       }, 6000); // Reduced from 8000ms to 6000ms for better pacing
@@ -126,16 +42,29 @@ const Clients = () => {
     }
   }, [isPlaying, clientSections.length]);
 
+  // Reset current section when filter changes
+  useEffect(() => {
+    setCurrentSection(0);
+  }, [selectedFilter]);
+
   const nextSection = () => {
-    setCurrentSection((prev) => (prev + 1) % clientSections.length);
+    if (clientSections.length > 0) {
+      setCurrentSection((prev) => (prev + 1) % clientSections.length);
+    }
   };
 
   const prevSection = () => {
-    setCurrentSection((prev) => (prev - 1 + clientSections.length) % clientSections.length);
+    if (clientSections.length > 0) {
+      setCurrentSection((prev) => (prev - 1 + clientSections.length) % clientSections.length);
+    }
   };
 
   const togglePlayPause = () => {
     setIsPlaying(!isPlaying);
+  };
+
+  const clearFilter = () => {
+    setSelectedFilter(null);
   };
 
   return (
@@ -169,169 +98,234 @@ const Clients = () => {
         </div>
       </section>
 
+      {/* Filter Controls */}
+      <section className="relative z-10 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-wrap justify-center gap-3 mb-4">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={clearFilter}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                !selectedFilter
+                  ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-600/50'
+                  : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 hover:text-white border border-gray-600'
+              }`}
+            >
+              <Filter className="w-4 h-4 mr-2 inline" />
+              All Industries
+            </motion.button>
+            {industryFilters.map((filter) => (
+              <motion.button
+                key={filter}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setSelectedFilter(filter)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                  selectedFilter === filter
+                    ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-600/50'
+                    : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 hover:text-white border border-gray-600'
+                }`}
+              >
+                {filter}
+              </motion.button>
+            ))}
+          </div>
+          {selectedFilter && (
+            <div className="text-center">
+              <p className="text-gray-400 text-sm">
+                Showing {clientSections.length} section{clientSections.length !== 1 ? 's' : ''} for {selectedFilter}
+              </p>
+            </div>
+          )}
+        </div>
+      </section>
+
       {/* Main Client Showcase */}
       <section className="relative z-10 py-20 min-h-screen flex items-center">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="relative">
-            {/* Client Container */}
-            <div className="relative h-[700px] md:h-[800px] rounded-3xl overflow-hidden shadow-2xl">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentSection}
-                  initial={{ 
-                    opacity: 0, 
-                    y: 50,
-                    scale: 0.95
-                  }}
-                  animate={{ 
-                    opacity: 1, 
-                    y: 0,
-                    scale: 1
-                  }}
-                  exit={{ 
-                    opacity: 0, 
-                    y: -50,
-                    scale: 1.05
-                  }}
-                  transition={{ 
-                    duration: 0.8, 
-                    ease: "easeInOut"
-                  }}
-                  className="absolute inset-0 bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-sm border border-gray-700/50"
-                >
-                  {/* Content */}
-                  <div className="relative z-10 h-full flex flex-col justify-center items-center px-8 md:px-12">
+            {clientSections.length > 0 ? (
+              <>
+                {/* Client Container */}
+                <div className="relative h-[700px] md:h-[800px] rounded-3xl overflow-hidden shadow-2xl">
+                  <AnimatePresence mode="wait">
                     <motion.div
-                      initial={{ opacity: 0, y: 50 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3, duration: 0.8 }}
-                      className="text-center mb-16"
+                      key={currentSection}
+                      initial={{ 
+                        opacity: 0, 
+                        y: 50,
+                        scale: 0.95
+                      }}
+                      animate={{ 
+                        opacity: 1, 
+                        y: 0,
+                        scale: 1
+                      }}
+                      exit={{ 
+                        opacity: 0, 
+                        y: -50,
+                        scale: 1.05
+                      }}
+                      transition={{ 
+                        duration: 0.8, 
+                        ease: "easeInOut"
+                      }}
+                      className="absolute inset-0 bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-sm border border-gray-700/50"
                     >
-                      <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
-                        Some of our other Customers
-                      </h2>
-                      <p className="text-2xl md:text-3xl text-cyan-400 font-semibold">
-                        {clientSections[currentSection].title}
-                      </p>
-                    </motion.div>
-
-                    {/* Logos Grid */}
-                    <motion.div 
-                      className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 max-w-5xl mx-auto"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.4, duration: 0.6 }}
-                    >
-                      {clientSections[currentSection].logos.map((logo, index) => (
+                      {/* Content */}
+                      <div className="relative z-10 h-full flex flex-col justify-center items-center px-8 md:px-12">
                         <motion.div
-                          key={logo.name}
-                          initial={{ opacity: 0, y: 30, scale: 0.9 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          transition={{ 
-                            delay: 0.6 + index * 0.1, 
-                            duration: 0.5,
-                            ease: "easeOut"
-                          }}
-                          whileHover={{ 
-                            y: -8, 
-                            scale: 1.05,
-                            transition: { duration: 0.2 }
-                          }}
-                          className="bg-white/10 backdrop-blur-sm rounded-xl p-4 md:p-6 border border-white/20 hover:bg-white/20 hover:border-cyan-400/50 transition-all duration-300 group cursor-pointer"
+                          initial={{ opacity: 0, y: 50 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.3, duration: 0.8 }}
+                          className="text-center mb-16"
                         >
-                          <div className="text-center space-y-2">
-                            <div className="flex justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
-                              {(() => {
-                                const IconComponent = iconMap[logo.iconType as keyof typeof iconMap];
-                                return IconComponent ? (
-                                  <IconComponent className="w-10 h-10 md:w-12 md:h-12 text-cyan-400 group-hover:text-cyan-300 transition-colors" />
-                                ) : (
-                                  <Building2 className="w-10 h-10 md:w-12 md:h-12 text-cyan-400 group-hover:text-cyan-300 transition-colors" />
-                                );
-                              })()}
-                            </div>
-                            <div className="text-white font-bold text-base md:text-lg group-hover:text-cyan-300 transition-colors">
-                              {logo.text}
-                            </div>
-                            {logo.subtitle && (
-                              <div className="text-gray-300 text-xs md:text-sm">
-                                {logo.subtitle}
-                              </div>
-                            )}
-                            {logo.location && (
-                              <div className="text-gray-400 text-xs">
-                                {logo.location}
-                              </div>
-                            )}
-                          </div>
+                          <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
+                            Some of our other Customers
+                          </h2>
+                          <p className="text-2xl md:text-3xl text-cyan-400 font-semibold">
+                            {clientSections[currentSection].title}
+                          </p>
                         </motion.div>
-                      ))}
-                    </motion.div>
 
-                    {/* Cloudastick Badge */}
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 1.2, duration: 0.6 }}
-                      className="mt-16 flex items-center space-x-3 text-gray-400"
-                    >
-                      <div className="w-8 h-8 bg-cyan-400 rounded-full flex items-center justify-center">
-                        <span className="text-black font-bold text-sm">C</span>
+                        {/* Logos Grid */}
+                        <motion.div 
+                          className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 max-w-5xl mx-auto"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 0.4, duration: 0.6 }}
+                        >
+                          {clientSections[currentSection].logos.map((logo, index) => (
+                            <motion.div
+                              key={logo.name}
+                              initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                              animate={{ opacity: 1, y: 0, scale: 1 }}
+                              transition={{ 
+                                delay: 0.6 + index * 0.1, 
+                                duration: 0.5,
+                                ease: "easeOut"
+                              }}
+                              whileHover={{ 
+                                y: -8, 
+                                scale: 1.05,
+                                transition: { duration: 0.2 }
+                              }}
+                              className="bg-white/10 backdrop-blur-sm rounded-xl p-4 md:p-6 border border-white/20 hover:bg-white/20 hover:border-cyan-400/50 transition-all duration-300 group cursor-pointer"
+                            >
+                              <div className="text-center space-y-2">
+                                <div className="flex justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
+                                  <img
+                                    src={logo.logoPath}
+                                    alt={`${logo.name} logo`}
+                                    className="w-16 h-16 md:w-20 md:h-20 object-contain filter brightness-0 invert group-hover:brightness-100 group-hover:invert-0 transition-all duration-300"
+                                    onError={(e) => {
+                                      // Fallback to a simple text display if image fails to load
+                                      const target = e.target as HTMLImageElement;
+                                      target.style.display = 'none';
+                                      const parent = target.parentElement;
+                                      if (parent) {
+                                        parent.innerHTML = `<div class="w-16 h-16 md:w-20 md:h-20 bg-cyan-400/20 rounded-lg flex items-center justify-center text-cyan-400 font-bold text-lg">${logo.name.charAt(0)}</div>`;
+                                      }
+                                    }}
+                                  />
+                                </div>
+                                <div className="text-white font-bold text-base md:text-lg group-hover:text-cyan-300 transition-colors">
+                                  {logo.name}
+                                </div>
+                                <div className="text-gray-300 text-xs md:text-sm">
+                                  {logo.industry}
+                                </div>
+                              </div>
+                            </motion.div>
+                          ))}
+                        </motion.div>
+
+                        {/* Cloudastick Badge */}
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: 1.2, duration: 0.6 }}
+                          className="mt-16 flex items-center space-x-3 text-gray-400"
+                        >
+                          <div className="w-8 h-8 bg-cyan-400 rounded-full flex items-center justify-center">
+                            <span className="text-black font-bold text-sm">C</span>
+                          </div>
+                          <span className="text-white font-bold">CLOUDASTICK</span>
+                          <span className="text-gray-400">Partner</span>
+                        </motion.div>
                       </div>
-                      <span className="text-white font-bold">CLOUDASTICK</span>
-                      <span className="text-gray-400">Partner</span>
                     </motion.div>
-                  </div>
-                </motion.div>
-              </AnimatePresence>
-            </div>
+                  </AnimatePresence>
+                </div>
 
-            {/* Navigation Controls */}
-            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex items-center space-x-4 z-20">
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={prevSection}
-                className="p-3 bg-gray-800/90 border border-gray-600 hover:bg-gray-700 hover:border-cyan-400 text-white backdrop-blur-sm rounded-full transition-all duration-300 shadow-lg"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </motion.button>
-              
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={togglePlayPause}
-                className="p-3 bg-gray-800/90 border border-gray-600 hover:bg-gray-700 hover:border-cyan-400 text-white backdrop-blur-sm rounded-full transition-all duration-300 shadow-lg"
-              >
-                {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
-              </motion.button>
-              
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={nextSection}
-                className="p-3 bg-gray-800/90 border border-gray-600 hover:bg-gray-700 hover:border-cyan-400 text-white backdrop-blur-sm rounded-full transition-all duration-300 shadow-lg"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </motion.button>
-            </div>
+                {/* Navigation Controls */}
+                <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex items-center space-x-4 z-20">
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={prevSection}
+                    className="p-3 bg-gray-800/90 border border-gray-600 hover:bg-gray-700 hover:border-cyan-400 text-white backdrop-blur-sm rounded-full transition-all duration-300 shadow-lg"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </motion.button>
+                  
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={togglePlayPause}
+                    className="p-3 bg-gray-800/90 border border-gray-600 hover:bg-gray-700 hover:border-cyan-400 text-white backdrop-blur-sm rounded-full transition-all duration-300 shadow-lg"
+                  >
+                    {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+                  </motion.button>
+                  
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={nextSection}
+                    className="p-3 bg-gray-800/90 border border-gray-600 hover:bg-gray-700 hover:border-cyan-400 text-white backdrop-blur-sm rounded-full transition-all duration-300 shadow-lg"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </motion.button>
+                </div>
 
-            {/* Indicators */}
-            <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
-              {clientSections.map((_, index) => (
-                <motion.button
-                  key={index}
-                  whileHover={{ scale: 1.2 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => setCurrentSection(index)}
-                  className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                    index === currentSection 
-                      ? "bg-cyan-400 shadow-lg shadow-cyan-400/50 scale-125" 
-                      : "bg-gray-600 hover:bg-gray-500"
-                  }`}
-                />
-              ))}
-            </div>
+                {/* Indicators */}
+                <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
+                  {clientSections.map((_, index) => (
+                    <motion.button
+                      key={index}
+                      whileHover={{ scale: 1.2 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => setCurrentSection(index)}
+                      className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                        index === currentSection 
+                          ? "bg-cyan-400 shadow-lg shadow-cyan-400/50 scale-125" 
+                          : "bg-gray-600 hover:bg-gray-500"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </>
+            ) : (
+              /* Empty State */
+              <div className="relative h-[700px] md:h-[800px] rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-sm border border-gray-700/50 flex items-center justify-center">
+                <div className="text-center">
+                  <h2 className="text-4xl md:text-6xl font-bold text-white mb-6">
+                    No clients found
+                  </h2>
+                  <p className="text-xl text-gray-300 mb-8">
+                    Try selecting a different industry filter
+                  </p>
+                  <Button
+                    onClick={clearFilter}
+                    className="bg-cyan-600 hover:bg-cyan-700 text-white px-8 py-4 text-lg"
+                  >
+                    <Filter className="mr-2 h-5 w-5" />
+                    Show All Industries
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>
