@@ -376,8 +376,8 @@ export const clientsData: Record<string, ClientInfo> = {
     id: 'twnaf',
     name: 'TWNAF',
     industry: 'Non-profit',
-    description: 'TWNAF is a non-profit organization focused on community development and social impact initiatives. They work to create positive change through various social programs and community projects.',
-    websiteUrl: undefined
+    description: 'The World Needs A Father (TWNAF) is a global movement working to eradicate fatherlessness by equipping fathers, building healthy families, and transforming communities. They provide training, mentoring, and networking programs across over 100 countries to help fathers bring "heaven at home" through positive involvement and emotional connection.',
+    websiteUrl: 'https://twnaf.com'
   },
   'Venture': {
     id: 'venture',
