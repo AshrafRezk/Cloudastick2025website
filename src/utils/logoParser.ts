@@ -63,7 +63,7 @@ const industryTitles: Record<string, string> = {
 export function parseLogoFiles(): ClientSection[] {
   // List of all logo files with their parsed data
   const logoFiles = [
-    'Afrezimbank - Fintech.png',
+    'Afreximbank - Fintech.png',
     'AIM Group - Professional Services.png',
     'Al Bedeawi & Partners - Law.png',
     'Al Tayyar - Traveling & Hospitality.png',
