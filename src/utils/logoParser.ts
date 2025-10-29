@@ -1,9 +1,13 @@
 // Utility function to parse logo filenames and organize by industry
+import { clientsData } from '../data/clientsData';
+
 export interface ClientLogo {
   name: string;
   industry: string;
   logoPath: string;
   originalFilename: string;
+  description?: string;
+  websiteUrl?: string;
 }
 
 export interface ClientSection {
@@ -124,11 +128,16 @@ export function parseLogoFiles(): ClientSection[] {
   // Parse each logo file
   const parsedLogos: ClientLogo[] = logoFiles.map((filename, index) => {
     const [name, industry] = filename.replace('.png', '').split(' - ');
+    const clientName = name.trim();
+    const clientData = clientsData[clientName];
+    
     return {
-      name: name.trim(),
+      name: clientName,
       industry: industryMapping[industry] || industry,
       logoPath: `/Assets/Customers-Logos-Website/${filename}`,
-      originalFilename: filename
+      originalFilename: filename,
+      description: clientData?.description,
+      websiteUrl: clientData?.websiteUrl
     };
   });
 

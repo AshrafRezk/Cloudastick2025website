@@ -8,12 +8,16 @@ import {
 } from "lucide-react";
 import AnimatedSection from "../components/AnimatedSection";
 import Button from "../components/Button";
+import ClientModal from "../components/ClientModal";
 import { useLanguage } from "../contexts/LanguageContext";
 import { parseLogoFiles, getIndustryFilters, ClientSection } from "../utils/logoParser";
+import { clientsData, ClientInfo } from "../data/clientsData";
 
 const Clients = () => {
   const { t } = useLanguage();
   const [selectedFilter, setSelectedFilter] = useState<string | null>(null); // null = show all industries
+  const [selectedClient, setSelectedClient] = useState<ClientInfo | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Parse logo files and create sections
   const allClientSections = useMemo(() => parseLogoFiles(), []);
@@ -33,6 +37,19 @@ const Clients = () => {
 
   const clearFilter = () => {
     setSelectedFilter(null);
+  };
+
+  const handleClientClick = (clientName: string) => {
+    const clientInfo = clientsData[clientName];
+    if (clientInfo) {
+      setSelectedClient(clientInfo);
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedClient(null);
   };
 
   return (
@@ -149,6 +166,7 @@ const Clients = () => {
                             scale: 1.05,
                             transition: { duration: 0.2 }
                           }}
+                          onClick={() => handleClientClick(logo.name)}
                           className={`backdrop-blur-sm rounded-xl p-3 md:p-4 lg:p-6 border transition-all duration-300 group cursor-pointer min-h-[140px] md:min-h-[180px] flex flex-col justify-between ${
                             isHighlighted
                               ? 'bg-amber-600/30 border-amber-500/50 shadow-lg shadow-amber-600/30 hover:bg-amber-600/40 hover:border-amber-400/70'
@@ -263,6 +281,13 @@ const Clients = () => {
           </AnimatedSection>
         </div>
       </section>
+
+      {/* Client Modal */}
+      <ClientModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        client={selectedClient}
+      />
     </div>
   );
 };
