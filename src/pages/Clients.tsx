@@ -19,7 +19,7 @@ const Clients = () => {
   const { t } = useLanguage();
   const [currentSection, setCurrentSection] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
-  const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
+  const [selectedFilter, setSelectedFilter] = useState<string | null>(null); // null = show all industries
 
   // Parse logo files and create sections
   const allClientSections = useMemo(() => parseLogoFiles(), []);
@@ -191,7 +191,7 @@ const Clients = () => {
 
                         {/* Logos Grid */}
                         <motion.div 
-                          className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 max-w-5xl mx-auto"
+                          className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 max-w-5xl mx-auto mb-20"
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           transition={{ delay: 0.4, duration: 0.6 }}
@@ -259,52 +259,6 @@ const Clients = () => {
                   </AnimatePresence>
                 </div>
 
-                {/* Navigation Controls */}
-                <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex items-center space-x-4 z-20">
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={prevSection}
-                    className="p-3 bg-gray-800/90 border border-gray-600 hover:bg-gray-700 hover:border-cyan-400 text-white backdrop-blur-sm rounded-full transition-all duration-300 shadow-lg"
-                  >
-                    <ChevronLeft className="w-5 h-5" />
-                  </motion.button>
-                  
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={togglePlayPause}
-                    className="p-3 bg-gray-800/90 border border-gray-600 hover:bg-gray-700 hover:border-cyan-400 text-white backdrop-blur-sm rounded-full transition-all duration-300 shadow-lg"
-                  >
-                    {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
-                  </motion.button>
-                  
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={nextSection}
-                    className="p-3 bg-gray-800/90 border border-gray-600 hover:bg-gray-700 hover:border-cyan-400 text-white backdrop-blur-sm rounded-full transition-all duration-300 shadow-lg"
-                  >
-                    <ChevronRight className="w-5 h-5" />
-                  </motion.button>
-                </div>
-
-                {/* Indicators */}
-                <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 flex space-x-2 z-20">
-                  {clientSections.map((_, index) => (
-                    <motion.button
-                      key={index}
-                      whileHover={{ scale: 1.2 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={() => setCurrentSection(index)}
-                      className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                        index === currentSection 
-                          ? "bg-cyan-400 shadow-lg shadow-cyan-400/50 scale-125" 
-                          : "bg-gray-600 hover:bg-gray-500"
-                      }`}
-                    />
-                  ))}
-                </div>
               </>
             ) : (
               /* Empty State */
@@ -329,6 +283,62 @@ const Clients = () => {
           </div>
         </div>
       </section>
+
+      {/* Navigation Controls - Outside main container to prevent overlap */}
+      {clientSections.length > 0 && (
+        <section className="relative z-10 py-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-center items-center space-x-6">
+              {/* Indicators */}
+              <div className="flex space-x-2">
+                {clientSections.map((_, index) => (
+                  <motion.button
+                    key={index}
+                    whileHover={{ scale: 1.2 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => setCurrentSection(index)}
+                    className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                      index === currentSection 
+                        ? "bg-cyan-400 shadow-lg shadow-cyan-400/50 scale-125" 
+                        : "bg-gray-600 hover:bg-gray-500"
+                    }`}
+                  />
+                ))}
+              </div>
+              
+              {/* Navigation Buttons */}
+              <div className="flex items-center space-x-4">
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={prevSection}
+                  className="p-3 bg-gray-800/90 border border-gray-600 hover:bg-gray-700 hover:border-cyan-400 text-white backdrop-blur-sm rounded-full transition-all duration-300 shadow-lg"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </motion.button>
+                
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={togglePlayPause}
+                  className="p-3 bg-gray-800/90 border border-gray-600 hover:bg-gray-700 hover:border-cyan-400 text-white backdrop-blur-sm rounded-full transition-all duration-300 shadow-lg"
+                >
+                  {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+                </motion.button>
+                
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={nextSection}
+                  className="p-3 bg-gray-800/90 border border-gray-600 hover:bg-gray-700 hover:border-cyan-400 text-white backdrop-blur-sm rounded-full transition-all duration-300 shadow-lg"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </motion.button>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* CTA Section */}
       <section className="relative z-10 py-20">
