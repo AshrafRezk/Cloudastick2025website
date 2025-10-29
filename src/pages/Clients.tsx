@@ -33,14 +33,20 @@ const Clients = () => {
     return allClientSections.filter(section => section.title === selectedFilter);
   }, [allClientSections, selectedFilter]);
 
+  // Get all logos when no filter is selected
+  const allLogos = useMemo(() => {
+    if (selectedFilter) return [];
+    return allClientSections.flatMap(section => section.logos);
+  }, [allClientSections, selectedFilter]);
+
   useEffect(() => {
-    if (isPlaying && clientSections.length > 0) {
+    if (isPlaying && clientSections.length > 0 && selectedFilter) {
       const interval = setInterval(() => {
         setCurrentSection((prev) => (prev + 1) % clientSections.length);
       }, 6000); // Reduced from 8000ms to 6000ms for better pacing
       return () => clearInterval(interval);
     }
-  }, [isPlaying, clientSections.length]);
+  }, [isPlaying, clientSections.length, selectedFilter]);
 
   // Reset current section when filter changes
   useEffect(() => {
@@ -145,7 +151,93 @@ const Clients = () => {
       <section className="relative z-10 py-20 min-h-screen flex items-center">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="relative">
-            {clientSections.length > 0 ? (
+            {!selectedFilter && allLogos.length > 0 ? (
+              /* Show All Logos - No Categories */
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-sm border border-gray-700/50">
+                <div className="relative z-10 p-8 md:p-12">
+                  <motion.div
+                    initial={{ opacity: 0, y: 50 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3, duration: 0.8 }}
+                    className="text-center mb-16"
+                  >
+                    <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
+                      Our Valued Clients
+                    </h2>
+                    <p className="text-2xl md:text-3xl text-cyan-400 font-semibold">
+                      Trusted by companies across all industries
+                    </p>
+                  </motion.div>
+
+                  {/* All Logos Grid */}
+                  <motion.div 
+                    className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 md:gap-8 max-w-7xl mx-auto mb-20"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.4, duration: 0.6 }}
+                  >
+                    {allLogos.map((logo, index) => (
+                      <motion.div
+                        key={logo.name}
+                        initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        transition={{ 
+                          delay: 0.6 + index * 0.05, 
+                          duration: 0.5,
+                          ease: "easeOut"
+                        }}
+                        whileHover={{ 
+                          y: -8, 
+                          scale: 1.05,
+                          transition: { duration: 0.2 }
+                        }}
+                        className="bg-white/10 backdrop-blur-sm rounded-xl p-4 md:p-6 border border-white/20 hover:bg-white/20 hover:border-cyan-400/50 transition-all duration-300 group cursor-pointer"
+                      >
+                        <div className="text-center space-y-2">
+                          <div className="flex justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
+                            <img
+                              src={logo.logoPath}
+                              alt={`${logo.name} logo`}
+                              className="w-16 h-16 md:w-20 md:h-20 object-contain filter brightness-0 invert group-hover:brightness-100 group-hover:invert-0 transition-all duration-300"
+                              onError={(e) => {
+                                // Fallback to a simple text display if image fails to load
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                                const parent = target.parentElement;
+                                if (parent) {
+                                  parent.innerHTML = `<div class="w-16 h-16 md:w-20 md:h-20 bg-cyan-400/20 rounded-lg flex items-center justify-center text-cyan-400 font-bold text-lg">${logo.name.charAt(0)}</div>`;
+                                }
+                              }}
+                            />
+                          </div>
+                          <div className="text-white font-bold text-sm md:text-base group-hover:text-cyan-300 transition-colors">
+                            {logo.name}
+                          </div>
+                          <div className="text-gray-300 text-xs">
+                            {logo.industry}
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </motion.div>
+
+                  {/* Cloudastick Badge */}
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 1.2, duration: 0.6 }}
+                    className="mt-16 flex items-center justify-center space-x-3 text-gray-400"
+                  >
+                    <div className="w-8 h-8 bg-cyan-400 rounded-full flex items-center justify-center">
+                      <span className="text-black font-bold text-sm">C</span>
+                    </div>
+                    <span className="text-white font-bold">CLOUDASTICK</span>
+                    <span className="text-gray-400">Partner</span>
+                  </motion.div>
+                </div>
+              </div>
+            ) : clientSections.length > 0 ? (
+              /* Show Filtered Categories */
               <>
                 {/* Client Container */}
                 <div className="relative h-[700px] md:h-[800px] rounded-3xl overflow-hidden shadow-2xl">
@@ -284,8 +376,8 @@ const Clients = () => {
         </div>
       </section>
 
-      {/* Navigation Controls - Outside main container to prevent overlap */}
-      {clientSections.length > 0 && (
+      {/* Navigation Controls - Only show for filtered categories */}
+      {selectedFilter && clientSections.length > 0 && (
         <section className="relative z-10 py-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-center items-center space-x-6">
