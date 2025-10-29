@@ -15,8 +15,8 @@ export interface ClientSection {
 
 // Industry mapping for consistent categorization
 const industryMapping: Record<string, string> = {
-  'Real Estate': 'Real Estate',
-  'Real Esate': 'Real Estate', // Fix typo in filename
+  'Real Estate': 'Real Estate & Construction',
+  'Real Esate': 'Real Estate & Construction', // Fix typo in filename
   'Healthcare': 'Healthcare',
   'Manufacturing': 'Manufacturing',
   'Education': 'Education',
@@ -25,7 +25,7 @@ const industryMapping: Record<string, string> = {
   'eCommerce': 'eCommerce',
   'Traveling & Hospitality': 'Travel & Hospitality',
   'Travel & Hospitality': 'Travel & Hospitality',
-  'Construction': 'Construction',
+  'Construction': 'Real Estate & Construction', // Group with Real Estate
   'Automotive': 'Automotive',
   'Non-profit': 'Non-profit',
   'Law': 'Professional Services',
@@ -34,7 +34,7 @@ const industryMapping: Record<string, string> = {
 
 // Background colors for each industry section
 const industryColors: Record<string, string> = {
-  'Real Estate': 'from-blue-900/20 to-cyan-900/20',
+  'Real Estate & Construction': 'from-blue-900/20 to-cyan-900/20',
   'Healthcare': 'from-green-900/20 to-emerald-900/20',
   'Manufacturing': 'from-orange-900/20 to-red-900/20',
   'Education': 'from-purple-900/20 to-indigo-900/20',
@@ -42,14 +42,13 @@ const industryColors: Record<string, string> = {
   'Professional Services': 'from-gray-900/20 to-slate-900/20',
   'eCommerce': 'from-pink-900/20 to-rose-900/20',
   'Travel & Hospitality': 'from-yellow-900/20 to-amber-900/20',
-  'Construction': 'from-stone-900/20 to-gray-900/20',
   'Automotive': 'from-red-900/20 to-orange-900/20',
   'Non-profit': 'from-emerald-900/20 to-green-900/20'
 };
 
 // Translation keys for industry titles
 const industryTitles: Record<string, string> = {
-  'Real Estate': 'Real Estate',
+  'Real Estate & Construction': 'Real Estate & Construction',
   'Healthcare': 'Healthcare',
   'Manufacturing': 'Manufacturing',
   'Education': 'Education',
@@ -57,7 +56,6 @@ const industryTitles: Record<string, string> = {
   'Professional Services': 'Professional Services',
   'eCommerce': 'eCommerce',
   'Travel & Hospitality': 'Travel & Hospitality',
-  'Construction': 'Construction',
   'Automotive': 'Automotive',
   'Non-profit': 'Non-profit'
 };
