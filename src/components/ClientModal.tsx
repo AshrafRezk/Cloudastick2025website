@@ -26,12 +26,6 @@ const ClientModal: React.FC<ClientModalProps> = ({ isOpen, onClose, client }) =>
             <DialogTitle className="text-2xl font-bold text-cyan-400">
               {client.name}
             </DialogTitle>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-white transition-colors"
-            >
-              <X className="w-6 h-6" />
-            </button>
           </div>
           
           {/* Client Logo and Industry */}

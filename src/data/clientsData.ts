@@ -194,8 +194,8 @@ export const clientsData: Record<string, ClientInfo> = {
     id: 'intuition',
     name: 'InTuition',
     industry: 'Education',
-    description: 'InTuition is an educational technology company providing innovative learning solutions and digital education platforms. They help educational institutions enhance their teaching and learning experiences.',
-    websiteUrl: undefined
+    description: 'InTuition Languages delivers fully accredited private homestay immersion and online language courses tailored to learners of all ages and goals, leveraging 30+ years of experience to maximise progress through personalised programmes and one-to-one teaching.',
+    websiteUrl: 'https://intuitionlang.com'
   },
   'KAYAN': {
     id: 'kayan',
