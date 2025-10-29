@@ -79,12 +79,16 @@ const Clients = () => {
       <div className="absolute inset-0 z-0">
         <AnimatePresence mode="wait">
           <motion.div
-            key={currentSection}
+            key={selectedFilter ? currentSection : 'all'}
             initial={{ opacity: 0, scale: 1.1 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 2, ease: "easeInOut" }}
-            className={`absolute inset-0 bg-gradient-to-br ${clientSections[currentSection].bgColor}`}
+            className={`absolute inset-0 bg-gradient-to-br ${
+              selectedFilter && clientSections.length > 0 
+                ? clientSections[currentSection]?.bgColor || 'from-gray-900/20 to-slate-900/20'
+                : 'from-gray-900/20 to-slate-900/20'
+            }`}
           />
         </AnimatePresence>
         <div className="absolute inset-0 bg-black/40" />
