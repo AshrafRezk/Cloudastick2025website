@@ -149,8 +149,15 @@ export function parseLogoFiles(): ClientSection[] {
     logos
   }));
 
-  // Sort sections by industry name for consistency
-  return sections.sort((a, b) => a.title.localeCompare(b.title));
+  // Shuffle sections randomly
+  const shuffledSections = sections.sort(() => Math.random() - 0.5);
+  
+  // Shuffle logos within each section
+  shuffledSections.forEach(section => {
+    section.logos = section.logos.sort(() => Math.random() - 0.5);
+  });
+
+  return shuffledSections;
 }
 
 export function getIndustryFilters(sections: ClientSection[]): string[] {
