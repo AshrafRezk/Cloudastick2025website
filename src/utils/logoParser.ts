@@ -101,7 +101,7 @@ export function parseLogoFiles(): ClientSection[] {
     'Memar - Real Estate.png',
     'Modern Electronics - Professional Services.png',
     'Mozare3 - Manufacturing.png', // Using first occurrence
-    'Nile City- Real Estate.png',
+    'Nile City - Real Estate.png',
     'PadSquad - eCommerce.png',
     'Plantform - Manufacturing.png',
     'Prosperity - Real Esate.png',
