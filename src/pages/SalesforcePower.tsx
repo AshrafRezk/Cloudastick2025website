@@ -371,6 +371,9 @@ const SalesforcePower = () => {
 
   // Copy table link function
   const copyTableLink = () => {
+    // Haptic feedback with sound
+    triggerHaptic([5, 3, 5], '/Assets/woosh1new.mp3');
+    
     // Build URL parameters (simple, no encoding)
     const params = new URLSearchParams();
     params.set('lang', language);
@@ -494,6 +497,14 @@ const SalesforcePower = () => {
   // Handle manual analyze button click
   const handleAnalyzeCompany = () => {
     if (!companyWebsite.trim()) return;
+    
+    // Haptic feedback with sound
+    triggerHaptic([15, 10, 15], '/Assets/selection3new.mp3');
+    
+    // Clear previous company data to refetch fresh
+    setCompanyName('');
+    setCompanyIntelligence(null);
+    setSelectedIndustry(null);
     
     // Normalize the URL
     const normalized = normalizeWebsiteUrl(companyWebsite);
@@ -774,16 +785,22 @@ const SalesforcePower = () => {
   const ctaRef = useRef<HTMLDivElement>(null);
 
   // Haptic feedback function
-  const triggerHaptic = (pattern: number[] = [10, 5, 10]) => {
+  const triggerHaptic = (pattern: number[] = [10, 5, 10], soundFile: string = '/Assets/selection1new.mp3') => {
+    // Haptic feedback
     if ('vibrate' in navigator) {
       navigator.vibrate(pattern);
     }
+    
+    // Play sound
+    const sound = new Audio(soundFile);
+    sound.volume = 0.3;
+    sound.play().catch(() => {}); // Ignore errors if sound fails
   };
 
   // Handle industry selection
   const handleIndustrySelect = (industryId: string) => {
     try {
-      triggerHaptic([20, 10, 20]);
+      triggerHaptic([20, 10, 20], '/Assets/selection2new.mp3');
       setSelectedIndustry(industryId);
       setCurrentSection(1);
       
@@ -1246,7 +1263,7 @@ const SalesforcePower = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.3 }}
-              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 max-w-7xl mx-auto"
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 max-w-7xl mx-auto mb-24"
             >
               {industries.slice(0, 8).map((industry, index) => {
                 const isSelected = selectedIndustry === industry.id;
