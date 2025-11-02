@@ -486,15 +486,20 @@ const SalesforcePower = () => {
   const handleWebsiteChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value;
     
-    // Normalize the URL for display and API calls
-    const normalized = normalizeWebsiteUrl(rawValue);
-    setCompanyWebsite(normalized.display);
+    // Allow user to type freely - set raw value immediately
+    setCompanyWebsite(rawValue);
     
     // Auto-fetch logo and enrich company when user stops typing (debounced)
-    if (normalized.domain) {
+    if (rawValue.trim()) {
       const timeoutId = setTimeout(() => {
-        fetchCompanyLogo(normalized.domain);
-        enrichCompanyData(normalized.domain);
+        // Normalize AFTER user stops typing
+        const normalized = normalizeWebsiteUrl(rawValue);
+        setCompanyWebsite(normalized.display); // Update with normalized version
+        
+        if (normalized.domain) {
+          fetchCompanyLogo(normalized.domain);
+          enrichCompanyData(normalized.domain);
+        }
       }, 1500); // Slightly longer delay for enrichment
       
       return () => clearTimeout(timeoutId);
