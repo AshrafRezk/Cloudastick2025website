@@ -7,7 +7,7 @@
 export const normalizeWebsiteUrl = (input: string): {
   display: string;      // For showing in input field (e.g., "cloudastick.com")
   domain: string;       // For API calls (e.g., "cloudastick.com")
-  fullUrl: string;      // Full URL with protocol (e.g., "https://cloudastick.com")
+  fullUrl: string;      // Full URL with protocol (e.g., "https://www.cloudastick.com")
 } => {
   if (!input || !input.trim()) {
     return { display: '', domain: '', fullUrl: '' };
@@ -18,7 +18,8 @@ export const normalizeWebsiteUrl = (input: string): {
   // Remove protocol if present
   cleaned = cleaned.replace(/^https?:\/\//, '');
   
-  // Remove www. if present
+  // Remove www. if present (we'll add it back in fullUrl)
+  const hadWww = cleaned.startsWith('www.');
   cleaned = cleaned.replace(/^www\./, '');
   
   // Remove trailing slashes and paths
@@ -27,16 +28,16 @@ export const normalizeWebsiteUrl = (input: string): {
   // Remove trailing dots
   cleaned = cleaned.replace(/\.+$/, '');
 
-  // Basic validation - should have at least one dot
+  // Basic validation - should have at least one dot (domain.extension)
   if (!cleaned.includes('.')) {
-    // Assume .com if no extension provided
-    cleaned = `${cleaned}.com`;
+    // Invalid domain, return as-is
+    return { display: cleaned, domain: cleaned, fullUrl: '' };
   }
 
   return {
     display: cleaned,                    // cloudastick.com
     domain: cleaned,                     // cloudastick.com
-    fullUrl: `https://${cleaned}`        // https://cloudastick.com
+    fullUrl: `https://www.${cleaned}`    // https://www.cloudastick.com
   };
 };
 
@@ -72,10 +73,11 @@ export const isValidDomain = (input: string): boolean => {
 
 /**
  * Examples:
- * normalizeWebsiteUrl("cloudastick.com") → { display: "cloudastick.com", domain: "cloudastick.com", fullUrl: "https://cloudastick.com" }
- * normalizeWebsiteUrl("https://www.cloudastick.com") → { display: "cloudastick.com", domain: "cloudastick.com", fullUrl: "https://cloudastick.com" }
- * normalizeWebsiteUrl("www.cloudastick.com/about") → { display: "cloudastick.com", domain: "cloudastick.com", fullUrl: "https://cloudastick.com" }
- * normalizeWebsiteUrl("HTTP://CLOUDASTICK.COM/") → { display: "cloudastick.com", domain: "cloudastick.com", fullUrl: "https://cloudastick.com" }
- * normalizeWebsiteUrl("emaar") → { display: "emaar.com", domain: "emaar.com", fullUrl: "https://emaar.com" }
+ * normalizeWebsiteUrl("cloudastick.com") → { display: "cloudastick.com", domain: "cloudastick.com", fullUrl: "https://www.cloudastick.com" }
+ * normalizeWebsiteUrl("cloudastick.org") → { display: "cloudastick.org", domain: "cloudastick.org", fullUrl: "https://www.cloudastick.org" }
+ * normalizeWebsiteUrl("https://www.cloudastick.com") → { display: "cloudastick.com", domain: "cloudastick.com", fullUrl: "https://www.cloudastick.com" }
+ * normalizeWebsiteUrl("www.cloudastick.com/about") → { display: "cloudastick.com", domain: "cloudastick.com", fullUrl: "https://www.cloudastick.com" }
+ * normalizeWebsiteUrl("HTTP://CLOUDASTICK.COM/") → { display: "cloudastick.com", domain: "cloudastick.com", fullUrl: "https://www.cloudastick.com" }
+ * normalizeWebsiteUrl("emaar.ae") → { display: "emaar.ae", domain: "emaar.ae", fullUrl: "https://www.emaar.ae" }
  */
 
