@@ -482,31 +482,25 @@ const SalesforcePower = () => {
     }
   }, []);
 
-  // Handle website input change
+  // Handle website input change (no auto-trigger)
   const handleWebsiteChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value;
-    
-    // Allow user to type freely - set raw value immediately
+    // Just update the value - no auto-triggering
     setCompanyWebsite(rawValue);
+  };
+
+  // Handle manual analyze button click
+  const handleAnalyzeCompany = () => {
+    if (!companyWebsite.trim()) return;
     
-    // Auto-fetch logo and enrich company when user stops typing (debounced)
-    if (rawValue.trim()) {
-      const timeoutId = setTimeout(() => {
-        // Normalize AFTER user stops typing
-        const normalized = normalizeWebsiteUrl(rawValue);
-        setCompanyWebsite(normalized.display); // Update with normalized version
-        
-        if (normalized.domain) {
-          fetchCompanyLogo(normalized.domain);
-          enrichCompanyData(normalized.domain);
-        }
-      }, 1500); // Slightly longer delay for enrichment
-      
-      return () => clearTimeout(timeoutId);
-    } else {
-      setCompanyLogo(null);
-      setLogoError(false);
-      setCompanyIntelligence(null);
+    // Normalize the URL
+    const normalized = normalizeWebsiteUrl(companyWebsite);
+    setCompanyWebsite(normalized.display);
+    
+    // Trigger logo and enrichment
+    if (normalized.domain) {
+      fetchCompanyLogo(normalized.domain);
+      enrichCompanyData(normalized.domain);
     }
   };
 
@@ -1059,27 +1053,48 @@ const SalesforcePower = () => {
                 className="mb-8"
               >
                 <div className={`grid grid-cols-1 ${companyName ? 'sm:grid-cols-2' : ''} gap-4 max-w-4xl mx-auto`}>
-                  {/* Company Website Input - Always shown first */}
+                  {/* Company Website Input with Analyze Button */}
                   <div className="flex-1">
-                    <div className="relative">
-                      <input
-                        type="text"
-                        placeholder="Company Website (e.g., example.com)"
-                        value={companyWebsite}
-                        onChange={handleWebsiteChange}
-                        className="w-full px-6 py-4 bg-gray-800/50 backdrop-blur-sm border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-300 text-center sm:text-left"
-                      />
-                      {logoLoading && (
-                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                          <div className="w-5 h-5 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
-                        </div>
-                      )}
+                    <div className="flex gap-3">
+                      <div className="relative flex-1">
+                        <input
+                          type="text"
+                          placeholder="Company Website (e.g., example.com)"
+                          value={companyWebsite}
+                          onChange={handleWebsiteChange}
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter' && companyWebsite.trim() && !loadingIntelligence) {
+                              handleAnalyzeCompany();
+                            }
+                          }}
+                          className="w-full px-6 py-4 bg-gray-800/50 backdrop-blur-sm border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-300"
+                        />
+                      </div>
+                      
+                      {/* Analyze Button */}
+                      <button
+                        onClick={handleAnalyzeCompany}
+                        disabled={!companyWebsite.trim() || loadingIntelligence}
+                        className={`px-6 py-4 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 whitespace-nowrap
+                          ${companyWebsite.trim() && !loadingIntelligence
+                            ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer'
+                            : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                          }
+                        `}
+                      >
+                        {loadingIntelligence ? (
+                          <>
+                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            <span>Analyzing...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>Analyze</span>
+                            <ArrowRight className="w-5 h-5" />
+                          </>
+                        )}
+                      </button>
                     </div>
-                    {companyWebsite && (
-                      <p className="text-xs text-gray-500 mt-2 text-center sm:text-left">
-                        ✓ Auto-formatted
-                      </p>
-                    )}
                   </div>
                   
                   {/* Company Name Input - Only shown after name is loaded */}
