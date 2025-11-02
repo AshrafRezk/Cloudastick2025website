@@ -1210,16 +1210,18 @@ const SalesforcePower = () => {
 
                     {/* AI Insights & Products - Stacked Layout */}
                     <div className="space-y-6">
-                      {/* AI Insights Panel - Full Width */}
-                      <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 rounded-2xl p-6 border border-purple-500/30 backdrop-blur-sm">
-                        <h4 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                          <Sparkles className="w-5 h-5 text-yellow-400" />
-                          How Salesforce Can Help
-                        </h4>
-                        <div className="text-gray-300 text-sm leading-relaxed whitespace-pre-line">
-                          {companyIntelligence.aiInsights}
+                      {/* AI Insights Panel - Full Width (only show if valid) */}
+                      {companyIntelligence.aiInsights && companyIntelligence.aiInsights.trim().length > 0 && (
+                        <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 rounded-2xl p-6 border border-purple-500/30 backdrop-blur-sm">
+                          <h4 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                            <Sparkles className="w-5 h-5 text-yellow-400" />
+                            How Salesforce Can Help
+                          </h4>
+                          <div className="text-gray-300 text-sm leading-relaxed whitespace-pre-line">
+                            {companyIntelligence.aiInsights}
+                          </div>
                         </div>
-                      </div>
+                      )}
 
                       {/* Company Products Carousel - Full Width */}
                       {companyIntelligence.companyProducts && companyIntelligence.companyProducts.length > 0 && (

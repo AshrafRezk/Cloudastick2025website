@@ -230,25 +230,47 @@ const generateStructuredInsights = async (companyData: CompanyData, news: NewsAr
     ? `Recent news: ${news.slice(0, 2).map(n => n.title).join('; ')}`
     : '';
   
-  const prompt = `You are a Salesforce solutions expert writing professional web copy for ${companyData.companyName} (${companyData.industry}). ${newsContext}
+  // Industry-specific context for better insights
+  const industryContext: { [key: string]: string } = {
+    'Technology': 'IT service companies need scalable CRM, professional services automation, and customer success tools',
+    'Real Estate': 'Real estate firms need property management, lead tracking, and tenant portals',
+    'Healthcare': 'Healthcare organizations need patient management, HIPAA compliance, and care coordination',
+    'Manufacturing': 'Manufacturers need supply chain integration, order management, and B2B commerce',
+    'Financial Services': 'Financial firms need regulatory compliance, wealth management, and customer advisory tools',
+    'Retail': 'Retailers need omnichannel commerce, inventory management, and customer personalization'
+  };
+  
+  const context = industryContext[companyData.industry] || 'businesses need comprehensive CRM and automation';
+  
+  const prompt = `You are a Salesforce expert writing for ${companyData.companyName}, a ${companyData.industry} company. ${newsContext}
 
-Generate 4 specific insights in plain, professional language. NO bullet points, NO asterisks, NO hashes, NO emojis, NO em dashes, NO markdown formatting.
+Context: ${context}.
 
-Format EXACTLY as follows:
+Write 4 specific, impressive insights about how Salesforce helps ${companyData.industry} companies. Each insight should be concrete and valuable.
+
+Format EXACTLY as shown:
 
 [CRM]
-Write one natural sentence (20-30 words) explaining why Salesforce is more than just a CRM for ${companyData.industry} companies.
+One powerful sentence (20-35 words) about comprehensive platform capabilities beyond basic CRM for ${companyData.industry}.
 
 [CONNECT]
-Write one natural sentence (20-30 words) about seamless integration and connection for ${companyData.industry}.
+One powerful sentence (20-35 words) about seamless system integration and team connection for ${companyData.industry}.
 
 [DATACLOUD]
-Write one natural sentence (20-30 words) about unified data intelligence for ${companyData.industry}.
+One powerful sentence (20-35 words) about unified data and intelligence for ${companyData.industry}.
 
 [TAILORED]
-Write one natural sentence (20-30 words) about industry-specific capabilities for ${companyData.industry}.
+One powerful sentence (20-35 words) about industry-specific features and competitive advantages for ${companyData.industry}.
 
-Write in plain professional prose. No special characters or formatting. Sound natural, not robotic.`;
+Rules:
+- Be specific to ${companyData.industry}
+- NO markdown, NO asterisks, NO emojis
+- Professional, confident tone
+- Action-oriented language
+- If you lack context, write general ${companyData.industry} insights
+- NEVER say "I don't have", "cannot provide", "missing"
+
+Your response:`;
 
   const response = await fetch('/.netlify/functions/cloudiator', {
     method: 'POST',
@@ -265,6 +287,12 @@ Write in plain professional prose. No special characters or formatting. Sound na
   const data = await response.json();
   const fullResponse = data.response || '';
   
+  // Validate full response first
+  if (!isValidAIResponse(fullResponse)) {
+    console.log('❌ Invalid structured insights response');
+    return null;
+  }
+  
   // Parse the structured response
   const crmMatch = fullResponse.match(/\[CRM\]\s*\n?(.*?)(?=\n\[|$)/is);
   const connectMatch = fullResponse.match(/\[CONNECT\]\s*\n?(.*?)(?=\n\[|$)/is);
@@ -273,6 +301,7 @@ Write in plain professional prose. No special characters or formatting. Sound na
   
   // Clean function to remove any markdown formatting
   const cleanText = (text: string): string => {
+    if (!text) return '';
     return text
       .replace(/\*\*\./g, '.')     // Remove **. pattern
       .replace(/\*\*/g, '')        // Remove bold markers
@@ -286,12 +315,76 @@ Write in plain professional prose. No special characters or formatting. Sound na
       .trim();
   };
   
+  const crm = cleanText(crmMatch?.[1] || '');
+  const connect = cleanText(connectMatch?.[1] || '');
+  const dataCloud = cleanText(dataCloudMatch?.[1] || '');
+  const tailored = cleanText(tailoredMatch?.[1] || '');
+  
+  // Validate each section
+  if (!isValidAIResponse(crm) || !isValidAIResponse(connect) || 
+      !isValidAIResponse(dataCloud) || !isValidAIResponse(tailored)) {
+    console.log('❌ One or more structured insights invalid');
+    return null;
+  }
+  
   return {
-    crm: cleanText(crmMatch?.[1] || 'Salesforce provides comprehensive CRM capabilities tailored to your industry.'),
-    connect: cleanText(connectMatch?.[1] || 'Connect all your teams and systems seamlessly with Salesforce.'),
-    dataCloud: cleanText(dataCloudMatch?.[1] || 'Unify all your data sources with Salesforce Data Cloud.'),
-    tailored: cleanText(tailoredMatch?.[1] || 'Industry-specific solutions designed for your business needs.')
+    crm,
+    connect,
+    dataCloud,
+    tailored
   };
+};
+
+/**
+ * Validate if AI response is useful and not an error message
+ */
+const isValidAIResponse = (text: string): boolean => {
+  if (!text || text.trim().length < 10) return false;
+  
+  const lowerText = text.toLowerCase();
+  
+  // Detect error messages
+  const errorPhrases = [
+    'provided prompt',
+    'does not contain',
+    'missing information',
+    'cannot provide',
+    'unable to',
+    'i don\'t have',
+    'no information',
+    'insufficient data',
+    'not enough context',
+    'based on the provided',
+    'therefore i cannot',
+    'sorry',
+    'i apologize'
+  ];
+  
+  for (const phrase of errorPhrases) {
+    if (lowerText.includes(phrase)) {
+      return false;
+    }
+  }
+  
+  // Check if response is too generic/vague
+  const genericPhrases = [
+    'generally speaking',
+    'typically companies',
+    'in most cases',
+    'usually businesses'
+  ];
+  
+  let genericCount = 0;
+  for (const phrase of genericPhrases) {
+    if (lowerText.includes(phrase)) {
+      genericCount++;
+    }
+  }
+  
+  // If more than 2 generic phrases, probably not specific enough
+  if (genericCount > 2) return false;
+  
+  return true;
 };
 
 /**
@@ -299,16 +392,32 @@ Write in plain professional prose. No special characters or formatting. Sound na
  */
 const extractCompanyProducts = async (companyData: CompanyData, news: NewsArticle[]): Promise<string[]> => {
   const newsContext = news.length > 0
-    ? `Recent news mentions: ${news.slice(0, 2).map(n => n.title).join('; ')}`
+    ? `Recent news about the company: ${news.slice(0, 2).map(n => n.title).join('. ')}`
     : '';
   
-  const prompt = `Based on the following information, list the main products or services offered by ${companyData.companyName} (${companyData.industry}). ${newsContext}
+  // Industry-specific product examples to guide AI
+  const industryExamples: { [key: string]: string } = {
+    'Technology': 'Software Solutions, Cloud Services, IT Consulting',
+    'Real Estate': 'Residential Properties, Commercial Spaces, Property Management',
+    'Healthcare': 'Medical Devices, Pharmaceuticals, Healthcare Services',
+    'Manufacturing': 'Industrial Equipment, Manufactured Goods, Production Services',
+    'Financial Services': 'Banking Services, Investment Products, Insurance Solutions',
+    'Retail': 'Consumer Products, E-commerce Platform, Retail Services'
+  };
+  
+  const exampleProducts = industryExamples[companyData.industry] || 'Products, Services, Solutions';
+  
+  const prompt = `You are analyzing ${companyData.companyName}, a ${companyData.industry} company. ${newsContext}
 
-Provide a concise list of 3-5 main products or services. Format as a simple comma-separated list. NO bullet points, NO numbers, NO special characters. Just product/service names separated by commas.
+List their 3-5 main products or services. Be specific and use their actual product/service names if known from the news context. If you don't know the exact names, infer logical ${companyData.industry} offerings.
 
-Example format: Product A, Product B, Product C
+Format: Simple comma-separated list ONLY. NO explanations, NO "based on", NO apologies.
 
-Keep it simple and professional.`;
+Example for ${companyData.industry}: ${exampleProducts}
+
+If you truly cannot determine products, respond with ONLY: UNKNOWN
+
+Your response:`;
 
   try {
     const response = await fetch('/.netlify/functions/cloudiator', {
@@ -326,6 +435,12 @@ Keep it simple and professional.`;
     const data = await response.json();
     const productsText = data.response || '';
     
+    // Check if response is UNKNOWN or invalid
+    if (productsText.trim() === 'UNKNOWN' || !isValidAIResponse(productsText)) {
+      console.log('❌ Invalid product response from AI');
+      return [];
+    }
+    
     // Parse comma-separated list
     const products = productsText
       .split(',')
@@ -333,6 +448,7 @@ Keep it simple and professional.`;
       .filter(p => {
         // Filter out invalid products
         if (p.length === 0 || p.length > 100) return false;
+        if (p.toUpperCase() === 'UNKNOWN') return false;
         
         // Filter out error messages or generic responses
         const lowerP = p.toLowerCase();
@@ -343,6 +459,8 @@ Keep it simple and professional.`;
             lowerP.includes('cannot') ||
             lowerP.includes('sorry') ||
             lowerP.includes('i don') ||
+            lowerP.includes('therefore') ||
+            lowerP.includes('prompt') ||
             lowerP.includes('no information')) {
           return false;
         }
@@ -353,9 +471,11 @@ Keep it simple and professional.`;
     
     // If we got no valid products or only error messages, return empty
     if (products.length === 0) {
+      console.log('❌ No valid products extracted');
       return [];
     }
     
+    console.log('✅ Extracted products:', products);
     return products;
   } catch (error) {
     console.error('Failed to extract products:', error);
@@ -368,21 +488,39 @@ Keep it simple and professional.`;
  */
 const generateAIInsights = async (companyData: CompanyData, news: NewsArticle[]): Promise<string> => {
   const newsContext = news.length > 0
-    ? `Recent news about ${companyData.companyName}: ${news.slice(0, 2).map(n => n.title).join('; ')}`
+    ? `Recent developments: ${news.slice(0, 2).map(n => n.title).join('. ')}`
     : '';
   
-  const prompt = `You are a Salesforce solutions expert. Based on the following company information, provide 2-3 concise insights (max 50 words each) on how Salesforce could specifically help this company:
+  // Industry-specific Salesforce solutions
+  const industrySolutions: { [key: string]: string } = {
+    'Technology': 'Professional Services Cloud for project management, Sales Cloud for pipeline tracking',
+    'Real Estate': 'Property management with Experience Cloud, lead scoring with Einstein AI',
+    'Healthcare': 'Health Cloud for patient 360, compliance with Shield',
+    'Manufacturing': 'Manufacturing Cloud for forecasting, CPQ for complex pricing',
+    'Financial Services': 'Financial Services Cloud for wealth management, compliance tools',
+    'Retail': 'Commerce Cloud for e-commerce, Marketing Cloud for personalization'
+  };
+  
+  const solutions = industrySolutions[companyData.industry] || 'Sales Cloud, Service Cloud, Marketing Cloud';
+  
+  const prompt = `You are writing for ${companyData.companyName}, a ${companyData.industry} company. ${newsContext}
 
-Company: ${companyData.companyName}
-Industry: ${companyData.industry}
-${newsContext}
+Write 3 powerful, specific insights about how Salesforce transforms ${companyData.industry} operations.
 
-Focus on:
-1. Industry-specific Salesforce solutions
-2. Key pain points Salesforce solves in this industry
-3. Competitive advantages they would gain
+Salesforce for ${companyData.industry}: ${solutions}
 
-Write in plain professional prose. NO asterisks, NO bullet points, NO markdown, NO special characters. Number each point (1., 2., 3.) and separate with line breaks.`;
+Instructions:
+- Write 3 numbered points (1., 2., 3.)
+- Each 30-40 words
+- Specific to ${companyData.industry}
+- Mention actual Salesforce products/features
+- Action-oriented, confident tone
+- NO asterisks, NO markdown, NO emojis
+- Plain professional prose only
+- If lacking specific info, use general ${companyData.industry} insights
+- NEVER write error messages or apologies
+
+Your response:`;
 
   const response = await fetch('/.netlify/functions/cloudiator', {
     method: 'POST',
@@ -397,7 +535,13 @@ Write in plain professional prose. NO asterisks, NO bullet points, NO markdown, 
   }
   
   const data = await response.json();
-  const rawResponse = data.response || 'Unable to generate insights at this time.';
+  const rawResponse = data.response || '';
+  
+  // Validate response first
+  if (!isValidAIResponse(rawResponse)) {
+    console.log('❌ Invalid AI insights response');
+    return ''; // Return empty string to hide section
+  }
   
   // Clean the response thoroughly - remove ALL markdown and special formatting
   const cleaned = rawResponse
@@ -411,6 +555,12 @@ Write in plain professional prose. NO asterisks, NO bullet points, NO markdown, 
     .replace(/[\u{1F300}-\u{1F9FF}]/gu, '') // Remove emojis
     .replace(/^\s*\.\s*/gm, '')     // Remove lone periods at start of lines
     .trim();
+  
+  // Final check on cleaned text
+  if (!isValidAIResponse(cleaned)) {
+    console.log('❌ Cleaned insights still invalid');
+    return '';
+  }
   
   return cleaned;
 };
