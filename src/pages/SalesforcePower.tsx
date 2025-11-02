@@ -56,7 +56,6 @@ import CompanyLogo from '../components/CompanyLogo';
 import { formatWebsiteUrl } from '../services/logoService';
 import { enrichCompany, initCompanyIntelligence, CompanyIntelligence } from '../services/companyIntelligence';
 import ProductRecommendationBanner from '../components/ProductRecommendationBanner';
-import { generateShortCode, decodeShortCode, hasShortCode, getShortCode } from '../utils/urlShortener';
 
 // Modern Carousel Hub and Spoke Component
 const HubAndSpokeVisualization = React.memo(({ 
@@ -369,22 +368,29 @@ const SalesforcePower = () => {
 
   // Copy table link function
   const copyTableLink = () => {
-    // Generate short URL code
-    const shortCode = generateShortCode({
-      companyName: companyName || undefined,
-      companyWebsite: companyWebsite || undefined,
-      industry: selectedIndustry || undefined,
-      language: language,
-    });
+    // Build URL parameters (simple, no encoding)
+    const params = new URLSearchParams();
+    params.set('lang', language);
     
-    // Build shortened URL
-    const url = `${window.location.origin}/salesforce-power?s=${shortCode}#comparison-table`;
+    if (selectedIndustry) {
+      params.set('industry', selectedIndustry);
+    }
+    
+    if (companyName) {
+      params.set('cn', companyName);
+    }
+    
+    if (companyWebsite) {
+      params.set('cw', companyWebsite);
+    }
+    
+    const url = `${window.location.origin}/salesforce-power?${params.toString()}#comparison-table`;
     
     navigator.clipboard.writeText(url).then(() => {
       setCopied(true);
       toast({
         title: "Link Copied!",
-        description: "Shortened link copied to clipboard",
+        description: "Share this personalized analysis",
       });
       setTimeout(() => setCopied(false), 2000);
     }).catch(() => {
@@ -403,7 +409,7 @@ const SalesforcePower = () => {
       setCopied(true);
       toast({
         title: "Link Copied!",
-        description: "Shortened link copied to clipboard",
+        description: "Share this personalized analysis",
       });
       setTimeout(() => setCopied(false), 2000);
     });
@@ -514,9 +520,10 @@ const SalesforcePower = () => {
         setShowProductRecommendation(true);
       }
       
+      // Simple success message
       toast({
-        title: "Company Intelligence Loaded",
-        description: `Enriched data for ${intelligence.companyData.companyName}`,
+        title: "✨ All personalized now",
+        description: `Ready for ${intelligence.companyData.companyName}`,
       });
     } catch (error) {
       console.error('Failed to enrich company:', error);
@@ -533,53 +540,10 @@ const SalesforcePower = () => {
 
   // Read company info from URL parameters on mount
   useEffect(() => {
-    // Check if URL has a short code
-    if (hasShortCode(searchParams)) {
-      const shortCode = getShortCode(searchParams);
-      console.log('🔗 Short code detected:', shortCode);
-      
-      if (shortCode) {
-        const decoded = decodeShortCode(shortCode);
-        console.log('📦 Decoded data:', decoded);
-        
-        if (decoded) {
-          // Apply decoded data immediately
-          if (decoded.companyName) {
-            console.log('Setting company name:', decoded.companyName);
-            setCompanyName(decoded.companyName);
-          }
-          
-          if (decoded.industry) {
-            console.log('Setting industry:', decoded.industry);
-            setSelectedIndustry(decoded.industry);
-          }
-          
-          if (decoded.companyWebsite) {
-            console.log('Setting website:', decoded.companyWebsite);
-            setCompanyWebsite(decoded.companyWebsite);
-            // Only fetch logo, don't enrich (to avoid overwriting the name)
-            fetchCompanyLogo(decoded.companyWebsite);
-            
-            // If no company name was provided, then enrich to get it
-            if (!decoded.companyName) {
-              enrichCompanyData(decoded.companyWebsite);
-            }
-          }
-          
-          console.log('✅ Restored from short URL successfully');
-          return; // Exit early, don't process regular params
-        } else {
-          console.error('❌ Failed to decode short code');
-        }
-      }
-    }
-    
-    // Fallback to regular URL parameters (for backwards compatibility)
-    const companyNameParam = searchParams.get('companyName');
-    const companyWebsiteParam = searchParams.get('companyWebsite');
+    // Read URL parameters (shortened keys: cn=company name, cw=company website)
+    const companyNameParam = searchParams.get('cn') || searchParams.get('companyName');
+    const companyWebsiteParam = searchParams.get('cw') || searchParams.get('companyWebsite');
     const industryParam = searchParams.get('industry');
-    
-    console.log('📋 Regular URL params:', { companyNameParam, companyWebsiteParam, industryParam });
     
     if (companyNameParam) {
       setCompanyName(decodeURIComponent(companyNameParam));
@@ -592,7 +556,7 @@ const SalesforcePower = () => {
     if (companyWebsiteParam) {
       const decodedWebsite = decodeURIComponent(companyWebsiteParam);
       setCompanyWebsite(decodedWebsite);
-      // Fetch logo and enrich company if website is provided
+      // Fetch logo
       fetchCompanyLogo(decodedWebsite);
       
       // Only enrich if no company name was provided
@@ -831,8 +795,9 @@ const SalesforcePower = () => {
     
     const handleHashChange = () => {
       if (window.location.hash === '#comparison-table') {
-        // Check if company info exists in state or URL params
-        const hasCompanyInParams = searchParams.get('companyName') || searchParams.get('companyWebsite');
+        // Check if company info exists in state or URL params (support both short and long params)
+        const hasCompanyInParams = searchParams.get('cn') || searchParams.get('companyName') || 
+                                    searchParams.get('cw') || searchParams.get('companyWebsite');
         
         // Check if this is a direct access (no company name set and no params)
         if (!companyName && !hasCompanyInParams) {
@@ -1101,33 +1066,22 @@ const SalesforcePower = () => {
                 </div>
                 
                 {/* Personalization Status */}
-                {(companyName || companyLogo) && (
+                {(companyName || companyWebsite || loadingIntelligence) && (
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-4 text-sm"
+                    className="mt-4 flex items-center justify-center text-sm"
                   >
-                    {companyName && (
-                      <span className="text-cyan-400">
-                        ✨ Personalized for {companyName}
-                      </span>
-                    )}
-                    {companyLogo && (
-                      <span className="text-green-400">
-                        🎨 Company logo loaded
-                      </span>
-                    )}
-                    {logoError && (
-                      <span className="text-yellow-400">
-                        ⚠️ Couldn't fetch logo
-                      </span>
-                    )}
-                    {loadingIntelligence && (
+                    {loadingIntelligence ? (
                       <span className="text-blue-400 flex items-center gap-2">
                         <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-                        Loading intelligence...
+                        Personalizing...
                       </span>
-                    )}
+                    ) : companyName ? (
+                      <span className="text-cyan-400 flex items-center gap-2">
+                        ✨ All personalized now
+                      </span>
+                    ) : null}
                   </motion.div>
                 )}
 
