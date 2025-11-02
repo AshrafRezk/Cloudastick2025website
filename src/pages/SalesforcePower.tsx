@@ -42,7 +42,8 @@ import {
   DollarSign,
   Clock,
   AlertTriangle,
-  Info
+  Info,
+  Building2
 } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import AnimatedSection from '../components/AnimatedSection';
@@ -57,6 +58,7 @@ import { formatWebsiteUrl } from '../services/logoService';
 import { enrichCompany, initCompanyIntelligence, CompanyIntelligence } from '../services/companyIntelligence';
 import ProductRecommendationBanner from '../components/ProductRecommendationBanner';
 import { normalizeWebsiteUrl, formatForLogoFetch } from '../utils/urlNormalizer';
+import { getClientsByIndustry } from '../utils/clientFilter';
 
 // Modern Carousel Hub and Spoke Component
 const HubAndSpokeVisualization = React.memo(({ 
@@ -1170,8 +1172,8 @@ const SalesforcePower = () => {
                       </div>
                     </div>
 
-                    {/* AI Insights & News Grid */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* AI Insights, News & Products Grid */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                       {/* AI Insights Panel */}
                       <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 rounded-2xl p-6 border border-purple-500/30 backdrop-blur-sm">
                         <h4 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
@@ -1182,6 +1184,26 @@ const SalesforcePower = () => {
                           {companyIntelligence.aiInsights}
                         </div>
                       </div>
+
+                      {/* Company Products */}
+                      {companyIntelligence.companyProducts && companyIntelligence.companyProducts.length > 0 && (
+                        <div className="bg-gradient-to-br from-green-900/30 to-emerald-900/30 rounded-2xl p-6 border border-green-500/30 backdrop-blur-sm">
+                          <h4 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                            📦 Their Products
+                          </h4>
+                          <div className="space-y-2">
+                            {companyIntelligence.companyProducts.map((product, index) => (
+                              <div
+                                key={index}
+                                className="flex items-start gap-2 p-2 bg-white/5 rounded-lg"
+                              >
+                                <div className="w-1.5 h-1.5 bg-green-400 rounded-full mt-2 flex-shrink-0"></div>
+                                <span className="text-gray-300 text-sm">{product}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
 
                       {/* Latest News */}
                       {companyIntelligence.news.length > 0 && (
@@ -1312,6 +1334,63 @@ const SalesforcePower = () => {
               </motion.div>
             </motion.div>
           </AnimatedSection>
+
+          {/* Trusted By - Industry-Specific Customers */}
+          {selectedIndustry && (() => {
+            const relevantClients = getClientsByIndustry(selectedIndustry);
+            return relevantClients.length > 0 ? (
+              <AnimatedSection className="mt-16">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6 }}
+                  className="text-center mb-8"
+                >
+                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">
+                    Trusted by Leading {selectedIndustryData?.name} Companies
+                  </h3>
+                  <p className="text-gray-400">
+                    Join industry leaders who have transformed their operations with Cloudastick
+                  </p>
+                </motion.div>
+
+                {/* Client Carousel */}
+                <div className="relative overflow-hidden">
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.6, delay: 0.2 }}
+                    className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory"
+                  >
+                    {relevantClients.map((client, index) => (
+                      <motion.div
+                        key={client.id}
+                        initial={{ opacity: 0, x: 50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.5, delay: index * 0.1 }}
+                        className="flex-shrink-0 w-72 snap-center"
+                      >
+                        <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-xl p-6 border border-gray-700 hover:border-cyan-500/50 transition-all duration-300 h-full backdrop-blur-sm">
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center p-2">
+                              <Building2 className="w-full h-full text-gray-800" />
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-white">{client.name}</h4>
+                              <p className="text-xs text-cyan-400">{client.industry}</p>
+                            </div>
+                          </div>
+                          <p className="text-gray-400 text-sm line-clamp-3">
+                            {client.description}
+                          </p>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                </div>
+              </AnimatedSection>
+            ) : null;
+          })()}
         </div>
       </section>
 

@@ -35,6 +35,7 @@ export interface CompanyIntelligence {
     dataCloud: string;  // Data cloud
     tailored: string;   // Tailored solutions
   } | null;
+  companyProducts: string[]; // List of company's products/services
   recommendedProduct: {
     productId: string;
     productName: string;
@@ -291,6 +292,52 @@ Write in plain professional prose. No special characters or formatting. Sound na
 };
 
 /**
+ * Extract company products/services using Gemini
+ */
+const extractCompanyProducts = async (companyData: CompanyData, news: NewsArticle[]): Promise<string[]> => {
+  const newsContext = news.length > 0
+    ? `Recent news mentions: ${news.slice(0, 2).map(n => n.title).join('; ')}`
+    : '';
+  
+  const prompt = `Based on the following information, list the main products or services offered by ${companyData.companyName} (${companyData.industry}). ${newsContext}
+
+Provide a concise list of 3-5 main products or services. Format as a simple comma-separated list. NO bullet points, NO numbers, NO special characters. Just product/service names separated by commas.
+
+Example format: Product A, Product B, Product C
+
+Keep it simple and professional.`;
+
+  try {
+    const response = await fetch('/.netlify/functions/cloudiator', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ prompt }),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to extract products: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    const productsText = data.response || '';
+    
+    // Parse comma-separated list
+    const products = productsText
+      .split(',')
+      .map(p => p.trim())
+      .filter(p => p.length > 0 && p.length < 100) // Valid product names
+      .slice(0, 5); // Max 5 products
+    
+    return products;
+  } catch (error) {
+    console.error('Failed to extract products:', error);
+    return [];
+  }
+};
+
+/**
  * Generate AI insights using existing Gemini integration (legacy format)
  */
 const generateAIInsights = async (companyData: CompanyData, news: NewsArticle[]): Promise<string> => {
@@ -356,11 +403,12 @@ export const enrichCompany = async (domain: string, forceRefresh = false): Promi
     console.log('🔍 Refining industry from news context...');
     companyData = refineIndustryFromNews(companyData, newsData.articles);
     
-    // Step 4: Generate AI insights (both legacy and structured)
-    console.log('🤖 Generating AI insights...');
-    const [aiInsights, structuredInsights] = await Promise.all([
+    // Step 4: Generate AI insights and extract products (parallel)
+    console.log('🤖 Generating AI insights and extracting products...');
+    const [aiInsights, structuredInsights, companyProducts] = await Promise.all([
       generateAIInsights(companyData, newsData.articles),
-      generateStructuredInsights(companyData, newsData.articles)
+      generateStructuredInsights(companyData, newsData.articles),
+      extractCompanyProducts(companyData, newsData.articles)
     ]);
     
     // Step 5: Get product recommendation
@@ -374,6 +422,7 @@ export const enrichCompany = async (domain: string, forceRefresh = false): Promi
       events: newsData.events || [],
       aiInsights,
       structuredInsights,
+      companyProducts,
       recommendedProduct,
       timestamp: Date.now(),
       expiresAt: Date.now() + CACHE_DURATION,
