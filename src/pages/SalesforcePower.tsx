@@ -1418,17 +1418,17 @@ const SalesforcePower = () => {
                       className="flex-shrink-0 group cursor-pointer"
                       onClick={() => handleClientClick(client)}
                     >
-                      <div className="bg-white hover:bg-white/95 backdrop-blur-sm rounded-xl p-4 border border-gray-300 hover:border-cyan-400 hover:shadow-lg hover:shadow-cyan-500/20 transition-all duration-300 w-48 h-28 flex items-center justify-center">
+                      <div className="bg-gradient-to-br from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 backdrop-blur-sm rounded-xl p-6 border border-gray-600 hover:border-cyan-400 hover:shadow-lg hover:shadow-cyan-500/30 transition-all duration-300 w-56 h-32 flex items-center justify-center">
                         <img
                           src={getClientLogoPath(client.name, client.industry)}
                           alt={client.name}
-                          className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                          className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-300 filter brightness-0 invert"
                           onError={(e) => {
                             // Fallback to text if image fails
                             e.currentTarget.style.display = 'none';
                             const parent = e.currentTarget.parentElement;
                             if (parent) {
-                              parent.innerHTML = `<div class="text-center"><h4 class="font-bold text-gray-800 text-lg">${client.name}</h4><p class="text-xs text-gray-600 mt-1">${client.industry}</p></div>`;
+                              parent.innerHTML = `<div class="text-center"><h4 class="font-bold text-white text-base">${client.name}</h4><p class="text-xs text-gray-400 mt-1">${client.industry}</p></div>`;
                             }
                           }}
                         />
