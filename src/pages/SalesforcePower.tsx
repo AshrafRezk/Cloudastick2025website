@@ -1185,21 +1185,25 @@ const SalesforcePower = () => {
                         </div>
                       </div>
 
-                      {/* Company Products */}
+                      {/* Company Products Carousel */}
                       {companyIntelligence.companyProducts && companyIntelligence.companyProducts.length > 0 && (
                         <div className="bg-gradient-to-br from-green-900/30 to-emerald-900/30 rounded-2xl p-6 border border-green-500/30 backdrop-blur-sm">
-                          <h4 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                            📦 Their Products
+                          <h4 className="text-base font-bold text-white mb-4">
+                            Manage, market, and sell {companyIntelligence.companyData.companyName}'s products better
                           </h4>
-                          <div className="space-y-2">
+                          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                             {companyIntelligence.companyProducts.map((product, index) => (
-                              <div
+                              <motion.div
                                 key={index}
-                                className="flex items-start gap-2 p-2 bg-white/5 rounded-lg"
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ duration: 0.3, delay: index * 0.1 }}
+                                className="flex-shrink-0"
                               >
-                                <div className="w-1.5 h-1.5 bg-green-400 rounded-full mt-2 flex-shrink-0"></div>
-                                <span className="text-gray-300 text-sm">{product}</span>
-                              </div>
+                                <div className="px-4 py-2 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-400/30 rounded-full">
+                                  <span className="text-green-300 text-sm font-medium whitespace-nowrap">{product}</span>
+                                </div>
+                              </motion.div>
                             ))}
                           </div>
                         </div>

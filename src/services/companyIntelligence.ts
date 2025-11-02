@@ -274,12 +274,15 @@ Write in plain professional prose. No special characters or formatting. Sound na
   // Clean function to remove any markdown formatting
   const cleanText = (text: string): string => {
     return text
+      .replace(/\*\*\./g, '.')     // Remove **. pattern
       .replace(/\*\*/g, '')        // Remove bold markers
-      .replace(/\*/g, '')          // Remove italic markers
-      .replace(/^[-•]\s*/gm, '')   // Remove bullet points
+      .replace(/\* \*\*/g, '')     // Remove * ** pattern
+      .replace(/\*/g, '')          // Remove all asterisks
+      .replace(/^[•-]\s*/gm, '')  // Remove bullet points
       .replace(/#{1,6}\s*/g, '')   // Remove headers
       .replace(/—/g, '-')          // Replace em dash
       .replace(/[\u{1F300}-\u{1F9FF}]/gu, '') // Remove all emojis
+      .replace(/^\s*\.\s*/gm, '')  // Remove lone periods
       .trim();
   };
   
@@ -345,7 +348,7 @@ const generateAIInsights = async (companyData: CompanyData, news: NewsArticle[])
     ? `Recent news about ${companyData.companyName}: ${news.slice(0, 2).map(n => n.title).join('; ')}`
     : '';
   
-  const prompt = `You are a Salesforce solutions expert. Based on the following company information, provide 2-3 concise bullet points (max 50 words each) on how Salesforce could specifically help this company:
+  const prompt = `You are a Salesforce solutions expert. Based on the following company information, provide 2-3 concise insights (max 50 words each) on how Salesforce could specifically help this company:
 
 Company: ${companyData.companyName}
 Industry: ${companyData.industry}
@@ -356,7 +359,7 @@ Focus on:
 2. Key pain points Salesforce solves in this industry
 3. Competitive advantages they would gain
 
-Keep responses professional, specific, and benefit-focused. Use bullet points starting with "•".`;
+Write in plain professional prose. NO asterisks, NO bullet points, NO markdown, NO special characters. Number each point (1., 2., 3.) and separate with line breaks.`;
 
   const response = await fetch('/.netlify/functions/cloudiator', {
     method: 'POST',
@@ -371,7 +374,22 @@ Keep responses professional, specific, and benefit-focused. Use bullet points st
   }
   
   const data = await response.json();
-  return data.response || 'Unable to generate insights at this time.';
+  const rawResponse = data.response || 'Unable to generate insights at this time.';
+  
+  // Clean the response thoroughly - remove ALL markdown and special formatting
+  const cleaned = rawResponse
+    .replace(/\*\*\./g, '.')        // Remove **. pattern
+    .replace(/\*\*/g, '')           // Remove bold markers
+    .replace(/\* \*\*/g, '')        // Remove * ** pattern
+    .replace(/\*/g, '')             // Remove all asterisks
+    .replace(/^[•-]\s*/gm, '')      // Remove bullet points
+    .replace(/#{1,6}\s*/g, '')      // Remove headers
+    .replace(/—/g, '-')             // Replace em dash
+    .replace(/[\u{1F300}-\u{1F9FF}]/gu, '') // Remove emojis
+    .replace(/^\s*\.\s*/gm, '')     // Remove lone periods at start of lines
+    .trim();
+  
+  return cleaned;
 };
 
 /**
