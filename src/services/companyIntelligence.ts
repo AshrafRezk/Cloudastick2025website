@@ -330,8 +330,31 @@ Keep it simple and professional.`;
     const products = productsText
       .split(',')
       .map(p => p.trim())
-      .filter(p => p.length > 0 && p.length < 100) // Valid product names
+      .filter(p => {
+        // Filter out invalid products
+        if (p.length === 0 || p.length > 100) return false;
+        
+        // Filter out error messages or generic responses
+        const lowerP = p.toLowerCase();
+        if (lowerP.includes('based on') || 
+            lowerP.includes('missing') || 
+            lowerP.includes('context') ||
+            lowerP.includes('unable') ||
+            lowerP.includes('cannot') ||
+            lowerP.includes('sorry') ||
+            lowerP.includes('i don') ||
+            lowerP.includes('no information')) {
+          return false;
+        }
+        
+        return true;
+      })
       .slice(0, 5); // Max 5 products
+    
+    // If we got no valid products or only error messages, return empty
+    if (products.length === 0) {
+      return [];
+    }
     
     return products;
   } catch (error) {
