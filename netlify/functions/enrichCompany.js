@@ -94,8 +94,8 @@ exports.handler = async (event, context) => {
       }
       
       // Tech keywords
-      if (lowerDomain.match(/tech|software|digital|cloud|ai|data|cyber/)) {
-        return { industry: 'Technology', normalized: 'other' };
+      if (lowerDomain.match(/tech|software|digital|cloud|ai|data|cyber|it-|saas|app/)) {
+        return { industry: 'Technology', normalized: 'technology' };
       }
       
       // Healthcare keywords

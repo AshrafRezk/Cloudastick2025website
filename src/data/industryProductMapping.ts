@@ -126,6 +126,16 @@ export const industryMappings: IndustryMapping[] = [
     }
   },
   {
+    id: 'technology',
+    names: ['Technology', 'Software', 'IT Services', 'SaaS', 'Tech Consulting'],
+    keywords: ['technology', 'software', 'tech', 'it', 'saas', 'digital', 'cloud', 'ai', 'data', 'cyber', 'app'],
+    recommendedProduct: null,
+    salesforceConfig: {
+      primaryCloud: ['Sales Cloud', 'Service Cloud', 'Marketing Cloud'],
+      keyFeatures: ['IT Service Management', 'Sales Automation', 'Customer Success', 'Professional Services Automation']
+    }
+  },
+  {
     id: 'other',
     names: ['Other', 'General', 'Unknown'],
     keywords: [],

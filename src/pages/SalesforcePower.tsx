@@ -520,18 +520,19 @@ const SalesforcePower = () => {
       
       // Auto-select industry based on detection (user can change it)
       if (intelligence.companyData.normalizedIndustry && !selectedIndustry) {
-        // Map normalized industry to our industry IDs
+        // Map normalized industry to our industry card IDs (closest matches)
         const industryMapping: { [key: string]: string } = {
           'real-estate': 'real-estate',
-          'construction': 'manufacturing', // closest match
-          'insurance': 'insurance',
+          'construction': 'manufacturing', // Construction → Manufacturing (closest)
+          'insurance': 'financial-services', // Insurance → Financial Services
           'manufacturing': 'manufacturing',
-          'travel-tourism': 'travel',
-          'education': 'education',
-          'retail': 'retail',
-          'healthcare': 'healthcare',
+          'travel-tourism': 'travel-tourism',
+          'education': 'professional-services', // Education → Professional Services (consulting)
+          'retail': 'retail-b2c',
+          'healthcare': 'healthcare-life-sciences',
           'finance': 'financial-services',
-          'other': 'retail' // default fallback
+          'technology': 'professional-services', // Technology → Professional Services (IT consulting)
+          'other': 'professional-services' // Default → Professional Services
         };
         
         const industryId = industryMapping[intelligence.companyData.normalizedIndustry];
