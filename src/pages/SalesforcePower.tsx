@@ -54,6 +54,9 @@ import { industries, getIndustryById } from '../data/industries';
 import { useToast } from '../hooks/use-toast';
 import CompanyLogo from '../components/CompanyLogo';
 import { formatWebsiteUrl } from '../services/logoService';
+import { enrichCompany, initCompanyIntelligence, CompanyIntelligence } from '../services/companyIntelligence';
+import ProductRecommendationBanner from '../components/ProductRecommendationBanner';
+import { generateShortCode, decodeShortCode, hasShortCode, getShortCode } from '../utils/urlShortener';
 
 // Modern Carousel Hub and Spoke Component
 const HubAndSpokeVisualization = React.memo(({ 
@@ -355,6 +358,9 @@ const SalesforcePower = () => {
     width: typeof window !== 'undefined' && window.innerWidth < 768 ? Math.min(window.innerWidth - 48, 350) : 800,
     height: typeof window !== 'undefined' && window.innerWidth < 768 ? 350 : 600 
   });
+  const [companyIntelligence, setCompanyIntelligence] = useState<CompanyIntelligence | null>(null);
+  const [loadingIntelligence, setLoadingIntelligence] = useState<boolean>(false);
+  const [showProductRecommendation, setShowProductRecommendation] = useState<boolean>(false);
 
   // Memoized hover handler to prevent unnecessary re-renders
   const handleProductHover = useCallback((productId: string | null) => {
@@ -363,29 +369,22 @@ const SalesforcePower = () => {
 
   // Copy table link function
   const copyTableLink = () => {
-    // Build URL parameters
-    const params = new URLSearchParams();
-    params.set('lang', language);
+    // Generate short URL code
+    const shortCode = generateShortCode({
+      companyName: companyName || undefined,
+      companyWebsite: companyWebsite || undefined,
+      industry: selectedIndustry || undefined,
+      language: language,
+    });
     
-    if (selectedIndustry) {
-      params.set('industry', selectedIndustry);
-    }
-    
-    if (companyName) {
-      params.set('companyName', companyName);
-    }
-    
-    if (companyWebsite) {
-      params.set('companyWebsite', companyWebsite);
-    }
-    
-    const url = `${window.location.origin}/salesforce-power?${params.toString()}#comparison-table`;
+    // Build shortened URL
+    const url = `${window.location.origin}/salesforce-power?s=${shortCode}#comparison-table`;
     
     navigator.clipboard.writeText(url).then(() => {
       setCopied(true);
       toast({
         title: "Link Copied!",
-        description: "Table link copied to clipboard",
+        description: "Shortened link copied to clipboard",
       });
       setTimeout(() => setCopied(false), 2000);
     }).catch(() => {
@@ -404,7 +403,7 @@ const SalesforcePower = () => {
       setCopied(true);
       toast({
         title: "Link Copied!",
-        description: "Table link copied to clipboard",
+        description: "Shortened link copied to clipboard",
       });
       setTimeout(() => setCopied(false), 2000);
     });
@@ -481,21 +480,86 @@ const SalesforcePower = () => {
     const value = e.target.value;
     setCompanyWebsite(value);
     
-    // Auto-fetch logo when user stops typing (debounced)
+    // Auto-fetch logo and enrich company when user stops typing (debounced)
     if (value.trim()) {
       const timeoutId = setTimeout(() => {
         fetchCompanyLogo(value);
-      }, 1000);
+        enrichCompanyData(value);
+      }, 1500); // Slightly longer delay for enrichment
       
       return () => clearTimeout(timeoutId);
     } else {
       setCompanyLogo(null);
       setLogoError(false);
+      setCompanyIntelligence(null);
     }
   };
 
+  // Enrich company data function
+  const enrichCompanyData = async (website: string) => {
+    if (!website.trim() || loadingIntelligence) return;
+    
+    setLoadingIntelligence(true);
+    try {
+      const intelligence = await enrichCompany(website);
+      setCompanyIntelligence(intelligence);
+      
+      // Auto-fill company name if not already set
+      if (!companyName && intelligence.companyData.companyName) {
+        setCompanyName(intelligence.companyData.companyName);
+      }
+      
+      // Show product recommendation if available
+      if (intelligence.recommendedProduct) {
+        setShowProductRecommendation(true);
+      }
+      
+      toast({
+        title: "Company Intelligence Loaded",
+        description: `Enriched data for ${intelligence.companyData.companyName}`,
+      });
+    } catch (error) {
+      console.error('Failed to enrich company:', error);
+      // Don't show error toast - graceful degradation
+    } finally {
+      setLoadingIntelligence(false);
+    }
+  };
+
+  // Initialize company intelligence service on mount
+  useEffect(() => {
+    initCompanyIntelligence();
+  }, []);
+
   // Read company info from URL parameters on mount
   useEffect(() => {
+    // Check if URL has a short code
+    if (hasShortCode(searchParams)) {
+      const shortCode = getShortCode(searchParams);
+      if (shortCode) {
+        const decoded = decodeShortCode(shortCode);
+        if (decoded) {
+          // Apply decoded data
+          if (decoded.companyName) {
+            setCompanyName(decoded.companyName);
+          }
+          if (decoded.industry) {
+            setSelectedIndustry(decoded.industry);
+          }
+          if (decoded.companyWebsite) {
+            setCompanyWebsite(decoded.companyWebsite);
+            // Fetch logo and enrich company
+            fetchCompanyLogo(decoded.companyWebsite);
+            enrichCompanyData(decoded.companyWebsite);
+          }
+          
+          console.log('✨ Restored from short URL:', decoded);
+          return;
+        }
+      }
+    }
+    
+    // Fallback to regular URL parameters (for backwards compatibility)
     const companyNameParam = searchParams.get('companyName');
     const companyWebsiteParam = searchParams.get('companyWebsite');
     
@@ -506,8 +570,9 @@ const SalesforcePower = () => {
     if (companyWebsiteParam) {
       const decodedWebsite = decodeURIComponent(companyWebsiteParam);
       setCompanyWebsite(decodedWebsite);
-      // Fetch logo if website is provided
+      // Fetch logo and enrich company if website is provided
       fetchCompanyLogo(decodedWebsite);
+      enrichCompanyData(decodedWebsite);
     }
   }, [searchParams, fetchCompanyLogo]);
 
@@ -804,6 +869,18 @@ const SalesforcePower = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white" dir={isRTL ? 'rtl' : 'ltr'}>
+      {/* Product Recommendation Banner */}
+      {companyIntelligence?.recommendedProduct && (
+        <ProductRecommendationBanner
+          productName={companyIntelligence.recommendedProduct.productName}
+          productPath={companyIntelligence.recommendedProduct.productPath}
+          message={companyIntelligence.recommendedProduct.message}
+          icon={companyIntelligence.recommendedProduct.icon}
+          onDismiss={() => setShowProductRecommendation(false)}
+          isVisible={showProductRecommendation}
+        />
+      )}
+
       <Helmet>
         <title>
           {selectedIndustryData 
@@ -1009,6 +1086,85 @@ const SalesforcePower = () => {
                         ⚠️ Couldn't fetch logo
                       </span>
                     )}
+                    {loadingIntelligence && (
+                      <span className="text-blue-400 flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                        Loading intelligence...
+                      </span>
+                    )}
+                  </motion.div>
+                )}
+
+                {/* Company Intelligence Display */}
+                {companyIntelligence && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-8 space-y-6"
+                  >
+                    {/* Company Info Card */}
+                    <div className="bg-gradient-to-br from-blue-900/30 to-purple-900/30 rounded-2xl p-6 border border-cyan-500/30 backdrop-blur-sm">
+                      <div className="flex flex-wrap items-center gap-4">
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl">{companyIntelligence.recommendedProduct?.icon || '🏢'}</span>
+                          <div>
+                            <h4 className="text-xl font-bold text-white">{companyIntelligence.companyData.companyName}</h4>
+                            <p className="text-cyan-300 text-sm">{companyIntelligence.companyData.industry}</p>
+                          </div>
+                        </div>
+                        {companyIntelligence.companyData.location && (
+                          <span className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-xs">
+                            📍 {companyIntelligence.companyData.location}
+                          </span>
+                        )}
+                        {companyIntelligence.companyData.employeeCount && (
+                          <span className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-xs">
+                            👥 {companyIntelligence.companyData.employeeCount} employees
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* AI Insights & News Grid */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      {/* AI Insights Panel */}
+                      <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 rounded-2xl p-6 border border-purple-500/30 backdrop-blur-sm">
+                        <h4 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                          <Sparkles className="w-5 h-5 text-yellow-400" />
+                          How Salesforce Can Help
+                        </h4>
+                        <div className="text-gray-300 text-sm leading-relaxed whitespace-pre-line">
+                          {companyIntelligence.aiInsights}
+                        </div>
+                      </div>
+
+                      {/* Latest News */}
+                      {companyIntelligence.news.length > 0 && (
+                        <div className="bg-gradient-to-br from-cyan-900/30 to-blue-900/30 rounded-2xl p-6 border border-cyan-500/30 backdrop-blur-sm">
+                          <h4 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                            📰 Latest News
+                          </h4>
+                          <div className="space-y-3">
+                            {companyIntelligence.news.slice(0, 3).map((article, index) => (
+                              <a
+                                key={index}
+                                href={article.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="block p-3 bg-white/5 hover:bg-white/10 rounded-lg transition-all duration-200 group"
+                              >
+                                <p className="text-cyan-300 font-semibold text-sm mb-1 group-hover:text-cyan-200 line-clamp-2">
+                                  {article.title}
+                                </p>
+                                <p className="text-gray-400 text-xs">
+                                  {article.source} • {new Date(article.publishedAt).toLocaleDateString()}
+                                </p>
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </motion.div>
                 )}
               </motion.div>
