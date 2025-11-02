@@ -44,7 +44,7 @@ import {
   AlertTriangle,
   Info
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import AnimatedSection from '../components/AnimatedSection';
 import Button from '../components/Button';
 import LeadCaptureModal from '../components/LeadCaptureModal';
@@ -335,6 +335,7 @@ HubAndSpokeVisualization.displayName = 'HubAndSpokeVisualization';
 const SalesforcePower = () => {
   const { t, isRTL, language } = useLanguage();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
   const [selectedIndustry, setSelectedIndustry] = useState<string | null>(null);
   const [currentSection, setCurrentSection] = useState(0);
   const [showPlatformOverview, setShowPlatformOverview] = useState(false);
@@ -362,7 +363,23 @@ const SalesforcePower = () => {
 
   // Copy table link function
   const copyTableLink = () => {
-    const url = `${window.location.origin}/salesforce-power${selectedIndustry ? `?industry=${selectedIndustry}&lang=${language}` : `?lang=${language}`}#comparison-table`;
+    // Build URL parameters
+    const params = new URLSearchParams();
+    params.set('lang', language);
+    
+    if (selectedIndustry) {
+      params.set('industry', selectedIndustry);
+    }
+    
+    if (companyName) {
+      params.set('companyName', companyName);
+    }
+    
+    if (companyWebsite) {
+      params.set('companyWebsite', companyWebsite);
+    }
+    
+    const url = `${window.location.origin}/salesforce-power?${params.toString()}#comparison-table`;
     
     navigator.clipboard.writeText(url).then(() => {
       setCopied(true);
@@ -476,6 +493,23 @@ const SalesforcePower = () => {
       setLogoError(false);
     }
   };
+
+  // Read company info from URL parameters on mount
+  useEffect(() => {
+    const companyNameParam = searchParams.get('companyName');
+    const companyWebsiteParam = searchParams.get('companyWebsite');
+    
+    if (companyNameParam) {
+      setCompanyName(decodeURIComponent(companyNameParam));
+    }
+    
+    if (companyWebsiteParam) {
+      const decodedWebsite = decodeURIComponent(companyWebsiteParam);
+      setCompanyWebsite(decodedWebsite);
+      // Fetch logo if website is provided
+      fetchCompanyLogo(decodedWebsite);
+    }
+  }, [searchParams, fetchCompanyLogo]);
 
   // CSV download function
   const downloadComparisonCSV = () => {
@@ -706,12 +740,15 @@ const SalesforcePower = () => {
     
     const handleHashChange = () => {
       if (window.location.hash === '#comparison-table') {
-        // Check if this is a direct access (no company name set)
-        if (!companyName) {
+        // Check if company info exists in state or URL params
+        const hasCompanyInParams = searchParams.get('companyName') || searchParams.get('companyWebsite');
+        
+        // Check if this is a direct access (no company name set and no params)
+        if (!companyName && !hasCompanyInParams) {
           setIsDirectAccess(true);
           setShowLeadModal(true);
         } else {
-          // If company name is already set, just scroll to the table
+          // If company name is already set or provided via params, just scroll to the table
           const tableElement = document.getElementById('comparison-table');
           if (tableElement) {
             tableElement.scrollIntoView({ 
@@ -732,7 +769,7 @@ const SalesforcePower = () => {
     return () => {
       window.removeEventListener('hashchange', handleHashChange);
     };
-  }, [companyName]);
+  }, [companyName, searchParams]);
 
   // Handle hub dimensions resize
   useEffect(() => {
