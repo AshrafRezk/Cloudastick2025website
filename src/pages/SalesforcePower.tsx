@@ -59,6 +59,9 @@ import { enrichCompany, initCompanyIntelligence, CompanyIntelligence } from '../
 import ProductRecommendationBanner from '../components/ProductRecommendationBanner';
 import { normalizeWebsiteUrl, formatForLogoFetch } from '../utils/urlNormalizer';
 import { getClientsByIndustry } from '../utils/clientFilter';
+import { getClientLogoPath } from '../utils/clientLogoHelper';
+import ClientModal from '../components/ClientModal';
+import { ClientInfo } from '../data/clientsData';
 
 // Modern Carousel Hub and Spoke Component
 const HubAndSpokeVisualization = React.memo(({ 
@@ -363,11 +366,20 @@ const SalesforcePower = () => {
   const [companyIntelligence, setCompanyIntelligence] = useState<CompanyIntelligence | null>(null);
   const [loadingIntelligence, setLoadingIntelligence] = useState<boolean>(false);
   const [showProductRecommendation, setShowProductRecommendation] = useState<boolean>(false);
+  const [selectedClient, setSelectedClient] = useState<ClientInfo | null>(null);
+  const [showClientModal, setShowClientModal] = useState<boolean>(false);
 
   // Memoized hover handler to prevent unnecessary re-renders
   const handleProductHover = useCallback((productId: string | null) => {
     setHoveredProduct(productId);
   }, []);
+
+  // Handle client logo click
+  const handleClientClick = (client: ClientInfo) => {
+    triggerHaptic([10, 5, 10], '/Assets/selection4new.mp3');
+    setSelectedClient(client);
+    setShowClientModal(true);
+  };
 
   // Copy table link function
   const copyTableLink = () => {
@@ -920,6 +932,13 @@ const SalesforcePower = () => {
         />
       )}
 
+      {/* Client Info Modal */}
+      <ClientModal
+        isOpen={showClientModal}
+        onClose={() => setShowClientModal(false)}
+        client={selectedClient}
+      />
+
       <Helmet>
         <title>
           {selectedIndustryData 
@@ -1396,15 +1415,23 @@ const SalesforcePower = () => {
                   {[...relevantClients, ...relevantClients].map((client, index) => (
                     <div
                       key={`${client.id}-${index}`}
-                      className="flex-shrink-0 group"
+                      className="flex-shrink-0 group cursor-pointer"
+                      onClick={() => handleClientClick(client)}
                     >
-                      <div className="bg-white/5 hover:bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-gray-700 hover:border-cyan-500/50 transition-all duration-300 w-48 h-24 flex items-center justify-center">
-                        <div className="text-center">
-                          <h4 className="font-bold text-white text-lg group-hover:text-cyan-300 transition-colors">
-                            {client.name}
-                          </h4>
-                          <p className="text-xs text-gray-500 mt-1">{client.industry}</p>
-                        </div>
+                      <div className="bg-white hover:bg-white/95 backdrop-blur-sm rounded-xl p-4 border border-gray-300 hover:border-cyan-400 hover:shadow-lg hover:shadow-cyan-500/20 transition-all duration-300 w-48 h-28 flex items-center justify-center">
+                        <img
+                          src={getClientLogoPath(client.name, client.industry)}
+                          alt={client.name}
+                          className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                          onError={(e) => {
+                            // Fallback to text if image fails
+                            e.currentTarget.style.display = 'none';
+                            const parent = e.currentTarget.parentElement;
+                            if (parent) {
+                              parent.innerHTML = `<div class="text-center"><h4 class="font-bold text-gray-800 text-lg">${client.name}</h4><p class="text-xs text-gray-600 mt-1">${client.industry}</p></div>`;
+                            }
+                          }}
+                        />
                       </div>
                     </div>
                   ))}
