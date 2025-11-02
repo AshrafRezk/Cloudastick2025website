@@ -1172,9 +1172,9 @@ const SalesforcePower = () => {
                       </div>
                     </div>
 
-                    {/* AI Insights, News & Products Grid */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                      {/* AI Insights Panel */}
+                    {/* AI Insights & Products - Stacked Layout */}
+                    <div className="space-y-6">
+                      {/* AI Insights Panel - Full Width */}
                       <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 rounded-2xl p-6 border border-purple-500/30 backdrop-blur-sm">
                         <h4 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                           <Sparkles className="w-5 h-5 text-yellow-400" />
@@ -1185,13 +1185,13 @@ const SalesforcePower = () => {
                         </div>
                       </div>
 
-                      {/* Company Products Carousel */}
+                      {/* Company Products Carousel - Full Width */}
                       {companyIntelligence.companyProducts && companyIntelligence.companyProducts.length > 0 && (
                         <div className="bg-gradient-to-br from-green-900/30 to-emerald-900/30 rounded-2xl p-6 border border-green-500/30 backdrop-blur-sm">
                           <h4 className="text-base font-bold text-white mb-4">
                             Manage, market, and sell {companyIntelligence.companyData.companyName}'s products better
                           </h4>
-                          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
                             {companyIntelligence.companyProducts.map((product, index) => (
                               <motion.div
                                 key={index}
@@ -1200,7 +1200,7 @@ const SalesforcePower = () => {
                                 transition={{ duration: 0.3, delay: index * 0.1 }}
                                 className="flex-shrink-0"
                               >
-                                <div className="px-4 py-2 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-400/30 rounded-full">
+                                <div className="px-5 py-3 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-400/30 rounded-full hover:from-green-500/30 hover:to-emerald-500/30 transition-all duration-200">
                                   <span className="text-green-300 text-sm font-medium whitespace-nowrap">{product}</span>
                                 </div>
                               </motion.div>
@@ -1209,22 +1209,22 @@ const SalesforcePower = () => {
                         </div>
                       )}
 
-                      {/* Latest News */}
+                      {/* Latest News - Full Width */}
                       {companyIntelligence.news.length > 0 && (
                         <div className="bg-gradient-to-br from-cyan-900/30 to-blue-900/30 rounded-2xl p-6 border border-cyan-500/30 backdrop-blur-sm">
                           <h4 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                             📰 Latest News
                           </h4>
-                          <div className="space-y-3">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             {companyIntelligence.news.slice(0, 3).map((article, index) => (
                               <a
                                 key={index}
                                 href={article.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="block p-3 bg-white/5 hover:bg-white/10 rounded-lg transition-all duration-200 group"
+                                className="block p-4 bg-white/5 hover:bg-white/10 rounded-lg transition-all duration-200 group"
                               >
-                                <p className="text-cyan-300 font-semibold text-sm mb-1 group-hover:text-cyan-200 line-clamp-2">
+                                <p className="text-cyan-300 font-semibold text-sm mb-2 group-hover:text-cyan-200 line-clamp-2">
                                   {article.title}
                                 </p>
                                 <p className="text-gray-400 text-xs">
@@ -1339,64 +1339,68 @@ const SalesforcePower = () => {
             </motion.div>
           </AnimatedSection>
 
-          {/* Trusted By - Industry-Specific Customers */}
-          {selectedIndustry && (() => {
-            const relevantClients = getClientsByIndustry(selectedIndustry);
-            return relevantClients.length > 0 ? (
-              <AnimatedSection className="mt-16">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6 }}
-                  className="text-center mb-8"
-                >
-                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">
-                    Trusted by Leading {selectedIndustryData?.name} Companies
-                  </h3>
-                  <p className="text-gray-400">
-                    Join industry leaders who have transformed their operations with Cloudastick
-                  </p>
-                </motion.div>
-
-                {/* Client Carousel */}
-                <div className="relative overflow-hidden">
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.6, delay: 0.2 }}
-                    className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory"
-                  >
-                    {relevantClients.map((client, index) => (
-                      <motion.div
-                        key={client.id}
-                        initial={{ opacity: 0, x: 50 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.5, delay: index * 0.1 }}
-                        className="flex-shrink-0 w-72 snap-center"
-                      >
-                        <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-xl p-6 border border-gray-700 hover:border-cyan-500/50 transition-all duration-300 h-full backdrop-blur-sm">
-                          <div className="flex items-center gap-3 mb-4">
-                            <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center p-2">
-                              <Building2 className="w-full h-full text-gray-800" />
-                            </div>
-                            <div>
-                              <h4 className="font-bold text-white">{client.name}</h4>
-                              <p className="text-xs text-cyan-400">{client.industry}</p>
-                            </div>
-                          </div>
-                          <p className="text-gray-400 text-sm line-clamp-3">
-                            {client.description}
-                          </p>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </motion.div>
-                </div>
-              </AnimatedSection>
-            ) : null;
-          })()}
         </div>
       </section>
+
+      {/* Trusted By - Auto-Moving Logo Carousel */}
+      {selectedIndustry && (() => {
+        const relevantClients = getClientsByIndustry(selectedIndustry);
+        return relevantClients.length > 0 ? (
+          <section className="py-12 relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="text-center mb-10"
+              >
+                <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">
+                  Trusted by Leading {selectedIndustryData?.name} Companies
+                </h3>
+                <p className="text-gray-400 text-sm">
+                  Join industry leaders who have transformed their operations with Cloudastick
+                </p>
+              </motion.div>
+
+              {/* Auto-Moving Logo Carousel */}
+              <div className="relative overflow-hidden">
+                <motion.div
+                  className="flex gap-12 items-center"
+                  animate={{
+                    x: [0, -1000],
+                  }}
+                  transition={{
+                    duration: 20,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
+                >
+                  {/* Duplicate clients for seamless loop */}
+                  {[...relevantClients, ...relevantClients].map((client, index) => (
+                    <div
+                      key={`${client.id}-${index}`}
+                      className="flex-shrink-0 group"
+                    >
+                      <div className="bg-white/5 hover:bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-gray-700 hover:border-cyan-500/50 transition-all duration-300 w-48 h-24 flex items-center justify-center">
+                        <div className="text-center">
+                          <h4 className="font-bold text-white text-lg group-hover:text-cyan-300 transition-colors">
+                            {client.name}
+                          </h4>
+                          <p className="text-xs text-gray-500 mt-1">{client.industry}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </motion.div>
+              </div>
+
+              {/* Gradient Fade Edges */}
+              <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-gray-900 to-transparent pointer-events-none z-10"></div>
+              <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-gray-900 to-transparent pointer-events-none z-10"></div>
+            </div>
+          </section>
+        ) : null;
+      })()}
 
       {/* Platform Overview Section */}
       <section ref={platformRef} className="py-10 sm:py-16 md:py-20 relative overflow-hidden">
