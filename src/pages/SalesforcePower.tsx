@@ -496,7 +496,7 @@ const SalesforcePower = () => {
   };
 
   // Enrich company data function
-  const enrichCompanyData = async (website: string) => {
+  const enrichCompanyData = useCallback(async (website: string) => {
     if (!website.trim() || loadingIntelligence) return;
     
     setLoadingIntelligence(true);
@@ -524,7 +524,7 @@ const SalesforcePower = () => {
     } finally {
       setLoadingIntelligence(false);
     }
-  };
+  }, [loadingIntelligence, companyName, toast]);
 
   // Initialize company intelligence service on mount
   useEffect(() => {
@@ -536,25 +536,40 @@ const SalesforcePower = () => {
     // Check if URL has a short code
     if (hasShortCode(searchParams)) {
       const shortCode = getShortCode(searchParams);
+      console.log('🔗 Short code detected:', shortCode);
+      
       if (shortCode) {
         const decoded = decodeShortCode(shortCode);
+        console.log('📦 Decoded data:', decoded);
+        
         if (decoded) {
-          // Apply decoded data
+          // Apply decoded data immediately
           if (decoded.companyName) {
+            console.log('Setting company name:', decoded.companyName);
             setCompanyName(decoded.companyName);
           }
+          
           if (decoded.industry) {
+            console.log('Setting industry:', decoded.industry);
             setSelectedIndustry(decoded.industry);
           }
+          
           if (decoded.companyWebsite) {
+            console.log('Setting website:', decoded.companyWebsite);
             setCompanyWebsite(decoded.companyWebsite);
-            // Fetch logo and enrich company
+            // Only fetch logo, don't enrich (to avoid overwriting the name)
             fetchCompanyLogo(decoded.companyWebsite);
-            enrichCompanyData(decoded.companyWebsite);
+            
+            // If no company name was provided, then enrich to get it
+            if (!decoded.companyName) {
+              enrichCompanyData(decoded.companyWebsite);
+            }
           }
           
-          console.log('✨ Restored from short URL:', decoded);
-          return;
+          console.log('✅ Restored from short URL successfully');
+          return; // Exit early, don't process regular params
+        } else {
+          console.error('❌ Failed to decode short code');
         }
       }
     }
@@ -562,9 +577,16 @@ const SalesforcePower = () => {
     // Fallback to regular URL parameters (for backwards compatibility)
     const companyNameParam = searchParams.get('companyName');
     const companyWebsiteParam = searchParams.get('companyWebsite');
+    const industryParam = searchParams.get('industry');
+    
+    console.log('📋 Regular URL params:', { companyNameParam, companyWebsiteParam, industryParam });
     
     if (companyNameParam) {
       setCompanyName(decodeURIComponent(companyNameParam));
+    }
+    
+    if (industryParam) {
+      setSelectedIndustry(industryParam);
     }
     
     if (companyWebsiteParam) {
@@ -572,9 +594,13 @@ const SalesforcePower = () => {
       setCompanyWebsite(decodedWebsite);
       // Fetch logo and enrich company if website is provided
       fetchCompanyLogo(decodedWebsite);
-      enrichCompanyData(decodedWebsite);
+      
+      // Only enrich if no company name was provided
+      if (!companyNameParam) {
+        enrichCompanyData(decodedWebsite);
+      }
     }
-  }, [searchParams, fetchCompanyLogo]);
+  }, [searchParams, fetchCompanyLogo, enrichCompanyData]);
 
   // CSV download function
   const downloadComparisonCSV = () => {
