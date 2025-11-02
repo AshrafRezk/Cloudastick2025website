@@ -56,6 +56,7 @@ import CompanyLogo from '../components/CompanyLogo';
 import { formatWebsiteUrl } from '../services/logoService';
 import { enrichCompany, initCompanyIntelligence, CompanyIntelligence } from '../services/companyIntelligence';
 import ProductRecommendationBanner from '../components/ProductRecommendationBanner';
+import { normalizeWebsiteUrl, formatForLogoFetch } from '../utils/urlNormalizer';
 
 // Modern Carousel Hub and Spoke Component
 const HubAndSpokeVisualization = React.memo(({ 
@@ -483,14 +484,17 @@ const SalesforcePower = () => {
 
   // Handle website input change
   const handleWebsiteChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setCompanyWebsite(value);
+    const rawValue = e.target.value;
+    
+    // Normalize the URL for display and API calls
+    const normalized = normalizeWebsiteUrl(rawValue);
+    setCompanyWebsite(normalized.display);
     
     // Auto-fetch logo and enrich company when user stops typing (debounced)
-    if (value.trim()) {
+    if (normalized.domain) {
       const timeoutId = setTimeout(() => {
-        fetchCompanyLogo(value);
-        enrichCompanyData(value);
+        fetchCompanyLogo(normalized.domain);
+        enrichCompanyData(normalized.domain);
       }, 1500); // Slightly longer delay for enrichment
       
       return () => clearTimeout(timeoutId);
@@ -555,13 +559,16 @@ const SalesforcePower = () => {
     
     if (companyWebsiteParam) {
       const decodedWebsite = decodeURIComponent(companyWebsiteParam);
-      setCompanyWebsite(decodedWebsite);
-      // Fetch logo
-      fetchCompanyLogo(decodedWebsite);
+      // Normalize the URL
+      const normalized = normalizeWebsiteUrl(decodedWebsite);
+      setCompanyWebsite(normalized.display);
+      
+      // Fetch logo and enrich using normalized domain
+      fetchCompanyLogo(normalized.domain);
       
       // Only enrich if no company name was provided
       if (!companyNameParam) {
-        enrichCompanyData(decodedWebsite);
+        enrichCompanyData(normalized.domain);
       }
     }
   }, [searchParams, fetchCompanyLogo, enrichCompanyData]);
@@ -1041,6 +1048,11 @@ const SalesforcePower = () => {
                         </div>
                       )}
                     </div>
+                    {companyWebsite && (
+                      <p className="text-xs text-gray-500 mt-2 text-center sm:text-left">
+                        ✓ Auto-formatted
+                      </p>
+                    )}
                   </div>
                   
                   {/* Company Name Input - Only shown after name is loaded */}
