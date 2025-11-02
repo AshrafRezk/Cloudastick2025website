@@ -524,6 +524,28 @@ const SalesforcePower = () => {
         setCompanyName(intelligence.companyData.companyName);
       }
       
+      // Auto-select industry based on detection (user can change it)
+      if (intelligence.companyData.normalizedIndustry && !selectedIndustry) {
+        // Map normalized industry to our industry IDs
+        const industryMapping: { [key: string]: string } = {
+          'real-estate': 'real-estate',
+          'construction': 'manufacturing', // closest match
+          'insurance': 'insurance',
+          'manufacturing': 'manufacturing',
+          'travel-tourism': 'travel',
+          'education': 'education',
+          'retail': 'retail',
+          'healthcare': 'healthcare',
+          'finance': 'financial-services',
+          'other': 'retail' // default fallback
+        };
+        
+        const industryId = industryMapping[intelligence.companyData.normalizedIndustry];
+        if (industryId) {
+          setSelectedIndustry(industryId);
+        }
+      }
+      
       // Show product recommendation if available
       if (intelligence.recommendedProduct) {
         setShowProductRecommendation(true);
@@ -540,7 +562,7 @@ const SalesforcePower = () => {
     } finally {
       setLoadingIntelligence(false);
     }
-  }, [loadingIntelligence, companyName, toast]);
+  }, [loadingIntelligence, companyName, selectedIndustry, toast]);
 
   // Initialize company intelligence service on mount
   useEffect(() => {
@@ -1184,43 +1206,77 @@ const SalesforcePower = () => {
               transition={{ duration: 0.8, delay: 0.3 }}
               className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 max-w-7xl mx-auto"
             >
-              {industries.slice(0, 8).map((industry, index) => (
-                <motion.div
-                  key={industry.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.1 * index }}
-                  whileHover={{ scale: 1.05, y: -8 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => handleIndustrySelect(industry.id)}
-                  className={`relative bg-gradient-to-br ${industry.gradient} rounded-2xl p-4 sm:p-6 md:p-8 cursor-pointer group transition-all duration-300 hover:shadow-2xl border border-white/20 backdrop-blur-sm`}
-                >
-                  <div className="absolute inset-0 bg-white/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  
-                  <div className="relative z-10">
-                    <div className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-white/20 rounded-xl mb-6 group-hover:bg-white/30 transition-colors duration-300">
-                      <industry.icon className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white group-hover:scale-110 transition-transform duration-300" />
+              {industries.slice(0, 8).map((industry, index) => {
+                const isSelected = selectedIndustry === industry.id;
+                const isNotSelected = selectedIndustry && selectedIndustry !== industry.id;
+                
+                return (
+                  <motion.div
+                    key={industry.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ 
+                      opacity: isNotSelected ? 0.5 : 1,
+                      y: 0,
+                      scale: isSelected ? 1.02 : 1
+                    }}
+                    transition={{ duration: 0.5, delay: 0.1 * index }}
+                    whileHover={{ scale: 1.05, y: -8 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleIndustrySelect(industry.id)}
+                    className={`relative bg-gradient-to-br ${industry.gradient} rounded-2xl p-4 sm:p-6 md:p-8 cursor-pointer group transition-all duration-300 hover:shadow-2xl backdrop-blur-sm
+                      ${isSelected 
+                        ? 'border-2 border-yellow-400 shadow-[0_0_30px_rgba(251,191,36,0.5)] ring-2 ring-yellow-400/50' 
+                        : 'border border-white/20 hover:border-white/40'
+                      }
+                      ${isNotSelected ? 'hover:opacity-70' : ''}
+                    `}
+                  >
+                    {/* Gold glow animation for selected */}
+                    {isSelected && (
+                      <motion.div
+                        className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 via-amber-400/20 to-yellow-400/20 rounded-2xl"
+                        animate={{
+                          opacity: [0.3, 0.6, 0.3],
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                      />
+                    )}
+                    
+                    <div className={`absolute inset-0 bg-white/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${isSelected ? 'bg-yellow-400/10' : ''}`}></div>
+                    
+                    <div className="relative z-10">
+                      <div className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-white/20 rounded-xl mb-6 group-hover:bg-white/30 transition-colors duration-300">
+                        <industry.icon className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white group-hover:scale-110 transition-transform duration-300" />
+                      </div>
+                      <h3 className={`text-xl font-bold mb-3 transition-colors duration-300 ${isSelected ? 'text-yellow-300' : 'text-white group-hover:text-cyan-200'}`}>
+                        {industry.shortName}
+                      </h3>
+                      <p className="text-white/90 text-sm leading-relaxed mb-4">
+                        {industry.description.split('.')[0]}.
+                      </p>
+                      <div className="flex items-center text-white/70 text-xs font-medium">
+                        <span>{t('power.hero.explore')}</span>
+                        <ArrowRight className={`w-3 h-3 ${isRTL ? 'mr-1' : 'ml-1'} group-hover:translate-x-1 transition-transform duration-300`} />
+                      </div>
                     </div>
-                    <h3 className="text-xl font-bold text-white mb-3 group-hover:text-cyan-200 transition-colors duration-300">
-                      {industry.shortName}
-                    </h3>
-                    <p className="text-white/90 text-sm leading-relaxed mb-4">
-                      {industry.description.split('.')[0]}.
-                    </p>
-                    <div className="flex items-center text-white/70 text-xs font-medium">
-                      <span>{t('power.hero.explore')}</span>
-                      <ArrowRight className={`w-3 h-3 ${isRTL ? 'mr-1' : 'ml-1'} group-hover:translate-x-1 transition-transform duration-300`} />
-                    </div>
-                  </div>
-                  
-                  {/* Selection Indicator */}
-                  {selectedIndustry === industry.id && (
-                    <div className="absolute top-4 right-4 w-6 h-6 bg-cyan-400 rounded-full flex items-center justify-center">
-                      <CheckCircle2 className="w-4 h-4 text-white" />
-                    </div>
-                  )}
-                </motion.div>
-              ))}
+                    
+                    {/* Selection Indicator */}
+                    {isSelected && (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="absolute top-4 right-4 w-8 h-8 bg-gradient-to-br from-yellow-300 to-amber-500 rounded-full flex items-center justify-center shadow-lg"
+                      >
+                        <CheckCircle2 className="w-5 h-5 text-white" />
+                      </motion.div>
+                    )}
+                  </motion.div>
+                );
+              })}
             </motion.div>
 
             {/* Scroll Indicator */}
@@ -1279,11 +1335,10 @@ const SalesforcePower = () => {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.3 }}
-                  className="mt-6 p-4 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl border border-purple-400/30 max-w-3xl mx-auto"
+                  className="mt-6 p-6 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-2xl border border-purple-400/20"
                 >
-                  <p className="text-cyan-300 text-sm sm:text-base flex items-start gap-2">
-                    <Sparkles className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-1" />
-                    <span className="italic">{companyIntelligence.structuredInsights.crm}</span>
+                  <p className="text-gray-200 text-base sm:text-lg leading-relaxed">
+                    {companyIntelligence.structuredInsights.crm}
                   </p>
                 </motion.div>
               )}
@@ -1387,11 +1442,10 @@ const SalesforcePower = () => {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.3 }}
-                  className="mt-6 p-4 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-xl border border-blue-400/30 max-w-3xl mx-auto"
+                  className="mt-6 p-6 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-2xl border border-blue-400/20"
                 >
-                  <p className="text-cyan-300 text-sm sm:text-base flex items-start gap-2">
-                    <Sparkles className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-1" />
-                    <span className="italic">{companyIntelligence.structuredInsights.connect}</span>
+                  <p className="text-gray-200 text-base sm:text-lg leading-relaxed">
+                    {companyIntelligence.structuredInsights.connect}
                   </p>
                 </motion.div>
               )}
@@ -1551,11 +1605,10 @@ const SalesforcePower = () => {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.3 }}
-                  className="mt-6 p-4 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl border border-purple-400/30 max-w-3xl mx-auto"
+                  className="mt-6 p-6 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-2xl border border-purple-400/20"
                 >
-                  <p className="text-cyan-300 text-sm sm:text-base flex items-start gap-2">
-                    <Sparkles className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-1" />
-                    <span className="italic">{companyIntelligence.structuredInsights.dataCloud}</span>
+                  <p className="text-gray-200 text-base sm:text-lg leading-relaxed">
+                    {companyIntelligence.structuredInsights.dataCloud}
                   </p>
                 </motion.div>
               )}
@@ -1712,11 +1765,10 @@ const SalesforcePower = () => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.3 }}
-                    className="mb-8 p-4 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-xl border border-cyan-400/30 max-w-3xl mx-auto"
+                    className="mb-8 p-6 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-2xl border border-cyan-400/20"
                   >
-                    <p className="text-cyan-300 text-sm sm:text-base flex items-start gap-2">
-                      <Sparkles className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-1" />
-                      <span className="italic">{companyIntelligence.structuredInsights.tailored}</span>
+                    <p className="text-gray-200 text-base sm:text-lg leading-relaxed">
+                      {companyIntelligence.structuredInsights.tailored}
                     </p>
                   </motion.div>
                 )}
