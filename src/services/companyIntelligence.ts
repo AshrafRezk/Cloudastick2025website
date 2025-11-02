@@ -28,7 +28,13 @@ export interface CompanyIntelligence {
   companyData: CompanyData;
   news: NewsArticle[];
   events: NewsArticle[];
-  aiInsights: string;
+  aiInsights: string; // Legacy single block
+  structuredInsights: {
+    crm: string;        // More than just a CRM
+    connect: string;    // Seamlessly connect
+    dataCloud: string;  // Data cloud
+    tailored: string;   // Tailored solutions
+  } | null;
   recommendedProduct: {
     productId: string;
     productName: string;
@@ -211,7 +217,67 @@ const refineIndustryFromNews = (companyData: CompanyData, news: NewsArticle[]): 
 };
 
 /**
- * Generate AI insights using existing Gemini integration
+ * Generate structured AI insights for different sections
+ */
+const generateStructuredInsights = async (companyData: CompanyData, news: NewsArticle[]): Promise<{
+  crm: string;
+  connect: string;
+  dataCloud: string;
+  tailored: string;
+}> => {
+  const newsContext = news.length > 0
+    ? `Recent news: ${news.slice(0, 2).map(n => n.title).join('; ')}`
+    : '';
+  
+  const prompt = `You are a Salesforce solutions expert. Generate 4 short, specific insights for ${companyData.companyName} (${companyData.industry}). ${newsContext}
+
+Format your response EXACTLY as follows with these section labels:
+
+[CRM]
+One sentence (max 25 words) on why Salesforce is more than just a CRM for ${companyData.industry}.
+
+[CONNECT]
+One sentence (max 25 words) on how Salesforce seamlessly connects teams/systems for ${companyData.industry}.
+
+[DATACLOUD]
+One sentence (max 25 words) on how Data Cloud unifies data for ${companyData.industry}.
+
+[TAILORED]
+One sentence (max 25 words) on industry-specific Salesforce features for ${companyData.industry}.
+
+Keep it specific, benefit-focused, and concise. Use the exact section labels.`;
+
+  const response = await fetch('/.netlify/functions/cloudiator', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ prompt }),
+  });
+  
+  if (!response.ok) {
+    throw new Error(`Failed to generate AI insights: ${response.status}`);
+  }
+  
+  const data = await response.json();
+  const fullResponse = data.response || '';
+  
+  // Parse the structured response
+  const crmMatch = fullResponse.match(/\[CRM\]\s*\n?(.*?)(?=\n\[|$)/is);
+  const connectMatch = fullResponse.match(/\[CONNECT\]\s*\n?(.*?)(?=\n\[|$)/is);
+  const dataCloudMatch = fullResponse.match(/\[DATACLOUD\]\s*\n?(.*?)(?=\n\[|$)/is);
+  const tailoredMatch = fullResponse.match(/\[TAILORED\]\s*\n?(.*?)(?=\n\[|$)/is);
+  
+  return {
+    crm: crmMatch?.[1]?.trim() || 'Salesforce provides comprehensive CRM capabilities tailored to your industry.',
+    connect: connectMatch?.[1]?.trim() || 'Connect all your teams and systems seamlessly with Salesforce.',
+    dataCloud: dataCloudMatch?.[1]?.trim() || 'Unify all your data sources with Salesforce Data Cloud.',
+    tailored: tailoredMatch?.[1]?.trim() || 'Industry-specific solutions designed for your business needs.'
+  };
+};
+
+/**
+ * Generate AI insights using existing Gemini integration (legacy format)
  */
 const generateAIInsights = async (companyData: CompanyData, news: NewsArticle[]): Promise<string> => {
   const newsContext = news.length > 0
@@ -276,9 +342,12 @@ export const enrichCompany = async (domain: string, forceRefresh = false): Promi
     console.log('🔍 Refining industry from news context...');
     companyData = refineIndustryFromNews(companyData, newsData.articles);
     
-    // Step 4: Generate AI insights
+    // Step 4: Generate AI insights (both legacy and structured)
     console.log('🤖 Generating AI insights...');
-    const aiInsights = await generateAIInsights(companyData, newsData.articles);
+    const [aiInsights, structuredInsights] = await Promise.all([
+      generateAIInsights(companyData, newsData.articles),
+      generateStructuredInsights(companyData, newsData.articles)
+    ]);
     
     // Step 5: Get product recommendation
     const recommendedProduct = getProductRecommendation(companyData.normalizedIndustry);
@@ -290,6 +359,7 @@ export const enrichCompany = async (domain: string, forceRefresh = false): Promi
       news: newsData.articles || [],
       events: newsData.events || [],
       aiInsights,
+      structuredInsights,
       recommendedProduct,
       timestamp: Date.now(),
       expiresAt: Date.now() + CACHE_DURATION,

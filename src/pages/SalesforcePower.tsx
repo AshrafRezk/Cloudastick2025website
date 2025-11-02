@@ -1302,6 +1302,21 @@ const SalesforcePower = () => {
                 }
               </p>
               
+              {/* AI Insight for CRM Section */}
+              {companyIntelligence?.structuredInsights?.crm && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.3 }}
+                  className="mt-6 p-4 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl border border-purple-400/30 max-w-3xl mx-auto"
+                >
+                  <p className="text-cyan-300 text-sm sm:text-base flex items-start gap-2">
+                    <Sparkles className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-1" />
+                    <span className="italic">{companyIntelligence.structuredInsights.crm}</span>
+                  </p>
+                </motion.div>
+              )}
+              
               {selectedIndustryData && (
                 <div className="mt-8 p-6 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-2xl border border-cyan-500/30 max-w-4xl mx-auto">
                   <h3 className="text-lg font-semibold text-cyan-400 mb-3">
@@ -1394,6 +1409,21 @@ const SalesforcePower = () => {
                   )
                 }
               </p>
+              
+              {/* AI Insight for Connect Section */}
+              {companyIntelligence?.structuredInsights?.connect && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.3 }}
+                  className="mt-6 p-4 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-xl border border-blue-400/30 max-w-3xl mx-auto"
+                >
+                  <p className="text-cyan-300 text-sm sm:text-base flex items-start gap-2">
+                    <Sparkles className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-1" />
+                    <span className="italic">{companyIntelligence.structuredInsights.connect}</span>
+                  </p>
+                </motion.div>
+              )}
               
               {selectedIndustryData && selectedIndustryData.integrations && selectedIndustryData.integrations.length > 0 && (
                 <div className="mt-8 p-6 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-2xl border border-blue-500/30 max-w-4xl mx-auto">
@@ -1544,6 +1574,21 @@ const SalesforcePower = () => {
                 }
               </p>
               
+              {/* AI Insight for Data Cloud Section */}
+              {companyIntelligence?.structuredInsights?.dataCloud && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.3 }}
+                  className="mt-6 p-4 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl border border-purple-400/30 max-w-3xl mx-auto"
+                >
+                  <p className="text-cyan-300 text-sm sm:text-base flex items-start gap-2">
+                    <Sparkles className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-1" />
+                    <span className="italic">{companyIntelligence.structuredInsights.dataCloud}</span>
+                  </p>
+                </motion.div>
+              )}
+              
               {selectedIndustryData && selectedIndustryData.dataSources && selectedIndustryData.dataSources.length > 0 && (
                 <div className="mt-8 p-6 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-2xl border border-purple-500/30 max-w-4xl mx-auto">
                   <h3 className="text-lg font-semibold text-purple-400 mb-3">
@@ -1689,6 +1734,21 @@ const SalesforcePower = () => {
                 <p className="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed mb-8">
                   {selectedIndustryData.description}
                 </p>
+                
+                {/* AI Insight for Tailored Solutions Section */}
+                {companyIntelligence?.structuredInsights?.tailored && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.3 }}
+                    className="mb-8 p-4 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-xl border border-cyan-400/30 max-w-3xl mx-auto"
+                  >
+                    <p className="text-cyan-300 text-sm sm:text-base flex items-start gap-2">
+                      <Sparkles className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-1" />
+                      <span className="italic">{companyIntelligence.structuredInsights.tailored}</span>
+                    </p>
+                  </motion.div>
+                )}
                 
                 {/* Industry Success Metrics */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
