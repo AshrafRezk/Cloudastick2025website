@@ -1059,19 +1059,8 @@ const SalesforcePower = () => {
                 transition={{ duration: 0.8, delay: 0.3 }}
                 className="mb-8"
               >
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-4xl mx-auto">
-                  {/* Company Name Input */}
-                  <div className="flex-1">
-                    <input
-                      type="text"
-                      placeholder={t('power.hero.companyPlaceholder')}
-                      value={companyName}
-                      onChange={(e) => setCompanyName(e.target.value)}
-                      className="w-full px-6 py-4 bg-gray-800/50 backdrop-blur-sm border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-300 text-center sm:text-left"
-                    />
-                  </div>
-                  
-                  {/* Company Website Input */}
+                <div className={`grid grid-cols-1 ${companyName ? 'sm:grid-cols-2' : ''} gap-4 max-w-4xl mx-auto`}>
+                  {/* Company Website Input - Always shown first */}
                   <div className="flex-1">
                     <div className="relative">
                       <input
@@ -1088,6 +1077,27 @@ const SalesforcePower = () => {
                       )}
                     </div>
                   </div>
+                  
+                  {/* Company Name Input - Only shown after name is loaded */}
+                  {companyName && (
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="flex-1"
+                    >
+                      <input
+                        type="text"
+                        placeholder={t('power.hero.companyPlaceholder')}
+                        value={companyName}
+                        onChange={(e) => setCompanyName(e.target.value)}
+                        className="w-full px-6 py-4 bg-gray-800/50 backdrop-blur-sm border border-cyan-500 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-300 text-center sm:text-left"
+                      />
+                      <p className="text-xs text-cyan-400 mt-2 text-center sm:text-left">
+                        ✏️ Edit if name is incorrect
+                      </p>
+                    </motion.div>
+                  )}
                 </div>
                 
                 {/* Personalization Status */}
