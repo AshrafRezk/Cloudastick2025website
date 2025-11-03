@@ -5,6 +5,7 @@ import {
   Phone, 
   CreditCard, 
   ShoppingBag, 
+  ShoppingCart,
   Briefcase, 
   GraduationCap,
   Car,
