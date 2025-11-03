@@ -40,6 +40,7 @@ export interface IndustryData {
     zoho: { score: number; label: string; description?: string };
     freshworks: { score: number; label: string; description?: string };
     odoo: { score: number; label: string; description?: string };
+    salezbuzz: { score: number; label: string; description?: string };
   }>;
 }
 
@@ -101,7 +102,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Basic Integration', description: 'Limited MLS connectivity, manual data entry required' },
         zoho: { score: 5, label: 'Standard Features', description: 'Basic MLS features, limited automation' },
         freshworks: { score: 3, label: 'Very Limited', description: 'No native MLS integration, basic property management only' },
-        odoo: { score: 6, label: 'Custom Integration', description: 'Requires extensive customization for MLS connection' }
+        odoo: { score: 6, label: 'Custom Integration', description: 'Requires extensive customization for MLS connection' },
+        salezbuzz: { score: 5, label: 'Basic MLS Support', description: 'Basic property listing with limited MLS integration capabilities' }
       },
       {
         metric: 'Virtual Tour & Open House Scheduling',
@@ -110,7 +112,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 5, label: 'Basic Scheduling', description: 'Simple appointment booking, no AI features' },
         zoho: { score: 6, label: 'Calendar Integration', description: 'Basic calendar integration with manual reminders' },
         freshworks: { score: 4, label: 'Limited Booking', description: 'Very basic scheduling system, no automation' },
-        odoo: { score: 5, label: 'Custom Solution', description: 'Requires significant setup and customization' }
+        odoo: { score: 5, label: 'Custom Solution', description: 'Requires significant setup and customization' },
+        salezbuzz: { score: 6, label: 'Automated Scheduling', description: 'Good appointment scheduling with basic automation features' }
       },
       {
         metric: 'Tenant Portal with Maintenance Requests',
@@ -119,7 +122,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Basic Forms', description: 'Simple contact forms only, no portal functionality' },
         zoho: { score: 5, label: 'Limited Portal', description: 'Basic tenant portal with minimal features' },
         freshworks: { score: 4, label: 'Support Tickets', description: 'Basic ticket-based system, no tenant portal' },
-        odoo: { score: 6, label: 'Custom Portal', description: 'Requires extensive development for tenant portal' }
+        odoo: { score: 6, label: 'Custom Portal', description: 'Requires extensive development for tenant portal' },
+        salezbuzz: { score: 4, label: 'Basic Requests', description: 'Simple maintenance request tracking with basic tenant communication' }
       },
       {
         metric: 'Lease Management & Renewal Automation',
@@ -128,7 +132,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 2, label: 'Manual Process', description: 'No lease management capabilities, basic contact management only' },
         zoho: { score: 5, label: 'Basic Tracking', description: 'Simple lease tracking with manual reminders' },
         freshworks: { score: 3, label: 'Very Limited', description: 'No lease management features, basic CRM only' },
-        odoo: { score: 6, label: 'ERP Integration', description: 'Requires complex setup for lease management' }
+        odoo: { score: 6, label: 'ERP Integration', description: 'Requires complex setup for lease management' },
+        salezbuzz: { score: 5, label: 'Basic Tracking', description: 'Simple lease tracking with reminder capabilities' }
       },
       {
         metric: 'Commission Tracking & Split Calculations',
@@ -137,7 +142,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 1, label: 'Not Available', description: 'No commission tracking capabilities whatsoever' },
         zoho: { score: 4, label: 'Basic Tracking', description: 'Very simple commission calculations, no automation' },
         freshworks: { score: 2, label: 'Very Limited', description: 'Basic sales tracking only, no commission features' },
-        odoo: { score: 6, label: 'Manual Accounting', description: 'Requires manual setup and complex configuration' }
+        odoo: { score: 6, label: 'Manual Accounting', description: 'Requires manual setup and complex configuration' },
+        salezbuzz: { score: 6, label: 'Commission Management', description: 'Good commission tracking with basic split calculations' }
       },
       {
         metric: 'Property Inspection Checklist Mobile App',
@@ -146,7 +152,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 2, label: 'No Mobile App', description: 'No dedicated mobile app for inspections' },
         zoho: { score: 5, label: 'Basic Mobile', description: 'Simple mobile forms, no advanced features' },
         freshworks: { score: 3, label: 'Very Limited', description: 'Basic mobile interface, no inspection tools' },
-        odoo: { score: 6, label: 'Custom Mobile', description: 'Requires extensive development for inspection features' }
+        odoo: { score: 6, label: 'Custom Mobile', description: 'Requires extensive development for inspection features' },
+        salezbuzz: { score: 4, label: 'Basic Mobile', description: 'Simple mobile checklist with basic inspection capabilities' }
       },
       {
         metric: 'Document e-Signature Integration',
@@ -155,7 +162,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'No Integration', description: 'No native e-signature capabilities, requires complex third-party setup' },
         zoho: { score: 5, label: 'Basic Integration', description: 'Limited Zoho Sign integration with basic features' },
         freshworks: { score: 2, label: 'Not Available', description: 'No e-signature capabilities' },
-        odoo: { score: 4, label: 'Manual Setup', description: 'Requires extensive configuration and third-party integration' }
+        odoo: { score: 4, label: 'Manual Setup', description: 'Requires extensive configuration and third-party integration' },
+        salezbuzz: { score: 4, label: 'Third-Party Integration', description: 'Basic e-signature support through third-party integrations' }
       },
       {
         metric: 'Multi-Property Portfolio Dashboard',
@@ -164,7 +172,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 2, label: 'No Portfolio Features', description: 'No portfolio management capabilities, basic CRM only' },
         zoho: { score: 5, label: 'Basic Dashboards', description: 'Simple reporting with limited portfolio insights' },
         freshworks: { score: 3, label: 'Very Limited', description: 'Basic performance metrics only, no portfolio analysis' },
-        odoo: { score: 6, label: 'Manual BI Setup', description: 'Requires extensive configuration for portfolio analytics' }
+        odoo: { score: 6, label: 'Manual BI Setup', description: 'Requires extensive configuration for portfolio analytics' },
+        salezbuzz: { score: 5, label: 'Basic Reporting', description: 'Standard reporting dashboards with basic portfolio metrics' }
       },
       {
         metric: 'Rental Payment Processing Integration',
@@ -173,7 +182,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 1, label: 'Not Available', description: 'No payment processing capabilities whatsoever' },
         zoho: { score: 4, label: 'Basic Integration', description: 'Limited Zoho Payment integration with basic features' },
         freshworks: { score: 2, label: 'Not Available', description: 'No payment processing capabilities' },
-        odoo: { score: 5, label: 'Manual Setup', description: 'Requires complex configuration for payment processing' }
+        odoo: { score: 5, label: 'Manual Setup', description: 'Requires complex configuration for payment processing' },
+        salezbuzz: { score: 3, label: 'Limited Payment', description: 'Basic payment tracking with limited gateway integration' }
       },
       {
         metric: 'Tenant Screening & Background Checks',
@@ -182,7 +192,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 1, label: 'Not Available', description: 'No screening capabilities whatsoever' },
         zoho: { score: 3, label: 'Basic Forms', description: 'Simple background check forms, no automation' },
         freshworks: { score: 2, label: 'Very Limited', description: 'Basic applicant tracking only, no screening' },
-        odoo: { score: 4, label: 'Manual Process', description: 'Requires extensive setup for screening workflow' }
+        odoo: { score: 4, label: 'Manual Process', description: 'Requires extensive setup for screening workflow' },
+        salezbuzz: { score: 3, label: 'Basic Screening', description: 'Simple applicant screening with manual verification process' }
       },
       {
         metric: 'Maintenance Vendor Management',
@@ -191,7 +202,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 2, label: 'Basic Contact', description: 'Simple contact management only, no vendor features' },
         zoho: { score: 4, label: 'Limited Management', description: 'Basic vendor tracking with minimal features' },
         freshworks: { score: 3, label: 'Ticket System', description: 'Basic ticket management, no vendor portal' },
-        odoo: { score: 5, label: 'Manual Setup', description: 'Requires extensive configuration for vendor management' }
+        odoo: { score: 5, label: 'Manual Setup', description: 'Requires extensive configuration for vendor management' },
+        salezbuzz: { score: 4, label: 'Basic Vendor Tracking', description: 'Simple vendor contact management with basic tracking' }
       },
       {
         metric: 'Property Performance Analytics',
@@ -200,7 +212,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 2, label: 'No Analytics', description: 'No property performance analytics capabilities' },
         zoho: { score: 4, label: 'Basic Reports', description: 'Simple performance tracking with limited insights' },
         freshworks: { score: 2, label: 'Very Limited', description: 'Basic performance metrics only, no analytics' },
-        odoo: { score: 5, label: 'Manual BI Setup', description: 'Requires extensive configuration for performance analytics' }
+        odoo: { score: 5, label: 'Manual BI Setup', description: 'Requires extensive configuration for performance analytics' },
+        salezbuzz: { score: 4, label: 'Basic Analytics', description: 'Simple performance reporting with standard metrics' }
       },
       {
         metric: 'Lead Source Attribution for Properties',
@@ -209,7 +222,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 8, label: 'Good Attribution', description: 'Source tracking and reporting' },
         zoho: { score: 7, label: 'Basic Attribution', description: 'Lead source tracking' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic lead tracking' },
-        odoo: { score: 7, label: 'Custom Tracking', description: 'Configurable attribution rules' }
+        odoo: { score: 7, label: 'Custom Tracking', description: 'Configurable attribution rules' },
+        salezbuzz: { score: 7, label: 'Good Tracking', description: 'Lead source tracking with pipeline attribution' }
       },
       {
         metric: 'Comparative Market Analysis (CMA) Tools',
@@ -218,7 +232,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No CMA capabilities' },
         zoho: { score: 6, label: 'Basic CMA', description: 'Simple market comparison tools' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic reporting only' },
-        odoo: { score: 7, label: 'Custom Solution', description: 'Configurable market analysis' }
+        odoo: { score: 7, label: 'Custom Solution', description: 'Configurable market analysis' },
+        salezbuzz: { score: 5, label: 'Basic CMA', description: 'Simple market comparison with basic analytics' }
       },
       {
         metric: 'HOA Communication & Management',
@@ -227,7 +242,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 5, label: 'Basic Communication', description: 'Simple email marketing' },
         zoho: { score: 7, label: 'Good Communication', description: 'Community communication tools' },
         freshworks: { score: 6, label: 'Support Focus', description: 'HOA support ticket system' },
-        odoo: { score: 8, label: 'Custom Portal', description: 'Configurable community management' }
+        odoo: { score: 8, label: 'Custom Portal', description: 'Configurable community management' },
+        salezbuzz: { score: 6, label: 'HOA Communication', description: 'Basic HOA communication and tracking tools' }
       },
       {
         metric: 'Property Valuation & Appraisal Tools',
@@ -236,7 +252,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No valuation tools' },
         zoho: { score: 6, label: 'Basic Tools', description: 'Simple valuation calculators' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic property data' },
-        odoo: { score: 7, label: 'Custom Integration', description: 'Configurable valuation workflows' }
+        odoo: { score: 7, label: 'Custom Integration', description: 'Configurable valuation workflows' },
+        salezbuzz: { score: 5, label: 'Basic Valuation', description: 'Simple valuation tracking and basic tools' }
       },
       {
         metric: 'Rent Roll Management & Analysis',
@@ -245,7 +262,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No rent roll capabilities' },
         zoho: { score: 7, label: 'Good Management', description: 'Comprehensive rent tracking' },
         freshworks: { score: 5, label: 'Basic Tracking', description: 'Simple rent management' },
-        odoo: { score: 9, label: 'Full Accounting', description: 'Complete rent and accounting integration' }
+        odoo: { score: 9, label: 'Full Accounting', description: 'Complete rent and accounting integration' },
+        salezbuzz: { score: 6, label: 'Rent Tracking', description: 'Basic rent roll tracking with standard reports' }
       },
       {
         metric: 'Property Tax Management & Tracking',
@@ -254,7 +272,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No tax management' },
         zoho: { score: 7, label: 'Good Tracking', description: 'Tax tracking and reminders' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic document management' },
-        odoo: { score: 8, label: 'Full Accounting', description: 'Complete tax and accounting suite' }
+        odoo: { score: 8, label: 'Full Accounting', description: 'Complete tax and accounting suite' },
+        salezbuzz: { score: 5, label: 'Basic Tax Tracking', description: 'Simple tax tracking and reminder system' }
       },
       {
         metric: 'Insurance Claims & Risk Management',
@@ -263,7 +282,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No claims management' },
         zoho: { score: 6, label: 'Basic Tracking', description: 'Simple claims tracking' },
         freshworks: { score: 5, label: 'Ticket System', description: 'Claims as support tickets' },
-        odoo: { score: 7, label: 'Custom Workflow', description: 'Configurable claims process' }
+        odoo: { score: 7, label: 'Custom Workflow', description: 'Configurable claims process' },
+        salezbuzz: { score: 5, label: 'Claims Tracking', description: 'Basic insurance claims tracking and management' }
       }
     ]
   },
@@ -322,7 +342,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Basic Location', description: 'Simple location logging only' },
         zoho: { score: 6, label: 'Good Tracking', description: 'Location tracking with basic analytics' },
         freshworks: { score: 3, label: 'Not Available', description: 'No location tracking' },
-        odoo: { score: 7, label: 'Custom Tracking', description: 'Configurable location tracking' }
+        odoo: { score: 7, label: 'Custom Tracking', description: 'Configurable location tracking' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Sample Distribution & Inventory Management',
@@ -331,7 +352,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 2, label: 'Not Available', description: 'No sample management' },
         zoho: { score: 5, label: 'Basic Inventory', description: 'Simple inventory tracking' },
         freshworks: { score: 3, label: 'Not Available', description: 'No sample capabilities' },
-        odoo: { score: 8, label: 'Full Inventory', description: 'Complete inventory management suite' }
+        odoo: { score: 8, label: 'Full Inventory', description: 'Complete inventory management suite' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'HCP (Healthcare Professional) Engagement Scoring',
@@ -340,7 +362,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Scoring', description: 'Simple engagement tracking' },
         zoho: { score: 7, label: 'Good Analytics', description: 'Engagement analytics and reporting' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic interaction tracking' },
-        odoo: { score: 6, label: 'Custom Scoring', description: 'Configurable engagement metrics' }
+        odoo: { score: 6, label: 'Custom Scoring', description: 'Configurable engagement metrics' },
+        salezbuzz: { score: 5, label: 'Basic Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Regulatory Compliance Tracking (FDA, EMA)',
@@ -349,7 +372,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No compliance tracking' },
         zoho: { score: 5, label: 'Basic Compliance', description: 'Simple compliance checklists' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic audit trails' },
-        odoo: { score: 7, label: 'Custom Compliance', description: 'Configurable compliance workflows' }
+        odoo: { score: 7, label: 'Custom Compliance', description: 'Configurable compliance workflows' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Clinical Trial Patient Management',
@@ -358,7 +382,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 2, label: 'Not Available', description: 'No trial management' },
         zoho: { score: 5, label: 'Basic Tracking', description: 'Simple patient tracking' },
         freshworks: { score: 3, label: 'Not Available', description: 'No trial capabilities' },
-        odoo: { score: 6, label: 'Custom Solution', description: 'Configurable trial management' }
+        odoo: { score: 6, label: 'Custom Solution', description: 'Configurable trial management' },
+        salezbuzz: { score: 5, label: 'Basic Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Adverse Event Reporting & Pharmacovigilance',
@@ -367,7 +392,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 2, label: 'Not Available', description: 'No PV capabilities' },
         zoho: { score: 4, label: 'Basic Reporting', description: 'Simple incident reporting' },
         freshworks: { score: 3, label: 'Not Available', description: 'No PV features' },
-        odoo: { score: 6, label: 'Custom PV', description: 'Configurable adverse event workflows' }
+        odoo: { score: 6, label: 'Custom PV', description: 'Configurable adverse event workflows' },
+        salezbuzz: { score: 5, label: 'Basic Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Territory & Account Planning for Medical Reps',
@@ -376,7 +402,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 5, label: 'Basic Planning', description: 'Simple territory assignment' },
         zoho: { score: 7, label: 'Good Planning', description: 'Territory management with analytics' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic account assignment' },
-        odoo: { score: 8, label: 'Custom Territory', description: 'Configurable territory management' }
+        odoo: { score: 8, label: 'Custom Territory', description: 'Configurable territory management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Sample Reconciliation & Chain of Custody',
@@ -385,7 +412,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 2, label: 'Not Available', description: 'No sample tracking' },
         zoho: { score: 5, label: 'Basic Tracking', description: 'Simple sample logging' },
         freshworks: { score: 3, label: 'Not Available', description: 'No sample capabilities' },
-        odoo: { score: 7, label: 'Custom Tracking', description: 'Configurable sample management' }
+        odoo: { score: 7, label: 'Custom Tracking', description: 'Configurable sample management' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Key Opinion Leader (KOL) Relationship Management',
@@ -394,7 +422,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic CRM', description: 'Simple contact management' },
         zoho: { score: 7, label: 'Good CRM', description: 'Relationship tracking and analytics' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic contact management' },
-        odoo: { score: 8, label: 'Custom CRM', description: 'Configurable relationship management' }
+        odoo: { score: 8, label: 'Custom CRM', description: 'Configurable relationship management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Medical Affairs Activity Tracking',
@@ -403,7 +432,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No medical affairs features' },
         zoho: { score: 6, label: 'Basic Tracking', description: 'Simple activity tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic task management' },
-        odoo: { score: 7, label: 'Custom Workflow', description: 'Configurable medical affairs processes' }
+        odoo: { score: 7, label: 'Custom Workflow', description: 'Configurable medical affairs processes' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Veeva Vault Integration Capabilities',
@@ -412,7 +442,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 2, label: 'Not Available', description: 'No Veeva integration' },
         zoho: { score: 4, label: 'Basic Integration', description: 'Limited Veeva connectivity' },
         freshworks: { score: 2, label: 'Not Available', description: 'No Veeva support' },
-        odoo: { score: 5, label: 'Custom Integration', description: 'Configurable Veeva connection' }
+        odoo: { score: 5, label: 'Custom Integration', description: 'Configurable Veeva connection' },
+        salezbuzz: { score: 4, label: 'Limited Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Mobile Field Force Automation',
@@ -421,7 +452,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 5, label: 'Basic Mobile', description: 'Simple mobile interface' },
         zoho: { score: 7, label: 'Good Mobile', description: 'Mobile app with field capabilities' },
         freshworks: { score: 4, label: 'Limited Mobile', description: 'Basic mobile access' },
-        odoo: { score: 8, label: 'Custom Mobile', description: 'Configurable mobile app' }
+        odoo: { score: 8, label: 'Custom Mobile', description: 'Configurable mobile app' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Signature Capture for Sample Acknowledgment',
@@ -430,7 +462,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No signature capture' },
         zoho: { score: 6, label: 'Basic eSignature', description: 'Simple signature capture' },
         freshworks: { score: 3, label: 'Not Available', description: 'No signature features' },
-        odoo: { score: 7, label: 'Custom eSignature', description: 'Configurable signature workflows' }
+        odoo: { score: 7, label: 'Custom eSignature', description: 'Configurable signature workflows' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Speaker Program Management',
@@ -439,7 +472,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No speaker management' },
         zoho: { score: 6, label: 'Basic Management', description: 'Simple speaker tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic event management' },
-        odoo: { score: 7, label: 'Custom Events', description: 'Configurable speaker programs' }
+        odoo: { score: 7, label: 'Custom Events', description: 'Configurable speaker programs' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Medical Education Event Tracking',
@@ -448,7 +482,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 5, label: 'Basic Events', description: 'Simple event management' },
         zoho: { score: 7, label: 'Good Events', description: 'Event management with analytics' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic event tracking' },
-        odoo: { score: 8, label: 'Custom Events', description: 'Configurable education management' }
+        odoo: { score: 8, label: 'Custom Events', description: 'Configurable education management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Patient Support Program Management',
@@ -457,7 +492,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 5, label: 'Basic Support', description: 'Simple patient contact management' },
         zoho: { score: 7, label: 'Good Support', description: 'Patient support with case management' },
         freshworks: { score: 6, label: 'Support Focus', description: 'Patient support ticket system' },
-        odoo: { score: 8, label: 'Custom Support', description: 'Configurable patient support workflows' }
+        odoo: { score: 8, label: 'Custom Support', description: 'Configurable patient support workflows' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Clinical Data Integration & Analytics',
@@ -466,7 +502,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No clinical data capabilities' },
         zoho: { score: 6, label: 'Basic Analytics', description: 'Simple data reporting' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic data tracking' },
-        odoo: { score: 7, label: 'Custom Analytics', description: 'Configurable clinical data management' }
+        odoo: { score: 7, label: 'Custom Analytics', description: 'Configurable clinical data management' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Regulatory Submission Management',
@@ -475,7 +512,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 2, label: 'Not Available', description: 'No submission management' },
         zoho: { score: 4, label: 'Basic Tracking', description: 'Simple document tracking' },
         freshworks: { score: 3, label: 'Not Available', description: 'No regulatory features' },
-        odoo: { score: 6, label: 'Custom Workflow', description: 'Configurable submission processes' }
+        odoo: { score: 6, label: 'Custom Workflow', description: 'Configurable submission processes' },
+        salezbuzz: { score: 5, label: 'Basic Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'HCP Credentialing & Verification',
@@ -484,7 +522,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No credentialing features' },
         zoho: { score: 5, label: 'Basic Verification', description: 'Simple contact verification' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic contact management' },
-        odoo: { score: 7, label: 'Custom Verification', description: 'Configurable credentialing workflows' }
+        odoo: { score: 7, label: 'Custom Verification', description: 'Configurable credentialing workflows' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       }
     ]
   },
@@ -543,7 +582,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No production planning' },
         zoho: { score: 6, label: 'Basic Planning', description: 'Simple scheduling tools' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic task management' },
-        odoo: { score: 8, label: 'Full MRP', description: 'Complete manufacturing resource planning' }
+        odoo: { score: 8, label: 'Full MRP', description: 'Complete manufacturing resource planning' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Supply Chain Visibility & Management',
@@ -552,7 +592,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No supply chain management' },
         zoho: { score: 7, label: 'Good Tracking', description: 'Supply chain tracking and analytics' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic vendor management' },
-        odoo: { score: 9, label: 'Full SCM', description: 'Complete supply chain management suite' }
+        odoo: { score: 9, label: 'Full SCM', description: 'Complete supply chain management suite' },
+        salezbuzz: { score: 8, label: 'Strong Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Quality Control & Compliance Tracking',
@@ -561,7 +602,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No quality management' },
         zoho: { score: 6, label: 'Basic QC', description: 'Simple quality tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic issue tracking' },
-        odoo: { score: 8, label: 'Quality Module', description: 'Configurable quality management' }
+        odoo: { score: 8, label: 'Quality Module', description: 'Configurable quality management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Equipment Maintenance & Field Service',
@@ -570,7 +612,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No field service capabilities' },
         zoho: { score: 7, label: 'Good Service', description: 'Service management with scheduling' },
         freshworks: { score: 6, label: 'Service Focus', description: 'Service ticket management' },
-        odoo: { score: 8, label: 'Maintenance Module', description: 'Configurable maintenance management' }
+        odoo: { score: 8, label: 'Maintenance Module', description: 'Configurable maintenance management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Inventory Management & Optimization',
@@ -579,7 +622,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No inventory management' },
         zoho: { score: 7, label: 'Good Inventory', description: 'Inventory tracking and management' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic asset tracking' },
-        odoo: { score: 9, label: 'Full Inventory', description: 'Complete inventory management suite' }
+        odoo: { score: 9, label: 'Full Inventory', description: 'Complete inventory management suite' },
+        salezbuzz: { score: 8, label: 'Strong Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Customer Order Management & Fulfillment',
@@ -588,7 +632,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic CRM', description: 'Simple order tracking' },
         zoho: { score: 8, label: 'Good Orders', description: 'Order management with fulfillment' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic order tracking' },
-        odoo: { score: 9, label: 'Full ERP', description: 'Complete order to cash process' }
+        odoo: { score: 9, label: 'Full ERP', description: 'Complete order to cash process' },
+        salezbuzz: { score: 8, label: 'Strong Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Work Order Management & Tracking',
@@ -597,7 +642,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No work order management' },
         zoho: { score: 6, label: 'Basic Orders', description: 'Simple work order tracking' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic task management' },
-        odoo: { score: 8, label: 'Work Orders', description: 'Configurable work order management' }
+        odoo: { score: 8, label: 'Work Orders', description: 'Configurable work order management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'BOM (Bill of Materials) Management',
@@ -606,7 +652,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 2, label: 'Not Available', description: 'No BOM capabilities' },
         zoho: { score: 5, label: 'Basic BOM', description: 'Simple product structure tracking' },
         freshworks: { score: 3, label: 'Not Available', description: 'No BOM features' },
-        odoo: { score: 9, label: 'Full BOM', description: 'Complete bill of materials management' }
+        odoo: { score: 9, label: 'Full BOM', description: 'Complete bill of materials management' },
+        salezbuzz: { score: 8, label: 'Strong Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Production Cost Tracking & Analysis',
@@ -615,7 +662,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No cost tracking' },
         zoho: { score: 6, label: 'Basic Costs', description: 'Simple cost tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic financial tracking' },
-        odoo: { score: 9, label: 'Full Costing', description: 'Complete cost accounting suite' }
+        odoo: { score: 9, label: 'Full Costing', description: 'Complete cost accounting suite' },
+        salezbuzz: { score: 8, label: 'Strong Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Regulatory Compliance & Documentation',
@@ -624,7 +672,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No compliance features' },
         zoho: { score: 6, label: 'Basic Compliance', description: 'Simple compliance tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic document management' },
-        odoo: { score: 7, label: 'Custom Compliance', description: 'Configurable compliance workflows' }
+        odoo: { score: 7, label: 'Custom Compliance', description: 'Configurable compliance workflows' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Supplier Relationship Management',
@@ -633,7 +682,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 5, label: 'Basic CRM', description: 'Simple contact management' },
         zoho: { score: 7, label: 'Good Suppliers', description: 'Supplier tracking and communication' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic vendor management' },
-        odoo: { score: 8, label: 'Procurement Suite', description: 'Complete procurement management' }
+        odoo: { score: 8, label: 'Procurement Suite', description: 'Complete procurement management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Production Analytics & Performance Metrics',
@@ -642,7 +692,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No production analytics' },
         zoho: { score: 7, label: 'Good Analytics', description: 'Production reporting and analytics' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic performance tracking' },
-        odoo: { score: 8, label: 'Full BI', description: 'Complete business intelligence suite' }
+        odoo: { score: 8, label: 'Full BI', description: 'Complete business intelligence suite' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Mobile Production Floor Management',
@@ -651,7 +702,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Basic Mobile', description: 'Simple mobile interface' },
         zoho: { score: 7, label: 'Good Mobile', description: 'Mobile app for production' },
         freshworks: { score: 5, label: 'Limited Mobile', description: 'Basic mobile access' },
-        odoo: { score: 8, label: 'Custom Mobile', description: 'Configurable mobile production app' }
+        odoo: { score: 8, label: 'Custom Mobile', description: 'Configurable mobile production app' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Capacity Planning & Resource Optimization',
@@ -660,7 +712,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No capacity planning' },
         zoho: { score: 6, label: 'Basic Planning', description: 'Simple capacity tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic resource management' },
-        odoo: { score: 8, label: 'Capacity Module', description: 'Configurable capacity management' }
+        odoo: { score: 8, label: 'Capacity Module', description: 'Configurable capacity management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Product Lifecycle Management (PLM)',
@@ -669,7 +722,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No PLM capabilities' },
         zoho: { score: 5, label: 'Basic PLM', description: 'Simple product tracking' },
         freshworks: { score: 3, label: 'Not Available', description: 'No PLM features' },
-        odoo: { score: 7, label: 'PLM Module', description: 'Configurable product lifecycle management' }
+        odoo: { score: 7, label: 'PLM Module', description: 'Configurable product lifecycle management' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Environmental & Safety Compliance',
@@ -678,7 +732,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No EHS capabilities' },
         zoho: { score: 5, label: 'Basic EHS', description: 'Simple safety tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic incident management' },
-        odoo: { score: 7, label: 'EHS Module', description: 'Configurable EHS management' }
+        odoo: { score: 7, label: 'EHS Module', description: 'Configurable EHS management' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Lean Manufacturing & Continuous Improvement',
@@ -687,7 +742,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No lean capabilities' },
         zoho: { score: 6, label: 'Basic Lean', description: 'Simple improvement tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic process management' },
-        odoo: { score: 7, label: 'Lean Module', description: 'Configurable lean management' }
+        odoo: { score: 7, label: 'Lean Module', description: 'Configurable lean management' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Warranty & Service Management',
@@ -696,7 +752,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 5, label: 'Basic Service', description: 'Simple service tracking' },
         zoho: { score: 7, label: 'Good Service', description: 'Service management with warranty tracking' },
         freshworks: { score: 6, label: 'Service Focus', description: 'Service ticket management' },
-        odoo: { score: 8, label: 'Service Module', description: 'Configurable service management' }
+        odoo: { score: 8, label: 'Service Module', description: 'Configurable service management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       }
     ]
   },
@@ -756,7 +813,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No asset management' },
         zoho: { score: 6, label: 'Basic Assets', description: 'Simple asset tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic inventory management' },
-        odoo: { score: 8, label: 'Asset Module', description: 'Configurable asset management' }
+        odoo: { score: 8, label: 'Asset Module', description: 'Configurable asset management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Service Provisioning & Activation Automation',
@@ -765,7 +823,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No provisioning capabilities' },
         zoho: { score: 6, label: 'Basic Automation', description: 'Simple workflow automation' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic task automation' },
-        odoo: { score: 7, label: 'Custom Workflows', description: 'Configurable provisioning processes' }
+        odoo: { score: 7, label: 'Custom Workflows', description: 'Configurable provisioning processes' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Customer Lifecycle Management',
@@ -774,7 +833,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 8, label: 'Good Lifecycle', description: 'Customer journey tracking and automation' },
         zoho: { score: 7, label: 'Good CRM', description: 'Customer relationship management' },
         freshworks: { score: 6, label: 'Basic Lifecycle', description: 'Simple customer tracking' },
-        odoo: { score: 8, label: 'Custom CRM', description: 'Configurable customer management' }
+        odoo: { score: 8, label: 'Custom CRM', description: 'Configurable customer management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Billing & Payment Processing Integration',
@@ -783,7 +843,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No billing capabilities' },
         zoho: { score: 7, label: 'Good Billing', description: 'Billing and invoicing management' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic payment tracking' },
-        odoo: { score: 9, label: 'Full Accounting', description: 'Complete billing and accounting suite' }
+        odoo: { score: 9, label: 'Full Accounting', description: 'Complete billing and accounting suite' },
+        salezbuzz: { score: 8, label: 'Strong Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Field Service Operations Management',
@@ -792,7 +853,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No field service capabilities' },
         zoho: { score: 7, label: 'Good Service', description: 'Service management with scheduling' },
         freshworks: { score: 6, label: 'Service Focus', description: 'Service ticket management' },
-        odoo: { score: 8, label: 'Service Module', description: 'Configurable field service management' }
+        odoo: { score: 8, label: 'Service Module', description: 'Configurable field service management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Network Performance Monitoring',
@@ -801,7 +863,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No monitoring capabilities' },
         zoho: { score: 6, label: 'Basic Monitoring', description: 'Simple performance tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic system monitoring' },
-        odoo: { score: 7, label: 'Custom Monitoring', description: 'Configurable monitoring workflows' }
+        odoo: { score: 7, label: 'Custom Monitoring', description: 'Configurable monitoring workflows' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Customer Support & Call Center Management',
@@ -810,7 +873,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Support', description: 'Simple support ticket system' },
         zoho: { score: 8, label: 'Good Support', description: 'Call center and support management' },
         freshworks: { score: 9, label: 'Support Focus', description: 'Advanced support and ticketing system' },
-        odoo: { score: 7, label: 'Support Module', description: 'Configurable support management' }
+        odoo: { score: 7, label: 'Support Module', description: 'Configurable support management' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Churn Prediction & Retention Management',
@@ -819,7 +883,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Analytics', description: 'Simple customer analytics' },
         zoho: { score: 7, label: 'Good Analytics', description: 'Customer behavior analytics' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic customer tracking' },
-        odoo: { score: 7, label: 'Custom Analytics', description: 'Configurable customer analytics' }
+        odoo: { score: 7, label: 'Custom Analytics', description: 'Configurable customer analytics' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Service Level Agreement (SLA) Management',
@@ -828,7 +893,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No SLA management' },
         zoho: { score: 6, label: 'Basic SLA', description: 'Simple SLA tracking' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic performance tracking' },
-        odoo: { score: 7, label: 'SLA Module', description: 'Configurable SLA management' }
+        odoo: { score: 7, label: 'SLA Module', description: 'Configurable SLA management' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Mobile Network Optimization',
@@ -837,7 +903,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No network optimization' },
         zoho: { score: 5, label: 'Basic Tools', description: 'Simple optimization tracking' },
         freshworks: { score: 3, label: 'Not Available', description: 'No network features' },
-        odoo: { score: 6, label: 'Custom Tools', description: 'Configurable optimization workflows' }
+        odoo: { score: 6, label: 'Custom Tools', description: 'Configurable optimization workflows' },
+        salezbuzz: { score: 5, label: 'Basic Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Customer Self-Service Portal',
@@ -846,7 +913,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Portal', description: 'Simple customer portal' },
         zoho: { score: 7, label: 'Good Portal', description: 'Customer self-service portal' },
         freshworks: { score: 6, label: 'Support Portal', description: 'Support-focused customer portal' },
-        odoo: { score: 8, label: 'Custom Portal', description: 'Configurable customer portal' }
+        odoo: { score: 8, label: 'Custom Portal', description: 'Configurable customer portal' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Revenue Assurance & Fraud Detection',
@@ -855,7 +923,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No revenue assurance' },
         zoho: { score: 5, label: 'Basic Analytics', description: 'Simple revenue tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic financial tracking' },
-        odoo: { score: 7, label: 'Custom Analytics', description: 'Configurable revenue management' }
+        odoo: { score: 7, label: 'Custom Analytics', description: 'Configurable revenue management' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Network Capacity Planning',
@@ -864,7 +933,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No capacity planning' },
         zoho: { score: 5, label: 'Basic Planning', description: 'Simple capacity tracking' },
         freshworks: { score: 3, label: 'Not Available', description: 'No planning features' },
-        odoo: { score: 6, label: 'Custom Planning', description: 'Configurable capacity management' }
+        odoo: { score: 6, label: 'Custom Planning', description: 'Configurable capacity management' },
+        salezbuzz: { score: 5, label: 'Basic Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Trouble Ticket Management',
@@ -873,7 +943,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 5, label: 'Basic Tickets', description: 'Simple ticket tracking' },
         zoho: { score: 7, label: 'Good Tickets', description: 'Ticket management with automation' },
         freshworks: { score: 9, label: 'Ticket Focus', description: 'Advanced ticket management system' },
-        odoo: { score: 7, label: 'Ticket Module', description: 'Configurable ticket management' }
+        odoo: { score: 7, label: 'Ticket Module', description: 'Configurable ticket management' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Service Quality Management',
@@ -882,7 +953,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No quality management' },
         zoho: { score: 6, label: 'Basic Quality', description: 'Simple quality tracking' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic performance tracking' },
-        odoo: { score: 7, label: 'Quality Module', description: 'Configurable quality management' }
+        odoo: { score: 7, label: 'Quality Module', description: 'Configurable quality management' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Customer Experience Analytics',
@@ -891,7 +963,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 7, label: 'Good Analytics', description: 'Customer experience tracking' },
         zoho: { score: 7, label: 'Good Analytics', description: 'Customer behavior analytics' },
         freshworks: { score: 6, label: 'Basic Analytics', description: 'Simple experience tracking' },
-        odoo: { score: 7, label: 'Custom Analytics', description: 'Configurable experience analytics' }
+        odoo: { score: 7, label: 'Custom Analytics', description: 'Configurable experience analytics' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Regulatory Compliance Management',
@@ -900,7 +973,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No compliance features' },
         zoho: { score: 6, label: 'Basic Compliance', description: 'Simple compliance tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic audit trails' },
-        odoo: { score: 7, label: 'Custom Compliance', description: 'Configurable compliance workflows' }
+        odoo: { score: 7, label: 'Custom Compliance', description: 'Configurable compliance workflows' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Partner & Channel Management',
@@ -909,7 +983,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Partners', description: 'Simple partner tracking' },
         zoho: { score: 7, label: 'Good Partners', description: 'Partner relationship management' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic partner tracking' },
-        odoo: { score: 8, label: 'Partner Module', description: 'Configurable partner management' }
+        odoo: { score: 8, label: 'Partner Module', description: 'Configurable partner management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       }
     ]
   },
@@ -969,7 +1044,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic CRM', description: 'Simple contact management' },
         zoho: { score: 7, label: 'Good CRM', description: 'Client relationship management' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic contact management' },
-        odoo: { score: 8, label: 'Custom CRM', description: 'Configurable client management' }
+        odoo: { score: 8, label: 'Custom CRM', description: 'Configurable client management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Wealth Management & Portfolio Tracking',
@@ -978,7 +1054,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No wealth management' },
         zoho: { score: 5, label: 'Basic Tracking', description: 'Simple portfolio tracking' },
         freshworks: { score: 3, label: 'Not Available', description: 'No wealth features' },
-        odoo: { score: 7, label: 'Custom Wealth', description: 'Configurable wealth management' }
+        odoo: { score: 7, label: 'Custom Wealth', description: 'Configurable wealth management' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Regulatory Compliance & Risk Management',
@@ -987,7 +1064,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No compliance features' },
         zoho: { score: 6, label: 'Basic Compliance', description: 'Simple compliance tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic audit trails' },
-        odoo: { score: 7, label: 'Custom Compliance', description: 'Configurable compliance workflows' }
+        odoo: { score: 7, label: 'Custom Compliance', description: 'Configurable compliance workflows' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Loan Processing & Credit Management',
@@ -996,7 +1074,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No loan management' },
         zoho: { score: 6, label: 'Basic Loans', description: 'Simple loan tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic case management' },
-        odoo: { score: 8, label: 'Loan Module', description: 'Configurable loan management' }
+        odoo: { score: 8, label: 'Loan Module', description: 'Configurable loan management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Insurance Policy Management',
@@ -1005,7 +1084,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No insurance features' },
         zoho: { score: 6, label: 'Basic Policies', description: 'Simple policy tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic case management' },
-        odoo: { score: 7, label: 'Policy Module', description: 'Configurable policy management' }
+        odoo: { score: 7, label: 'Policy Module', description: 'Configurable policy management' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Anti-Money Laundering (AML) & KYC',
@@ -1014,7 +1094,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 2, label: 'Not Available', description: 'No AML/KYC capabilities' },
         zoho: { score: 4, label: 'Basic KYC', description: 'Simple identity verification' },
         freshworks: { score: 3, label: 'Not Available', description: 'No compliance features' },
-        odoo: { score: 6, label: 'Custom KYC', description: 'Configurable KYC workflows' }
+        odoo: { score: 6, label: 'Custom KYC', description: 'Configurable KYC workflows' },
+        salezbuzz: { score: 5, label: 'Basic Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Investment Advisory & Financial Planning',
@@ -1023,7 +1104,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No advisory features' },
         zoho: { score: 5, label: 'Basic Planning', description: 'Simple financial planning' },
         freshworks: { score: 3, label: 'Not Available', description: 'No advisory capabilities' },
-        odoo: { score: 6, label: 'Custom Advisory', description: 'Configurable advisory tools' }
+        odoo: { score: 6, label: 'Custom Advisory', description: 'Configurable advisory tools' },
+        salezbuzz: { score: 5, label: 'Basic Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Digital Banking & Mobile Services',
@@ -1032,7 +1114,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No banking features' },
         zoho: { score: 6, label: 'Basic Mobile', description: 'Simple mobile interface' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic mobile access' },
-        odoo: { score: 7, label: 'Custom Mobile', description: 'Configurable mobile banking' }
+        odoo: { score: 7, label: 'Custom Mobile', description: 'Configurable mobile banking' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Fraud Detection & Security',
@@ -1041,7 +1124,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No fraud detection' },
         zoho: { score: 5, label: 'Basic Security', description: 'Simple security tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic security features' },
-        odoo: { score: 6, label: 'Custom Security', description: 'Configurable security workflows' }
+        odoo: { score: 6, label: 'Custom Security', description: 'Configurable security workflows' },
+        salezbuzz: { score: 5, label: 'Basic Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Customer Onboarding & KYC Automation',
@@ -1050,7 +1134,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No onboarding automation' },
         zoho: { score: 6, label: 'Basic Onboarding', description: 'Simple customer setup' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic customer management' },
-        odoo: { score: 7, label: 'Custom Onboarding', description: 'Configurable onboarding workflows' }
+        odoo: { score: 7, label: 'Custom Onboarding', description: 'Configurable onboarding workflows' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Investment Performance Analytics',
@@ -1059,7 +1144,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No investment analytics' },
         zoho: { score: 6, label: 'Basic Analytics', description: 'Simple performance tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic reporting' },
-        odoo: { score: 7, label: 'Custom Analytics', description: 'Configurable investment analytics' }
+        odoo: { score: 7, label: 'Custom Analytics', description: 'Configurable investment analytics' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Regulatory Reporting & Documentation',
@@ -1068,7 +1154,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No regulatory reporting' },
         zoho: { score: 5, label: 'Basic Reporting', description: 'Simple report generation' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic document management' },
-        odoo: { score: 7, label: 'Custom Reporting', description: 'Configurable reporting workflows' }
+        odoo: { score: 7, label: 'Custom Reporting', description: 'Configurable reporting workflows' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Client Communication & Document Management',
@@ -1077,7 +1164,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 7, label: 'Good Communication', description: 'Email and communication tools' },
         zoho: { score: 7, label: 'Good Communication', description: 'Client communication management' },
         freshworks: { score: 6, label: 'Communication Focus', description: 'Communication and support tools' },
-        odoo: { score: 8, label: 'Custom Communication', description: 'Configurable communication workflows' }
+        odoo: { score: 8, label: 'Custom Communication', description: 'Configurable communication workflows' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Trading & Transaction Management',
@@ -1086,7 +1174,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 2, label: 'Not Available', description: 'No trading capabilities' },
         zoho: { score: 5, label: 'Basic Trading', description: 'Simple transaction tracking' },
         freshworks: { score: 3, label: 'Not Available', description: 'No trading features' },
-        odoo: { score: 6, label: 'Custom Trading', description: 'Configurable trading workflows' }
+        odoo: { score: 6, label: 'Custom Trading', description: 'Configurable trading workflows' },
+        salezbuzz: { score: 5, label: 'Basic Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Risk Assessment & Monitoring',
@@ -1095,7 +1184,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No risk management' },
         zoho: { score: 6, label: 'Basic Risk', description: 'Simple risk tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic risk management' },
-        odoo: { score: 7, label: 'Risk Module', description: 'Configurable risk management' }
+        odoo: { score: 7, label: 'Risk Module', description: 'Configurable risk management' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Client Portal & Self-Service',
@@ -1104,7 +1194,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Portal', description: 'Simple client portal' },
         zoho: { score: 7, label: 'Good Portal', description: 'Client self-service portal' },
         freshworks: { score: 6, label: 'Support Portal', description: 'Support-focused client portal' },
-        odoo: { score: 8, label: 'Custom Portal', description: 'Configurable client portal' }
+        odoo: { score: 8, label: 'Custom Portal', description: 'Configurable client portal' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Compliance Audit & Documentation',
@@ -1113,7 +1204,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No audit capabilities' },
         zoho: { score: 5, label: 'Basic Audit', description: 'Simple audit tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic documentation' },
-        odoo: { score: 7, label: 'Custom Audit', description: 'Configurable audit workflows' }
+        odoo: { score: 7, label: 'Custom Audit', description: 'Configurable audit workflows' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Multi-Currency & International Banking',
@@ -1122,7 +1214,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No currency features' },
         zoho: { score: 6, label: 'Basic Currency', description: 'Simple currency tracking' },
         freshworks: { score: 3, label: 'Not Available', description: 'No currency capabilities' },
-        odoo: { score: 8, label: 'Currency Module', description: 'Configurable multi-currency support' }
+        odoo: { score: 8, label: 'Currency Module', description: 'Configurable multi-currency support' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       }
     ]
   },
@@ -1187,7 +1280,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No B2B catalog management' },
         zoho: { score: 6, label: 'Basic Catalog', description: 'Simple product catalog' },
         freshworks: { score: 3, label: 'Not Available', description: 'No catalog features' },
-        odoo: { score: 8, label: 'Full Catalog', description: 'Complete product catalog management' }
+        odoo: { score: 8, label: 'Full Catalog', description: 'Complete product catalog management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Quote & Proposal Management',
@@ -1196,7 +1290,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 5, label: 'Basic Quotes', description: 'Simple quote generation' },
         zoho: { score: 7, label: 'Good Quotes', description: 'Quote management with templates' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic quote tracking' },
-        odoo: { score: 8, label: 'Quote Module', description: 'Configurable quote management' }
+        odoo: { score: 8, label: 'Quote Module', description: 'Configurable quote management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Account-Based Selling & Territory Management',
@@ -1205,7 +1300,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 7, label: 'Good ABS', description: 'Account-based marketing and selling' },
         zoho: { score: 7, label: 'Good ABS', description: 'Account management and territory planning' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic account management' },
-        odoo: { score: 8, label: 'Custom ABS', description: 'Configurable account-based selling' }
+        odoo: { score: 8, label: 'Custom ABS', description: 'Configurable account-based selling' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Bulk Order Processing & Approval Workflows',
@@ -1214,7 +1310,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No bulk order processing' },
         zoho: { score: 6, label: 'Basic Bulk', description: 'Simple bulk order handling' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic order management' },
-        odoo: { score: 8, label: 'Bulk Orders', description: 'Configurable bulk order processing' }
+        odoo: { score: 8, label: 'Bulk Orders', description: 'Configurable bulk order processing' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Contract & Pricing Management',
@@ -1223,7 +1320,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No contract management' },
         zoho: { score: 6, label: 'Basic Contracts', description: 'Simple contract tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic document management' },
-        odoo: { score: 8, label: 'Contract Module', description: 'Configurable contract management' }
+        odoo: { score: 8, label: 'Contract Module', description: 'Configurable contract management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Customer Self-Service Portal',
@@ -1232,7 +1330,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Portal', description: 'Simple customer portal' },
         zoho: { score: 7, label: 'Good Portal', description: 'Customer self-service portal' },
         freshworks: { score: 6, label: 'Support Portal', description: 'Support-focused portal' },
-        odoo: { score: 8, label: 'Custom Portal', description: 'Configurable customer portal' }
+        odoo: { score: 8, label: 'Custom Portal', description: 'Configurable customer portal' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'ERP Integration & Data Synchronization',
@@ -1241,7 +1340,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No ERP integration' },
         zoho: { score: 7, label: 'Good Integration', description: 'ERP integration capabilities' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic integration' },
-        odoo: { score: 9, label: 'Native ERP', description: 'Built-in ERP with full integration' }
+        odoo: { score: 9, label: 'Native ERP', description: 'Built-in ERP with full integration' },
+        salezbuzz: { score: 8, label: 'Strong Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Multi-Level Pricing & Discount Management',
@@ -1250,7 +1350,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No pricing management' },
         zoho: { score: 6, label: 'Basic Pricing', description: 'Simple pricing management' },
         freshworks: { score: 3, label: 'Not Available', description: 'No pricing features' },
-        odoo: { score: 8, label: 'Pricing Module', description: 'Configurable pricing management' }
+        odoo: { score: 8, label: 'Pricing Module', description: 'Configurable pricing management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Supplier & Vendor Management',
@@ -1259,7 +1360,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 5, label: 'Basic CRM', description: 'Simple contact management' },
         zoho: { score: 7, label: 'Good Suppliers', description: 'Supplier relationship management' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic vendor management' },
-        odoo: { score: 9, label: 'Procurement Suite', description: 'Complete procurement management' }
+        odoo: { score: 9, label: 'Procurement Suite', description: 'Complete procurement management' },
+        salezbuzz: { score: 8, label: 'Strong Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Credit Management & Payment Terms',
@@ -1268,7 +1370,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No credit management' },
         zoho: { score: 6, label: 'Basic Credit', description: 'Simple credit tracking' },
         freshworks: { score: 3, label: 'Not Available', description: 'No credit features' },
-        odoo: { score: 8, label: 'Credit Module', description: 'Configurable credit management' }
+        odoo: { score: 8, label: 'Credit Module', description: 'Configurable credit management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Sales Territory & Channel Management',
@@ -1277,7 +1380,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Territory', description: 'Simple territory assignment' },
         zoho: { score: 7, label: 'Good Territory', description: 'Territory and channel management' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic territory tracking' },
-        odoo: { score: 8, label: 'Territory Module', description: 'Configurable territory management' }
+        odoo: { score: 8, label: 'Territory Module', description: 'Configurable territory management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'B2B Analytics & Reporting',
@@ -1286,7 +1390,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 7, label: 'Good Analytics', description: 'Sales and marketing analytics' },
         zoho: { score: 7, label: 'Good Analytics', description: 'Business intelligence and reporting' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic analytics' },
-        odoo: { score: 8, label: 'Full BI', description: 'Complete business intelligence suite' }
+        odoo: { score: 8, label: 'Full BI', description: 'Complete business intelligence suite' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Customer Onboarding & Setup',
@@ -1295,7 +1400,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Onboarding', description: 'Simple customer setup' },
         zoho: { score: 7, label: 'Good Onboarding', description: 'Customer onboarding management' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic customer management' },
-        odoo: { score: 8, label: 'Custom Onboarding', description: 'Configurable onboarding workflows' }
+        odoo: { score: 8, label: 'Custom Onboarding', description: 'Configurable onboarding workflows' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Multi-Currency & International Support',
@@ -1304,7 +1410,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No multi-currency support' },
         zoho: { score: 7, label: 'Good Currency', description: 'Multi-currency support' },
         freshworks: { score: 3, label: 'Not Available', description: 'No currency features' },
-        odoo: { score: 8, label: 'Currency Module', description: 'Configurable multi-currency support' }
+        odoo: { score: 8, label: 'Currency Module', description: 'Configurable multi-currency support' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Compliance & Regulatory Management',
@@ -1313,7 +1420,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No compliance features' },
         zoho: { score: 6, label: 'Basic Compliance', description: 'Simple compliance tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic audit trails' },
-        odoo: { score: 7, label: 'Custom Compliance', description: 'Configurable compliance workflows' }
+        odoo: { score: 7, label: 'Custom Compliance', description: 'Configurable compliance workflows' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Mobile B2B Commerce',
@@ -1322,7 +1430,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 5, label: 'Basic Mobile', description: 'Simple mobile interface' },
         zoho: { score: 7, label: 'Good Mobile', description: 'Mobile commerce capabilities' },
         freshworks: { score: 5, label: 'Limited Mobile', description: 'Basic mobile access' },
-        odoo: { score: 8, label: 'Custom Mobile', description: 'Configurable mobile commerce' }
+        odoo: { score: 8, label: 'Custom Mobile', description: 'Configurable mobile commerce' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Customer Communication & Collaboration',
@@ -1331,7 +1440,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 7, label: 'Good Communication', description: 'Email and communication tools' },
         zoho: { score: 7, label: 'Good Communication', description: 'Customer communication management' },
         freshworks: { score: 6, label: 'Communication Focus', description: 'Communication and support tools' },
-        odoo: { score: 8, label: 'Custom Communication', description: 'Configurable communication workflows' }
+        odoo: { score: 8, label: 'Custom Communication', description: 'Configurable communication workflows' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Workflow Automation & Process Management',
@@ -1340,7 +1450,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Automation', description: 'Simple workflow automation' },
         zoho: { score: 7, label: 'Good Automation', description: 'Workflow automation tools' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic process management' },
-        odoo: { score: 8, label: 'Custom Automation', description: 'Configurable workflow automation' }
+        odoo: { score: 8, label: 'Custom Automation', description: 'Configurable workflow automation' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       }
     ]
   },
@@ -1400,7 +1511,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No project management' },
         zoho: { score: 7, label: 'Good Projects', description: 'Project management with resource planning' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic project tracking' },
-        odoo: { score: 8, label: 'Project Module', description: 'Configurable project management' }
+        odoo: { score: 8, label: 'Project Module', description: 'Configurable project management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Time & Expense Tracking',
@@ -1409,7 +1521,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No time tracking' },
         zoho: { score: 7, label: 'Good Time', description: 'Time tracking and expense management' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic time tracking' },
-        odoo: { score: 8, label: 'Time Module', description: 'Configurable time and expense tracking' }
+        odoo: { score: 8, label: 'Time Module', description: 'Configurable time and expense tracking' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Client Relationship Management',
@@ -1418,7 +1531,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 8, label: 'Good CRM', description: 'Advanced client relationship management' },
         zoho: { score: 7, label: 'Good CRM', description: 'Client relationship management' },
         freshworks: { score: 6, label: 'Basic CRM', description: 'Simple client management' },
-        odoo: { score: 8, label: 'Custom CRM', description: 'Configurable client management' }
+        odoo: { score: 8, label: 'Custom CRM', description: 'Configurable client management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Knowledge Management & Collaboration',
@@ -1427,7 +1541,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Knowledge', description: 'Simple knowledge base' },
         zoho: { score: 7, label: 'Good Knowledge', description: 'Knowledge management system' },
         freshworks: { score: 6, label: 'Knowledge Focus', description: 'Knowledge base and support' },
-        odoo: { score: 7, label: 'Knowledge Module', description: 'Configurable knowledge management' }
+        odoo: { score: 7, label: 'Knowledge Module', description: 'Configurable knowledge management' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Client Portal & Self-Service',
@@ -1436,7 +1551,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Portal', description: 'Simple client portal' },
         zoho: { score: 7, label: 'Good Portal', description: 'Client self-service portal' },
         freshworks: { score: 6, label: 'Support Portal', description: 'Support-focused client portal' },
-        odoo: { score: 8, label: 'Custom Portal', description: 'Configurable client portal' }
+        odoo: { score: 8, label: 'Custom Portal', description: 'Configurable client portal' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Billing & Invoicing Management',
@@ -1445,7 +1561,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No billing capabilities' },
         zoho: { score: 7, label: 'Good Billing', description: 'Billing and invoicing management' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic billing tracking' },
-        odoo: { score: 9, label: 'Full Billing', description: 'Complete billing and accounting suite' }
+        odoo: { score: 9, label: 'Full Billing', description: 'Complete billing and accounting suite' },
+        salezbuzz: { score: 8, label: 'Strong Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Resource Allocation & Utilization',
@@ -1454,7 +1571,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No resource management' },
         zoho: { score: 6, label: 'Basic Resources', description: 'Simple resource tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic resource management' },
-        odoo: { score: 8, label: 'Resource Module', description: 'Configurable resource management' }
+        odoo: { score: 8, label: 'Resource Module', description: 'Configurable resource management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Project Profitability & Analytics',
@@ -1463,7 +1581,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No profitability analytics' },
         zoho: { score: 6, label: 'Basic Analytics', description: 'Simple project analytics' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic reporting' },
-        odoo: { score: 8, label: 'Full Analytics', description: 'Complete business intelligence suite' }
+        odoo: { score: 8, label: 'Full Analytics', description: 'Complete business intelligence suite' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Client Communication & Collaboration',
@@ -1472,7 +1591,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 7, label: 'Good Communication', description: 'Email and communication tools' },
         zoho: { score: 7, label: 'Good Communication', description: 'Client communication management' },
         freshworks: { score: 6, label: 'Communication Focus', description: 'Communication and support tools' },
-        odoo: { score: 8, label: 'Custom Communication', description: 'Configurable communication workflows' }
+        odoo: { score: 8, label: 'Custom Communication', description: 'Configurable communication workflows' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Document Management & Version Control',
@@ -1481,7 +1601,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 5, label: 'Basic Documents', description: 'Simple document storage' },
         zoho: { score: 7, label: 'Good Documents', description: 'Document management system' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic document storage' },
-        odoo: { score: 8, label: 'Document Module', description: 'Configurable document management' }
+        odoo: { score: 8, label: 'Document Module', description: 'Configurable document management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Team Collaboration & Communication',
@@ -1490,7 +1611,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Collaboration', description: 'Simple team communication' },
         zoho: { score: 7, label: 'Good Collaboration', description: 'Team collaboration tools' },
         freshworks: { score: 6, label: 'Collaboration Focus', description: 'Team communication and support' },
-        odoo: { score: 7, label: 'Custom Collaboration', description: 'Configurable collaboration tools' }
+        odoo: { score: 7, label: 'Custom Collaboration', description: 'Configurable collaboration tools' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Client Onboarding & Setup',
@@ -1499,7 +1621,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Onboarding', description: 'Simple client setup' },
         zoho: { score: 7, label: 'Good Onboarding', description: 'Client onboarding management' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic client management' },
-        odoo: { score: 8, label: 'Custom Onboarding', description: 'Configurable onboarding workflows' }
+        odoo: { score: 8, label: 'Custom Onboarding', description: 'Configurable onboarding workflows' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Project Templates & Workflows',
@@ -1508,7 +1631,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No project templates' },
         zoho: { score: 6, label: 'Basic Templates', description: 'Simple project templates' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic workflow management' },
-        odoo: { score: 8, label: 'Template Module', description: 'Configurable project templates' }
+        odoo: { score: 8, label: 'Template Module', description: 'Configurable project templates' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Client Satisfaction & Feedback',
@@ -1517,7 +1641,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Feedback', description: 'Simple feedback collection' },
         zoho: { score: 7, label: 'Good Feedback', description: 'Client feedback management' },
         freshworks: { score: 6, label: 'Feedback Focus', description: 'Client feedback and support' },
-        odoo: { score: 7, label: 'Custom Feedback', description: 'Configurable feedback management' }
+        odoo: { score: 7, label: 'Custom Feedback', description: 'Configurable feedback management' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Compliance & Audit Management',
@@ -1526,7 +1651,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No compliance features' },
         zoho: { score: 6, label: 'Basic Compliance', description: 'Simple compliance tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic audit trails' },
-        odoo: { score: 7, label: 'Custom Compliance', description: 'Configurable compliance workflows' }
+        odoo: { score: 7, label: 'Custom Compliance', description: 'Configurable compliance workflows' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Mobile Time Tracking & Field Management',
@@ -1535,7 +1661,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No mobile time tracking' },
         zoho: { score: 7, label: 'Good Mobile', description: 'Mobile time tracking capabilities' },
         freshworks: { score: 5, label: 'Limited Mobile', description: 'Basic mobile access' },
-        odoo: { score: 8, label: 'Custom Mobile', description: 'Configurable mobile time tracking' }
+        odoo: { score: 8, label: 'Custom Mobile', description: 'Configurable mobile time tracking' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Client Reporting & Dashboards',
@@ -1544,7 +1671,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Reporting', description: 'Simple reporting tools' },
         zoho: { score: 7, label: 'Good Reporting', description: 'Client reporting and dashboards' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic reporting' },
-        odoo: { score: 8, label: 'Full Reporting', description: 'Complete reporting and analytics suite' }
+        odoo: { score: 8, label: 'Full Reporting', description: 'Complete reporting and analytics suite' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Workflow Automation & Process Management',
@@ -1553,7 +1681,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Automation', description: 'Simple workflow automation' },
         zoho: { score: 7, label: 'Good Automation', description: 'Workflow automation tools' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic process management' },
-        odoo: { score: 8, label: 'Custom Automation', description: 'Configurable workflow automation' }
+        odoo: { score: 8, label: 'Custom Automation', description: 'Configurable workflow automation' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       }
     ]
   },
@@ -1613,7 +1742,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No dealership management' },
         zoho: { score: 6, label: 'Basic Dealership', description: 'Simple dealership tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic location management' },
-        odoo: { score: 8, label: 'Dealership Module', description: 'Configurable dealership management' }
+        odoo: { score: 8, label: 'Dealership Module', description: 'Configurable dealership management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Vehicle Sales & Leasing Management',
@@ -1622,7 +1752,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Sales', description: 'Simple sales tracking' },
         zoho: { score: 7, label: 'Good Sales', description: 'Sales management with leasing' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic sales tracking' },
-        odoo: { score: 8, label: 'Sales Module', description: 'Configurable sales management' }
+        odoo: { score: 8, label: 'Sales Module', description: 'Configurable sales management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Service & Maintenance Management',
@@ -1631,7 +1762,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No service management' },
         zoho: { score: 7, label: 'Good Service', description: 'Service management with scheduling' },
         freshworks: { score: 6, label: 'Service Focus', description: 'Service ticket management' },
-        odoo: { score: 8, label: 'Service Module', description: 'Configurable service management' }
+        odoo: { score: 8, label: 'Service Module', description: 'Configurable service management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Parts & Inventory Management',
@@ -1640,7 +1772,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No inventory management' },
         zoho: { score: 7, label: 'Good Inventory', description: 'Parts inventory management' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic inventory tracking' },
-        odoo: { score: 9, label: 'Full Inventory', description: 'Complete inventory management suite' }
+        odoo: { score: 9, label: 'Full Inventory', description: 'Complete inventory management suite' },
+        salezbuzz: { score: 8, label: 'Strong Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Customer Loyalty & Retention Programs',
@@ -1649,7 +1782,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Loyalty', description: 'Simple loyalty tracking' },
         zoho: { score: 7, label: 'Good Loyalty', description: 'Customer loyalty management' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic customer tracking' },
-        odoo: { score: 8, label: 'Custom Loyalty', description: 'Configurable loyalty programs' }
+        odoo: { score: 8, label: 'Custom Loyalty', description: 'Configurable loyalty programs' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Vehicle Configuration & Customization',
@@ -1658,7 +1792,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No configuration features' },
         zoho: { score: 5, label: 'Basic Config', description: 'Simple configuration tracking' },
         freshworks: { score: 3, label: 'Not Available', description: 'No configuration features' },
-        odoo: { score: 7, label: 'Config Module', description: 'Configurable vehicle management' }
+        odoo: { score: 7, label: 'Config Module', description: 'Configurable vehicle management' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Warranty & Service Contract Management',
@@ -1667,7 +1802,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No warranty management' },
         zoho: { score: 6, label: 'Basic Warranty', description: 'Simple warranty tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic contract management' },
-        odoo: { score: 8, label: 'Warranty Module', description: 'Configurable warranty management' }
+        odoo: { score: 8, label: 'Warranty Module', description: 'Configurable warranty management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Customer Communication & Support',
@@ -1676,7 +1812,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 7, label: 'Good Communication', description: 'Email and communication tools' },
         zoho: { score: 7, label: 'Good Communication', description: 'Customer communication management' },
         freshworks: { score: 6, label: 'Communication Focus', description: 'Communication and support tools' },
-        odoo: { score: 8, label: 'Custom Communication', description: 'Configurable communication workflows' }
+        odoo: { score: 8, label: 'Custom Communication', description: 'Configurable communication workflows' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Mobile Service & Field Management',
@@ -1685,7 +1822,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No mobile service capabilities' },
         zoho: { score: 7, label: 'Good Mobile', description: 'Mobile service capabilities' },
         freshworks: { score: 5, label: 'Limited Mobile', description: 'Basic mobile access' },
-        odoo: { score: 8, label: 'Custom Mobile', description: 'Configurable mobile service management' }
+        odoo: { score: 8, label: 'Custom Mobile', description: 'Configurable mobile service management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Analytics & Performance Monitoring',
@@ -1694,7 +1832,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Analytics', description: 'Simple sales analytics' },
         zoho: { score: 7, label: 'Good Analytics', description: 'Business intelligence and reporting' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic analytics' },
-        odoo: { score: 8, label: 'Full BI', description: 'Complete business intelligence suite' }
+        odoo: { score: 8, label: 'Full BI', description: 'Complete business intelligence suite' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Supply Chain & Vendor Management',
@@ -1703,7 +1842,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No supply chain management' },
         zoho: { score: 7, label: 'Good Supply Chain', description: 'Supply chain management' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic vendor management' },
-        odoo: { score: 9, label: 'Full Supply Chain', description: 'Complete supply chain management suite' }
+        odoo: { score: 9, label: 'Full Supply Chain', description: 'Complete supply chain management suite' },
+        salezbuzz: { score: 8, label: 'Strong Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Quality Control & Compliance',
@@ -1712,7 +1852,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No quality management' },
         zoho: { score: 6, label: 'Basic Quality', description: 'Simple quality tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic issue tracking' },
-        odoo: { score: 8, label: 'Quality Module', description: 'Configurable quality management' }
+        odoo: { score: 8, label: 'Quality Module', description: 'Configurable quality management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Customer Portal & Self-Service',
@@ -1721,7 +1862,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Portal', description: 'Simple customer portal' },
         zoho: { score: 7, label: 'Good Portal', description: 'Customer self-service portal' },
         freshworks: { score: 6, label: 'Support Portal', description: 'Support-focused customer portal' },
-        odoo: { score: 8, label: 'Custom Portal', description: 'Configurable customer portal' }
+        odoo: { score: 8, label: 'Custom Portal', description: 'Configurable customer portal' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Multi-Location & Network Management',
@@ -1730,7 +1872,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No multi-location features' },
         zoho: { score: 6, label: 'Basic Multi-Location', description: 'Simple location tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic location management' },
-        odoo: { score: 8, label: 'Multi-Location Module', description: 'Configurable multi-location management' }
+        odoo: { score: 8, label: 'Multi-Location Module', description: 'Configurable multi-location management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Customer Onboarding & Setup',
@@ -1739,7 +1882,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Onboarding', description: 'Simple customer setup' },
         zoho: { score: 7, label: 'Good Onboarding', description: 'Customer onboarding management' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic customer management' },
-        odoo: { score: 8, label: 'Custom Onboarding', description: 'Configurable onboarding workflows' }
+        odoo: { score: 8, label: 'Custom Onboarding', description: 'Configurable onboarding workflows' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Compliance & Regulatory Management',
@@ -1748,7 +1892,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No compliance features' },
         zoho: { score: 6, label: 'Basic Compliance', description: 'Simple compliance tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic audit trails' },
-        odoo: { score: 7, label: 'Custom Compliance', description: 'Configurable compliance workflows' }
+        odoo: { score: 7, label: 'Custom Compliance', description: 'Configurable compliance workflows' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Customer Feedback & Reviews Management',
@@ -1757,7 +1902,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Feedback', description: 'Simple feedback collection' },
         zoho: { score: 7, label: 'Good Feedback', description: 'Customer feedback management' },
         freshworks: { score: 6, label: 'Feedback Focus', description: 'Customer feedback and support' },
-        odoo: { score: 7, label: 'Custom Feedback', description: 'Configurable feedback management' }
+        odoo: { score: 7, label: 'Custom Feedback', description: 'Configurable feedback management' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Workflow Automation & Process Management',
@@ -1766,7 +1912,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Automation', description: 'Simple workflow automation' },
         zoho: { score: 7, label: 'Good Automation', description: 'Workflow automation tools' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic process management' },
-        odoo: { score: 8, label: 'Custom Automation', description: 'Configurable workflow automation' }
+        odoo: { score: 8, label: 'Custom Automation', description: 'Configurable workflow automation' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       }
     ]
   },
@@ -1826,7 +1973,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 8, label: 'Good Journey', description: 'Customer journey tracking and automation' },
         zoho: { score: 7, label: 'Good Journey', description: 'Customer journey management' },
         freshworks: { score: 6, label: 'Basic Journey', description: 'Simple customer tracking' },
-        odoo: { score: 8, label: 'Custom Journey', description: 'Configurable customer journey management' }
+        odoo: { score: 8, label: 'Custom Journey', description: 'Configurable customer journey management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Booking & Reservation Management',
@@ -1835,7 +1983,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No booking management' },
         zoho: { score: 6, label: 'Basic Booking', description: 'Simple booking tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic reservation tracking' },
-        odoo: { score: 7, label: 'Booking Module', description: 'Configurable booking management' }
+        odoo: { score: 7, label: 'Booking Module', description: 'Configurable booking management' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Loyalty Program Management',
@@ -1844,7 +1993,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Loyalty', description: 'Simple loyalty tracking' },
         zoho: { score: 7, label: 'Good Loyalty', description: 'Customer loyalty management' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic customer tracking' },
-        odoo: { score: 8, label: 'Custom Loyalty', description: 'Configurable loyalty programs' }
+        odoo: { score: 8, label: 'Custom Loyalty', description: 'Configurable loyalty programs' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Customer Service & Support',
@@ -1853,7 +2003,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 7, label: 'Good Service', description: 'Customer service tools' },
         zoho: { score: 8, label: 'Good Service', description: 'Customer service management' },
         freshworks: { score: 9, label: 'Service Focus', description: 'Advanced customer service platform' },
-        odoo: { score: 8, label: 'Service Module', description: 'Configurable service management' }
+        odoo: { score: 8, label: 'Service Module', description: 'Configurable service management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Marketing & Promotions Management',
@@ -1862,7 +2013,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 8, label: 'Good Marketing', description: 'Advanced marketing automation' },
         zoho: { score: 7, label: 'Good Marketing', description: 'Marketing campaign management' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic marketing tracking' },
-        odoo: { score: 7, label: 'Custom Marketing', description: 'Configurable marketing management' }
+        odoo: { score: 7, label: 'Custom Marketing', description: 'Configurable marketing management' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Multi-Channel Booking Integration',
@@ -1871,7 +2023,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No booking integration' },
         zoho: { score: 6, label: 'Basic Integration', description: 'Simple channel integration' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic integration' },
-        odoo: { score: 7, label: 'Custom Integration', description: 'Configurable channel integration' }
+        odoo: { score: 7, label: 'Custom Integration', description: 'Configurable channel integration' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Customer Analytics & Insights',
@@ -1880,7 +2033,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 7, label: 'Good Analytics', description: 'Customer and marketing analytics' },
         zoho: { score: 7, label: 'Good Analytics', description: 'Business intelligence and reporting' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic analytics' },
-        odoo: { score: 8, label: 'Full BI', description: 'Complete business intelligence suite' }
+        odoo: { score: 8, label: 'Full BI', description: 'Complete business intelligence suite' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Mobile Travel Management',
@@ -1889,7 +2043,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 5, label: 'Basic Mobile', description: 'Simple mobile interface' },
         zoho: { score: 7, label: 'Good Mobile', description: 'Mobile travel capabilities' },
         freshworks: { score: 5, label: 'Limited Mobile', description: 'Basic mobile access' },
-        odoo: { score: 8, label: 'Custom Mobile', description: 'Configurable mobile travel management' }
+        odoo: { score: 8, label: 'Custom Mobile', description: 'Configurable mobile travel management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Customer Communication & Notifications',
@@ -1898,7 +2053,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 7, label: 'Good Communication', description: 'Email and communication tools' },
         zoho: { score: 7, label: 'Good Communication', description: 'Customer communication management' },
         freshworks: { score: 6, label: 'Communication Focus', description: 'Communication and support tools' },
-        odoo: { score: 8, label: 'Custom Communication', description: 'Configurable communication workflows' }
+        odoo: { score: 8, label: 'Custom Communication', description: 'Configurable communication workflows' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Revenue Management & Pricing',
@@ -1907,7 +2063,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No revenue management' },
         zoho: { score: 6, label: 'Basic Revenue', description: 'Simple revenue tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic financial tracking' },
-        odoo: { score: 7, label: 'Revenue Module', description: 'Configurable revenue management' }
+        odoo: { score: 7, label: 'Revenue Module', description: 'Configurable revenue management' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Customer Portal & Self-Service',
@@ -1916,7 +2073,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Portal', description: 'Simple customer portal' },
         zoho: { score: 7, label: 'Good Portal', description: 'Customer self-service portal' },
         freshworks: { score: 6, label: 'Support Portal', description: 'Support-focused customer portal' },
-        odoo: { score: 8, label: 'Custom Portal', description: 'Configurable customer portal' }
+        odoo: { score: 8, label: 'Custom Portal', description: 'Configurable customer portal' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Partner & Channel Management',
@@ -1925,7 +2083,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Partners', description: 'Simple partner tracking' },
         zoho: { score: 7, label: 'Good Partners', description: 'Partner relationship management' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic partner tracking' },
-        odoo: { score: 8, label: 'Partner Module', description: 'Configurable partner management' }
+        odoo: { score: 8, label: 'Partner Module', description: 'Configurable partner management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Customer Onboarding & Setup',
@@ -1934,7 +2093,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Onboarding', description: 'Simple customer setup' },
         zoho: { score: 7, label: 'Good Onboarding', description: 'Customer onboarding management' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic customer management' },
-        odoo: { score: 8, label: 'Custom Onboarding', description: 'Configurable onboarding workflows' }
+        odoo: { score: 8, label: 'Custom Onboarding', description: 'Configurable onboarding workflows' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Compliance & Regulatory Management',
@@ -1943,7 +2103,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No compliance features' },
         zoho: { score: 6, label: 'Basic Compliance', description: 'Simple compliance tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic audit trails' },
-        odoo: { score: 7, label: 'Custom Compliance', description: 'Configurable compliance workflows' }
+        odoo: { score: 7, label: 'Custom Compliance', description: 'Configurable compliance workflows' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Customer Feedback & Reviews Management',
@@ -1952,7 +2113,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Feedback', description: 'Simple feedback collection' },
         zoho: { score: 7, label: 'Good Feedback', description: 'Customer feedback management' },
         freshworks: { score: 6, label: 'Feedback Focus', description: 'Customer feedback and support' },
-        odoo: { score: 7, label: 'Custom Feedback', description: 'Configurable feedback management' }
+        odoo: { score: 7, label: 'Custom Feedback', description: 'Configurable feedback management' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Workflow Automation & Process Management',
@@ -1961,7 +2123,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Automation', description: 'Simple workflow automation' },
         zoho: { score: 7, label: 'Good Automation', description: 'Workflow automation tools' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic process management' },
-        odoo: { score: 8, label: 'Custom Automation', description: 'Configurable workflow automation' }
+        odoo: { score: 8, label: 'Custom Automation', description: 'Configurable workflow automation' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       }
     ]
   },
@@ -2021,7 +2184,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No supply chain management' },
         zoho: { score: 7, label: 'Good Supply Chain', description: 'Supply chain management' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic vendor management' },
-        odoo: { score: 9, label: 'Full Supply Chain', description: 'Complete supply chain management suite' }
+        odoo: { score: 9, label: 'Full Supply Chain', description: 'Complete supply chain management suite' },
+        salezbuzz: { score: 8, label: 'Strong Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Quality Control & Compliance Management',
@@ -2030,7 +2194,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No quality management' },
         zoho: { score: 6, label: 'Basic Quality', description: 'Simple quality tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic issue tracking' },
-        odoo: { score: 8, label: 'Quality Module', description: 'Configurable quality management' }
+        odoo: { score: 8, label: 'Quality Module', description: 'Configurable quality management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Customer & Distributor Management',
@@ -2039,7 +2204,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 7, label: 'Good CRM', description: 'Customer relationship management' },
         zoho: { score: 7, label: 'Good CRM', description: 'Customer and distributor management' },
         freshworks: { score: 6, label: 'Basic CRM', description: 'Simple customer management' },
-        odoo: { score: 8, label: 'Custom CRM', description: 'Configurable customer management' }
+        odoo: { score: 8, label: 'Custom CRM', description: 'Configurable customer management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Product Recall Management',
@@ -2048,7 +2214,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No recall management' },
         zoho: { score: 5, label: 'Basic Recall', description: 'Simple recall tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic case management' },
-        odoo: { score: 7, label: 'Recall Module', description: 'Configurable recall management' }
+        odoo: { score: 7, label: 'Recall Module', description: 'Configurable recall management' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Marketing & Promotions Management',
@@ -2057,7 +2224,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 8, label: 'Good Marketing', description: 'Advanced marketing automation' },
         zoho: { score: 7, label: 'Good Marketing', description: 'Marketing campaign management' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic marketing tracking' },
-        odoo: { score: 7, label: 'Custom Marketing', description: 'Configurable marketing management' }
+        odoo: { score: 7, label: 'Custom Marketing', description: 'Configurable marketing management' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Inventory Management & Optimization',
@@ -2066,7 +2234,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No inventory management' },
         zoho: { score: 7, label: 'Good Inventory', description: 'Inventory tracking and management' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic inventory tracking' },
-        odoo: { score: 9, label: 'Full Inventory', description: 'Complete inventory management suite' }
+        odoo: { score: 9, label: 'Full Inventory', description: 'Complete inventory management suite' },
+        salezbuzz: { score: 8, label: 'Strong Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Regulatory Compliance & Documentation',
@@ -2075,7 +2244,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No compliance features' },
         zoho: { score: 6, label: 'Basic Compliance', description: 'Simple compliance tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic audit trails' },
-        odoo: { score: 7, label: 'Custom Compliance', description: 'Configurable compliance workflows' }
+        odoo: { score: 7, label: 'Custom Compliance', description: 'Configurable compliance workflows' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Customer Service & Support',
@@ -2084,7 +2254,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 7, label: 'Good Service', description: 'Customer service tools' },
         zoho: { score: 8, label: 'Good Service', description: 'Customer service management' },
         freshworks: { score: 9, label: 'Service Focus', description: 'Advanced customer service platform' },
-        odoo: { score: 8, label: 'Service Module', description: 'Configurable service management' }
+        odoo: { score: 8, label: 'Service Module', description: 'Configurable service management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Analytics & Business Intelligence',
@@ -2093,7 +2264,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Analytics', description: 'Simple analytics' },
         zoho: { score: 7, label: 'Good Analytics', description: 'Business intelligence and reporting' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic analytics' },
-        odoo: { score: 8, label: 'Full BI', description: 'Complete business intelligence suite' }
+        odoo: { score: 8, label: 'Full BI', description: 'Complete business intelligence suite' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Mobile Field Management',
@@ -2102,7 +2274,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No mobile field capabilities' },
         zoho: { score: 7, label: 'Good Mobile', description: 'Mobile field capabilities' },
         freshworks: { score: 5, label: 'Limited Mobile', description: 'Basic mobile access' },
-        odoo: { score: 8, label: 'Custom Mobile', description: 'Configurable mobile field management' }
+        odoo: { score: 8, label: 'Custom Mobile', description: 'Configurable mobile field management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Customer Communication & Notifications',
@@ -2111,7 +2284,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 7, label: 'Good Communication', description: 'Email and communication tools' },
         zoho: { score: 7, label: 'Good Communication', description: 'Customer communication management' },
         freshworks: { score: 6, label: 'Communication Focus', description: 'Communication and support tools' },
-        odoo: { score: 8, label: 'Custom Communication', description: 'Configurable communication workflows' }
+        odoo: { score: 8, label: 'Custom Communication', description: 'Configurable communication workflows' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Revenue Management & Pricing',
@@ -2120,7 +2294,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No revenue management' },
         zoho: { score: 6, label: 'Basic Revenue', description: 'Simple revenue tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic financial tracking' },
-        odoo: { score: 7, label: 'Revenue Module', description: 'Configurable revenue management' }
+        odoo: { score: 7, label: 'Revenue Module', description: 'Configurable revenue management' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Customer Portal & Self-Service',
@@ -2129,7 +2304,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Portal', description: 'Simple customer portal' },
         zoho: { score: 7, label: 'Good Portal', description: 'Customer self-service portal' },
         freshworks: { score: 6, label: 'Support Portal', description: 'Support-focused customer portal' },
-        odoo: { score: 8, label: 'Custom Portal', description: 'Configurable customer portal' }
+        odoo: { score: 8, label: 'Custom Portal', description: 'Configurable customer portal' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Partner & Channel Management',
@@ -2138,7 +2314,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Partners', description: 'Simple partner tracking' },
         zoho: { score: 7, label: 'Good Partners', description: 'Partner relationship management' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic partner tracking' },
-        odoo: { score: 8, label: 'Partner Module', description: 'Configurable partner management' }
+        odoo: { score: 8, label: 'Partner Module', description: 'Configurable partner management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Customer Onboarding & Setup',
@@ -2147,7 +2324,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Onboarding', description: 'Simple customer setup' },
         zoho: { score: 7, label: 'Good Onboarding', description: 'Customer onboarding management' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic customer management' },
-        odoo: { score: 8, label: 'Custom Onboarding', description: 'Configurable onboarding workflows' }
+        odoo: { score: 8, label: 'Custom Onboarding', description: 'Configurable onboarding workflows' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Customer Feedback & Reviews Management',
@@ -2156,7 +2334,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Feedback', description: 'Simple feedback collection' },
         zoho: { score: 7, label: 'Good Feedback', description: 'Customer feedback management' },
         freshworks: { score: 6, label: 'Feedback Focus', description: 'Customer feedback and support' },
-        odoo: { score: 7, label: 'Custom Feedback', description: 'Configurable feedback management' }
+        odoo: { score: 7, label: 'Custom Feedback', description: 'Configurable feedback management' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Workflow Automation & Process Management',
@@ -2165,7 +2344,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Automation', description: 'Simple workflow automation' },
         zoho: { score: 7, label: 'Good Automation', description: 'Workflow automation tools' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic process management' },
-        odoo: { score: 8, label: 'Custom Automation', description: 'Configurable workflow automation' }
+        odoo: { score: 8, label: 'Custom Automation', description: 'Configurable workflow automation' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       }
     ]
   },
@@ -2225,7 +2405,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 7, label: 'Good CRM', description: 'Customer relationship management' },
         zoho: { score: 7, label: 'Good CRM', description: 'Customer account management' },
         freshworks: { score: 6, label: 'Basic CRM', description: 'Simple customer management' },
-        odoo: { score: 8, label: 'Custom CRM', description: 'Configurable customer management' }
+        odoo: { score: 8, label: 'Custom CRM', description: 'Configurable customer management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Service Request Management',
@@ -2234,7 +2415,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Service', description: 'Simple service tracking' },
         zoho: { score: 7, label: 'Good Service', description: 'Service request management' },
         freshworks: { score: 8, label: 'Service Focus', description: 'Advanced service management' },
-        odoo: { score: 8, label: 'Service Module', description: 'Configurable service management' }
+        odoo: { score: 8, label: 'Service Module', description: 'Configurable service management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Billing & Payment Processing',
@@ -2243,7 +2425,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No billing capabilities' },
         zoho: { score: 7, label: 'Good Billing', description: 'Billing and payment management' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic payment tracking' },
-        odoo: { score: 9, label: 'Full Billing', description: 'Complete billing and accounting suite' }
+        odoo: { score: 9, label: 'Full Billing', description: 'Complete billing and accounting suite' },
+        salezbuzz: { score: 8, label: 'Strong Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Field Service Operations',
@@ -2252,7 +2435,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No field service capabilities' },
         zoho: { score: 7, label: 'Good Service', description: 'Field service management' },
         freshworks: { score: 6, label: 'Service Focus', description: 'Service ticket management' },
-        odoo: { score: 8, label: 'Service Module', description: 'Configurable field service management' }
+        odoo: { score: 8, label: 'Service Module', description: 'Configurable field service management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Energy Usage Analytics',
@@ -2261,7 +2445,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No energy analytics' },
         zoho: { score: 6, label: 'Basic Analytics', description: 'Simple usage tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic analytics' },
-        odoo: { score: 7, label: 'Custom Analytics', description: 'Configurable energy analytics' }
+        odoo: { score: 7, label: 'Custom Analytics', description: 'Configurable energy analytics' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Regulatory Compliance Management',
@@ -2270,7 +2455,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No compliance features' },
         zoho: { score: 6, label: 'Basic Compliance', description: 'Simple compliance tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic audit trails' },
-        odoo: { score: 7, label: 'Custom Compliance', description: 'Configurable compliance workflows' }
+        odoo: { score: 7, label: 'Custom Compliance', description: 'Configurable compliance workflows' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Customer Communication & Notifications',
@@ -2279,7 +2465,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 7, label: 'Good Communication', description: 'Email and communication tools' },
         zoho: { score: 7, label: 'Good Communication', description: 'Customer communication management' },
         freshworks: { score: 6, label: 'Communication Focus', description: 'Communication and support tools' },
-        odoo: { score: 8, label: 'Custom Communication', description: 'Configurable communication workflows' }
+        odoo: { score: 8, label: 'Custom Communication', description: 'Configurable communication workflows' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Mobile Field Management',
@@ -2288,7 +2475,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No mobile field capabilities' },
         zoho: { score: 7, label: 'Good Mobile', description: 'Mobile field capabilities' },
         freshworks: { score: 5, label: 'Limited Mobile', description: 'Basic mobile access' },
-        odoo: { score: 8, label: 'Custom Mobile', description: 'Configurable mobile field management' }
+        odoo: { score: 8, label: 'Custom Mobile', description: 'Configurable mobile field management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Customer Portal & Self-Service',
@@ -2297,7 +2485,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Portal', description: 'Simple customer portal' },
         zoho: { score: 7, label: 'Good Portal', description: 'Customer self-service portal' },
         freshworks: { score: 6, label: 'Support Portal', description: 'Support-focused customer portal' },
-        odoo: { score: 8, label: 'Custom Portal', description: 'Configurable customer portal' }
+        odoo: { score: 8, label: 'Custom Portal', description: 'Configurable customer portal' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Customer Onboarding & Setup',
@@ -2306,7 +2495,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Onboarding', description: 'Simple customer setup' },
         zoho: { score: 7, label: 'Good Onboarding', description: 'Customer onboarding management' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic customer management' },
-        odoo: { score: 8, label: 'Custom Onboarding', description: 'Configurable onboarding workflows' }
+        odoo: { score: 8, label: 'Custom Onboarding', description: 'Configurable onboarding workflows' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Customer Feedback & Reviews Management',
@@ -2315,7 +2505,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Feedback', description: 'Simple feedback collection' },
         zoho: { score: 7, label: 'Good Feedback', description: 'Customer feedback management' },
         freshworks: { score: 6, label: 'Feedback Focus', description: 'Customer feedback and support' },
-        odoo: { score: 7, label: 'Custom Feedback', description: 'Configurable feedback management' }
+        odoo: { score: 7, label: 'Custom Feedback', description: 'Configurable feedback management' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Workflow Automation & Process Management',
@@ -2324,7 +2515,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Automation', description: 'Simple workflow automation' },
         zoho: { score: 7, label: 'Good Automation', description: 'Workflow automation tools' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic process management' },
-        odoo: { score: 8, label: 'Custom Automation', description: 'Configurable workflow automation' }
+        odoo: { score: 8, label: 'Custom Automation', description: 'Configurable workflow automation' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       }
     ]
   },
@@ -2384,7 +2576,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Service', description: 'Simple citizen tracking' },
         zoho: { score: 7, label: 'Good Service', description: 'Citizen service management' },
         freshworks: { score: 7, label: 'Service Focus', description: 'Citizen service platform' },
-        odoo: { score: 8, label: 'Service Module', description: 'Configurable citizen service management' }
+        odoo: { score: 8, label: 'Service Module', description: 'Configurable citizen service management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Case & Document Management',
@@ -2393,7 +2586,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 4, label: 'Not Available', description: 'No case management' },
         zoho: { score: 6, label: 'Basic Cases', description: 'Simple case tracking' },
         freshworks: { score: 6, label: 'Case Focus', description: 'Case management system' },
-        odoo: { score: 7, label: 'Case Module', description: 'Configurable case management' }
+        odoo: { score: 7, label: 'Case Module', description: 'Configurable case management' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Public Portal Development',
@@ -2402,7 +2596,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Portal', description: 'Simple public portal' },
         zoho: { score: 7, label: 'Good Portal', description: 'Public portal development' },
         freshworks: { score: 6, label: 'Support Portal', description: 'Support-focused portal' },
-        odoo: { score: 8, label: 'Custom Portal', description: 'Configurable public portal' }
+        odoo: { score: 8, label: 'Custom Portal', description: 'Configurable public portal' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Internal Process Automation',
@@ -2411,7 +2606,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Automation', description: 'Simple workflow automation' },
         zoho: { score: 7, label: 'Good Automation', description: 'Process automation tools' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic process management' },
-        odoo: { score: 8, label: 'Custom Automation', description: 'Configurable process automation' }
+        odoo: { score: 8, label: 'Custom Automation', description: 'Configurable process automation' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Compliance & Reporting',
@@ -2420,7 +2616,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 3, label: 'Not Available', description: 'No compliance features' },
         zoho: { score: 6, label: 'Basic Compliance', description: 'Simple compliance tracking' },
         freshworks: { score: 4, label: 'Limited', description: 'Basic audit trails' },
-        odoo: { score: 7, label: 'Custom Compliance', description: 'Configurable compliance workflows' }
+        odoo: { score: 7, label: 'Custom Compliance', description: 'Configurable compliance workflows' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Citizen Communication & Notifications',
@@ -2429,7 +2626,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 7, label: 'Good Communication', description: 'Email and communication tools' },
         zoho: { score: 7, label: 'Good Communication', description: 'Citizen communication management' },
         freshworks: { score: 6, label: 'Communication Focus', description: 'Communication and support tools' },
-        odoo: { score: 8, label: 'Custom Communication', description: 'Configurable communication workflows' }
+        odoo: { score: 8, label: 'Custom Communication', description: 'Configurable communication workflows' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Mobile Government Services',
@@ -2438,7 +2636,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 5, label: 'Basic Mobile', description: 'Simple mobile interface' },
         zoho: { score: 7, label: 'Good Mobile', description: 'Mobile government capabilities' },
         freshworks: { score: 5, label: 'Limited Mobile', description: 'Basic mobile access' },
-        odoo: { score: 8, label: 'Custom Mobile', description: 'Configurable mobile government services' }
+        odoo: { score: 8, label: 'Custom Mobile', description: 'Configurable mobile government services' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Citizen Analytics & Insights',
@@ -2447,7 +2646,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Analytics', description: 'Simple citizen analytics' },
         zoho: { score: 7, label: 'Good Analytics', description: 'Government analytics and reporting' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic analytics' },
-        odoo: { score: 8, label: 'Full BI', description: 'Complete business intelligence suite' }
+        odoo: { score: 8, label: 'Full BI', description: 'Complete business intelligence suite' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Citizen Onboarding & Registration',
@@ -2456,7 +2656,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Onboarding', description: 'Simple citizen setup' },
         zoho: { score: 7, label: 'Good Onboarding', description: 'Citizen onboarding management' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic citizen management' },
-        odoo: { score: 8, label: 'Custom Onboarding', description: 'Configurable onboarding workflows' }
+        odoo: { score: 8, label: 'Custom Onboarding', description: 'Configurable onboarding workflows' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Citizen Feedback & Reviews Management',
@@ -2465,7 +2666,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Feedback', description: 'Simple feedback collection' },
         zoho: { score: 7, label: 'Good Feedback', description: 'Citizen feedback management' },
         freshworks: { score: 6, label: 'Feedback Focus', description: 'Citizen feedback and support' },
-        odoo: { score: 7, label: 'Custom Feedback', description: 'Configurable feedback management' }
+        odoo: { score: 7, label: 'Custom Feedback', description: 'Configurable feedback management' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
       },
       {
         metric: 'Workflow Automation & Process Management',
@@ -2474,7 +2676,8 @@ export const industries: IndustryData[] = [
         hubspot: { score: 6, label: 'Basic Automation', description: 'Simple workflow automation' },
         zoho: { score: 7, label: 'Good Automation', description: 'Workflow automation tools' },
         freshworks: { score: 5, label: 'Limited', description: 'Basic process management' },
-        odoo: { score: 8, label: 'Custom Automation', description: 'Configurable workflow automation' }
+        odoo: { score: 8, label: 'Custom Automation', description: 'Configurable workflow automation' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       }
     ]
   }

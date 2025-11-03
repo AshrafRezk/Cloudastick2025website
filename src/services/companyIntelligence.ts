@@ -566,16 +566,79 @@ Your response:`;
 };
 
 /**
+ * Check backend cache for company data
+ */
+const checkBackendCache = async (domain: string): Promise<CompanyIntelligence | null> => {
+  try {
+    const response = await fetch('/.netlify/functions/searchCompanies', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ domain }),
+    });
+    
+    if (!response.ok) {
+      return null;
+    }
+    
+    const result = await response.json();
+    
+    // Check if we found an exact or high-confidence match
+    if (result.found && result.data) {
+      console.log('💾 Found cached data in backend:', result.exact ? 'exact match' : `similarity: ${result.similarityScore}`);
+      return result.data;
+    }
+    
+    return null;
+  } catch (error) {
+    console.log('⚠️ Backend cache check failed:', error);
+    return null;
+  }
+};
+
+/**
+ * Save company intelligence to backend cache
+ */
+const saveToBackendCache = async (domain: string, intelligence: CompanyIntelligence): Promise<void> => {
+  try {
+    await fetch('/.netlify/functions/saveCompanyData', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        domain,
+        data: intelligence,
+      }),
+    });
+    console.log('💾 Saved to backend cache');
+  } catch (error) {
+    console.log('⚠️ Failed to save to backend cache:', error);
+    // Don't throw - caching is optional
+  }
+};
+
+/**
  * Main function to enrich company with full intelligence
  */
 export const enrichCompany = async (domain: string, forceRefresh = false): Promise<CompanyIntelligence> => {
   const cleanedDomain = cleanDomain(domain);
   
-  // Check cache first
+  // Check local cache first
   if (!forceRefresh) {
     const cached = getCachedData(cleanedDomain);
     if (cached) {
+      console.log('💾 Using local cache');
       return cached;
+    }
+    
+    // Check backend cache (shared across users)
+    const backendCached = await checkBackendCache(cleanedDomain);
+    if (backendCached) {
+      // Also save to local cache
+      setCachedData(cleanedDomain, backendCached);
+      return backendCached;
     }
   }
   
@@ -619,8 +682,11 @@ export const enrichCompany = async (domain: string, forceRefresh = false): Promi
       expiresAt: Date.now() + CACHE_DURATION,
     };
     
-    // Cache the results
+    // Cache the results locally
     setCachedData(cleanedDomain, intelligence);
+    
+    // Save to backend cache for other users (don't await - fire and forget)
+    saveToBackendCache(cleanedDomain, intelligence).catch(console.error);
     
     console.log('✅ Company intelligence complete');
     return intelligence;
