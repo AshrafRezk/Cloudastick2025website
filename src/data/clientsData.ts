@@ -59,7 +59,7 @@ export const clientsData: Record<string, ClientInfo> = {
   },
   'Benoit properties': {
     id: 'benoit-properties',
-    name: 'Benoit Properties',
+    name: 'Benoit properties',
     industry: 'Real Estate & Construction',
     description: 'Benoit Properties is a real estate development company focused on creating high-quality residential and commercial properties. They are known for their innovative design approach and commitment to sustainable development.',
     websiteUrl: undefined
