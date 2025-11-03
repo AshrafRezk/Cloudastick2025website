@@ -122,58 +122,37 @@ export const salesforceProducts: SalesforceProduct[] = [
     customerCount: '50,000+ companies'
   },
   {
-    id: 'commerce-cloud-b2c',
-    name: 'Commerce Cloud B2C',
-    shortName: 'Commerce B2C',
-    description: 'Complete e-commerce platform for B2C businesses with AI-powered personalization and omnichannel experiences.',
+    id: 'commerce-cloud',
+    name: 'Commerce Cloud',
+    shortName: 'Commerce',
+    description: 'Complete commerce platform with B2B and B2C capabilities for omnichannel selling, AI-powered personalization, and seamless customer experiences.',
     icon: ShoppingCart,
     gradient: 'from-orange-500 to-red-600',
-    industries: ['Retail', 'Fashion', 'Electronics', 'Beauty', 'Home & Garden'],
+    industries: ['Retail', 'Fashion', 'Electronics', 'Beauty', 'Home & Garden', 'Manufacturing', 'Distribution', 'Wholesale', 'Technology', 'Industrial'],
     useCases: [
-      'Online Store Management',
+      'Online Store Management (B2C)',
+      'B2B Catalog & Quote Management',
       'Product Catalog Management',
+      'Account-Based Selling (B2B)',
       'Order Management',
       'Customer Personalization',
+      'Bulk Order Processing (B2B)',
       'Mobile Commerce'
     ],
-    integrations: ['Sales Cloud', 'Marketing Cloud', 'Service Cloud', 'Data Cloud', 'MuleSoft'],
+    integrations: ['Sales Cloud', 'Marketing Cloud', 'Service Cloud', 'CPQ', 'Data Cloud', 'MuleSoft'],
     keyFeatures: [
       'Einstein Commerce AI',
+      'B2B & B2C Storefronts',
       'Mobile-First Design',
-      'Global Commerce',
-      'Order Management',
-      'Storefront Management'
-    ],
-    category: 'Core',
-    marketShare: '#1 B2C Commerce Platform',
-    customerCount: '10,000+ companies'
-  },
-  {
-    id: 'commerce-cloud-b2b',
-    name: 'Commerce Cloud B2B',
-    shortName: 'Commerce B2B',
-    description: 'Specialized B2B commerce platform for complex selling scenarios, bulk orders, and account-based selling.',
-    icon: Workflow,
-    gradient: 'from-indigo-500 to-blue-600',
-    industries: ['Manufacturing', 'Distribution', 'Wholesale', 'Technology', 'Industrial'],
-    useCases: [
-      'B2B Catalog Management',
-      'Quote & Proposal Management',
-      'Account-Based Selling',
-      'Bulk Order Processing',
-      'Contract Management'
-    ],
-    integrations: ['Sales Cloud', 'Service Cloud', 'CPQ', 'Data Cloud', 'MuleSoft'],
-    keyFeatures: [
-      'B2B Storefront',
       'Account-Based Commerce',
       'Quote-to-Cash',
-      'Pricing & Discounts',
-      'Approval Workflows'
+      'Global Commerce',
+      'Order Management',
+      'Pricing & Discounts'
     ],
     category: 'Core',
-    marketShare: '#1 B2B Commerce Platform',
-    customerCount: '5,000+ companies'
+    marketShare: '#1 Commerce Platform',
+    customerCount: '15,000+ companies'
   },
   {
     id: 'experience-cloud',

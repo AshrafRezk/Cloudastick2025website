@@ -43,7 +43,10 @@ import {
   Clock,
   AlertTriangle,
   Info,
-  Building2
+  Building2,
+  Award,
+  GraduationCap,
+  Headset
 } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import AnimatedSection from '../components/AnimatedSection';
@@ -58,7 +61,7 @@ import { formatWebsiteUrl } from '../services/logoService';
 import { enrichCompany, initCompanyIntelligence, CompanyIntelligence } from '../services/companyIntelligence';
 import ProductRecommendationBanner from '../components/ProductRecommendationBanner';
 import { normalizeWebsiteUrl, formatForLogoFetch } from '../utils/urlNormalizer';
-import { getClientsByIndustry } from '../utils/clientFilter';
+import { getClientsByIndustry, getAllClients } from '../utils/clientFilter';
 import { getClientLogoPath } from '../utils/clientLogoHelper';
 import ClientModal from '../components/ClientModal';
 import { ClientInfo } from '../data/clientsData';
@@ -1381,9 +1384,17 @@ const SalesforcePower = () => {
       </section>
 
       {/* Trusted By - Auto-Moving Logo Carousel */}
-      {selectedIndustry && (() => {
-        const relevantClients = getClientsByIndustry(selectedIndustry);
-        return relevantClients.length > 0 ? (
+      {(() => {
+        const allClients = getAllClients();
+        const relevantClients = selectedIndustry ? getClientsByIndustry(selectedIndustry) : [];
+        const relevantClientIds = new Set(relevantClients.map(c => c.id));
+        
+        // Helper function to check if client matches selected industry
+        const isIndustryMatch = (client: ClientInfo) => {
+          return selectedIndustry && relevantClientIds.has(client.id);
+        };
+
+        return allClients.length > 0 ? (
           <section className="py-12 relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <motion.div
@@ -1393,7 +1404,9 @@ const SalesforcePower = () => {
                 className="text-center mb-10"
               >
                 <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">
-                  Trusted by Leading {selectedIndustryData?.name} Companies
+                  {selectedIndustry 
+                    ? `Trusted by Leading ${selectedIndustryData?.name} Companies` 
+                    : 'Trusted by Industry Leaders'}
                 </h3>
                 <p className="text-gray-400 text-sm">
                   Join industry leaders who have transformed their operations with Cloudastick
@@ -1414,29 +1427,36 @@ const SalesforcePower = () => {
                   }}
                 >
                   {/* Duplicate clients for seamless loop */}
-                  {[...relevantClients, ...relevantClients].map((client, index) => (
-                    <div
-                      key={`${client.id}-${index}`}
-                      className="flex-shrink-0 group cursor-pointer"
-                      onClick={() => handleClientClick(client)}
-                    >
-                      <div className="bg-gradient-to-br from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 backdrop-blur-sm rounded-xl p-6 border border-gray-600 hover:border-cyan-400 hover:shadow-lg hover:shadow-cyan-500/30 transition-all duration-300 w-56 h-32 flex items-center justify-center">
-                        <img
-                          src={getClientLogoPath(client.name, client.industry)}
-                          alt={client.name}
-                          className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-300 filter brightness-0 invert"
-                          onError={(e) => {
-                            // Fallback to text if image fails
-                            e.currentTarget.style.display = 'none';
-                            const parent = e.currentTarget.parentElement;
-                            if (parent) {
-                              parent.innerHTML = `<div class="text-center"><h4 class="font-bold text-white text-base">${client.name}</h4><p class="text-xs text-gray-400 mt-1">${client.industry}</p></div>`;
-                            }
-                          }}
-                        />
+                  {[...allClients, ...allClients].map((client, index) => {
+                    const isHighlighted = isIndustryMatch(client);
+                    return (
+                      <div
+                        key={`${client.id}-${index}`}
+                        className="flex-shrink-0 group cursor-pointer"
+                        onClick={() => handleClientClick(client)}
+                      >
+                        <div className={`bg-gradient-to-br from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 backdrop-blur-sm rounded-xl p-6 border transition-all duration-300 w-56 h-32 flex items-center justify-center ${
+                          isHighlighted 
+                            ? 'border-yellow-400 shadow-lg shadow-yellow-500/30 hover:border-yellow-300 hover:shadow-yellow-400/40' 
+                            : 'border-gray-600 hover:border-cyan-400 hover:shadow-lg hover:shadow-cyan-500/30'
+                        }`}>
+                          <img
+                            src={getClientLogoPath(client.name, client.industry)}
+                            alt={client.name}
+                            className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-300 filter brightness-0 invert"
+                            onError={(e) => {
+                              // Fallback to text if image fails
+                              e.currentTarget.style.display = 'none';
+                              const parent = e.currentTarget.parentElement;
+                              if (parent) {
+                                parent.innerHTML = `<div class="text-center"><h4 class="font-bold text-white text-base">${client.name}</h4><p class="text-xs text-gray-400 mt-1">${client.industry}</p></div>`;
+                              }
+                            }}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </motion.div>
               </div>
 
@@ -1447,6 +1467,148 @@ const SalesforcePower = () => {
           </section>
         ) : null;
       })()}
+
+      {/* Why Work with Cloudastick Systems Section */}
+      <section className="py-16 relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <AnimatedSection className="text-center mb-12">
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-3xl md:text-4xl font-bold text-white mb-4"
+            >
+              Why Work with <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Cloudastick Systems</span>
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="text-gray-400 text-lg max-w-3xl mx-auto"
+            >
+              Your trusted partner for Salesforce excellence with proven expertise and dedicated support
+            </motion.p>
+          </AnimatedSection>
+
+          {/* Benefits Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            {[
+              {
+                icon: Award,
+                title: '20+ Years Experience',
+                description: 'Two decades of proven expertise in Salesforce implementations and digital transformation',
+                gradient: 'from-yellow-500 to-orange-600'
+              },
+              {
+                icon: Users,
+                title: 'Diverse Expert Resources',
+                description: 'Certified Architects, Consultants, and Project Managers ready to deliver excellence',
+                gradient: 'from-cyan-500 to-blue-600'
+              },
+              {
+                icon: GraduationCap,
+                title: 'Cloudastick Academy',
+                description: 'Rapid ramp-up capabilities with our dedicated training and development program',
+                gradient: 'from-purple-500 to-pink-600'
+              },
+              {
+                icon: Headset,
+                title: '24/7 Global Support',
+                description: 'Round-the-clock support with proven track record across multiple regions',
+                gradient: 'from-green-500 to-emerald-600'
+              }
+            ].map((benefit, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl p-6 border border-gray-700 hover:border-cyan-400 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/30"
+              >
+                <div className={`w-12 h-12 rounded-lg bg-gradient-to-r ${benefit.gradient} flex items-center justify-center mb-4`}>
+                  <benefit.icon className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">{benefit.title}</h3>
+                <p className="text-gray-400 text-sm">{benefit.description}</p>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Team Carousel */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="text-center mb-8"
+          >
+            <h3 className="text-2xl font-bold text-white mb-2">Meet Our Expert Team</h3>
+            <p className="text-gray-400 text-sm">
+              Certified professionals dedicated to your success
+            </p>
+          </motion.div>
+
+          <div className="relative overflow-hidden">
+            <motion.div
+              className="flex gap-8 items-center"
+              animate={{
+                x: [0, -1500],
+              }}
+              transition={{
+                duration: 30,
+                repeat: Infinity,
+                ease: "linear",
+              }}
+            >
+              {/* Team members with duplicates for seamless loop */}
+              {(() => {
+                const teamMembers = [
+                  { name: 'Mina Michel', role: 'Founder of Cloudastick Systems', image: 'Mina_Michel_Founder_of_Cloudastick_Systems.png' },
+                  { name: 'Ashraf Rezk', role: 'Head of Tech', image: 'Ashraf_Rezk_Head_of_Tech.png' },
+                  { name: 'Andrea Makary', role: 'Technical Architect', image: 'Andrea_Makary_Technical_Architect.png' },
+                  { name: 'Mariam Mamdouh', role: 'Project Manager', image: 'Mariam_Mamdouh_Project_Manager.png' },
+                  { name: 'Omar El Borae', role: 'Customer Success Manager', image: 'Omar_El_Borae_Customer_Success_Manager.png' },
+                  { name: 'Ahmed Salah', role: 'Salesforce Consultant', image: 'Ahmed_Salah_Salesforce_Consultant.png' },
+                  { name: 'Farida Esam', role: 'Marketing Cloud Consultant', image: 'Farida_Esam_Marketing_Cloud_Consultant.png' },
+                  { name: 'Mireille Rafik', role: 'Marketing Cloud Consultant', image: 'Mireille_Rafik_Marketing_Cloud_Consultant.png' },
+                  { name: 'Andrew Osama', role: 'Salesforce Consultant', image: 'Andrew_Osama_Salesforce_Consultant.png' },
+                  { name: 'Fady Maged', role: 'Salesforce Consultant', image: 'Fady_Maged_Salesforce_Consultant.png' },
+                  { name: 'Maheen Imran', role: 'Salesforce Consultant', image: 'Maheen_Imran_Salesforce_Consultant.png' },
+                  { name: 'Carine Felix', role: 'Brand and People Experience Specialist', image: 'Carine_Felix_Brand_and_People_Experience_Specialist.png' }
+                ];
+
+                return [...teamMembers, ...teamMembers].map((member, index) => (
+                  <div
+                    key={`${member.name}-${index}`}
+                    className="flex-shrink-0 group"
+                  >
+                    <div className="relative">
+                      <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-700 group-hover:border-cyan-400 transition-all duration-300 shadow-lg group-hover:shadow-cyan-500/50">
+                        <img
+                          src={`/Assets/Company Members/${member.image}`}
+                          alt={member.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            // Fallback to placeholder if image fails
+                            e.currentTarget.src = '/placeholder.svg';
+                          }}
+                        />
+                      </div>
+                      <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gray-900 border border-cyan-400 rounded-lg px-3 py-2 whitespace-nowrap z-10 shadow-xl">
+                        <p className="text-white font-semibold text-sm">{member.name}</p>
+                        <p className="text-cyan-400 text-xs">{member.role}</p>
+                      </div>
+                    </div>
+                  </div>
+                ));
+              })()}
+            </motion.div>
+          </div>
+
+          {/* Gradient Fade Edges */}
+          <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-gray-900 to-transparent pointer-events-none z-10"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-gray-900 to-transparent pointer-events-none z-10"></div>
+        </div>
+      </section>
 
       {/* Platform Overview Section */}
       <section ref={platformRef} className="py-10 sm:py-16 md:py-20 relative overflow-hidden">
