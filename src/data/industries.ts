@@ -1126,232 +1126,20 @@ export const industries: IndustryData[] = [
     ]
   },
   {
-    id: 'retail-b2c',
-    name: 'Retail B2C',
-    shortName: 'Retail',
-    icon: ShoppingBag,
+    id: 'commerce-cloud',
+    name: 'Commerce Cloud',
+    shortName: 'Commerce',
+    icon: ShoppingCart,
     gradient: 'from-orange-500 to-red-600',
-    description: 'Omnichannel retail solutions for customer engagement, e-commerce, and personalized experiences.',
-    recommendedProducts: ['commerce-cloud-b2c', 'marketing-cloud', 'sales-cloud', 'service-cloud', 'data-cloud'],
+    description: 'Complete commerce platform with B2B and B2C capabilities for omnichannel selling, personalized experiences, and account-based commerce.',
+    recommendedProducts: ['commerce-cloud', 'sales-cloud', 'service-cloud', 'marketing-cloud', 'data-cloud'],
     useCases: [
-      'Omnichannel Customer Experience',
+      'Omnichannel Customer Experience (B2C)',
+      'B2B Catalog & Quote Management',
       'E-commerce Platform Management',
-      'Personalized Marketing Campaigns',
-      'Inventory & Order Management',
-      'Customer Service & Support'
-    ],
-    successMetrics: [
-      { value: '50%', description: 'increase in online sales' },
-      { value: '35%', description: 'improvement in customer lifetime value' },
-      { value: '40%', description: 'increase in email open rates' },
-      { value: '25%', description: 'reduction in cart abandonment' }
-    ],
-    keyChallenges: [
-      'Omnichannel customer experience',
-      'Inventory management across channels',
-      'Personalization at scale',
-      'Seasonal demand fluctuations'
-    ],
-    painPoints: [
-      'Disconnected online and offline experiences',
-      'Poor inventory management across channels',
-      'Manual customer service processes',
-      'Inefficient loyalty program management'
-    ],
-    integrations: [
-      'Shopify',
-      'Magento',
-      'WooCommerce',
-      'BigCommerce',
-      'Amazon'
-    ],
-    dataSources: [
-      'E-commerce platforms',
-      'POS systems',
-      'Inventory management',
-      'Customer databases'
-    ],
-    marketSize: '$4.9 trillion globally',
-    growthRate: '7.2% annually',
-    comparisonMetrics: [
-      {
-        metric: 'Omnichannel Customer Experience Management',
-        metricKey: 'retail.metrics.omnichannelExperience',
-        salesforce: { score: 10, label: 'Full Omnichannel', description: 'Complete unified customer experience across all channels' },
-        hubspot: { score: 7, label: 'Good Omnichannel', description: 'Multi-channel customer engagement' },
-        zoho: { score: 7, label: 'Good Omnichannel', description: 'Unified customer experience' },
-        freshworks: { score: 6, label: 'Basic Omnichannel', description: 'Multi-channel support' },
-        odoo: { score: 8, label: 'Custom Omnichannel', description: 'Configurable omnichannel experience' }
-      },
-      {
-        metric: 'E-commerce Platform Integration',
-        metricKey: 'retail.metrics.ecommerceIntegration',
-        salesforce: { score: 10, label: 'Native Commerce', description: 'Built-in Commerce Cloud with full integration' },
-        hubspot: { score: 6, label: 'Basic Integration', description: 'Simple e-commerce integration' },
-        zoho: { score: 7, label: 'Good Integration', description: 'E-commerce platform integration' },
-        freshworks: { score: 4, label: 'Limited', description: 'Basic e-commerce support' },
-        odoo: { score: 9, label: 'Full E-commerce', description: 'Complete e-commerce management suite' }
-      },
-      {
-        metric: 'Personalized Marketing & Recommendations',
-        metricKey: 'retail.metrics.personalizedMarketing',
-        salesforce: { score: 10, label: 'AI Personalization', description: 'Einstein AI for personalized marketing and recommendations' },
-        hubspot: { score: 8, label: 'Good Personalization', description: 'Advanced personalization features' },
-        zoho: { score: 7, label: 'Good Personalization', description: 'Customer personalization tools' },
-        freshworks: { score: 5, label: 'Limited', description: 'Basic personalization' },
-        odoo: { score: 7, label: 'Custom Personalization', description: 'Configurable personalization rules' }
-      },
-      {
-        metric: 'Inventory Management & Stock Optimization',
-        metricKey: 'retail.metrics.inventoryManagement',
-        salesforce: { score: 9, label: 'Smart Inventory', description: 'AI-powered inventory optimization and management' },
-        hubspot: { score: 3, label: 'Not Available', description: 'No inventory management' },
-        zoho: { score: 7, label: 'Good Inventory', description: 'Inventory tracking and management' },
-        freshworks: { score: 4, label: 'Limited', description: 'Basic inventory tracking' },
-        odoo: { score: 9, label: 'Full Inventory', description: 'Complete inventory management suite' }
-      },
-      {
-        metric: 'Order Management & Fulfillment',
-        metricKey: 'retail.metrics.orderManagement',
-        salesforce: { score: 10, label: 'Order Orchestration', description: 'Complete order lifecycle management and fulfillment' },
-        hubspot: { score: 5, label: 'Basic Orders', description: 'Simple order tracking' },
-        zoho: { score: 8, label: 'Good Orders', description: 'Order management with fulfillment' },
-        freshworks: { score: 5, label: 'Limited', description: 'Basic order tracking' },
-        odoo: { score: 9, label: 'Full Orders', description: 'Complete order to cash process' }
-      },
-      {
-        metric: 'Customer Loyalty & Rewards Management',
-        metricKey: 'retail.metrics.loyaltyManagement',
-        salesforce: { score: 9, label: 'Loyalty Suite', description: 'Complete loyalty program management' },
-        hubspot: { score: 6, label: 'Basic Loyalty', description: 'Simple loyalty tracking' },
-        zoho: { score: 7, label: 'Good Loyalty', description: 'Customer loyalty management' },
-        freshworks: { score: 5, label: 'Limited', description: 'Basic customer tracking' },
-        odoo: { score: 8, label: 'Custom Loyalty', description: 'Configurable loyalty programs' }
-      },
-      {
-        metric: 'Mobile Commerce & App Management',
-        metricKey: 'retail.metrics.mobileCommerce',
-        salesforce: { score: 10, label: 'Mobile-First', description: 'Native mobile commerce and app management' },
-        hubspot: { score: 5, label: 'Basic Mobile', description: 'Simple mobile interface' },
-        zoho: { score: 7, label: 'Good Mobile', description: 'Mobile commerce capabilities' },
-        freshworks: { score: 5, label: 'Limited Mobile', description: 'Basic mobile access' },
-        odoo: { score: 8, label: 'Custom Mobile', description: 'Configurable mobile commerce' }
-      },
-      {
-        metric: 'Customer Service & Support',
-        metricKey: 'retail.metrics.customerService',
-        salesforce: { score: 10, label: 'Service Cloud', description: 'Complete customer service and support management' },
-        hubspot: { score: 7, label: 'Good Service', description: 'Customer service tools' },
-        zoho: { score: 8, label: 'Good Service', description: 'Customer service management' },
-        freshworks: { score: 9, label: 'Service Focus', description: 'Advanced customer service platform' },
-        odoo: { score: 8, label: 'Service Module', description: 'Configurable service management' }
-      },
-      {
-        metric: 'Analytics & Business Intelligence',
-        metricKey: 'retail.metrics.analytics',
-        salesforce: { score: 10, label: 'AI Analytics', description: 'Einstein Analytics for retail insights' },
-        hubspot: { score: 7, label: 'Good Analytics', description: 'Customer and sales analytics' },
-        zoho: { score: 7, label: 'Good Analytics', description: 'Business intelligence and reporting' },
-        freshworks: { score: 5, label: 'Limited', description: 'Basic analytics' },
-        odoo: { score: 8, label: 'Full BI', description: 'Complete business intelligence suite' }
-      },
-      {
-        metric: 'Payment Processing & Checkout',
-        metricKey: 'retail.metrics.paymentProcessing',
-        salesforce: { score: 9, label: 'Payment Suite', description: 'Complete payment processing and checkout management' },
-        hubspot: { score: 4, label: 'Not Available', description: 'No payment processing' },
-        zoho: { score: 7, label: 'Good Payments', description: 'Payment processing integration' },
-        freshworks: { score: 4, label: 'Limited', description: 'Basic payment tracking' },
-        odoo: { score: 8, label: 'Full Payments', description: 'Complete payment and accounting suite' }
-      },
-      {
-        metric: 'Product Catalog Management',
-        metricKey: 'retail.metrics.productCatalog',
-        salesforce: { score: 9, label: 'Catalog Suite', description: 'Complete product catalog management' },
-        hubspot: { score: 5, label: 'Basic Catalog', description: 'Simple product management' },
-        zoho: { score: 7, label: 'Good Catalog', description: 'Product catalog management' },
-        freshworks: { score: 4, label: 'Limited', description: 'Basic product tracking' },
-        odoo: { score: 8, label: 'Full Catalog', description: 'Complete product management suite' }
-      },
-      {
-        metric: 'Customer Segmentation & Targeting',
-        metricKey: 'retail.metrics.customerSegmentation',
-        salesforce: { score: 10, label: 'AI Segmentation', description: 'AI-powered customer segmentation and targeting' },
-        hubspot: { score: 8, label: 'Good Segmentation', description: 'Advanced customer segmentation' },
-        zoho: { score: 7, label: 'Good Segmentation', description: 'Customer segmentation tools' },
-        freshworks: { score: 5, label: 'Limited', description: 'Basic customer grouping' },
-        odoo: { score: 7, label: 'Custom Segmentation', description: 'Configurable customer segmentation' }
-      },
-      {
-        metric: 'Returns & Refunds Management',
-        metricKey: 'retail.metrics.returnsRefunds',
-        salesforce: { score: 9, label: 'Returns Suite', description: 'Complete returns and refunds management' },
-        hubspot: { score: 4, label: 'Not Available', description: 'No returns management' },
-        zoho: { score: 6, label: 'Basic Returns', description: 'Simple returns tracking' },
-        freshworks: { score: 5, label: 'Limited', description: 'Basic case management' },
-        odoo: { score: 8, label: 'Returns Module', description: 'Configurable returns management' }
-      },
-      {
-        metric: 'Multi-Store & Location Management',
-        metricKey: 'retail.metrics.multiStore',
-        salesforce: { score: 9, label: 'Multi-Store Suite', description: 'Complete multi-store and location management' },
-        hubspot: { score: 4, label: 'Not Available', description: 'No multi-store features' },
-        zoho: { score: 6, label: 'Basic Multi-Store', description: 'Simple location tracking' },
-        freshworks: { score: 4, label: 'Limited', description: 'Basic location management' },
-        odoo: { score: 8, label: 'Multi-Store Module', description: 'Configurable multi-store management' }
-      },
-      {
-        metric: 'Seasonal & Promotional Campaigns',
-        metricKey: 'retail.metrics.seasonalCampaigns',
-        salesforce: { score: 9, label: 'Campaign Suite', description: 'Complete seasonal and promotional campaign management' },
-        hubspot: { score: 8, label: 'Good Campaigns', description: 'Advanced marketing campaigns' },
-        zoho: { score: 7, label: 'Good Campaigns', description: 'Marketing campaign management' },
-        freshworks: { score: 5, label: 'Limited', description: 'Basic campaign tracking' },
-        odoo: { score: 7, label: 'Custom Campaigns', description: 'Configurable campaign management' }
-      },
-      {
-        metric: 'Customer Feedback & Reviews Management',
-        metricKey: 'retail.metrics.feedbackReviews',
-        salesforce: { score: 9, label: 'Feedback Suite', description: 'Complete customer feedback and reviews management' },
-        hubspot: { score: 6, label: 'Basic Feedback', description: 'Simple feedback collection' },
-        zoho: { score: 7, label: 'Good Feedback', description: 'Customer feedback management' },
-        freshworks: { score: 6, label: 'Feedback Focus', description: 'Customer feedback and support' },
-        odoo: { score: 7, label: 'Custom Feedback', description: 'Configurable feedback management' }
-      },
-      {
-        metric: 'Supply Chain & Vendor Management',
-        metricKey: 'retail.metrics.supplyChain',
-        salesforce: { score: 8, label: 'Supply Chain Suite', description: 'Complete supply chain and vendor management' },
-        hubspot: { score: 4, label: 'Not Available', description: 'No supply chain management' },
-        zoho: { score: 7, label: 'Good Supply Chain', description: 'Supply chain management' },
-        freshworks: { score: 5, label: 'Limited', description: 'Basic vendor management' },
-        odoo: { score: 9, label: 'Full Supply Chain', description: 'Complete supply chain management suite' }
-      },
-      {
-        metric: 'Cross-Channel Data Synchronization',
-        metricKey: 'retail.metrics.dataSynchronization',
-        salesforce: { score: 10, label: 'Real-Time Sync', description: 'Real-time data synchronization across all channels' },
-        hubspot: { score: 6, label: 'Basic Sync', description: 'Simple data synchronization' },
-        zoho: { score: 7, label: 'Good Sync', description: 'Multi-channel data sync' },
-        freshworks: { score: 5, label: 'Limited', description: 'Basic data integration' },
-        odoo: { score: 8, label: 'Custom Sync', description: 'Configurable data synchronization' }
-      }
-    ]
-  },
-  {
-    id: 'b2b-commerce',
-    name: 'B2B Commerce',
-    shortName: 'B2B Commerce',
-    icon: Briefcase,
-    gradient: 'from-indigo-500 to-blue-600',
-    description: 'Complex B2B selling solutions for wholesale, distribution, and account-based selling.',
-    recommendedProducts: ['commerce-cloud-b2b', 'sales-cloud', 'service-cloud', 'marketing-cloud', 'data-cloud'],
-    useCases: [
-      'B2B Catalog Management',
-      'Quote & Proposal Management',
-      'Account-Based Selling',
-      'Bulk Order Processing',
-      'Contract & Pricing Management'
+      'Account-Based Selling (B2B)',
+      'Personalized Marketing & Recommendations',
+      'Order Management & Fulfillment'
     ],
     successMetrics: [
       { value: '40%', description: 'increase in average order value' },
@@ -2696,7 +2484,7 @@ export const getIndustriesByCategory = (category: string): IndustryData[] => {
     'technology': ['telecommunications', 'professional-services'],
     'manufacturing': ['manufacturing', 'automotive', 'food-beverage'],
     'services': ['financial-services', 'professional-services', 'travel-tourism', 'utilities'],
-    'retail': ['retail-b2c', 'b2b-commerce'],
+    'retail': ['commerce-cloud'],
     'healthcare': ['healthcare-life-sciences'],
     'real-estate': ['real-estate'],
     'government': ['government']

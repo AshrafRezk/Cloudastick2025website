@@ -556,7 +556,7 @@ const SalesforcePower = () => {
           'manufacturing': 'manufacturing',
           'travel-tourism': 'travel-tourism',
           'education': 'professional-services', // Education → Professional Services (consulting)
-          'retail': 'retail-b2c',
+          'retail': 'commerce-cloud',
           'healthcare': 'healthcare-life-sciences',
           'finance': 'financial-services',
           'technology': 'professional-services', // Technology → Professional Services (IT consulting)
