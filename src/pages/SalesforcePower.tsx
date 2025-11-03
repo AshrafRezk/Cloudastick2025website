@@ -2281,7 +2281,7 @@ const SalesforcePower = () => {
               <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700">
                 {/* Table Header */}
                 <div className="p-6 bg-gray-800/80 border-b border-gray-700">
-                  <div className="grid grid-cols-6 gap-4">
+                  <div className="grid grid-cols-7 gap-4">
                     <div className="col-span-1 text-gray-400 text-sm font-semibold">Metric</div>
                     <div className="col-span-1 text-center">
                       <div className="text-cyan-400 font-bold text-lg mb-1">Salesforce</div>
@@ -2303,6 +2303,10 @@ const SalesforcePower = () => {
                       <div className="text-white font-semibold">Odoo</div>
                       <div className="text-xs text-gray-400">Open Source</div>
                     </div>
+                    <div className="col-span-1 text-center">
+                      <div className="text-white font-semibold">SalezBuzz</div>
+                      <div className="text-xs text-gray-400">Pipeline Focus</div>
+                    </div>
                   </div>
                 </div>
 
@@ -2314,7 +2318,8 @@ const SalesforcePower = () => {
                   hubspot: { score: 6, label: 'Basic Automation', description: 'Simple automation with limited AI features' },
                   zoho: { score: 6, label: 'Standard Process', description: 'Basic sales process management' },
                   freshworks: { score: 5, label: 'Limited Features', description: 'Minimal sales automation capabilities' },
-                  odoo: { score: 7, label: 'Manual Setup', description: 'Requires extensive configuration for sales optimization' }
+                  odoo: { score: 7, label: 'Manual Setup', description: 'Requires extensive configuration for sales optimization' },
+                  salezbuzz: { score: 7, label: 'Good Automation', description: 'Good automation with pipeline tracking capabilities' }
                 },
                 {
                   metric: 'Implementation Time',
@@ -2322,7 +2327,8 @@ const SalesforcePower = () => {
                   hubspot: { score: 9, label: 'Quick Setup', description: 'Simple setup but limited customization' },
                   zoho: { score: 7, label: 'Moderate Setup', description: 'Standard implementation process' },
                   freshworks: { score: 8, label: 'Fast Setup', description: 'Quick setup with basic features' },
-                  odoo: { score: 5, label: 'Complex Setup', description: 'Requires significant technical expertise' }
+                  odoo: { score: 5, label: 'Complex Setup', description: 'Requires significant technical expertise' },
+                  salezbuzz: { score: 8, label: 'Quick Deployment', description: 'Quick deployment for SMBs with pre-configured templates' }
                 },
                 {
                   metric: 'Customizability',
@@ -2330,7 +2336,8 @@ const SalesforcePower = () => {
                   hubspot: { score: 5, label: 'Limited', description: 'Basic customization options only' },
                   zoho: { score: 6, label: 'Moderate', description: 'Some customization within framework' },
                   freshworks: { score: 4, label: 'Very Limited', description: 'Minimal customization capabilities' },
-                  odoo: { score: 7, label: 'Manual Development', description: 'Requires extensive coding for customization' }
+                  odoo: { score: 7, label: 'Manual Development', description: 'Requires extensive coding for customization' },
+                  salezbuzz: { score: 5, label: 'Limited Options', description: 'Limited customization options within predefined framework' }
                 },
                 {
                   metric: 'Ease of Use',
@@ -2338,7 +2345,8 @@ const SalesforcePower = () => {
                   hubspot: { score: 8, label: 'User-Friendly', description: 'Intuitive interface with good UX' },
                   zoho: { score: 7, label: 'Moderate Learning', description: 'Some learning curve required' },
                   freshworks: { score: 8, label: 'Simple Interface', description: 'Easy to use but limited functionality' },
-                  odoo: { score: 6, label: 'Technical Required', description: 'Requires technical knowledge for optimal use' }
+                  odoo: { score: 6, label: 'Technical Required', description: 'Requires technical knowledge for optimal use' },
+                  salezbuzz: { score: 8, label: 'Intuitive UI', description: 'Intuitive sales-focused interface designed for ease of use' }
                 },
                 {
                   metric: 'Integration & Ecosystem',
@@ -2346,7 +2354,8 @@ const SalesforcePower = () => {
                   hubspot: { score: 6, label: '1,000+ Apps', description: 'Good integration marketplace but limited AI features' },
                   zoho: { score: 5, label: 'Zoho Suite', description: 'Good within Zoho ecosystem, limited external integrations' },
                   freshworks: { score: 4, label: 'Growing', description: 'Limited integration options, basic connectivity' },
-                  odoo: { score: 6, label: 'Manual Integration', description: 'Requires custom development for most integrations' }
+                  odoo: { score: 6, label: 'Manual Integration', description: 'Requires custom development for most integrations' },
+                  salezbuzz: { score: 5, label: 'Basic Integrations', description: 'Basic integrations available with common business tools' }
                 },
                 {
                   metric: 'Scalability',
@@ -2354,7 +2363,8 @@ const SalesforcePower = () => {
                   hubspot: { score: 6, label: 'Mid-Market', description: 'Good for mid-market, limited enterprise features' },
                   zoho: { score: 6, label: 'Mid-Market', description: 'Suitable for mid-market companies' },
                   freshworks: { score: 5, label: 'SMB-Mid', description: 'Limited scalability for large enterprises' },
-                  odoo: { score: 7, label: 'Custom Scale', description: 'Scalable but requires significant technical expertise' }
+                  odoo: { score: 7, label: 'Custom Scale', description: 'Scalable but requires significant technical expertise' },
+                  salezbuzz: { score: 6, label: 'Mid-Market Focus', description: 'Suitable for mid-market companies, limited enterprise capabilities' }
                 },
                 {
                   metric: 'Cost Effectiveness',
@@ -2362,7 +2372,8 @@ const SalesforcePower = () => {
                   hubspot: { score: 7, label: 'Moderate Value', description: 'Good value for basic needs' },
                   zoho: { score: 8, label: 'Affordable', description: 'Good value for mid-market' },
                   freshworks: { score: 7, label: 'Budget Option', description: 'Low cost but limited features' },
-                  odoo: { score: 6, label: 'Hidden Costs', description: 'Low base cost but high implementation and maintenance costs' }
+                  odoo: { score: 6, label: 'Hidden Costs', description: 'Low base cost but high implementation and maintenance costs' },
+                  salezbuzz: { score: 7, label: 'Affordable Option', description: 'Affordable for smaller teams with decent feature set' }
                 },
                 {
                   metric: 'ROI Potential',
@@ -2370,7 +2381,8 @@ const SalesforcePower = () => {
                   hubspot: { score: 6, label: '120% ROI', description: 'Moderate ROI with basic automation' },
                   zoho: { score: 5, label: '100% ROI', description: 'Basic ROI with limited advanced features' },
                   freshworks: { score: 4, label: '80% ROI', description: 'Limited ROI due to basic functionality' },
-                  odoo: { score: 6, label: '110% ROI', description: 'Moderate ROI but requires significant investment in customization' }
+                  odoo: { score: 6, label: '110% ROI', description: 'Moderate ROI but requires significant investment in customization' },
+                  salezbuzz: { score: 6, label: '130% ROI', description: 'Moderate ROI with basic features and pipeline automation' }
                 }
               ]).map((row, index) => (
                 <motion.div
@@ -2381,7 +2393,7 @@ const SalesforcePower = () => {
                   className="border-b border-gray-700/50 last:border-b-0 hover:bg-gray-800/30 transition-colors duration-200"
                 >
                   <div 
-                    className="grid grid-cols-6 gap-4 p-6 cursor-pointer"
+                    className="grid grid-cols-7 gap-4 p-6 cursor-pointer"
                     onClick={() => toggleMetricExpansion(row.metric)}
                   >
                     <div className="col-span-1 flex items-center gap-2">
@@ -2402,7 +2414,7 @@ const SalesforcePower = () => {
                       </div>
                       <Info className="w-4 h-4 text-gray-400 hover:text-cyan-400 transition-colors" />
                     </div>
-                    {[row.salesforce, row.hubspot, row.zoho, row.freshworks, row.odoo].map((item, idx) => (
+                    {[row.salesforce, row.hubspot, row.zoho, row.freshworks, row.odoo, row.salezbuzz].map((item, idx) => (
                       <div key={idx} className="col-span-1 flex flex-col items-center justify-center group">
                         {/* Score Visualization */}
                         <div className="relative mb-2">
@@ -2473,14 +2485,15 @@ const SalesforcePower = () => {
                         className="overflow-hidden"
                       >
                         <div className="px-6 pb-4 bg-gray-800/20">
-                          <div className="grid grid-cols-6 gap-4 text-sm">
+                          <div className="grid grid-cols-7 gap-4 text-sm">
                             <div className="col-span-1 text-gray-400 font-medium">Details</div>
                             {[
                               { name: 'Salesforce', data: row.salesforce, color: 'text-cyan-400' },
                               { name: 'HubSpot', data: row.hubspot, color: 'text-gray-300' },
                               { name: 'Zoho', data: row.zoho, color: 'text-gray-300' },
                               { name: 'Freshworks', data: row.freshworks, color: 'text-gray-300' },
-                              { name: 'Odoo', data: row.odoo, color: 'text-gray-300' }
+                              { name: 'Odoo', data: row.odoo, color: 'text-gray-300' },
+                              { name: 'SalezBuzz', data: row.salezbuzz, color: 'text-gray-300' }
                             ].map((item, idx) => (
                               <div key={idx} className={`col-span-1 ${item.color}`}>
                                 <div className="font-medium mb-1">{item.name}</div>
@@ -2509,7 +2522,8 @@ const SalesforcePower = () => {
                   hubspot: { score: 6, label: 'Basic Automation', description: 'Simple automation with limited AI features' },
                   zoho: { score: 6, label: 'Standard Process', description: 'Basic sales process management' },
                   freshworks: { score: 5, label: 'Limited Features', description: 'Minimal sales automation capabilities' },
-                  odoo: { score: 7, label: 'Manual Setup', description: 'Requires extensive configuration for sales optimization' }
+                  odoo: { score: 7, label: 'Manual Setup', description: 'Requires extensive configuration for sales optimization' },
+                  salezbuzz: { score: 7, label: 'Good Automation', description: 'Good automation with pipeline tracking capabilities' }
                 },
                 {
                   metric: 'Customization',
@@ -2517,7 +2531,8 @@ const SalesforcePower = () => {
                   hubspot: { score: 5, label: 'Limited', description: 'Basic customization options only' },
                   zoho: { score: 6, label: 'Moderate', description: 'Some customization within framework' },
                   freshworks: { score: 4, label: 'Very Limited', description: 'Minimal customization capabilities' },
-                  odoo: { score: 7, label: 'Manual Development', description: 'Requires extensive coding for customization' }
+                  odoo: { score: 7, label: 'Manual Development', description: 'Requires extensive coding for customization' },
+                  salezbuzz: { score: 5, label: 'Limited Options', description: 'Limited customization options within predefined framework' }
                 },
                 {
                   metric: 'Integration Capabilities',
@@ -2525,7 +2540,8 @@ const SalesforcePower = () => {
                   hubspot: { score: 6, label: '1,000+ Apps', description: 'Good integration marketplace but limited AI features' },
                   zoho: { score: 5, label: 'Zoho Suite', description: 'Good within Zoho ecosystem, limited external integrations' },
                   freshworks: { score: 4, label: 'Growing', description: 'Limited integration options, basic connectivity' },
-                  odoo: { score: 6, label: 'Manual Integration', description: 'Requires custom development for most integrations' }
+                  odoo: { score: 6, label: 'Manual Integration', description: 'Requires custom development for most integrations' },
+                  salezbuzz: { score: 5, label: 'Basic Integrations', description: 'Basic integrations available with common business tools' }
                 },
                 {
                   metric: 'AI & Analytics',
@@ -2533,7 +2549,8 @@ const SalesforcePower = () => {
                   hubspot: { score: 5, label: 'Basic AI', description: 'Limited AI features, basic automation only' },
                   zoho: { score: 4, label: 'Minimal AI', description: 'Very basic AI capabilities' },
                   freshworks: { score: 3, label: 'No AI', description: 'No significant AI features' },
-                  odoo: { score: 4, label: 'Manual Analytics', description: 'Basic reporting, no AI-powered insights' }
+                  odoo: { score: 4, label: 'Manual Analytics', description: 'Basic reporting, no AI-powered insights' },
+                  salezbuzz: { score: 5, label: 'Basic Analytics', description: 'Basic analytics with pipeline reporting capabilities' }
                 },
                 {
                   metric: 'Scalability',
@@ -2541,7 +2558,8 @@ const SalesforcePower = () => {
                   hubspot: { score: 6, label: 'Mid-Market', description: 'Good for mid-market, limited enterprise features' },
                   zoho: { score: 6, label: 'Mid-Market', description: 'Suitable for mid-market companies' },
                   freshworks: { score: 5, label: 'SMB-Mid', description: 'Limited scalability for large enterprises' },
-                  odoo: { score: 7, label: 'Custom Scale', description: 'Scalable but requires significant technical expertise' }
+                  odoo: { score: 7, label: 'Custom Scale', description: 'Scalable but requires significant technical expertise' },
+                  salezbuzz: { score: 6, label: 'Mid-Market Focus', description: 'Suitable for mid-market companies, limited enterprise capabilities' }
                 }
               ]).slice(0, 5).map((row, index) => (
                 <motion.div 
@@ -2569,7 +2587,8 @@ const SalesforcePower = () => {
                         { name: 'HubSpot', data: row.hubspot },
                         { name: 'Zoho', data: row.zoho },
                         { name: 'Freshworks', data: row.freshworks },
-                        { name: 'Odoo', data: row.odoo }
+                        { name: 'Odoo', data: row.odoo },
+                        { name: 'SalezBuzz', data: row.salezbuzz }
                       ].map((item, idx) => (
                         <div key={idx} className={`flex justify-between items-center p-2 rounded ${item.highlight ? 'bg-cyan-500/10' : ''}`}>
                           <span className={item.highlight ? 'text-cyan-400 font-semibold' : 'text-gray-300'}>{item.name}</span>

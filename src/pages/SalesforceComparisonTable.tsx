@@ -109,35 +109,36 @@ const SalesforceComparisonTable = () => {
         hubspot: { score: 8, label: 'Very Good', color: 'text-gray-400' },
         zoho: { score: 8, label: 'Very Good', color: 'text-gray-400' },
         freshworks: { score: 8, label: 'Very Good', color: 'text-gray-400' },
-        odoo: { score: 7, label: 'Good', color: 'text-gray-400' }
+        odoo: { score: 7, label: 'Good', color: 'text-gray-400' },
+        salezbuzz: { score: 7, label: 'Good', color: 'text-gray-400' }
       },
     ];
 
     // Industry-specific metrics
     const industryMetrics = {
       'real-estate': [
-        { metric: 'Lead Management', salesforce: 10, hubspot: 7, zoho: 6, freshworks: 6, odoo: 5 },
-        { metric: 'Property Portfolio', salesforce: 9, hubspot: 5, zoho: 6, freshworks: 4, odoo: 7 },
-        { metric: 'Commission Tracking', salesforce: 10, hubspot: 6, zoho: 7, freshworks: 5, odoo: 8 },
-        { metric: 'Client Relationship', salesforce: 10, hubspot: 8, zoho: 7, freshworks: 7, odoo: 6 }
+        { metric: 'Lead Management', salesforce: 10, hubspot: 7, zoho: 6, freshworks: 6, odoo: 5, salezbuzz: 7 },
+        { metric: 'Property Portfolio', salesforce: 9, hubspot: 5, zoho: 6, freshworks: 4, odoo: 7, salezbuzz: 5 },
+        { metric: 'Commission Tracking', salesforce: 10, hubspot: 6, zoho: 7, freshworks: 5, odoo: 8, salezbuzz: 6 },
+        { metric: 'Client Relationship', salesforce: 10, hubspot: 8, zoho: 7, freshworks: 7, odoo: 6, salezbuzz: 7 }
       ],
       'healthcare': [
-        { metric: 'HIPAA Compliance', salesforce: 10, hubspot: 6, zoho: 5, freshworks: 4, odoo: 3 },
-        { metric: 'Patient Data Mgmt', salesforce: 10, hubspot: 7, zoho: 6, freshworks: 5, odoo: 6 },
-        { metric: 'Care Coordination', salesforce: 9, hubspot: 6, zoho: 5, freshworks: 4, odoo: 5 },
-        { metric: 'Revenue Cycle', salesforce: 10, hubspot: 7, zoho: 6, freshworks: 5, odoo: 7 }
+        { metric: 'HIPAA Compliance', salesforce: 10, hubspot: 6, zoho: 5, freshworks: 4, odoo: 3, salezbuzz: 5 },
+        { metric: 'Patient Data Mgmt', salesforce: 10, hubspot: 7, zoho: 6, freshworks: 5, odoo: 6, salezbuzz: 6 },
+        { metric: 'Care Coordination', salesforce: 9, hubspot: 6, zoho: 5, freshworks: 4, odoo: 5, salezbuzz: 5 },
+        { metric: 'Revenue Cycle', salesforce: 10, hubspot: 7, zoho: 6, freshworks: 5, odoo: 7, salezbuzz: 6 }
       ],
       'manufacturing': [
-        { metric: 'Supply Chain', salesforce: 9, hubspot: 5, zoho: 6, freshworks: 4, odoo: 8 },
-        { metric: 'Quality Control', salesforce: 10, hubspot: 6, zoho: 7, freshworks: 5, odoo: 8 },
-        { metric: 'Equipment Maint', salesforce: 8, hubspot: 4, zoho: 5, freshworks: 3, odoo: 7 },
-        { metric: 'Production Planning', salesforce: 9, hubspot: 5, zoho: 6, freshworks: 4, odoo: 8 }
+        { metric: 'Supply Chain', salesforce: 9, hubspot: 5, zoho: 6, freshworks: 4, odoo: 8, salezbuzz: 5 },
+        { metric: 'Quality Control', salesforce: 10, hubspot: 6, zoho: 7, freshworks: 5, odoo: 8, salezbuzz: 6 },
+        { metric: 'Equipment Maint', salesforce: 8, hubspot: 4, zoho: 5, freshworks: 3, odoo: 7, salezbuzz: 4 },
+        { metric: 'Production Planning', salesforce: 9, hubspot: 5, zoho: 6, freshworks: 4, odoo: 8, salezbuzz: 5 }
       ],
       'retail': [
-        { metric: 'Customer Journey', salesforce: 10, hubspot: 8, zoho: 7, freshworks: 6, odoo: 6 },
-        { metric: 'Inventory Mgmt', salesforce: 9, hubspot: 6, zoho: 7, freshworks: 5, odoo: 8 },
-        { metric: 'Omnichannel', salesforce: 10, hubspot: 7, zoho: 6, freshworks: 5, odoo: 6 },
-        { metric: 'Sales Performance', salesforce: 10, hubspot: 8, zoho: 7, freshworks: 7, odoo: 6 }
+        { metric: 'Customer Journey', salesforce: 10, hubspot: 8, zoho: 7, freshworks: 6, odoo: 6, salezbuzz: 7 },
+        { metric: 'Inventory Mgmt', salesforce: 9, hubspot: 6, zoho: 7, freshworks: 5, odoo: 8, salezbuzz: 6 },
+        { metric: 'Omnichannel', salesforce: 10, hubspot: 7, zoho: 6, freshworks: 5, odoo: 6, salezbuzz: 6 },
+        { metric: 'Sales Performance', salesforce: 10, hubspot: 8, zoho: 7, freshworks: 7, odoo: 6, salezbuzz: 7 }
       ]
     };
 
@@ -148,7 +149,8 @@ const SalesforceComparisonTable = () => {
           hubspot: { score: item.hubspot, label: getScoreLabel(item.hubspot), color: 'text-gray-400' },
           zoho: { score: item.zoho, label: getScoreLabel(item.zoho), color: 'text-gray-400' },
           freshworks: { score: item.freshworks, label: getScoreLabel(item.freshworks), color: 'text-gray-400' },
-          odoo: { score: item.odoo, label: getScoreLabel(item.odoo), color: 'text-gray-400' }
+          odoo: { score: item.odoo, label: getScoreLabel(item.odoo), color: 'text-gray-400' },
+          salezbuzz: { score: item.salezbuzz, label: getScoreLabel(item.salezbuzz), color: 'text-gray-400' }
         }))
       : [];
 
@@ -280,7 +282,7 @@ const SalesforceComparisonTable = () => {
           className="bg-gray-800/50 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700"
         >
           {/* Table Header */}
-          <div className="grid grid-cols-6 gap-4 p-6 bg-gray-800/80 border-b border-gray-700">
+          <div className="grid grid-cols-7 gap-4 p-6 bg-gray-800/80 border-b border-gray-700">
             <div className="col-span-1 text-gray-400 text-sm font-semibold">
               {t('comparison.metric')}
             </div>
@@ -304,6 +306,10 @@ const SalesforceComparisonTable = () => {
               <div className="text-gray-300 font-bold text-lg mb-1">Odoo</div>
               <div className="text-xs text-gray-400">Open Source</div>
             </div>
+            <div className="col-span-1 text-center">
+              <div className="text-gray-300 font-bold text-lg mb-1">SalezBuzz</div>
+              <div className="text-xs text-gray-400">Pipeline Focus</div>
+            </div>
           </div>
 
           {/* Comparison Rows */}
@@ -313,12 +319,12 @@ const SalesforceComparisonTable = () => {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.1 * index }}
-              className="grid grid-cols-6 gap-4 p-6 border-b border-gray-700/50 last:border-b-0 hover:bg-gray-800/30 transition-colors duration-200"
+              className="grid grid-cols-7 gap-4 p-6 border-b border-gray-700/50 last:border-b-0 hover:bg-gray-800/30 transition-colors duration-200"
             >
               <div className="col-span-1 flex items-center">
                 <span className="text-white font-medium">{row.metric}</span>
               </div>
-              {[row.salesforce, row.hubspot, row.zoho, row.freshworks, row.odoo].map((item, idx) => (
+              {[row.salesforce, row.hubspot, row.zoho, row.freshworks, row.odoo, row.salezbuzz].map((item, idx) => (
                 <div key={idx} className="col-span-1 flex flex-col items-center justify-center">
                   <div className="flex items-center gap-1 mb-1">
                     {[...Array(5)].map((_, i) => (
@@ -415,13 +421,14 @@ const SalesforceComparisonTable = () => {
           <p className="text-lg text-gray-300 mb-6">
             {t('power.comparison.roiDescription')}
           </p>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
             {[
               { name: 'Salesforce', roi: '251%', color: 'text-cyan-400', bgColor: 'bg-cyan-400' },
               { name: 'HubSpot', roi: '150%', color: 'text-gray-400', bgColor: 'bg-gray-400' },
               { name: 'Zoho', roi: '120%', color: 'text-gray-400', bgColor: 'bg-gray-400' },
               { name: 'Freshworks', roi: '110%', color: 'text-gray-400', bgColor: 'bg-gray-400' },
-              { name: 'Odoo', roi: '140%', color: 'text-gray-400', bgColor: 'bg-gray-400' }
+              { name: 'Odoo', roi: '140%', color: 'text-gray-400', bgColor: 'bg-gray-400' },
+              { name: 'SalezBuzz', roi: '130%', color: 'text-gray-400', bgColor: 'bg-gray-400' }
             ].map((item, index) => (
               <div key={index} className="text-center">
                 <div className={`text-2xl font-bold ${item.color} mb-2`}>{item.roi}</div>

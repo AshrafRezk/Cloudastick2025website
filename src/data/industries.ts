@@ -1131,7 +1131,7 @@ export const industries: IndustryData[] = [
     shortName: 'Commerce',
     icon: ShoppingCart,
     gradient: 'from-orange-500 to-red-600',
-    description: 'Complete commerce platform with B2B and B2C capabilities for omnichannel selling, personalized experiences, and account-based commerce.',
+    description: 'Complete commerce platform with B2B and B2C capabilities for omnichannel selling, personalized experiences, and account-based commerce. Includes Consumer Goods Cloud for CPG companies with retail execution, trade promotion, and distributor management.',
     recommendedProducts: ['commerce-cloud', 'sales-cloud', 'service-cloud', 'marketing-cloud', 'data-cloud'],
     useCases: [
       'Omnichannel Customer Experience (B2C)',
@@ -1139,7 +1139,11 @@ export const industries: IndustryData[] = [
       'E-commerce Platform Management',
       'Account-Based Selling (B2B)',
       'Personalized Marketing & Recommendations',
-      'Order Management & Fulfillment'
+      'Order Management & Fulfillment',
+      'Consumer Goods Cloud: Retail Execution & Store Visits',
+      'Consumer Goods Cloud: Trade Promotion Management',
+      'Consumer Goods Cloud: Distributor & Retailer Management',
+      'Consumer Goods Cloud: Store Operations & Merchandising'
     ],
     successMetrics: [
       { value: '40%', description: 'increase in average order value' },
