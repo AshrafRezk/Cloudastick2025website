@@ -90,6 +90,7 @@ const MemarLeadCapture: React.FC = () => {
       description: "Additional Comments",
       descriptionPlaceholder: "Tell us about your investment goals...",
       submitButton: "Book Consultation",
+      submitButtonOther: "Submit",
       successMessage: "Your details were sent successfully!",
       footerTitle: "Invest and Grow Your Capital with Memar",
       footerSubtitle: "The safest investment for anyone seeking stable returns",
@@ -123,6 +124,7 @@ const MemarLeadCapture: React.FC = () => {
       description: "ملاحظات إضافية",
       descriptionPlaceholder: "حدثنا عن أهدافك الاستثمارية...",
       submitButton: "احجز الاستشارة",
+      submitButtonOther: "إرسال",
       successMessage: "تم إرسال بياناتك بنجاح!",
       footerTitle: "استثمر ونم رأس مالك مع معمار",
       footerSubtitle: "أأمن استثمار لأي شخص يسعى لعوائد مستقرة",
@@ -902,7 +904,9 @@ Lead Source: ${source}`;
                     {currentLanguage === 'en' ? 'Submitting...' : 'جاري الإرسال...'}
                   </span>
                 ) : (
-                  content[currentLanguage].submitButton
+                  formData.interest === 'invest' 
+                    ? content[currentLanguage].submitButton 
+                    : content[currentLanguage].submitButtonOther
                 )}
               </motion.button>
             </form>
