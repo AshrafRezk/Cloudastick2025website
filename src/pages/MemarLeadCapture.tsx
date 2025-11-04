@@ -720,7 +720,7 @@ Lead Source: ${source}`;
                       errors.first_name ? 'border-red-500' : 'border-slate-200'
                     } focus:border-[#6daead] focus:outline-none transition-colors duration-200`}
                     placeholder={currentLanguage === 'ar' ? 'عبدالله' : 'Abdallah'}
-                    dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
+                    dir="ltr"
                   />
                   {errors.first_name && (
                     <p className="text-red-500 text-sm mt-1">{errors.first_name}</p>
@@ -740,7 +740,7 @@ Lead Source: ${source}`;
                       errors.last_name ? 'border-red-500' : 'border-slate-200'
                     } focus:border-[#6daead] focus:outline-none transition-colors duration-200`}
                     placeholder={currentLanguage === 'ar' ? 'أحمد' : 'Ahmed'}
-                    dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
+                    dir="ltr"
                   />
                   {errors.last_name && (
                     <p className="text-red-500 text-sm mt-1">{errors.last_name}</p>
@@ -763,7 +763,7 @@ Lead Source: ${source}`;
                       errors.email ? 'border-red-500' : 'border-slate-200'
                     } focus:border-[#6daead] focus:outline-none transition-colors duration-200`}
                     placeholder="abdallah.ahmed@email.com"
-                    dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
+                    dir="ltr"
                   />
                   {errors.email && (
                     <p className="text-red-500 text-sm mt-1">{errors.email}</p>
@@ -781,7 +781,7 @@ Lead Source: ${source}`;
                     onChange={(e) => handleInputChange('mobile', e.target.value)}
                     className={`w-full px-4 py-3 rounded-2xl border-2 text-slate-900 placeholder-slate-400 bg-white ${
                       errors.mobile ? 'border-red-500' : 'border-slate-200'
-                    } focus:border-[#6daead] focus:outline-none transition-colors duration-200 ${currentLanguage === 'ar' ? 'text-right' : ''}`}
+                    } focus:border-[#6daead] focus:outline-none transition-colors duration-200`}
                     placeholder="+966 50 123 4567"
                     dir="ltr"
                   />
@@ -803,7 +803,7 @@ Lead Source: ${source}`;
                   onChange={(e) => handleInputChange('budget', e.target.value)}
                   className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 placeholder-slate-400 bg-white focus:border-[#6daead] focus:outline-none transition-colors duration-200"
                   placeholder={content[currentLanguage].budgetPlaceholder}
-                  dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
+                  dir="ltr"
                 />
               </div>
 
@@ -880,7 +880,7 @@ Lead Source: ${source}`;
                   rows={4}
                   className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 placeholder-slate-400 bg-white focus:border-[#6daead] focus:outline-none transition-colors duration-200 resize-none"
                   placeholder={content[currentLanguage].descriptionPlaceholder}
-                  dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
+                  dir="ltr"
                 />
               </div>
 
