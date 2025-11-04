@@ -465,7 +465,7 @@ Lead Source: ${source}`;
               />
               <div className="w-full h-full bg-white rounded-3xl shadow-2xl flex items-center justify-center p-6 relative z-10">
                 <img
-                  src="/Assets/Cityscape/Memar/Memar_Logo.png"
+                  src="/Assets/Cityscape/Memar/Memar_Logo.png?v=20251104"
                   alt="Memar"
                   className="w-full h-full object-contain"
                 />
@@ -937,7 +937,7 @@ Lead Source: ${source}`;
             <div className="flex items-center justify-center mb-6">
               <div className="h-16 w-16 bg-white rounded-2xl shadow-lg flex items-center justify-center p-3">
                 <img
-                  src="/Assets/Cityscape/Memar/Memar_Logo.png"
+                  src="/Assets/Cityscape/Memar/Memar_Logo.png?v=20251104"
                   alt="Memar"
                   className="h-full w-full object-contain"
                 />
