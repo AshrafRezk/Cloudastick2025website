@@ -793,22 +793,6 @@ Lead Source: ${source}`;
                 </div>
               </div>
 
-              {/* Budget */}
-              <div>
-                <label htmlFor="budget" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
-                  {content[currentLanguage].budget}
-                </label>
-                <input
-                  type="text"
-                  id="budget"
-                  value={formData.budget}
-                  onChange={(e) => handleInputChange('budget', e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 placeholder-slate-400 bg-white focus:border-[#6daead] focus:outline-none transition-colors duration-200"
-                  placeholder={content[currentLanguage].budgetPlaceholder}
-                  dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
-                />
-              </div>
-
               {/* Interest Selection */}
               <div>
                 <label className={`block text-sm font-semibold text-slate-700 mb-4 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
@@ -869,6 +853,54 @@ Lead Source: ${source}`;
                   <p className="text-red-500 text-sm mt-2">{errors.interest}</p>
                 )}
               </div>
+
+              {/* Budget - Only show for Investors */}
+              <AnimatePresence>
+                {formData.interest === 'invest' && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                    transition={{ duration: 0.4, type: "spring", bounce: 0.3 }}
+                  >
+                    <div className="p-6 rounded-3xl bg-gradient-to-br from-[#6daead]/10 to-[#1c2d36]/10 border-2 border-[#6daead]/30 shadow-lg">
+                      <motion.div
+                        initial={{ scale: 0.9 }}
+                        animate={{ scale: 1 }}
+                        transition={{ duration: 0.3, delay: 0.1 }}
+                        className="flex items-center gap-3 mb-4"
+                      >
+                        <motion.div
+                          animate={{ 
+                            rotate: [0, 10, -10, 10, 0],
+                            scale: [1, 1.1, 1.1, 1.1, 1]
+                          }}
+                          transition={{ 
+                            duration: 0.6,
+                            delay: 0.2,
+                            times: [0, 0.25, 0.5, 0.75, 1]
+                          }}
+                          className="w-10 h-10 bg-gradient-to-br from-[#6daead] to-[#1c2d36] rounded-full flex items-center justify-center shadow-lg"
+                        >
+                          <span className="text-2xl">💰</span>
+                        </motion.div>
+                        <label htmlFor="budget" className={`text-base font-bold text-[#1c2d36] ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                          {content[currentLanguage].budget}
+                        </label>
+                      </motion.div>
+                      <input
+                        type="text"
+                        id="budget"
+                        value={formData.budget}
+                        onChange={(e) => handleInputChange('budget', e.target.value)}
+                        className="w-full px-4 py-3 rounded-2xl border-2 border-[#6daead]/30 text-slate-900 placeholder-slate-400 bg-white focus:border-[#6daead] focus:ring-2 focus:ring-[#6daead]/20 focus:outline-none transition-all duration-200"
+                        placeholder={content[currentLanguage].budgetPlaceholder}
+                        dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
+                      />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {/* Description */}
               <div>
