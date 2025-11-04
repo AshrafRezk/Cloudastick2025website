@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Wallet } from 'lucide-react';
 import MemarStartupSequence from '../components/MemarStartupSequence';
 
 interface FormData {
@@ -882,7 +883,7 @@ Lead Source: ${source}`;
                           }}
                           className="w-10 h-10 bg-gradient-to-br from-[#6daead] to-[#1c2d36] rounded-full flex items-center justify-center shadow-lg"
                         >
-                          <span className="text-2xl">💰</span>
+                          <Wallet className="w-5 h-5 text-white" strokeWidth={2.5} />
                         </motion.div>
                         <label htmlFor="budget" className={`text-base font-bold text-[#1c2d36] ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
                           {content[currentLanguage].budget}
