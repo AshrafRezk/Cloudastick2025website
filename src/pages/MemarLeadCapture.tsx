@@ -113,7 +113,7 @@ const MemarLeadCapture: React.FC = () => {
       email: "البريد الإلكتروني",
       mobile: "رقم الجوال",
       budget: "الميزانية الاستثمارية (اختياري)",
-      budgetPlaceholder: "مثال: ١٠٠٬٠٠٠ ريال سعودي",
+      budgetPlaceholder: "مثال: 100,000 ريال سعودي",
       interest: "ما هو ملفك الشخصي؟",
       interestOptions: {
         invest: "مستثمر",
@@ -781,10 +781,9 @@ Lead Source: ${source}`;
                     onChange={(e) => handleInputChange('mobile', e.target.value)}
                     className={`w-full px-4 py-3 rounded-2xl border-2 text-slate-900 placeholder-slate-400 bg-white ${
                       errors.mobile ? 'border-red-500' : 'border-slate-200'
-                    } focus:border-[#6daead] focus:outline-none transition-colors duration-200`}
-                    placeholder={currentLanguage === 'ar' ? '+٩٦٦ ٥٠ ١٢٣ ٤٥٦٧' : '+966 50 123 4567'}
+                    } focus:border-[#6daead] focus:outline-none transition-colors duration-200 ${currentLanguage === 'ar' ? 'text-right' : ''}`}
+                    placeholder="+966 50 123 4567"
                     dir="ltr"
-                    style={currentLanguage === 'ar' ? { textAlign: 'right' } : {}}
                   />
                   {errors.mobile && (
                     <p className="text-red-500 text-sm mt-1">{errors.mobile}</p>
