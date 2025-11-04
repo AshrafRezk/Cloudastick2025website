@@ -762,7 +762,7 @@ Lead Source: ${source}`;
                     className={`w-full px-4 py-3 rounded-2xl border-2 text-slate-900 placeholder-slate-400 bg-white ${
                       errors.email ? 'border-red-500' : 'border-slate-200'
                     } focus:border-[#6daead] focus:outline-none transition-colors duration-200`}
-                    placeholder="john.doe@email.com"
+                    placeholder="abdallah.ahmed@email.com"
                     dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
                   />
                   {errors.email && (
