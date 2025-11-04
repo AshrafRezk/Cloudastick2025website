@@ -706,8 +706,8 @@ Lead Source: ${source}`;
             {/* Form */}
             <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
               {/* Name Fields */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
+              <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 ${currentLanguage === 'ar' ? 'md:flex md:flex-row-reverse' : ''}`}>
+                <div className="md:flex-1">
                   <label htmlFor="first_name" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
                     {content[currentLanguage].firstName} *
                   </label>
@@ -720,14 +720,14 @@ Lead Source: ${source}`;
                       errors.first_name ? 'border-red-500' : 'border-slate-200'
                     } focus:border-[#6daead] focus:outline-none transition-colors duration-200`}
                     placeholder={currentLanguage === 'ar' ? 'عبدالله' : 'Abdallah'}
-                    dir="ltr"
+                    dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
                   />
                   {errors.first_name && (
                     <p className="text-red-500 text-sm mt-1">{errors.first_name}</p>
                   )}
                 </div>
 
-                <div>
+                <div className="md:flex-1">
                   <label htmlFor="last_name" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
                     {content[currentLanguage].lastName} *
                   </label>
@@ -740,7 +740,7 @@ Lead Source: ${source}`;
                       errors.last_name ? 'border-red-500' : 'border-slate-200'
                     } focus:border-[#6daead] focus:outline-none transition-colors duration-200`}
                     placeholder={currentLanguage === 'ar' ? 'أحمد' : 'Ahmed'}
-                    dir="ltr"
+                    dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
                   />
                   {errors.last_name && (
                     <p className="text-red-500 text-sm mt-1">{errors.last_name}</p>
@@ -749,8 +749,8 @@ Lead Source: ${source}`;
               </div>
 
               {/* Email & Mobile */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
+              <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 ${currentLanguage === 'ar' ? 'md:flex md:flex-row-reverse' : ''}`}>
+                <div className="md:flex-1">
                   <label htmlFor="email" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
                     {content[currentLanguage].email} *
                   </label>
@@ -770,7 +770,7 @@ Lead Source: ${source}`;
                   )}
                 </div>
 
-                <div>
+                <div className="md:flex-1">
                   <label htmlFor="mobile" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
                     {content[currentLanguage].mobile} *
                   </label>
@@ -803,7 +803,7 @@ Lead Source: ${source}`;
                   onChange={(e) => handleInputChange('budget', e.target.value)}
                   className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 placeholder-slate-400 bg-white focus:border-[#6daead] focus:outline-none transition-colors duration-200"
                   placeholder={content[currentLanguage].budgetPlaceholder}
-                  dir="ltr"
+                  dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
                 />
               </div>
 
@@ -880,7 +880,7 @@ Lead Source: ${source}`;
                   rows={4}
                   className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 placeholder-slate-400 bg-white focus:border-[#6daead] focus:outline-none transition-colors duration-200 resize-none"
                   placeholder={content[currentLanguage].descriptionPlaceholder}
-                  dir="ltr"
+                  dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
                 />
               </div>
 
