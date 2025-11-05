@@ -2467,7 +2467,7 @@ const SalesforcePower = () => {
                               idx === 0 ? 'border-cyan-400' : 'border-yellow-400'
                             }`}
                             style={{
-                              clipPath: `polygon(50% 50%, 50% 0%, ${50 + 50 * Math.cos((item.score * 3.6 - 90) * Math.PI / 180)}% ${50 + 50 * Math.sin((item.score * 3.6 - 90) * Math.PI / 180)}%)`
+                              clipPath: `polygon(50% 50%, 50% 0%, ${50 + 50 * Math.cos((item.score * 36 - 90) * Math.PI / 180)}% ${50 + 50 * Math.sin((item.score * 36 - 90) * Math.PI / 180)}%)`
                             }}
                           />
                         </div>
