@@ -1402,6 +1402,36 @@ const SalesforcePower = () => {
           return selectedIndustry && relevantClientIds.has(client.id);
         };
 
+        // Arrange clients: relevant industry clients first, then others
+        const arrangeClients = () => {
+          if (!selectedIndustry || relevantClients.length === 0) {
+            // No industry selected or no relevant clients - show all clients normally
+            return [...allClients, ...allClients];
+          }
+
+          // Separate relevant and other clients
+          const otherClients = allClients.filter(c => !relevantClientIds.has(c.id));
+          
+          // Create carousel with relevant clients appearing 3x more frequently
+          // Pattern: [relevant x3, other, relevant x3, other, ...]
+          const carouselClients: ClientInfo[] = [];
+          
+          // Add relevant clients 3 times
+          carouselClients.push(...relevantClients);
+          carouselClients.push(...relevantClients);
+          carouselClients.push(...relevantClients);
+          
+          // Interleave with other clients
+          otherClients.forEach((client) => {
+            carouselClients.push(client);
+          });
+          
+          // Duplicate the entire pattern for seamless loop
+          return [...carouselClients, ...carouselClients];
+        };
+
+        const clientsToShow = arrangeClients();
+
         return allClients.length > 0 ? (
           <section className="py-12 relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1434,8 +1464,8 @@ const SalesforcePower = () => {
                     ease: "linear",
                   }}
                 >
-                  {/* Duplicate clients for seamless loop */}
-                  {[...allClients, ...allClients].map((client, index) => {
+                  {/* Display clients with relevant ones appearing more frequently */}
+                  {clientsToShow.map((client, index) => {
                     const isHighlighted = isIndustryMatch(client);
                     return (
                       <div
