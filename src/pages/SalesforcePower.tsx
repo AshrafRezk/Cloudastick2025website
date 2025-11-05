@@ -803,6 +803,7 @@ const SalesforcePower = () => {
   const dataCloudRef = useRef<HTMLDivElement>(null);
   const industryRef = useRef<HTMLDivElement>(null);
   const comparisonRef = useRef<HTMLDivElement>(null);
+  const forresterRef = useRef<HTMLDivElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
 
   // Haptic feedback function
@@ -2455,21 +2456,25 @@ const SalesforcePower = () => {
                     {[row.salesforce, row.hubspot, row.zoho, row.freshworks, row.odoo, row.salezbuzz].map((item, idx) => (
                       <div key={idx} className="col-span-1 flex flex-col items-center justify-center group">
                         {/* Score Visualization */}
-                        <div className="relative mb-2">
-                          <div className="w-16 h-16 rounded-full border-2 border-gray-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                            <div className={`text-lg font-bold ${idx === 0 ? 'text-cyan-400' : 'text-gray-300'}`}>
-                              {item.score}
+                        <div className="mb-2">
+                          <div 
+                            className="w-16 h-16 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-200"
+                            style={{
+                              background: `conic-gradient(
+                                from -90deg,
+                                ${idx === 0 ? '#22d3ee' : '#facc15'} 0%,
+                                ${idx === 0 ? '#22d3ee' : '#facc15'} ${(item.score / 10) * 100}%,
+                                #4b5563 ${(item.score / 10) * 100}%,
+                                #4b5563 100%
+                              )`
+                            }}
+                          >
+                            <div className="w-14 h-14 rounded-full bg-gray-900 flex items-center justify-center">
+                              <div className={`text-lg font-bold ${idx === 0 ? 'text-cyan-400' : 'text-gray-300'}`}>
+                                {item.score}
+                              </div>
                             </div>
                           </div>
-                          {/* Score Ring */}
-                          <div 
-                            className={`absolute inset-0 rounded-full border-2 ${
-                              idx === 0 ? 'border-cyan-400' : 'border-yellow-400'
-                            }`}
-                            style={{
-                              clipPath: `polygon(50% 50%, 50% 0%, ${50 + 50 * Math.cos((item.score * 36 - 90) * Math.PI / 180)}% ${50 + 50 * Math.sin((item.score * 36 - 90) * Math.PI / 180)}%)`
-                            }}
-                          />
                         </div>
                         
                         {/* Score Dots */}
@@ -2768,6 +2773,177 @@ const SalesforcePower = () => {
         </div>
       </section>
 
+      {/* Forrester TEI Study Section */}
+      <section ref={forresterRef} className="py-20 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-cyan-900"></div>
+        
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <AnimatedSection className="text-center mb-16">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              {/* Forrester Badge */}
+              <div className="flex items-center justify-center gap-3 mb-6">
+                <div className="px-6 py-3 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
+                  <div className="flex items-center gap-2">
+                    <Award className="w-6 h-6 text-cyan-400" />
+                    <span className="text-lg font-bold text-white">Forrester Research</span>
+                  </div>
+                </div>
+              </div>
+              
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                Proven ROI: Independent Study Results
+              </h2>
+              <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
+                Forrester Consulting's Total Economic Impact™ study provides objective analysis of 
+                Salesforce Lightning's business value for decision-makers
+              </p>
+              
+              {/* Hero ROI Stat */}
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="mb-12"
+              >
+                <div className="inline-block bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border-2 border-cyan-400/50 rounded-3xl p-8 backdrop-blur-sm">
+                  <div className="text-7xl md:text-8xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent mb-2">
+                    341%
+                  </div>
+                  <div className="text-2xl md:text-3xl text-white font-semibold mb-2">
+                    Return on Investment
+                  </div>
+                  <div className="text-gray-300 text-lg">
+                    Over 3 Years
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          </AnimatedSection>
+
+          {/* Key Metrics Grid */}
+          <AnimatedSection>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+              {[
+                {
+                  icon: DollarSign,
+                  title: 'Sales Efficiency',
+                  value: '$1.59M',
+                  description: 'In productivity savings over 3 years',
+                  detail: '3% increase in sales productivity - over 1 hour saved per week per sales rep'
+                },
+                {
+                  icon: Zap,
+                  title: 'Development Speed',
+                  value: '50%',
+                  description: 'Faster time-to-market for applications',
+                  detail: 'Component-based framework enabled rapid app development saving $1M+'
+                },
+                {
+                  icon: TrendingUp,
+                  title: 'Productivity Gains',
+                  value: '+$366K',
+                  description: 'Power user time savings over 3 years',
+                  detail: '2 additional hours saved per week for business sponsors and project managers'
+                },
+                {
+                  icon: Users,
+                  title: 'Developer Retention',
+                  value: '80%',
+                  description: 'Reduction in developer turnover',
+                  detail: '$169K in hiring cost avoidance savings'
+                }
+              ].map((metric, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.1 * index }}
+                  className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:bg-white/15 transition-all duration-300 group"
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <metric.icon className="w-6 h-6 text-white" />
+                    </div>
+                    <h4 className="text-lg font-bold text-white">{metric.title}</h4>
+                  </div>
+                  <div className="text-4xl font-bold text-cyan-400 mb-2">{metric.value}</div>
+                  <p className="text-white text-sm font-semibold mb-2">{metric.description}</p>
+                  <p className="text-gray-400 text-xs">{metric.detail}</p>
+                </motion.div>
+              ))}
+            </div>
+          </AnimatedSection>
+
+          {/* Additional Benefits */}
+          <AnimatedSection>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="bg-gradient-to-r from-white/5 to-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20 mb-12"
+            >
+              <h3 className="text-2xl font-bold text-white mb-6 text-center">Additional Quantified Benefits</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[
+                  { icon: CheckCircle2, text: 'Enhanced dashboard capabilities and analytics' },
+                  { icon: CheckCircle2, text: 'Improved user experience across all touchpoints' },
+                  { icon: CheckCircle2, text: 'More efficient use of developer resources' },
+                  { icon: CheckCircle2, text: 'Faster application deployment and iteration' },
+                  { icon: CheckCircle2, text: 'Reduced training time for new team members' },
+                  { icon: CheckCircle2, text: 'Better talent retention through modern tooling' }
+                ].map((benefit, index) => (
+                  <div key={index} className="flex items-start gap-3">
+                    <benefit.icon className="w-5 h-5 text-cyan-400 mt-1 flex-shrink-0" />
+                    <span className="text-gray-300">{benefit.text}</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </AnimatedSection>
+
+          {/* Download CTA */}
+          <AnimatedSection className="text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 rounded-2xl p-8"
+            >
+              <h3 className="text-2xl font-bold text-white mb-4">
+                Read the Full Study
+              </h3>
+              <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
+                Download the complete Forrester Consulting Total Economic Impact™ study for detailed 
+                methodology, composite organization analysis, and comprehensive financial modeling
+              </p>
+              <a 
+                href="/Assets/forrester-tei-of-salesforce-lightning.pdf" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                onClick={() => triggerHaptic([10, 5, 10], '/Assets/woosh1new.mp3')}
+              >
+                <Button 
+                  variant="primary" 
+                  size="lg" 
+                  className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700"
+                >
+                  <Download className="h-5 w-5 mr-2" />
+                  Download Forrester Study (PDF)
+                </Button>
+              </a>
+              <p className="text-xs text-gray-500 mt-6">
+                Source: The Total Economic Impact™ of Salesforce Lightning, a commissioned study conducted by 
+                Forrester Consulting on behalf of Salesforce, 2018
+              </p>
+            </motion.div>
+          </AnimatedSection>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section ref={ctaRef} className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-cyan-600/20 via-blue-600/20 to-purple-600/20"></div>
@@ -2831,11 +3007,11 @@ const SalesforcePower = () => {
       {/* Progress Indicator */}
       <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50">
         <div className="flex items-center gap-2 bg-gray-800/90 backdrop-blur-sm rounded-full px-4 py-2">
-          {[0, 1, 2, 3, 4, 5].map((section) => (
+          {[0, 1, 2, 3, 4, 5, 6].map((section) => (
             <button
               key={section}
               onClick={() => {
-                const refs = [heroRef, platformRef, erpRef, dataCloudRef, industryRef, comparisonRef];
+                const refs = [heroRef, platformRef, erpRef, dataCloudRef, industryRef, comparisonRef, forresterRef];
                 if (refs[section]) {
                   scrollToSection(refs[section], section);
                 }
