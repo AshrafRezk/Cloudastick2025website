@@ -358,6 +358,7 @@ const SalesforcePower = () => {
   const [logoLoading, setLogoLoading] = useState<boolean>(false);
   const [logoError, setLogoError] = useState<boolean>(false);
   const [showCompanyInput, setShowCompanyInput] = useState<boolean>(false);
+  const [hasPrefilledParams, setHasPrefilledParams] = useState<boolean>(false);
   const [copied, setCopied] = useState(false);
   const [expandedMetrics, setExpandedMetrics] = useState<Set<string>>(new Set());
   const [showLeadModal, setShowLeadModal] = useState<boolean>(false);
@@ -598,6 +599,11 @@ const SalesforcePower = () => {
     const companyNameParam = searchParams.get('cn') || searchParams.get('companyName');
     const companyWebsiteParam = searchParams.get('cw') || searchParams.get('companyWebsite');
     const industryParam = searchParams.get('industry');
+    
+    // Check if both company name and website are pre-filled from URL
+    if (companyNameParam && companyWebsiteParam) {
+      setHasPrefilledParams(true);
+    }
     
     if (companyNameParam) {
       setCompanyName(decodeURIComponent(companyNameParam));
@@ -1087,101 +1093,104 @@ const SalesforcePower = () => {
                 }
               </p>
 
-              {/* Company Inputs */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.3 }}
-                className="mb-8"
-              >
-                <div className={`grid grid-cols-1 ${companyName ? 'sm:grid-cols-2' : ''} gap-4 max-w-4xl mx-auto`}>
-                  {/* Company Website Input with Analyze Button */}
-                  <div className="flex-1">
-                    <div className="flex gap-3">
-                      <div className="relative flex-1">
+              {/* Company Inputs - Only show if not pre-filled from URL */}
+              {!hasPrefilledParams && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.3 }}
+                  className="mb-8"
+                >
+                  <div className={`grid grid-cols-1 ${companyName ? 'sm:grid-cols-2' : ''} gap-4 max-w-4xl mx-auto`}>
+                    {/* Company Website Input with Analyze Button */}
+                    <div className="flex-1">
+                      <div className="flex gap-3">
+                        <div className="relative flex-1">
+                          <input
+                            type="text"
+                            placeholder="Company Website (e.g., example.com)"
+                            value={companyWebsite}
+                            onChange={handleWebsiteChange}
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter' && companyWebsite.trim() && !loadingIntelligence) {
+                                handleAnalyzeCompany();
+                              }
+                            }}
+                            className="w-full px-6 py-4 bg-gray-800/50 backdrop-blur-sm border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-300"
+                          />
+                        </div>
+                        
+                        {/* Analyze Button */}
+                        <button
+                          onClick={handleAnalyzeCompany}
+                          disabled={!companyWebsite.trim() || loadingIntelligence}
+                          className={`px-6 py-4 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 whitespace-nowrap
+                            ${companyWebsite.trim() && !loadingIntelligence
+                              ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer'
+                              : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                            }
+                          `}
+                        >
+                          {loadingIntelligence ? (
+                            <>
+                              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              <span>Analyzing...</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>Analyze</span>
+                              <ArrowRight className="w-5 h-5" />
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                    
+                    {/* Company Name Input - Only shown after name is loaded */}
+                    {companyName && (
+                      <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="flex-1"
+                      >
                         <input
                           type="text"
-                          placeholder="Company Website (e.g., example.com)"
-                          value={companyWebsite}
-                          onChange={handleWebsiteChange}
-                          onKeyPress={(e) => {
-                            if (e.key === 'Enter' && companyWebsite.trim() && !loadingIntelligence) {
-                              handleAnalyzeCompany();
-                            }
-                          }}
-                          className="w-full px-6 py-4 bg-gray-800/50 backdrop-blur-sm border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-300"
+                          placeholder={t('power.hero.companyPlaceholder')}
+                          value={companyName}
+                          onChange={(e) => setCompanyName(e.target.value)}
+                          className="w-full px-6 py-4 bg-gray-800/50 backdrop-blur-sm border border-cyan-500 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-300 text-center sm:text-left"
                         />
-                      </div>
-                      
-                      {/* Analyze Button */}
-                      <button
-                        onClick={handleAnalyzeCompany}
-                        disabled={!companyWebsite.trim() || loadingIntelligence}
-                        className={`px-6 py-4 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 whitespace-nowrap
-                          ${companyWebsite.trim() && !loadingIntelligence
-                            ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer'
-                            : 'bg-gray-700 text-gray-500 cursor-not-allowed'
-                          }
-                        `}
-                      >
-                        {loadingIntelligence ? (
-                          <>
-                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                            <span>Analyzing...</span>
-                          </>
-                        ) : (
-                          <>
-                            <span>Analyze</span>
-                            <ArrowRight className="w-5 h-5" />
-                          </>
-                        )}
-                      </button>
-                    </div>
+                        <p className="text-xs text-cyan-400 mt-2 text-center sm:text-left">
+                          ✏️ Edit if name is incorrect
+                        </p>
+                      </motion.div>
+                    )}
                   </div>
                   
-                  {/* Company Name Input - Only shown after name is loaded */}
-                  {companyName && (
+                  {/* Personalization Status */}
+                  {(companyName || companyWebsite || loadingIntelligence) && (
                     <motion.div
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="flex-1"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="mt-4 flex items-center justify-center text-sm"
                     >
-                      <input
-                        type="text"
-                        placeholder={t('power.hero.companyPlaceholder')}
-                        value={companyName}
-                        onChange={(e) => setCompanyName(e.target.value)}
-                        className="w-full px-6 py-4 bg-gray-800/50 backdrop-blur-sm border border-cyan-500 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-300 text-center sm:text-left"
-                      />
-                      <p className="text-xs text-cyan-400 mt-2 text-center sm:text-left">
-                        ✏️ Edit if name is incorrect
-                      </p>
+                      {loadingIntelligence ? (
+                        <span className="text-blue-400 flex items-center gap-2">
+                          <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                          Personalizing...
+                        </span>
+                      ) : companyName ? (
+                        <span className="text-cyan-400 flex items-center gap-2">
+                          ✨ All personalized now
+                        </span>
+                      ) : null}
                     </motion.div>
                   )}
-                </div>
-                
-                {/* Personalization Status */}
-                {(companyName || companyWebsite || loadingIntelligence) && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="mt-4 flex items-center justify-center text-sm"
-                  >
-                    {loadingIntelligence ? (
-                      <span className="text-blue-400 flex items-center gap-2">
-                        <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-                        Personalizing...
-                      </span>
-                    ) : companyName ? (
-                      <span className="text-cyan-400 flex items-center gap-2">
-                        ✨ All personalized now
-                      </span>
-                    ) : null}
-                  </motion.div>
-                )}
+                </motion.div>
+              )}
 
-                {/* Company Intelligence Display */}
+              {/* Company Intelligence Display */}
                 {companyIntelligence && (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -1279,7 +1288,6 @@ const SalesforcePower = () => {
                     </div>
                   </motion.div>
                 )}
-              </motion.div>
             </motion.div>
 
             {/* Industry Selection Cards */}
