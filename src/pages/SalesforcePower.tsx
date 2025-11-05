@@ -682,7 +682,7 @@ const SalesforcePower = () => {
       },
       {
         metric: 'Cost Effectiveness',
-        salesforce: { score: 9, label: 'High Value', description: 'Premium pricing but highest ROI and AI-powered efficiency gains' },
+        salesforce: { score: 9, label: 'High Value', description: 'Premium pricing but 341% ROI (Forrester) and AI-powered efficiency gains' },
         hubspot: { score: 7, label: 'Moderate Value', description: 'Good value for basic needs' },
         zoho: { score: 8, label: 'Affordable', description: 'Good value for mid-market' },
         freshworks: { score: 7, label: 'Budget Option', description: 'Low cost but limited features' },
@@ -690,7 +690,7 @@ const SalesforcePower = () => {
       },
       {
         metric: 'ROI Potential',
-        salesforce: { score: 10, label: '251% ROI', description: 'Industry-leading ROI with AI-powered automation and insights' },
+        salesforce: { score: 10, label: '341% ROI', description: 'Industry-leading ROI with AI-powered automation (Forrester TEI Study)' },
         hubspot: { score: 6, label: '120% ROI', description: 'Moderate ROI with basic automation' },
         zoho: { score: 5, label: '100% ROI', description: 'Basic ROI with limited advanced features' },
         freshworks: { score: 4, label: '80% ROI', description: 'Limited ROI due to basic functionality' },
@@ -2285,7 +2285,7 @@ const SalesforcePower = () => {
                     <DollarSign className="w-5 h-5 text-green-400 mt-1 flex-shrink-0" />
                     <div>
                       <div className="font-semibold text-white">Revenue Impact</div>
-                      <div className="text-sm text-gray-300">251% average ROI vs 150% competitors</div>
+                      <div className="text-sm text-gray-300">341% ROI over 3 years (Forrester Study)</div>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
@@ -2407,7 +2407,7 @@ const SalesforcePower = () => {
                 },
                 {
                   metric: 'Cost Effectiveness',
-                  salesforce: { score: 9, label: 'High Value', description: 'Premium pricing but highest ROI and AI-powered efficiency gains' },
+                  salesforce: { score: 9, label: 'High Value', description: 'Premium pricing but 341% ROI (Forrester) and AI-powered efficiency gains' },
                   hubspot: { score: 7, label: 'Moderate Value', description: 'Good value for basic needs' },
                   zoho: { score: 8, label: 'Affordable', description: 'Good value for mid-market' },
                   freshworks: { score: 7, label: 'Budget Option', description: 'Low cost but limited features' },
@@ -2416,7 +2416,7 @@ const SalesforcePower = () => {
                 },
                 {
                   metric: 'ROI Potential',
-                  salesforce: { score: 10, label: '251% ROI', description: 'Industry-leading ROI with AI-powered automation and insights' },
+                  salesforce: { score: 10, label: '341% ROI', description: 'Industry-leading ROI with AI-powered automation (Forrester TEI Study)' },
                   hubspot: { score: 6, label: '120% ROI', description: 'Moderate ROI with basic automation' },
                   zoho: { score: 5, label: '100% ROI', description: 'Basic ROI with limited advanced features' },
                   freshworks: { score: 4, label: '80% ROI', description: 'Limited ROI due to basic functionality' },
@@ -2686,7 +2686,7 @@ const SalesforcePower = () => {
           {/* Key Differentiators */}
           <AnimatedSection className="mb-16">
             <h3 className="text-3xl font-bold text-white text-center mb-8">
-              Why Salesforce Delivers Superior ROI
+              Why Salesforce Delivers 341% ROI (Forrester Study)
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
@@ -2746,14 +2746,14 @@ const SalesforcePower = () => {
           >
             <div className="flex items-center justify-center gap-2 mb-4">
               <TrendingUp className="w-8 h-8 text-cyan-400" />
-              <h3 className="text-3xl font-bold text-white">251% Average ROI</h3>
+              <h3 className="text-3xl font-bold text-white">341% ROI (Forrester Study)</h3>
             </div>
             <p className="text-lg text-gray-300 mb-6">
-              Salesforce customers see an average ROI of 251% within 3 years - significantly higher than competitors
+              Salesforce Lightning delivers 341% ROI over 3 years according to Forrester's Total Economic Impact™ study - significantly higher than competitors
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
               {[
-                { name: 'Salesforce', roi: '251%', color: 'text-cyan-400', bgColor: 'bg-cyan-400' },
+                { name: 'Salesforce', roi: '341%', color: 'text-cyan-400', bgColor: 'bg-cyan-400' },
                 { name: 'HubSpot', roi: '120%', color: 'text-gray-400', bgColor: 'bg-gray-400' },
                 { name: 'Odoo', roi: '110%', color: 'text-gray-400', bgColor: 'bg-gray-400' },
                 { name: 'Zoho', roi: '100%', color: 'text-gray-400', bgColor: 'bg-gray-400' },
@@ -2761,13 +2761,13 @@ const SalesforcePower = () => {
               ].map((item, index) => (
                 <div key={index} className="text-center">
                   <div className={`text-2xl font-bold ${item.color} mb-2`}>{item.roi}</div>
-                  <div className={`h-2 ${item.bgColor} rounded-full mb-2`} style={{ width: item.name === 'Salesforce' ? '100%' : `${parseInt(item.roi) / 2.51}%` }}></div>
+                  <div className={`h-2 ${item.bgColor} rounded-full mb-2`} style={{ width: item.name === 'Salesforce' ? '100%' : `${parseInt(item.roi) / 3.41}%` }}></div>
                   <div className="text-sm text-gray-400">{item.name}</div>
                 </div>
               ))}
             </div>
             <p className="text-xs text-gray-500 mt-6">
-              *ROI data based on industry studies and customer surveys. Actual results may vary.
+              *Salesforce ROI from Forrester Consulting TEI Study (2018). Competitor data based on industry studies. Actual results may vary.
             </p>
           </motion.div>
         </div>
