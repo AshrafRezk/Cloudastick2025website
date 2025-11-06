@@ -5,7 +5,6 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import BusinessIcon from '@mui/icons-material/Business';
 import HomeIcon from '@mui/icons-material/Home';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
-import CityscapeStartupSequence from '../components/CityscapeStartupSequence';
 import CityscapeInvestmentWidget from '../components/CityscapeInvestmentWidget';
 
 interface FormData {
@@ -23,7 +22,6 @@ type BoothPurpose = 'investors' | 'offices' | 'residents';
 
 const CityscapeLeadCapture: React.FC = () => {
   const navigate = useNavigate();
-  const [showStartup, setShowStartup] = useState(true);
   const [companyName, setCompanyName] = useState('');
   const [boothPurpose, setBoothPurpose] = useState<BoothPurpose>('investors');
   const [formData, setFormData] = useState<FormData>({
@@ -297,10 +295,6 @@ Purpose: ${boothPurpose}`;
     }
   };
 
-  const handleStartupComplete = () => {
-    setShowStartup(false);
-  };
-
   const handleLanguageSwitch = () => {
     setCurrentLanguage(prev => prev === 'en' ? 'ar' : 'en');
   };
@@ -458,19 +452,6 @@ Purpose: ${boothPurpose}`;
       : words[0].slice(0, 2).toUpperCase();
     return initials;
   };
-
-  if (showStartup && companyName && boothPurpose) {
-    const content = contentByPurpose[boothPurpose]?.[currentLanguage];
-    if (content?.gradient) {
-      return (
-        <CityscapeStartupSequence 
-          onComplete={handleStartupComplete}
-          companyName={companyName}
-          gradient={content.gradient}
-        />
-      );
-    }
-  }
 
   const content = contentByPurpose[boothPurpose]?.[currentLanguage] || contentByPurpose.investors.en;
   const fc = formContent[currentLanguage] || formContent.en;

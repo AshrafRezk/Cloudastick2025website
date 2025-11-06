@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import CityscapeStartupSequence from '../components/CityscapeStartupSequence';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import BusinessIcon from '@mui/icons-material/Business';
 import HomeIcon from '@mui/icons-material/Home';
@@ -11,7 +10,6 @@ type BoothPurpose = 'investors' | 'offices' | 'residents';
 
 const CityscapeStart: React.FC = () => {
   const navigate = useNavigate();
-  const [showStartup, setShowStartup] = useState(true);
   const [companyName, setCompanyName] = useState('');
   const [boothPurpose, setBoothPurpose] = useState<BoothPurpose | ''>('');
   const [errors, setErrors] = useState({ companyName: '', boothPurpose: '' });
@@ -100,10 +98,6 @@ const CityscapeStart: React.FC = () => {
     ]
   };
 
-  const handleStartupComplete = () => {
-    setShowStartup(false);
-  };
-
   const handleLanguageSwitch = () => {
     setCurrentLanguage(prev => prev === 'en' ? 'ar' : 'en');
   };
@@ -131,10 +125,6 @@ const CityscapeStart: React.FC = () => {
       navigate('/cityscape-lead-capture');
     }
   };
-
-  if (showStartup) {
-    return <CityscapeStartupSequence onComplete={handleStartupComplete} />;
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100" dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>

@@ -339,7 +339,7 @@ const CityscapeInvestmentWidget: React.FC<CityscapeInvestmentWidgetProps> = ({
   // Handle input blur
   const handleInputBlurWithStyle = (e: React.FocusEvent<HTMLInputElement>) => {
     handleInputBlur();
-    e.target.style.borderColor = error ? undefined : `${primaryColor}80`;
+    e.target.style.borderColor = error ? undefined : '#cbd5e1'; // slate-300
     e.target.style.boxShadow = 'none';
   };
 
@@ -392,7 +392,7 @@ const CityscapeInvestmentWidget: React.FC<CityscapeInvestmentWidgetProps> = ({
       exit={{ opacity: 0, y: -20, scale: 0.95 }}
       transition={{ duration: 0.4, type: "spring", bounce: 0.3 }}
     >
-      <div className={`p-3 md:p-6 rounded-3xl bg-gradient-to-br ${gradient} bg-opacity-10 border-2 border-opacity-30 shadow-lg`}>
+      <div className="p-3 md:p-6 rounded-3xl bg-white border-2 border-slate-200 shadow-lg">
         {/* Header */}
         <motion.div
           initial={{ scale: 0.9 }}
@@ -498,7 +498,7 @@ const CityscapeInvestmentWidget: React.FC<CityscapeInvestmentWidgetProps> = ({
             </AnimatePresence>
 
             {/* Min/Max Labels */}
-            <div className={`flex justify-between text-xs text-slate-500 font-medium mt-2 ${currentLanguage === 'ar' ? 'flex-row-reverse' : ''}`}>
+            <div className={`flex justify-between text-xs text-slate-700 font-medium mt-2 ${currentLanguage === 'ar' ? 'flex-row-reverse' : ''}`}>
               <span>{t.minLabel}</span>
               <span>{t.maxLabel}</span>
             </div>
@@ -509,7 +509,7 @@ const CityscapeInvestmentWidget: React.FC<CityscapeInvestmentWidgetProps> = ({
         <div className="mb-3 md:mb-4">
           <label 
             htmlFor="investment-input" 
-            className={`block text-xs text-slate-600 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}
+            className={`block text-xs text-slate-700 mb-2 font-medium ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}
             dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
           >
             {t.manualLabel}
@@ -522,11 +522,8 @@ const CityscapeInvestmentWidget: React.FC<CityscapeInvestmentWidgetProps> = ({
             onBlur={handleInputBlurWithStyle}
             onFocus={handleInputFocus}
             className={`w-full px-4 py-3 rounded-2xl border-2 text-slate-900 placeholder-slate-400 bg-white focus:outline-none transition-all duration-200 font-mono text-right ${
-              error ? 'border-red-500' : ''
+              error ? 'border-red-500' : 'border-slate-300'
             }`}
-            style={{
-              borderColor: error ? undefined : `${primaryColor}80`,
-            }}
             placeholder={t.manualPlaceholder}
             dir="ltr"
           />
@@ -548,8 +545,7 @@ const CityscapeInvestmentWidget: React.FC<CityscapeInvestmentWidgetProps> = ({
               setShowProjectDetails(!showProjectDetails);
               triggerHaptic(20);
             }}
-            className={`flex items-center gap-2 text-sm font-semibold transition-colors mx-auto ${currentLanguage === 'ar' ? 'flex-row-reverse' : ''}`}
-            style={{ color: primaryColor }}
+            className={`flex items-center gap-2 text-sm font-semibold transition-colors mx-auto hover:text-blue-700 ${currentLanguage === 'ar' ? 'flex-row-reverse' : ''} text-blue-800`}
           >
             {showProjectDetails ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             {showProjectDetails ? t.hideProjectDetails : t.viewProjectDetails}
