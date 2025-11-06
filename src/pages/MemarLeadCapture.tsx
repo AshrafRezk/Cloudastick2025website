@@ -258,7 +258,7 @@ const MemarLeadCapture: React.FC = () => {
       }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formData.interest, currentPeople]);
+  }, [formData.interest]);
 
   // Capture device info and query params on mount
   useEffect(() => {
