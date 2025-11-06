@@ -197,16 +197,49 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
     return `${formatNumber(num)} SAR`;
   };
 
-  // Generate chart data for comparison
+  // Add realistic variance to simulate market fluctuations
+  const addRealisticVariance = (baseValue: number, volatility: number, year: number) => {
+    // Use deterministic "randomness" based on year for consistent results
+    const seed1 = Math.sin(year * 12.9898 + 78.233) * 43758.5453;
+    const seed2 = Math.sin(year * 93.9898 + 23.233) * 12345.6789;
+    const noise1 = (seed1 - Math.floor(seed1)) - 0.5; // Range: -0.5 to +0.5
+    const noise2 = (seed2 - Math.floor(seed2)) - 0.5;
+    const combinedNoise = (noise1 + noise2) / 2; // Smooth out extreme values
+    
+    const variance = baseValue * (volatility * combinedNoise);
+    return baseValue + variance;
+  };
+
+  // Generate chart data for comparison with realistic market fluctuations
   const generateChartData = (investment: number) => {
-    const periods = [5, 10, 20, 30];
-    return periods.map(year => ({
-      year,
-      memar: investment * Math.pow(1 + assetClasses.memar.cagr, year),
-      gold: investment * Math.pow(1 + assetClasses.gold.cagr, year),
-      stocks: investment * Math.pow(1 + assetClasses.stocks.cagr, year),
-      fixed: investment * Math.pow(1 + assetClasses.fixed.cagr, year),
-    }));
+    const periods = [0, 5, 10, 15, 20, 25, 30];
+    
+    return periods.map(year => {
+      if (year === 0) {
+        return {
+          year: 0,
+          memar: investment,
+          gold: investment,
+          stocks: investment,
+          fixed: investment,
+        };
+      }
+      
+      // Base calculations with compound interest
+      const memarBase = investment * Math.pow(1 + assetClasses.memar.cagr, year);
+      const goldBase = investment * Math.pow(1 + assetClasses.gold.cagr, year);
+      const stocksBase = investment * Math.pow(1 + assetClasses.stocks.cagr, year);
+      const fixedBase = investment * Math.pow(1 + assetClasses.fixed.cagr, year);
+      
+      // Add realistic variance (volatility levels)
+      return {
+        year,
+        memar: addRealisticVariance(memarBase, 0.03, year),     // ±3% (stable real estate)
+        gold: addRealisticVariance(goldBase, 0.08, year),       // ±8% (moderate commodity)
+        stocks: addRealisticVariance(stocksBase, 0.12, year),   // ±12% (high equity volatility)
+        fixed: addRealisticVariance(fixedBase, 0.01, year),     // ±1% (very stable)
+      };
+    });
   };
 
   // AI-generated personalized insights
@@ -694,6 +727,7 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
                       <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
                       <XAxis 
                         dataKey="year"
+                        ticks={[0, 5, 10, 15, 20, 25, 30]}
                         tick={{ fill: '#64748b', fontSize: 12 }}
                         label={{ value: currentLanguage === 'en' ? 'Years' : 'السنوات', position: 'insideBottom', offset: -5, fill: '#64748b' }}
                       />
