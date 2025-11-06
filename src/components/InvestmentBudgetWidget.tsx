@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Wallet, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
+import { Wallet, Sparkles, ChevronDown, ChevronUp, Lightbulb, Target, Shield } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface InvestmentBudgetWidgetProps {
@@ -129,7 +129,7 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
       hideProjectDetails: "Hide Project Details",
       avgAnnualROI: "Avg. Annual ROI",
       delivered: "Delivered",
-      credibilityNote: "Real performance, not assumptions — based on Memar developments across Riyadh, Jeddah, and Eastern Province.",
+      credibilityNote: "Real performance, not assumptions: based on Memar developments across Riyadh, Jeddah, and Eastern Province.",
       dataDisclaimer: "All figures are indicative and derived from Saudi market data (SAMA & Tadawul) and Memar's historical project ROI averages.",
       memarRealEstate: "Memar Real Estate",
       goldBullion: "Gold Bullion",
@@ -159,7 +159,7 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
       hideProjectDetails: "إخفاء تفاصيل المشاريع",
       avgAnnualROI: "متوسط العائد السنوي",
       delivered: "تم التسليم",
-      credibilityNote: "أداء حقيقي، وليس افتراضات — بناءً على تطويرات معمار عبر الرياض وجدة والمنطقة الشرقية.",
+      credibilityNote: "أداء حقيقي، وليس افتراضات: بناءً على تطويرات معمار عبر الرياض وجدة والمنطقة الشرقية.",
       dataDisclaimer: "جميع الأرقام إرشادية ومستمدة من بيانات السوق السعودية (ساما وتداول) ومتوسطات عائد الاستثمار التاريخية لمعمار.",
       memarRealEstate: "عقارات معمار",
       goldBullion: "سبائك الذهب",
@@ -224,7 +224,7 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
     
     const primaryInsights = {
       starter: {
-        en: `Starting with ${formatNumber(investment)} SAR is a smart move! Over 20 years, Memar's real estate portfolio could generate ${formatNumber(Math.round(vsGold))} SAR more wealth than holding gold — that's the power of compound growth in proven developments.`,
+        en: `Starting with ${formatNumber(investment)} SAR is a smart move! Over 20 years, Memar's real estate portfolio could generate ${formatNumber(Math.round(vsGold))} SAR more wealth than holding gold. That's the power of compound growth in proven developments.`,
         ar: `البدء بـ ${formatNumber(investment)} ريال سعودي خطوة ذكية! خلال 20 عامًا، قد تحقق محفظة معمار العقارية ${formatNumber(Math.round(vsGold))} ريال سعودي أكثر من الذهب.`
       },
       growth: {
@@ -232,11 +232,11 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
         ar: `مع ${formatNumber(investment)} ريال سعودي، أنت في موضع نمو كبير. يُظهر تحليلي أن تطويرات معمار قد تتفوق على الذهب بـ ${formatNumber(Math.round(vsGold))} ريال سعودي.`
       },
       established: {
-        en: `At ${formatNumber(investment)} SAR, you're entering serious wealth-building territory. Based on Memar's award-winning portfolio—Rayhaan Hotel, Noura Compound, and Arc Avenue—your investment could generate ${formatNumber(Math.round(vsGold))} SAR more than gold, with proven stability.`,
+        en: `At ${formatNumber(investment)} SAR, you're entering serious wealth-building territory. Based on Memar's award-winning projects (Rayhaan Hotel, Noura Compound, and Arc Avenue), your investment could generate ${formatNumber(Math.round(vsGold))} SAR more than gold, with proven stability.`,
         ar: `عند ${formatNumber(investment)} ريال سعودي، أنت تدخل منطقة بناء ثروة جادة. بناءً على محفظة معمار الحائزة على جوائز، قد تحقق محفظتك ${formatNumber(Math.round(vsGold))} ريال سعودي أكثر من الذهب.`
       },
       premium: {
-        en: `${formatNumber(investment)} SAR represents sophisticated portfolio positioning. My deep analysis of Memar's track record suggests your real estate allocation could outperform gold by ${formatNumber(Math.round(vsGold))} SAR over 20 years — while maintaining lower volatility than equities.`,
+        en: `${formatNumber(investment)} SAR represents sophisticated portfolio positioning. My deep analysis of Memar's track record suggests your real estate allocation could outperform gold by ${formatNumber(Math.round(vsGold))} SAR over 20 years, while maintaining lower volatility than equities.`,
         ar: `${formatNumber(investment)} ريال سعودي يمثل موضع محفظة متطور. يشير تحليلي العميق لسجل معمار إلى أن تخصيص العقارات قد يتفوق على الذهب بـ ${formatNumber(Math.round(vsGold))} ريال سعودي.`
       },
       elite: {
@@ -247,70 +247,70 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
 
     const secondaryInsights = {
       starter: {
-        en: `💡 AI Insight: Your investment profile suggests focusing on long-term stability. Memar's 6.8% average return across three key developments offers the perfect balance of growth and security.`,
-        ar: `💡 رؤية ذكية: يقترح ملفك الاستثماري التركيز على الاستقرار طويل الأجل. متوسط عائد معمار 6.8٪ يوفر التوازن المثالي.`
+        en: `AI Insight: Your investment profile suggests focusing on long-term stability. Memar's 6.8% average return across three key developments offers the perfect balance of growth and security.`,
+        ar: `رؤية ذكية: يقترح ملفك الاستثماري التركيز على الاستقرار طويل الأجل. متوسط عائد معمار 6.8٪ يوفر التوازن المثالي.`
       },
       growth: {
-        en: `💡 AI Analysis: At this investment level, diversification across Memar's projects in Riyadh, Jeddah, and Eastern Province gives you exposure to three high-growth Saudi markets simultaneously.`,
-        ar: `💡 تحليل ذكي: عند هذا المستوى، التنويع عبر مشاريع معمار يمنحك التعرض لثلاثة أسواق سعودية عالية النمو.`
+        en: `AI Analysis: At this investment level, diversification across Memar's projects in Riyadh, Jeddah, and Eastern Province gives you exposure to three high-growth Saudi markets simultaneously.`,
+        ar: `تحليل ذكي: عند هذا المستوى، التنويع عبر مشاريع معمار يمنحك التعرض لثلاثة أسواق سعودية عالية النمو.`
       },
       established: {
-        en: `💡 Strategic AI Recommendation: Your capital is sufficient to consider portfolio weighting. I suggest 60-70% in Memar's flagship developments, with the remainder in complementary growth assets for optimal risk-adjusted returns.`,
-        ar: `💡 توصية استراتيجية ذكية: رأس مالك كافٍ للنظر في ترجيح المحفظة. أقترح 60-70٪ في تطويرات معمار الرئيسية.`
+        en: `Strategic AI Recommendation: Your capital is sufficient to consider portfolio weighting. I suggest 60-70% in Memar's flagship developments, with the remainder in complementary growth assets for optimal risk-adjusted returns.`,
+        ar: `توصية استراتيجية ذكية: رأس مالك كافٍ للنظر في ترجيح المحفظة. أقترح 60-70٪ في تطويرات معمار الرئيسية.`
       },
       premium: {
-        en: `💡 Advanced AI Modeling: At this scale, historical correlation analysis shows Memar real estate provides negative correlation with oil volatility, offering natural hedge for Saudi-based portfolios.`,
-        ar: `💡 نمذجة متقدمة: على هذا النطاق، يُظهر تحليل الارتباط التاريخي أن عقارات معمار توفر تحوطًا طبيعيًا للمحافظ السعودية.`
+        en: `Advanced AI Modeling: At this scale, historical correlation analysis shows Memar real estate provides negative correlation with oil volatility, offering natural hedge for Saudi-based portfolios.`,
+        ar: `نمذجة متقدمة: على هذا النطاق، يُظهر تحليل الارتباط التاريخي أن عقارات معمار توفر تحوطًا طبيعيًا للمحافظ السعودية.`
       },
       elite: {
-        en: `💡 Institutional-Grade Analysis: Monte Carlo simulations across 10,000 scenarios suggest 89% probability of Memar outperforming regional real estate benchmarks over 15+ year horizons, with Sharpe ratio of 1.4.`,
-        ar: `💡 تحليل مؤسسي: محاكاة مونتي كارلو عبر 10,000 سيناريو تشير إلى احتمالية 89٪ لتفوق معمار على معايير العقارات الإقليمية.`
+        en: `Institutional-Grade Analysis: Monte Carlo simulations across 10,000 scenarios suggest 89% probability of Memar outperforming regional real estate benchmarks over 15+ year horizons, with Sharpe ratio of 1.4.`,
+        ar: `تحليل مؤسسي: محاكاة مونتي كارلو عبر 10,000 سيناريو تشير إلى احتمالية 89٪ لتفوق معمار على معايير العقارات الإقليمية.`
       }
     };
 
     const recommendations = {
       starter: {
-        en: `🎯 Next Step: Schedule a consultation to explore Memar's proven developments like Noura Compound — ideal for first-time real estate investors seeking stability.`,
-        ar: `🎯 الخطوة التالية: حدد موعد استشارة لاستكشاف تطويرات معمار المثبتة مثل مجمع نورة — مثالي للمستثمرين العقاريين المبتدئين.`
+        en: `Next Step: Schedule a consultation to explore Memar's proven developments like Noura Compound, ideal for first-time real estate investors seeking stability.`,
+        ar: `الخطوة التالية: حدد موعد استشارة لاستكشاف تطويرات معمار المثبتة مثل مجمع نورة، مثالي للمستثمرين العقاريين المبتدئين.`
       },
       growth: {
-        en: `🎯 Recommended Action: Book a portfolio review with Memar's investment team to identify units matching your ${formatNumber(investment)} SAR budget and 20-year timeline.`,
-        ar: `🎯 الإجراء الموصى به: احجز مراجعة المحفظة مع فريق استثمار معمار لتحديد الوحدات المطابقة لميزانيتك.`
+        en: `Recommended Action: Book a portfolio review with Memar's investment team to identify units matching your ${formatNumber(investment)} SAR budget and 20-year timeline.`,
+        ar: `الإجراء الموصى به: احجز مراجعة المحفظة مع فريق استثمار معمار لتحديد الوحدات المطابقة لميزانيتك.`
       },
       established: {
-        en: `🎯 Strategic Path: Consider multi-unit acquisition across Memar's three regions for geographical diversification. Request private viewing of premium inventory.`,
-        ar: `🎯 المسار الاستراتيجي: فكر في الاستحواذ متعدد الوحدات عبر مناطق معمار الثلاث للتنويع الجغرافي.`
+        en: `Strategic Path: Consider multi-unit acquisition across Memar's three regions for geographical diversification. Request private viewing of premium inventory.`,
+        ar: `المسار الاستراتيجي: فكر في الاستحواذ متعدد الوحدات عبر مناطق معمار الثلاث للتنويع الجغرافي.`
       },
       premium: {
-        en: `🎯 VIP Consultation: Your investment scale qualifies for executive consultation with Memar's CEO Office. Discuss bespoke portfolio structures and early-access opportunities.`,
-        ar: `🎯 استشارة VIP: حجم استثمارك يؤهلك لاستشارة تنفيذية مع مكتب الرئيس التنفيذي لمعمار.`
+        en: `VIP Consultation: Your investment scale qualifies for executive consultation with Memar's CEO Office. Discuss bespoke portfolio structures and early-access opportunities.`,
+        ar: `استشارة VIP: حجم استثمارك يؤهلك لاستشارة تنفيذية مع مكتب الرئيس التنفيذي لمعمار.`
       },
       elite: {
-        en: `🎯 Institutional Partnership: Connect with Memar's institutional investment division for co-development opportunities, preferred allocations, and strategic partnership discussions.`,
-        ar: `🎯 شراكة مؤسسية: اتصل بقسم الاستثمار المؤسسي لمعمار لفرص التطوير المشترك والتخصيصات المفضلة.`
+        en: `Institutional Partnership: Connect with Memar's institutional investment division for co-development opportunities, preferred allocations, and strategic partnership discussions.`,
+        ar: `شراكة مؤسسية: اتصل بقسم الاستثمار المؤسسي لمعمار لفرص التطوير المشترك والتخصيصات المفضلة.`
       }
     };
 
     const riskProfiles = {
       starter: {
-        en: `🛡️ Risk Profile: Low-to-Moderate | Your capital preservation priority aligns well with real estate's tangible asset nature and Memar's established track record.`,
-        ar: `🛡️ ملف المخاطر: منخفض إلى متوسط | أولوية الحفاظ على رأس المال تتماشى جيدًا مع طبيعة الأصول الملموسة العقارية.`
+        en: `Risk Profile: Low-to-Moderate | Your capital preservation priority aligns well with real estate's tangible asset nature and Memar's established track record.`,
+        ar: `ملف المخاطر: منخفض إلى متوسط | أولوية الحفاظ على رأس المال تتماشى جيدًا مع طبيعة الأصول الملموسة العقارية.`
       },
       growth: {
-        en: `🛡️ Risk Profile: Moderate | Balanced risk exposure suitable for growth-oriented investors. Memar's project diversification mitigates individual development risk.`,
-        ar: `🛡️ ملف المخاطر: متوسط | تعرض متوازن للمخاطر مناسب للمستثمرين الموجهين نحو النمو.`
+        en: `Risk Profile: Moderate | Balanced risk exposure suitable for growth-oriented investors. Memar's project diversification mitigates individual development risk.`,
+        ar: `ملف المخاطر: متوسط | تعرض متوازن للمخاطر مناسب للمستثمرين الموجهين نحو النمو.`
       },
       established: {
-        en: `🛡️ Risk Profile: Moderate-to-High Returns with Managed Risk | Portfolio-level thinking recommended. Memar's geographical spread provides natural risk dispersion.`,
-        ar: `🛡️ ملف المخاطر: عوائد متوسطة إلى عالية مع مخاطر مدارة | التفكير على مستوى المحفظة موصى به.`
+        en: `Risk Profile: Moderate-to-High Returns with Managed Risk | Portfolio-level thinking recommended. Memar's geographical spread provides natural risk dispersion.`,
+        ar: `ملف المخاطر: عوائد متوسطة إلى عالية مع مخاطر مدارة | التفكير على مستوى المحفظة موصى به.`
       },
       premium: {
-        en: `🛡️ Risk Profile: Sophisticated | Your scale enables active portfolio management. Consider stress-testing across oil price scenarios and Vision 2030 policy shifts.`,
-        ar: `🛡️ ملف المخاطر: متطور | نطاقك يتيح إدارة نشطة للمحفظة. فكر في اختبارات الإجهاد عبر سيناريوهات أسعار النفط.`
+        en: `Risk Profile: Sophisticated | Your scale enables active portfolio management. Consider stress-testing across oil price scenarios and Vision 2030 policy shifts.`,
+        ar: `ملف المخاطر: متطور | نطاقك يتيح إدارة نشطة للمحفظة. فكر في اختبارات الإجهاد عبر سيناريوهات أسعار النفط.`
       },
       elite: {
-        en: `🛡️ Risk Profile: Institutional-Grade | Recommend quarterly portfolio rebalancing, macro hedging strategies, and integration with broader MENA real estate exposure.`,
-        ar: `🛡️ ملف المخاطر: مؤسسي | نوصي بإعادة توازن المحفظة ربع السنوية واستراتيجيات التحوط الكلي.`
+        en: `Risk Profile: Institutional-Grade | Recommend quarterly portfolio rebalancing, macro hedging strategies, and integration with broader MENA real estate exposure.`,
+        ar: `ملف المخاطر: مؤسسي | نوصي بإعادة توازن المحفظة ربع السنوية واستراتيجيات التحوط الكلي.`
       }
     };
 
@@ -700,7 +700,12 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
                       <YAxis 
                         tick={{ fill: '#64748b', fontSize: 12 }}
                         tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`}
-                        label={{ value: currentLanguage === 'en' ? 'Value (M SAR)' : 'القيمة (مليون ريال)', angle: -90, position: 'insideLeft', fill: '#64748b' }}
+                        label={window.innerWidth >= 768 ? { 
+                          value: currentLanguage === 'en' ? 'Value (M SAR)' : 'القيمة (مليون ريال)', 
+                          angle: -90, 
+                          position: 'insideLeft', 
+                          fill: '#64748b' 
+                        } : undefined}
                       />
                       <Tooltip content={<CustomTooltip />} />
                       <Legend 
@@ -776,7 +781,10 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
                           transition={{ duration: 0.4, delay: 0.1 }}
                           className="p-3 bg-blue-50/50 rounded-xl border border-blue-200/30"
                         >
-                          <p className="text-sm text-slate-700">{aiInsights.secondary}</p>
+                          <div className="flex items-start gap-2">
+                            <Lightbulb className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+                            <p className="text-sm text-slate-700">{aiInsights.secondary}</p>
+                          </div>
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -789,7 +797,10 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
                           transition={{ duration: 0.4, delay: 0.2 }}
                           className="p-3 bg-emerald-50/50 rounded-xl border border-emerald-200/30"
                         >
-                          <p className="text-sm text-slate-700">{aiInsights.recommendation}</p>
+                          <div className="flex items-start gap-2">
+                            <Target className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+                            <p className="text-sm text-slate-700">{aiInsights.recommendation}</p>
+                          </div>
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -802,7 +813,10 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
                           transition={{ duration: 0.4, delay: 0.3 }}
                           className="p-3 bg-amber-50/50 rounded-xl border border-amber-200/30"
                         >
-                          <p className="text-sm text-slate-700">{aiInsights.risk}</p>
+                          <div className="flex items-start gap-2">
+                            <Shield className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                            <p className="text-sm text-slate-700">{aiInsights.risk}</p>
+                          </div>
                         </motion.div>
                       )}
                     </AnimatePresence>
