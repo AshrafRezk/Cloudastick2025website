@@ -51,9 +51,9 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
       cagr: 0.068,
       color: '#6daead',
       projects: [
-        { name: 'Al Rawdah Residences', location: 'Riyadh', year: 2020, roi: 6.8 },
-        { name: 'Memar Heights', location: 'Jeddah', year: 2019, roi: 7.1 },
-        { name: 'Al Noor Villas', location: 'Eastern Province', year: 2021, roi: 6.4 },
+        { name: 'Rayhaan Hotel', location: 'Riyadh', year: 2022, roi: 7.2 },
+        { name: 'Noura Compound', location: 'Riyadh', year: 2021, roi: 6.5 },
+        { name: 'Arc Avenue', location: 'Riyadh', year: 2023, roi: 6.7 },
       ],
     },
     gold: {
@@ -232,8 +232,8 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
         ar: `مع ${formatNumber(investment)} ريال سعودي، أنت في موضع نمو كبير. يُظهر تحليلي أن تطويرات معمار قد تتفوق على الذهب بـ ${formatNumber(Math.round(vsGold))} ريال سعودي.`
       },
       established: {
-        en: `At ${formatNumber(investment)} SAR, you're entering serious wealth-building territory. Based on Memar's historical performance across Al Rawdah, Heights, and Al Noor, your portfolio could generate ${formatNumber(Math.round(vsGold))} SAR more than gold — and with far more stability than volatile assets.`,
-        ar: `عند ${formatNumber(investment)} ريال سعودي، أنت تدخل منطقة بناء ثروة جادة. بناءً على أداء معمار التاريخي، قد تحقق محفظتك ${formatNumber(Math.round(vsGold))} ريال سعودي أكثر من الذهب.`
+        en: `At ${formatNumber(investment)} SAR, you're entering serious wealth-building territory. Based on Memar's award-winning portfolio—Rayhaan Hotel, Noura Compound, and Arc Avenue—your investment could generate ${formatNumber(Math.round(vsGold))} SAR more than gold, with proven stability.`,
+        ar: `عند ${formatNumber(investment)} ريال سعودي، أنت تدخل منطقة بناء ثروة جادة. بناءً على محفظة معمار الحائزة على جوائز، قد تحقق محفظتك ${formatNumber(Math.round(vsGold))} ريال سعودي أكثر من الذهب.`
       },
       premium: {
         en: `${formatNumber(investment)} SAR represents sophisticated portfolio positioning. My deep analysis of Memar's track record suggests your real estate allocation could outperform gold by ${formatNumber(Math.round(vsGold))} SAR over 20 years — while maintaining lower volatility than equities.`,
@@ -270,8 +270,8 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
 
     const recommendations = {
       starter: {
-        en: `🎯 Next Step: Schedule a consultation to explore entry-level units in Al Rawdah or Al Noor Villas — both ideal for first-time real estate investors.`,
-        ar: `🎯 الخطوة التالية: حدد موعد استشارة لاستكشاف الوحدات للمبتدئين في الروضة أو فلل النور.`
+        en: `🎯 Next Step: Schedule a consultation to explore Memar's proven developments like Noura Compound — ideal for first-time real estate investors seeking stability.`,
+        ar: `🎯 الخطوة التالية: حدد موعد استشارة لاستكشاف تطويرات معمار المثبتة مثل مجمع نورة — مثالي للمستثمرين العقاريين المبتدئين.`
       },
       growth: {
         en: `🎯 Recommended Action: Book a portfolio review with Memar's investment team to identify units matching your ${formatNumber(investment)} SAR budget and 20-year timeline.`,
@@ -463,24 +463,29 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
   // Determine if value is extreme (>50M)
   const isExtremeValue = localValue > 50000000;
 
-  // Custom tooltip for chart
+  // Custom tooltip for chart - MOBILE-FIRST OPTIMIZED
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white/95 backdrop-blur-sm p-4 rounded-xl shadow-xl border-2 border-[#6daead]/30">
-          <p className="font-bold text-slate-900 mb-2">{t.yearLabel} {label}</p>
+        <div className="bg-white/98 backdrop-blur-sm p-3 md:p-4 rounded-lg md:rounded-xl shadow-2xl border-2 border-[#6daead]/40 max-w-[280px] md:max-w-none">
+          <p className="font-bold text-slate-900 mb-2 text-sm md:text-base">{t.yearLabel} {label}</p>
           {payload.map((entry: any) => (
-            <div key={entry.dataKey} className="flex items-center gap-2 mb-1">
-              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
-              <span className="text-sm font-semibold">{entry.name}:</span>
-              <span className="text-sm">≈ {formatMillions(entry.value)} M SAR</span>
+            <div key={entry.dataKey} className="flex items-center gap-2 mb-1.5 last:mb-0">
+              <div 
+                className="w-3 h-3 md:w-3.5 md:h-3.5 rounded-full flex-shrink-0" 
+                style={{ backgroundColor: entry.color }} 
+              />
+              <span className="text-xs md:text-sm font-semibold text-slate-800 truncate">{entry.name}:</span>
+              <span className="text-xs md:text-sm font-bold text-slate-900 ml-auto tabular-nums">
+                ≈ {formatMillions(entry.value)} M
+              </span>
             </div>
           ))}
           {payload.find((p: any) => p.dataKey === 'memar') && (
-            <p className="text-xs text-slate-500 mt-2 italic border-t pt-2">
+            <p className="text-[10px] md:text-xs text-slate-600 mt-2 italic border-t border-slate-200 pt-2 leading-tight">
               {currentLanguage === 'en' 
-                ? 'Based on Al Rawdah, Memar Heights & Al Noor Villas avg. performance'
-                : 'بناءً على متوسط أداء الروضة ومعمار هايتس وفلل النور'}
+                ? 'Rayhaan, Noura & Arc Avenue avg.'
+                : 'متوسط ريحان ونورة وآرك أفينيو'}
             </p>
           )}
         </div>
@@ -683,7 +688,7 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
                 </p>
 
                 {/* Chart */}
-                <div className="bg-white rounded-xl p-4 mb-4" style={{ height: window.innerWidth < 768 ? 250 : 350 }}>
+                <div className="bg-white rounded-xl p-2 md:p-4 mb-4" style={{ height: window.innerWidth < 768 ? 300 : 350 }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={chartData} key={localValue}>
                       <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
