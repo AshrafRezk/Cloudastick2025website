@@ -759,14 +759,15 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
                         tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`}
                         label={window.innerWidth >= 768 ? { 
                           value: currentLanguage === 'en' ? 'Value (M SAR)' : 'القيمة (مليون ريال)', 
-                          angle: -90, 
-                          position: 'insideLeft', 
-                          fill: '#64748b' 
+                          angle: 0, 
+                          position: 'top', 
+                          fill: '#64748b',
+                          offset: 10
                         } : undefined}
                       />
                       <Tooltip content={<CustomTooltip />} />
                       <Legend 
-                        wrapperStyle={{ fontSize: '12px' }}
+                        wrapperStyle={{ fontSize: '12px', marginTop: '16px' }}
                         formatter={(value) => {
                           if (value === 'memar') return t.memarRealEstate;
                           if (value === 'gold') return t.goldBullion;
