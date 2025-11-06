@@ -8,6 +8,7 @@ interface FormData {
   last_name: string;
   email: string;
   mobile: string;
+  company: string;
   budget: string;
   description: string;
   lead_source: string;
@@ -21,11 +22,13 @@ const MemarLeadCapture: React.FC = () => {
     last_name: '',
     email: '',
     mobile: '',
+    company: '',
     budget: '',
     description: '',
     lead_source: '',
     interest: '',
   });
+  const [accountType, setAccountType] = useState<'individual' | 'company'>('individual');
   const [deviceInfo, setDeviceInfo] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -76,6 +79,11 @@ const MemarLeadCapture: React.FC = () => {
       benefits: ["Proven Track Record", "Secure Investments", "Consistent Returns"],
       formTitle: "Book a Consultancy Meeting with a Memar Investment Professional",
       formSubtitle: "Let's discuss how you can grow your capital safely and securely",
+      accountType: "Account Type",
+      individual: "Individual",
+      company: "Company",
+      companyName: "Company Name",
+      companyPlaceholder: "e.g., ABC Corporation",
       firstName: "First Name",
       lastName: "Last Name",
       email: "Email",
@@ -110,6 +118,11 @@ const MemarLeadCapture: React.FC = () => {
       benefits: ["سجل مثبت", "استثمارات آمنة", "عوائد مستمرة"],
       formTitle: "احجز استشارة مع خبير استثمار معمار",
       formSubtitle: "دعنا نناقش كيف يمكنك تنمية رأس مالك بأمان وثقة",
+      accountType: "نوع الحساب",
+      individual: "فرد",
+      company: "شركة",
+      companyName: "اسم الشركة",
+      companyPlaceholder: "مثال: شركة ABC",
       firstName: "الاسم الأول",
       lastName: "اسم العائلة",
       email: "البريد الإلكتروني",
@@ -295,6 +308,7 @@ Lead Source: ${source}`;
       addField('last_name', formData.last_name);
       addField('email', formData.email);
       addField('mobile', formData.mobile);
+      addField('company', formData.company); // Company name field
       addField('00NQE000000wSwn', formData.budget); // Budget custom field
       addField('description', formData.description);
       addField('lead_source', formData.lead_source);
@@ -793,6 +807,106 @@ Lead Source: ${source}`;
                   )}
                 </div>
               </div>
+
+              {/* Account Type Toggle */}
+              <div>
+                <label className={`block text-sm font-semibold text-slate-700 mb-4 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                  {content[currentLanguage].accountType}
+                </label>
+                <div className="relative">
+                  <div className={`inline-flex rounded-2xl bg-slate-100 p-1 gap-1 ${currentLanguage === 'ar' ? 'flex-row-reverse' : ''}`}>
+                    <motion.button
+                      type="button"
+                      onClick={() => {
+                        setAccountType('individual');
+                        if (selection1Ref.current) {
+                          selection1Ref.current.currentTime = 0;
+                          selection1Ref.current.play().catch(() => {});
+                        }
+                        triggerHaptic(1);
+                      }}
+                      className={`relative px-8 py-3 rounded-xl text-sm font-semibold transition-all duration-300 ${
+                        accountType === 'individual'
+                          ? 'text-white shadow-lg shadow-[#6daead]/30'
+                          : 'text-slate-700 hover:text-slate-900'
+                      }`}
+                      whileHover={{ scale: accountType === 'individual' ? 1 : 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      {accountType === 'individual' && (
+                        <motion.div
+                          layoutId="accountTypeIndicator"
+                          className="absolute inset-0 bg-gradient-to-r from-[#6daead] to-[#1c2d36] rounded-xl"
+                          transition={{
+                            type: "spring",
+                            stiffness: 300,
+                            damping: 30
+                          }}
+                        />
+                      )}
+                      <span className="relative z-10">{content[currentLanguage].individual}</span>
+                    </motion.button>
+                    <motion.button
+                      type="button"
+                      onClick={() => {
+                        setAccountType('company');
+                        if (selection1Ref.current) {
+                          selection1Ref.current.currentTime = 0;
+                          selection1Ref.current.play().catch(() => {});
+                        }
+                        triggerHaptic(1);
+                      }}
+                      className={`relative px-8 py-3 rounded-xl text-sm font-semibold transition-all duration-300 ${
+                        accountType === 'company'
+                          ? 'text-white shadow-lg shadow-[#6daead]/30'
+                          : 'text-slate-700 hover:text-slate-900'
+                      }`}
+                      whileHover={{ scale: accountType === 'company' ? 1 : 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      {accountType === 'company' && (
+                        <motion.div
+                          layoutId="accountTypeIndicator"
+                          className="absolute inset-0 bg-gradient-to-r from-[#6daead] to-[#1c2d36] rounded-xl"
+                          transition={{
+                            type: "spring",
+                            stiffness: 300,
+                            damping: 30
+                          }}
+                        />
+                      )}
+                      <span className="relative z-10">{content[currentLanguage].company}</span>
+                    </motion.button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Company Name Field - Conditional */}
+              <AnimatePresence>
+                {accountType === 'company' && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0, y: -20 }}
+                    animate={{ opacity: 1, height: 'auto', y: 0 }}
+                    exit={{ opacity: 0, height: 0, y: -20 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                  >
+                    <div className="overflow-hidden">
+                      <label htmlFor="company" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                        {content[currentLanguage].companyName}
+                      </label>
+                      <input
+                        type="text"
+                        id="company"
+                        value={formData.company}
+                        onChange={(e) => handleInputChange('company', e.target.value)}
+                        className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 placeholder-slate-400 bg-white focus:border-[#6daead] focus:outline-none transition-colors duration-200"
+                        placeholder={content[currentLanguage].companyPlaceholder}
+                        dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
+                      />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {/* Interest Selection */}
               <div>
