@@ -24,7 +24,10 @@ const CityscapeStartupSequence: React.FC<CityscapeStartupSequenceProps> = ({
 
   // Generate logo initials
   const generateLogo = (name: string) => {
-    const words = name.trim().split(' ');
+    if (!name || typeof name !== 'string') return 'CS';
+    const trimmed = name.trim();
+    if (!trimmed) return 'CS';
+    const words = trimmed.split(' ');
     const initials = words.length >= 2 
       ? `${words[0][0]}${words[1][0]}`.toUpperCase()
       : words[0].slice(0, 2).toUpperCase();

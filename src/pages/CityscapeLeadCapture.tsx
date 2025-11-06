@@ -449,7 +449,10 @@ Purpose: ${boothPurpose}`;
 
   // Generate logo with company initials
   const generateLogo = (name: string) => {
-    const words = name.trim().split(' ');
+    if (!name || typeof name !== 'string') return 'CS';
+    const trimmed = name.trim();
+    if (!trimmed) return 'CS';
+    const words = trimmed.split(' ');
     const initials = words.length >= 2 
       ? `${words[0][0]}${words[1][0]}`.toUpperCase()
       : words[0].slice(0, 2).toUpperCase();
@@ -457,18 +460,25 @@ Purpose: ${boothPurpose}`;
   };
 
   if (showStartup && companyName && boothPurpose) {
-    const content = contentByPurpose[boothPurpose][currentLanguage];
-    return (
-      <CityscapeStartupSequence 
-        onComplete={handleStartupComplete}
-        companyName={companyName}
-        gradient={content.gradient}
-      />
-    );
+    const content = contentByPurpose[boothPurpose]?.[currentLanguage];
+    if (content?.gradient) {
+      return (
+        <CityscapeStartupSequence 
+          onComplete={handleStartupComplete}
+          companyName={companyName}
+          gradient={content.gradient}
+        />
+      );
+    }
   }
 
-  const content = contentByPurpose[boothPurpose][currentLanguage];
-  const fc = formContent[currentLanguage];
+  const content = contentByPurpose[boothPurpose]?.[currentLanguage] || contentByPurpose.investors.en;
+  const fc = formContent[currentLanguage] || formContent.en;
+
+  // Don't render if we don't have valid content
+  if (!content || !fc) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-50" dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
