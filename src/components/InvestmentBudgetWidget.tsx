@@ -680,9 +680,18 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
             </AnimatePresence>
 
             {/* Min/Max Labels */}
-            <div className={`flex justify-between text-xs text-slate-500 font-medium mt-2 ${currentLanguage === 'ar' ? 'flex-row-reverse' : ''}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
-              <span className={currentLanguage === 'ar' ? 'text-right' : 'text-left'}>{t.minLabel}</span>
-              <span className={currentLanguage === 'ar' ? 'text-right' : 'text-left'}>{t.maxLabel}</span>
+            <div className="flex justify-between text-xs text-slate-500 font-medium mt-2" dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+              {currentLanguage === 'ar' ? (
+                <>
+                  <span className="text-right">{t.minLabel}</span>
+                  <span className="text-right">{t.maxLabel}</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-left">{t.minLabel}</span>
+                  <span className="text-left">{t.maxLabel}</span>
+                </>
+              )}
             </div>
           </div>
         </div>
