@@ -781,8 +781,8 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
                         dataKey="memar" 
                         stroke={assetClasses.memar.color}
                         strokeWidth={4}
-                        dot={{ fill: assetClasses.memar.color, r: 6 }}
-                        activeDot={{ r: 8, stroke: '#fff', strokeWidth: 2 }}
+                        dot={false}
+                        activeDot={false}
                         animationDuration={800}
                         animationEasing="ease-in-out"
                       />
@@ -791,6 +791,7 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
                         dataKey="gold" 
                         stroke={assetClasses.gold.color}
                         strokeWidth={2}
+                        dot={false}
                         animationDuration={800}
                         animationEasing="ease-in-out"
                       />
@@ -799,6 +800,7 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
                         dataKey="stocks" 
                         stroke={assetClasses.stocks.color}
                         strokeWidth={2}
+                        dot={false}
                         animationDuration={800}
                         animationEasing="ease-in-out"
                       />
@@ -807,6 +809,7 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
                         dataKey="fixed" 
                         stroke={assetClasses.fixed.color}
                         strokeWidth={2}
+                        dot={false}
                         animationDuration={800}
                         animationEasing="ease-in-out"
                       />
