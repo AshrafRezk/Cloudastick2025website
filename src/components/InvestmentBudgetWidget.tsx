@@ -526,7 +526,7 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white/98 backdrop-blur-sm p-3 md:p-4 rounded-lg md:rounded-xl shadow-2xl border-2 border-[#6daead]/40 max-w-[280px] md:max-w-none">
+        <div className="bg-white/98 backdrop-blur-sm p-3 md:p-4 rounded-lg md:rounded-xl shadow-2xl border-2 border-[#6daead]/40 max-w-[280px] md:max-w-[320px]">
           <p className="font-bold text-slate-900 mb-2 text-sm md:text-base">{t.yearLabel} {label}</p>
           {payload.map((entry: any) => (
             <div key={entry.dataKey} className="flex items-center gap-2 mb-1.5 last:mb-0">
@@ -541,7 +541,7 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
             </div>
           ))}
           {payload.find((p: any) => p.dataKey === 'memar') && (
-            <p className="text-[10px] md:text-xs text-slate-600 mt-2 italic border-t border-slate-200 pt-2 leading-tight">
+            <p className="text-[10px] md:text-xs text-slate-600 mt-2 italic border-t border-slate-200 pt-2 leading-tight break-words">
               {currentLanguage === 'en' 
                 ? 'Based on verified Memar project performance (Rayhaan, Noura & Arc Avenue) per International Finance Magazine 2024'
                 : 'بناءً على أداء مشاريع معمار المثبت (ريحان ونورة وآرك أفينيو) حسب مجلة المالية الدولية 2024'}
