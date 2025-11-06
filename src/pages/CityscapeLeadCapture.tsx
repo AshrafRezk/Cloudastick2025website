@@ -5,6 +5,7 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import BusinessIcon from '@mui/icons-material/Business';
 import HomeIcon from '@mui/icons-material/Home';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
+import CityscapeStartupSequence from '../components/CityscapeStartupSequence';
 
 interface FormData {
   first_name: string;
@@ -21,6 +22,7 @@ type BoothPurpose = 'investors' | 'offices' | 'residents';
 
 const CityscapeLeadCapture: React.FC = () => {
   const navigate = useNavigate();
+  const [showStartup, setShowStartup] = useState(true);
   const [companyName, setCompanyName] = useState('');
   const [boothPurpose, setBoothPurpose] = useState<BoothPurpose>('investors');
   const [formData, setFormData] = useState<FormData>({
@@ -274,9 +276,16 @@ Purpose: ${boothPurpose}`;
   }, [companyName, boothPurpose]);
 
   // Haptic feedback helper
-  const triggerHaptic = (duration = 1) => {
+  const triggerHaptic = (duration = 30) => {
     if ('vibrate' in navigator) {
-      navigator.vibrate(Math.max(1, Math.round(duration * 0.00000002)));
+      navigator.vibrate(Math.max(1, Math.round(duration * 0.1)));
+    }
+  };
+
+  // Strong haptic feedback
+  const triggerStrongHaptic = (duration = 100) => {
+    if ('vibrate' in navigator) {
+      navigator.vibrate(Math.max(1, Math.round(duration * 0.1)));
     }
   };
 
@@ -285,6 +294,10 @@ Purpose: ${boothPurpose}`;
     if ('vibrate' in navigator) {
       navigator.vibrate([50, 10, 100, 10, 150, 10, 100, 10, 50, 10, 0].map(v => Math.round(v * 0.05)));
     }
+  };
+
+  const handleStartupComplete = () => {
+    setShowStartup(false);
   };
 
   const handleLanguageSwitch = () => {
@@ -309,12 +322,12 @@ Purpose: ${boothPurpose}`;
     e.preventDefault();
     
     if (!validateForm()) {
-      triggerHaptic(1);
+      triggerStrongHaptic(50);
       return;
     }
 
     setIsSubmitting(true);
-    triggerHaptic(1);
+    triggerHaptic(30);
 
     try {
       // Create a hidden form for Salesforce submission
@@ -365,7 +378,7 @@ Purpose: ${boothPurpose}`;
 
       // Show success
       setShowSuccess(true);
-      triggerHaptic(1);
+      triggerHaptic(40);
       
       // Play woosh sound
       if (woosh1Ref.current) {
@@ -382,9 +395,9 @@ Purpose: ${boothPurpose}`;
       setTimeout(() => {
         navigate('/cityscape-success');
       }, 2000);
-    } catch (error) {
+      } catch (error) {
       console.error('Error submitting form:', error);
-      triggerHaptic(1);
+      triggerStrongHaptic(50);
     } finally {
       setIsSubmitting(false);
     }
@@ -441,6 +454,17 @@ Purpose: ${boothPurpose}`;
       : words[0].slice(0, 2).toUpperCase();
     return initials;
   };
+
+  if (showStartup && companyName && boothPurpose) {
+    const content = contentByPurpose[boothPurpose][currentLanguage];
+    return (
+      <CityscapeStartupSequence 
+        onComplete={handleStartupComplete}
+        companyName={companyName}
+        gradient={content.gradient}
+      />
+    );
+  }
 
   const content = contentByPurpose[boothPurpose][currentLanguage];
   const fc = formContent[currentLanguage];
@@ -561,6 +585,12 @@ Purpose: ${boothPurpose}`;
             ))}
           </motion.div>
 
+          {/* Floating Elements */}
+          <div className={`absolute top-20 left-10 w-20 h-20 bg-gradient-to-br ${content.gradient} opacity-10 rounded-full blur-xl animate-pulse`} />
+          <div className={`absolute bottom-20 right-10 w-32 h-32 bg-gradient-to-br ${content.gradient} opacity-10 rounded-full blur-xl animate-pulse`} />
+          <div className={`absolute top-1/2 right-20 w-24 h-24 bg-gradient-to-br ${content.gradient} opacity-5 rounded-full blur-2xl animate-pulse`} style={{ animationDelay: '1s' }} />
+          <div className={`absolute bottom-1/3 left-20 w-16 h-16 bg-gradient-to-br ${content.gradient} opacity-5 rounded-full blur-xl animate-pulse`} style={{ animationDelay: '2s' }} />
+
           {/* CTA Button */}
           <motion.button
             initial={{ opacity: 0, y: 20 }}
@@ -596,7 +626,7 @@ Purpose: ${boothPurpose}`;
               } : {}
             }}
             onClick={scrollToForm}
-            className={`w-16 h-16 bg-gradient-to-br ${content.gradient} hover:opacity-90 text-white shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-95 flex items-center justify-center group mx-auto`}
+            className={`w-16 h-16 bg-gradient-to-br ${content.gradient} hover:opacity-90 text-white shadow-2xl shadow-opacity-40 transition-all duration-300 transform hover:scale-110 active:scale-95 flex items-center justify-center group mx-auto`}
             whileHover={{ 
               scale: isTransitioning ? 1 : 1.1,
               boxShadow: "0 25px 50px -12px rgba(59, 130, 246, 0.5)"
@@ -688,7 +718,10 @@ Purpose: ${boothPurpose}`;
                 times: [0, 0.5, 1],
                 ease: "easeInOut",
                 delay: 0.3
-              } : {}
+              } : {
+                duration: 0.5,
+                ease: "easeOut"
+              }
             }}
             className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-8 md:p-12 border border-white/20"
           >
@@ -715,9 +748,20 @@ Purpose: ${boothPurpose}`;
                 >
                   <div className="flex items-start gap-4">
                     <div className="flex-shrink-0">
-                      <div className={`w-12 h-12 bg-gradient-to-br ${content.gradient} rounded-full flex items-center justify-center text-white`}>
+                      <motion.div 
+                        className={`w-12 h-12 bg-gradient-to-br ${content.gradient} rounded-full flex items-center justify-center text-white shadow-lg`}
+                        animate={{
+                          scale: [1, 1.1, 1],
+                          rotate: [0, 5, -5, 0]
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          repeatType: "reverse"
+                        }}
+                      >
                         <LightbulbIcon />
-                      </div>
+                      </motion.div>
                     </div>
                     <div className="flex-1">
                       <p className={`text-sm font-semibold text-slate-800 mb-1 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
@@ -745,6 +789,7 @@ Purpose: ${boothPurpose}`;
                     id="first_name"
                     value={formData.first_name}
                     onChange={(e) => handleInputChange('first_name', e.target.value)}
+                    onFocus={() => triggerHaptic(20)}
                     className={`w-full px-4 py-3 rounded-2xl border-2 text-slate-900 placeholder-slate-400 bg-white ${
                       errors.first_name ? 'border-red-500' : 'border-slate-200'
                     } focus:border-blue-500 focus:outline-none transition-colors duration-200`}
@@ -765,6 +810,7 @@ Purpose: ${boothPurpose}`;
                     id="last_name"
                     value={formData.last_name}
                     onChange={(e) => handleInputChange('last_name', e.target.value)}
+                    onFocus={() => triggerHaptic(20)}
                     className={`w-full px-4 py-3 rounded-2xl border-2 text-slate-900 placeholder-slate-400 bg-white ${
                       errors.last_name ? 'border-red-500' : 'border-slate-200'
                     } focus:border-blue-500 focus:outline-none transition-colors duration-200`}
@@ -788,6 +834,7 @@ Purpose: ${boothPurpose}`;
                     id="email"
                     value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
+                    onFocus={() => triggerHaptic(20)}
                     className={`w-full px-4 py-3 rounded-2xl border-2 text-slate-900 placeholder-slate-400 bg-white ${
                       errors.email ? 'border-red-500' : 'border-slate-200'
                     } focus:border-blue-500 focus:outline-none transition-colors duration-200`}
@@ -807,6 +854,7 @@ Purpose: ${boothPurpose}`;
                     id="mobile"
                     value={formData.mobile}
                     onChange={(e) => handleInputChange('mobile', e.target.value)}
+                    onFocus={() => triggerHaptic(20)}
                     className={`w-full px-4 py-3 rounded-2xl border-2 text-slate-900 placeholder-slate-400 bg-white ${
                       errors.mobile ? 'border-red-500' : 'border-slate-200'
                     } focus:border-blue-500 focus:outline-none transition-colors duration-200`}
