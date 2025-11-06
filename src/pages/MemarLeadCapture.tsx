@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Wallet } from 'lucide-react';
 import MemarStartupSequence from '../components/MemarStartupSequence';
+import InvestmentBudgetWidget from '../components/InvestmentBudgetWidget';
 
 interface FormData {
   first_name: string;
@@ -58,11 +59,11 @@ const MemarLeadCapture: React.FC = () => {
       { name: 'Nawaf Alowla', id: '005QE000001y4EfYAl', image: '/Assets/Cityscape/Memar/People/Investor lead owners/Nawaf Alowla - 005QE000001y4EfYAI.png' },
     ],
     operate: [
-      { name: 'Ahmed Ibrahim', id: '005QE000001y4EfYAl', image: '/Assets/Cityscape/Memar/People/Operator lead owners/Ahmed Ibrahim - 005QE000001y4EfYAl.png' },
-      { name: 'Hamdi Abdein', id: '005QE000001y4EfYAl', image: '/Assets/Cityscape/Memar/People/Operator lead owners/Hamdi Abdein - 005QE000001y4EfYAl.png' },
+      { name: 'Ahmed Ibrahim', id: '005QE000001y4EfYAl', image: '/Assets/Cityscape/Memar/People/Operator lead owners/Ahmed Ibrahim - 005QE000001y4EfYAI.png' },
+      { name: 'Hamdi Abdein', id: '005QE000001y4EfYAl', image: '/Assets/Cityscape/Memar/People/Operator lead owners/Hamdi Abdein - 005QE000001y4EfYAI.png' },
     ],
     supply: [
-      { name: 'Procurment', id: '005QE000001y4EfYAl', image: '/Assets/Cityscape/Memar/People/Supplier lead owners/Procurment - 005QE000001y4EfYAl.png' },
+      { name: 'Procurment', id: '005QE000001y4EfYAl', image: '/Assets/Cityscape/Memar/People/Supplier lead owners/Procurment - 005QE000001y4EfYAI.png' },
     ],
   };
 
@@ -1248,51 +1249,21 @@ Lead Source: ${source}`;
                 )}
               </AnimatePresence>
 
-              {/* Budget - Only show for Investors */}
+              {/* Investment Budget Widget - Only show for Investors */}
               <AnimatePresence>
                 {formData.interest === 'invest' && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -20, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -20, scale: 0.95 }}
-                    transition={{ duration: 0.4, type: "spring", bounce: 0.3 }}
-                  >
-                    <div className="p-6 rounded-3xl bg-gradient-to-br from-[#6daead]/10 to-[#1c2d36]/10 border-2 border-[#6daead]/30 shadow-lg">
-                      <motion.div
-                        initial={{ scale: 0.9 }}
-                        animate={{ scale: 1 }}
-                        transition={{ duration: 0.3, delay: 0.1 }}
-                        className="flex items-center gap-3 mb-4"
-                      >
-                        <motion.div
-                          animate={{ 
-                            rotate: [0, 10, -10, 10, 0],
-                            scale: [1, 1.1, 1.1, 1.1, 1]
-                          }}
-                          transition={{ 
-                            duration: 0.6,
-                            delay: 0.2,
-                            times: [0, 0.25, 0.5, 0.75, 1]
-                          }}
-                          className="w-10 h-10 bg-gradient-to-br from-[#6daead] to-[#1c2d36] rounded-full flex items-center justify-center shadow-lg"
-                        >
-                          <Wallet className="w-5 h-5 text-white" strokeWidth={2.5} />
-                        </motion.div>
-                        <label htmlFor="budget" className={`text-base font-bold text-[#1c2d36] ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
-                          {content[currentLanguage].budget}
-                        </label>
-                      </motion.div>
-                      <input
-                        type="text"
-                        id="budget"
-                        value={formData.budget}
-                        onChange={(e) => handleInputChange('budget', e.target.value)}
-                        className="w-full px-4 py-3 rounded-2xl border-2 border-[#6daead]/30 text-slate-900 placeholder-slate-400 bg-white focus:border-[#6daead] focus:ring-2 focus:ring-[#6daead]/20 focus:outline-none transition-all duration-200"
-                        placeholder={content[currentLanguage].budgetPlaceholder}
-                        dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
-                      />
-                    </div>
-                  </motion.div>
+                  <InvestmentBudgetWidget
+                    value={formData.budget}
+                    onChange={(value) => handleInputChange('budget', value)}
+                    currentLanguage={currentLanguage}
+                    onInteraction={() => {
+                      triggerHaptic(1);
+                      if (woosh1Ref.current) {
+                        woosh1Ref.current.currentTime = 0;
+                        woosh1Ref.current.play().catch(() => {});
+                      }
+                    }}
+                  />
                 )}
               </AnimatePresence>
 
