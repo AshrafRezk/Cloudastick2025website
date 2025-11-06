@@ -197,24 +197,12 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
     return `${formatNumber(num)} SAR`;
   };
 
-  // Add realistic variance to simulate market fluctuations
-  const addRealisticVariance = (baseValue: number, volatility: number, year: number) => {
-    // Use deterministic "randomness" based on year for consistent results
-    const seed1 = Math.sin(year * 12.9898 + 78.233) * 43758.5453;
-    const seed2 = Math.sin(year * 93.9898 + 23.233) * 12345.6789;
-    const noise1 = (seed1 - Math.floor(seed1)) - 0.5; // Range: -0.5 to +0.5
-    const noise2 = (seed2 - Math.floor(seed2)) - 0.5;
-    const combinedNoise = (noise1 + noise2) / 2; // Smooth out extreme values
-    
-    const variance = baseValue * (volatility * combinedNoise);
-    return baseValue + variance;
-  };
-
-  // Generate chart data for comparison with realistic market fluctuations
+  // Generate chart data with YEAR-BY-YEAR fluctuations for realistic market behavior
   const generateChartData = (investment: number) => {
-    const periods = [0, 5, 10, 15, 20, 25, 30];
+    // Generate all 31 years (0 to 30) for realistic ups and downs
+    const allYears = Array.from({ length: 31 }, (_, i) => i);
     
-    return periods.map(year => {
+    const yearByYearData = allYears.map(year => {
       if (year === 0) {
         return {
           year: 0,
@@ -225,21 +213,55 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
         };
       }
       
-      // Base calculations with compound interest
-      const memarBase = investment * Math.pow(1 + assetClasses.memar.cagr, year);
-      const goldBase = investment * Math.pow(1 + assetClasses.gold.cagr, year);
-      const stocksBase = investment * Math.pow(1 + assetClasses.stocks.cagr, year);
-      const fixedBase = investment * Math.pow(1 + assetClasses.fixed.cagr, year);
+      // Calculate year-over-year with realistic annual returns (ups and downs)
+      // Using deterministic variance for each year
+      const getMemarReturn = (y: number) => {
+        const seed = Math.sin(y * 7.234 + 12.456) * 43758.5453;
+        const variance = ((seed - Math.floor(seed)) - 0.5) * 0.04; // ±2%
+        return 0.068 + variance; // 6.8% ± 2% = range 4.8% to 8.8%
+      };
       
-      // Add realistic variance (volatility levels)
+      const getGoldReturn = (y: number) => {
+        const seed = Math.sin(y * 13.789 + 45.123) * 23456.7890;
+        const variance = ((seed - Math.floor(seed)) - 0.5) * 0.12; // ±6%
+        return 0.038 + variance; // 3.8% ± 6% = range -2.2% to 9.8%
+      };
+      
+      const getStocksReturn = (y: number) => {
+        const seed = Math.sin(y * 23.456 + 78.901) * 12345.6789;
+        const variance = ((seed - Math.floor(seed)) - 0.5) * 0.25; // ±12.5%
+        return 0.050 + variance; // 5% ± 12.5% = range -7.5% to 17.5%
+      };
+      
+      const getFixedReturn = (y: number) => {
+        const seed = Math.sin(y * 5.678 + 34.567) * 87654.3210;
+        const variance = ((seed - Math.floor(seed)) - 0.5) * 0.015; // ±0.75%
+        return 0.020 + variance; // 2% ± 0.75% = range 1.25% to 2.75%
+      };
+      
+      // Compound year-over-year
+      let memarValue = investment;
+      let goldValue = investment;
+      let stocksValue = investment;
+      let fixedValue = investment;
+      
+      for (let y = 1; y <= year; y++) {
+        memarValue *= (1 + getMemarReturn(y));
+        goldValue *= (1 + getGoldReturn(y));
+        stocksValue *= (1 + getStocksReturn(y));
+        fixedValue *= (1 + getFixedReturn(y));
+      }
+      
       return {
         year,
-        memar: addRealisticVariance(memarBase, 0.03, year),     // ±3% (stable real estate)
-        gold: addRealisticVariance(goldBase, 0.08, year),       // ±8% (moderate commodity)
-        stocks: addRealisticVariance(stocksBase, 0.12, year),   // ±12% (high equity volatility)
-        fixed: addRealisticVariance(fixedBase, 0.01, year),     // ±1% (very stable)
+        memar: memarValue,
+        gold: goldValue,
+        stocks: stocksValue,
+        fixed: fixedValue,
       };
     });
+    
+    return yearByYearData;
   };
 
   // AI-generated personalized insights
@@ -727,8 +749,9 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
                       <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
                       <XAxis 
                         dataKey="year"
+                        domain={[0, 30]}
                         ticks={[0, 5, 10, 15, 20, 25, 30]}
-                        tick={{ fill: '#64748b', fontSize: 12 }}
+                        tick={{ fill: '#64748b', fontSize: 11 }}
                         label={{ value: currentLanguage === 'en' ? 'Years' : 'السنوات', position: 'insideBottom', offset: -5, fill: '#64748b' }}
                       />
                       <YAxis 
