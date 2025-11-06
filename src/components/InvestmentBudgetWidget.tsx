@@ -607,9 +607,7 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
                   : 'bg-gradient-to-r from-[#6daead] to-[#1c2d36] left-0'
               }`}
               style={{ 
-                width: currentLanguage === 'ar' 
-                  ? `${Math.min(100, Math.max(0, 100 - sliderPercentage))}%`
-                  : `${Math.min(100, Math.max(0, sliderPercentage))}%`,
+                width: `${Math.min(100, Math.max(0, sliderPercentage))}%`,
               }}
               animate={{
                 boxShadow: isDragging 
@@ -648,7 +646,7 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
               className="relative w-full h-2 appearance-none bg-transparent cursor-pointer z-10"
               style={{
                 WebkitAppearance: 'none',
-                direction: 'ltr', // Keep slider LTR for consistent behavior
+                direction: currentLanguage === 'ar' ? 'rtl' : 'ltr',
               }}
             />
 
@@ -663,7 +661,7 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
                   className="absolute top-[-40px] pointer-events-none"
                   style={currentLanguage === 'ar' 
                     ? {
-                        right: `${100 - sliderPercentage}%`,
+                        right: `${sliderPercentage}%`,
                         transform: 'translateX(50%)',
                       }
                     : {
