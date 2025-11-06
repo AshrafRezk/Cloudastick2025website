@@ -780,7 +780,7 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
                         domain={[0, 30]}
                         ticks={[0, 5, 10, 15, 20, 25, 30]}
                         tick={{ fill: '#64748b', fontSize: 11 }}
-                        label={{ value: currentLanguage === 'en' ? 'Years' : 'السنوات', position: 'insideBottom', offset: -5, fill: '#64748b' }}
+                        label={{ value: currentLanguage === 'en' ? 'Years' : 'السنوات', position: 'bottom', offset: 10, fill: '#64748b' }}
                       />
                       <YAxis 
                         tick={{ fill: '#64748b', fontSize: 12 }}
@@ -795,7 +795,7 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
                       />
                       <Tooltip content={<CustomTooltip />} />
                       <Legend 
-                        wrapperStyle={{ fontSize: '12px', marginTop: '24px' }}
+                        wrapperStyle={{ fontSize: '12px', marginTop: '32px', paddingTop: '8px' }}
                         formatter={(value) => {
                           if (value === 'memar') return t.memarRealEstate;
                           if (value === 'gold') return t.goldBullion;
