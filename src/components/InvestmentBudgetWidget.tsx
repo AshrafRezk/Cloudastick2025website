@@ -771,7 +771,7 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
                       />
                       <Tooltip content={<CustomTooltip />} />
                       <Legend 
-                        wrapperStyle={{ fontSize: '12px', marginTop: '16px' }}
+                        wrapperStyle={{ fontSize: '12px', marginTop: '24px' }}
                         formatter={(value) => {
                           if (value === 'memar') return t.memarRealEstate;
                           if (value === 'gold') return t.goldBullion;
