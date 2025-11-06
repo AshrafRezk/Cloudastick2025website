@@ -106,9 +106,8 @@ const MemarLeadCapture: React.FC = () => {
       benefits: ["Proven Track Record", "Secure Investments", "Consistent Returns"],
       formTitle: "Book a Consultancy Meeting with a Memar Investment Professional",
       formSubtitle: "Let's discuss how you can grow your capital safely and securely",
-      whoDidYouTalkTo: "Who did you talk to today?",
-      optionalSelection: "Optional - Select if you spoke with someone from our team",
-      clearSelection: "Clear Selection",
+      whoDidYouTalkTo: "Who did you talk to today? *",
+      requiredSelection: "Required - Please select someone from our team",
       accountType: "Account Type",
       individual: "Individual",
       company: "Company",
@@ -148,9 +147,8 @@ const MemarLeadCapture: React.FC = () => {
       benefits: ["سجل مثبت", "استثمارات آمنة", "عوائد مستمرة"],
       formTitle: "احجز استشارة مع خبير استثمار معمار",
       formSubtitle: "دعنا نناقش كيف يمكنك تنمية رأس مالك بأمان وثقة",
-      whoDidYouTalkTo: "من الذي تحدثت إليه اليوم؟",
-      optionalSelection: "اختياري - حدد إذا تحدثت مع شخص من فريقنا",
-      clearSelection: "مسح الاختيار",
+      whoDidYouTalkTo: "من الذي تحدثت إليه اليوم؟ *",
+      requiredSelection: "مطلوب - يرجى اختيار شخص من فريقنا",
       accountType: "نوع الحساب",
       individual: "فرد",
       company: "شركة",
@@ -1062,8 +1060,8 @@ Lead Source: ${source}`;
                       <label className={`block text-sm font-semibold text-slate-700 mb-4 text-center ${currentLanguage === 'ar' ? 'text-right' : 'text-center'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
                         {content[currentLanguage].whoDidYouTalkTo}
                       </label>
-                      <p className={`text-xs text-slate-500 text-center mb-6 ${currentLanguage === 'ar' ? 'text-right' : 'text-center'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
-                        {content[currentLanguage].optionalSelection}
+                      <p className={`text-xs text-red-600 font-semibold text-center mb-6 ${currentLanguage === 'ar' ? 'text-right' : 'text-center'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                        {content[currentLanguage].requiredSelection}
                       </p>
                       
                       <div className="relative max-w-4xl mx-auto">
@@ -1222,28 +1220,12 @@ Lead Source: ${source}`;
                           </div>
                         )}
 
-                        {/* Clear Selection - Only for non-supplier */}
-                        {selectedPersonIndex !== null && formData.interest !== 'supply' && (
-                          <motion.button
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            type="button"
-                            onClick={() => {
-                              setSelectedPersonIndex(null);
-                              setFormData(prev => ({
-                                ...prev,
-                                leadGenOfficerName: '',
-                                leadGenOfficerId: '',
-                              }));
-                              triggerHaptic(1);
-                            }}
-                            className={`mt-4 mx-auto block text-sm text-slate-500 hover:text-slate-700 underline ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}
-                            dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
-                          >
-                            {content[currentLanguage].clearSelection}
-                          </motion.button>
-                        )}
                       </div>
+                      
+                      {/* Error message for required selection */}
+                      {errors.leadGenOfficerName && (
+                        <p className="text-red-500 text-sm mt-2 text-center">{errors.leadGenOfficerName}</p>
+                      )}
                     </div>
                   </motion.div>
                 )}
