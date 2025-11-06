@@ -6,6 +6,7 @@ import BusinessIcon from '@mui/icons-material/Business';
 import HomeIcon from '@mui/icons-material/Home';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
 import CityscapeStartupSequence from '../components/CityscapeStartupSequence';
+import CityscapeInvestmentWidget from '../components/CityscapeInvestmentWidget';
 
 interface FormData {
   first_name: string;
@@ -866,21 +867,42 @@ Purpose: ${boothPurpose}`;
                 </div>
               </div>
 
-              {/* Budget */}
-              <div>
-                <label htmlFor="budget" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
-                  {fc.budget}
-                </label>
-                <input
-                  type="text"
-                  id="budget"
-                  value={formData.budget}
-                  onChange={(e) => handleInputChange('budget', e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 placeholder-slate-400 bg-white focus:border-blue-500 focus:outline-none transition-colors duration-200"
-                  placeholder={fc.budgetPlaceholder}
-                  dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
-                />
-              </div>
+              {/* Investment Budget Widget - Only show for Investors */}
+              <AnimatePresence>
+                {boothPurpose === 'investors' && (
+                  <CityscapeInvestmentWidget
+                    value={formData.budget}
+                    onChange={(value) => handleInputChange('budget', value)}
+                    currentLanguage={currentLanguage}
+                    gradient={content.gradient}
+                    onInteraction={() => {
+                      triggerHaptic(30);
+                      if (woosh1Ref.current) {
+                        woosh1Ref.current.currentTime = 0;
+                        woosh1Ref.current.play().catch(() => {});
+                      }
+                    }}
+                  />
+                )}
+              </AnimatePresence>
+
+              {/* Budget Input - Show for non-investors */}
+              {boothPurpose !== 'investors' && (
+                <div>
+                  <label htmlFor="budget" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                    {fc.budget}
+                  </label>
+                  <input
+                    type="text"
+                    id="budget"
+                    value={formData.budget}
+                    onChange={(e) => handleInputChange('budget', e.target.value)}
+                    className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 placeholder-slate-400 bg-white focus:border-blue-500 focus:outline-none transition-colors duration-200"
+                    placeholder={fc.budgetPlaceholder}
+                    dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
+                  />
+                </div>
+              )}
 
               {/* Description */}
               <div>
