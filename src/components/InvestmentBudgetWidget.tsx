@@ -37,10 +37,10 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
   currentLanguage,
   onInteraction,
 }) => {
-  const MIN_VALUE = 100000;
-  const MAX_VALUE = 10000000;
-  const STEP = 50000;
-  const DEFAULT_VALUE = 1000000;
+  const MIN_VALUE = 10000000;
+  const MAX_VALUE = 500000000;
+  const STEP = 1000000;
+  const DEFAULT_VALUE = 10000000;
   const MEMAR_CAGR = 0.070; // 7.0% blended average
 
   // Asset classes with realistic CAGRs
@@ -121,8 +121,8 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
       disclaimer: "*Figures are indicative and based on average Saudi real-estate ROI trends.",
       extremeDisclaimer: "*Values shown are indicative only.",
       errorInvalid: "Please enter a valid amount in SAR.",
-      minLabel: "100K SAR",
-      maxLabel: "10M SAR",
+      minLabel: "10M SAR",
+      maxLabel: "500M SAR",
       comparisonTitle: "Compare Your Potential Returns",
       comparisonSubtitle: "See why investors choose Memar",
       aiAdvisor: "AI Investment Advisor",
@@ -152,8 +152,8 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
       disclaimer: "*الأرقام إرشادية وتستند إلى متوسط اتجاهات عائد الاستثمار العقاري السعودي.",
       extremeDisclaimer: "*القيم الموضحة إرشادية فقط.",
       errorInvalid: "يرجى إدخال مبلغ صالح بالريال السعودي.",
-      minLabel: "100 ألف ريال",
-      maxLabel: "10 مليون ريال",
+      minLabel: "10 مليون ريال",
+      maxLabel: "500 مليون ريال",
       comparisonTitle: "قارن عوائدك المحتملة",
       comparisonSubtitle: "اكتشف لماذا يختار المستثمرون معمار",
       aiAdvisor: "مستشار الاستثمار الذكي",
@@ -177,10 +177,10 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
 
   // Investment tier classification
   const getInvestmentTier = (amount: number): InvestmentTier => {
-    if (amount < 500000) return 'starter';
-    if (amount < 2000000) return 'growth';
-    if (amount < 5000000) return 'established';
-    if (amount < 10000000) return 'premium';
+    if (amount < 50000000) return 'starter';
+    if (amount < 100000000) return 'growth';
+    if (amount < 200000000) return 'established';
+    if (amount < 350000000) return 'premium';
     return 'elite';
   };
 

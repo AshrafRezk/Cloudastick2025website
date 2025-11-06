@@ -63,7 +63,7 @@ const MemarLeadCapture: React.FC = () => {
       { name: 'Hamdi Abdein', id: '005QE000001y4EfYAl', image: '/Assets/Cityscape/Memar/People/Operator lead owners/Hamdi Abdein - 005QE000001y4EfYAI.png' },
     ],
     supply: [
-      { name: 'Procurment', id: '005QE000001y4EfYAl', image: '/Assets/Cityscape/Memar/People/Supplier lead owners/Procurment - 005QE000001y4EfYAI.png' },
+      { name: 'Procurement', id: '005QE000001y4EfYAl', image: '/Assets/Cityscape/Memar/People/Supplier lead owners/Procurement - 005QE000001y4EfYAI.png' },
     ],
   };
 
@@ -106,7 +106,7 @@ const MemarLeadCapture: React.FC = () => {
       benefits: ["Proven Track Record", "Secure Investments", "Consistent Returns"],
       formTitle: "Book a Consultancy Meeting with a Memar Investment Professional",
       formSubtitle: "Let's discuss how you can grow your capital safely and securely",
-      whoDidYouTalkTo: "Who did you talk to today? *",
+      whoDidYouTalkTo: "Who would like to talk to today? *",
       requiredSelection: "Required - Please select someone from our team",
       accountType: "Account Type",
       individual: "Individual",
@@ -147,7 +147,7 @@ const MemarLeadCapture: React.FC = () => {
       benefits: ["سجل مثبت", "استثمارات آمنة", "عوائد مستمرة"],
       formTitle: "احجز استشارة مع خبير استثمار معمار",
       formSubtitle: "دعنا نناقش كيف يمكنك تنمية رأس مالك بأمان وثقة",
-      whoDidYouTalkTo: "من الذي تحدثت إليه اليوم؟ *",
+      whoDidYouTalkTo: "من تود التحدث إليه اليوم؟ *",
       requiredSelection: "مطلوب - يرجى اختيار شخص من فريقنا",
       accountType: "نوع الحساب",
       individual: "فرد",
@@ -235,7 +235,7 @@ const MemarLeadCapture: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Auto-select Procurment when supplier is chosen
+  // Auto-select Procurement when supplier is chosen
   useEffect(() => {
     if (formData.interest === 'supply' && currentPeople.length > 0) {
       // Auto-select the first (and only) person for supplier
@@ -448,7 +448,7 @@ Lead Source: ${source}`;
   };
 
   const handlePersonSelect = (index: number) => {
-    // Don't allow selection change for supplier (locked to Procurment)
+    // Don't allow selection change for supplier (locked to Procurement)
     if (formData.interest === 'supply') return;
     
     triggerStrongHaptic(100);
@@ -1353,7 +1353,17 @@ Lead Source: ${source}`;
           {/* Copyright & Powered By */}
           <div className="text-center border-t border-slate-800 pt-8">
             <p className="text-slate-500 text-sm mb-3">
-              © {new Date().getFullYear()} Memar Developments. All rights reserved.
+              © {new Date().getFullYear()} Memar Development and Investment. All rights reserved.
+            </p>
+            <p className="text-slate-400 text-sm mb-3">
+              <a 
+                href="https://www.memar.sa" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-[#6daead] hover:text-[#5a9a99] font-semibold transition-colors duration-200"
+              >
+                www.memar.sa
+              </a>
             </p>
             <p className="text-slate-400 text-sm flex items-center justify-center gap-2">
               <span>CRM Powered by</span>
