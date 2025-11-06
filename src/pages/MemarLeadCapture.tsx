@@ -55,7 +55,7 @@ const MemarLeadCapture: React.FC = () => {
       { name: 'Abdulaziz AlHumaidhi', id: '005QE000001y4EfYAI', image: '/Assets/Cityscape/Memar/People/Investor lead owners/Abdulaziz AlHumaidhi - 005QE000001y4EfYAI.png' },
       { name: 'CEO Office', id: '005QE000001y3byYAA', image: '/Assets/Cityscape/Memar/People/Investor lead owners/CEO Office - 005QE000001y3byYAA.png' },
       { name: 'Mohammed Alkhulofi', id: '005QE000001ye22YAA', image: '/Assets/Cityscape/Memar/People/Investor lead owners/Mohammed Alkhulofi - 005QE000001ye22YAA.png' },
-      { name: 'Nawaf Alowla', id: '005QE000001y4EfYAl', image: '/Assets/Cityscape/Memar/People/Investor lead owners/Nawaf Alowla - 005QE000001y4EfYAl.png' },
+      { name: 'Nawaf Alowla', id: '005QE000001y4EfYAl', image: '/Assets/Cityscape/Memar/People/Investor lead owners/Nawaf Alowla - 005QE000001y4EfYAI.png' },
     ],
     operate: [
       { name: 'Ahmed Ibrahim', id: '005QE000001y4EfYAl', image: '/Assets/Cityscape/Memar/People/Operator lead owners/Ahmed Ibrahim - 005QE000001y4EfYAl.png' },
