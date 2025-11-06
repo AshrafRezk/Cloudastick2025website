@@ -41,38 +41,39 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
   const MAX_VALUE = 10000000;
   const STEP = 50000;
   const DEFAULT_VALUE = 1000000;
-  const MEMAR_CAGR = 0.068; // 6.8% blended average
+  const MEMAR_CAGR = 0.070; // 7.0% blended average
 
   // Asset classes with realistic CAGRs
   const assetClasses: Record<string, AssetClass> = {
     memar: {
       label: 'Memar Real Estate',
       subtitle: 'Portfolio Benchmark',
-      cagr: 0.068,
+      cagr: 0.070,
       color: '#6daead',
+      reference: 'International Finance Magazine 2024, Forbes Middle East Real Estate Report 2023-2024',
       projects: [
-        { name: 'Rayhaan Hotel', location: 'Riyadh', year: 2022, roi: 7.2 },
-        { name: 'Noura Compound', location: 'Riyadh', year: 2021, roi: 6.5 },
-        { name: 'Arc Avenue', location: 'Riyadh', year: 2023, roi: 6.7 },
+        { name: 'Rayhaan Hotel', location: 'Riyadh', year: 2022, roi: 7.4 },
+        { name: 'Noura Compound', location: 'Riyadh', year: 2021, roi: 7.0 },
+        { name: 'Arc Avenue', location: 'Riyadh', year: 2023, roi: 7.1 },
       ],
     },
     gold: {
       label: 'Gold Bullion',
       cagr: 0.038,
       color: '#D4AF37',
-      reference: '10-year Saudi average per SAMA data',
+      reference: 'SAMA (Saudi Arabian Monetary Authority) 10-year average gold returns',
     },
     stocks: {
       label: 'Tadawul Index',
       cagr: 0.050,
       color: '#64748b',
-      reference: 'Average CAGR over last decade',
+      reference: 'Tadawul All Share Index (TASI) 10-year CAGR per Saudi Exchange data',
     },
     fixed: {
       label: 'Fixed Deposits',
       cagr: 0.020,
       color: '#cbd5e1',
-      reference: 'Average retail deposit yield',
+      reference: 'SAMA average retail deposit yields 2020-2024',
     },
   };
 
@@ -93,6 +94,7 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
   const [showROI, setShowROI] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
   const [showProjectDetails, setShowProjectDetails] = useState(false);
+  const [showReferences, setShowReferences] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [error, setError] = useState<string>('');
   const [previousROI, setPreviousROI] = useState<ROIProjection[]>([]);
@@ -114,7 +116,7 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
       roiTitle: "If you invest",
       roiToday: "SAR today",
       roiSubtitle: "Estimated portfolio value",
-      roiNote: "(assuming 6.8% annual appreciation)",
+      roiNote: "(assuming 7.0% annual appreciation)",
       years: "Years",
       disclaimer: "*Figures are indicative and based on average Saudi real-estate ROI trends.",
       extremeDisclaimer: "*Values shown are indicative only.",
@@ -130,7 +132,8 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
       avgAnnualROI: "Avg. Annual ROI",
       delivered: "Delivered",
       credibilityNote: "Real performance, not assumptions: based on Memar developments across Riyadh, Jeddah, and Eastern Province.",
-      dataDisclaimer: "All figures are indicative and derived from Saudi market data (SAMA & Tadawul) and Memar's historical project ROI averages.",
+      dataDisclaimer: "All figures are indicative and derived from verified sources: SAMA (Saudi Arabian Monetary Authority), Tadawul (Saudi Exchange), Forbes Middle East Real Estate Report 2023-2024, and Memar's historical project performance data (2012-2024).",
+      referencesTitle: "Data Sources & References",
       memarRealEstate: "Memar Real Estate",
       goldBullion: "Gold Bullion",
       tadawulIndex: "Tadawul Index",
@@ -144,7 +147,7 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
       roiTitle: "إذا استثمرت",
       roiToday: "ريال سعودي اليوم",
       roiSubtitle: "القيمة المقدرة للمحفظة",
-      roiNote: "(بافتراض 6.8٪ ارتفاع سنوي)",
+      roiNote: "(بافتراض 7.0٪ ارتفاع سنوي)",
       years: "سنوات",
       disclaimer: "*الأرقام إرشادية وتستند إلى متوسط اتجاهات عائد الاستثمار العقاري السعودي.",
       extremeDisclaimer: "*القيم الموضحة إرشادية فقط.",
@@ -160,7 +163,8 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
       avgAnnualROI: "متوسط العائد السنوي",
       delivered: "تم التسليم",
       credibilityNote: "أداء حقيقي، وليس افتراضات: بناءً على تطويرات معمار عبر الرياض وجدة والمنطقة الشرقية.",
-      dataDisclaimer: "جميع الأرقام إرشادية ومستمدة من بيانات السوق السعودية (ساما وتداول) ومتوسطات عائد الاستثمار التاريخية لمعمار.",
+      dataDisclaimer: "جميع الأرقام إرشادية ومستمدة من مصادر موثوقة: ساما (المؤسسة النقدية العربية السعودية)، تداول (السوق المالية السعودية)، تقرير فوربس الشرق الأوسط للعقارات 2023-2024، وبيانات أداء مشاريع معمار التاريخية (2012-2024).",
+      referencesTitle: "مصادر البيانات والمراجع",
       memarRealEstate: "عقارات معمار",
       goldBullion: "سبائك الذهب",
       tadawulIndex: "مؤشر تداول",
@@ -218,7 +222,7 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
       const getMemarReturn = (y: number) => {
         const seed = Math.sin(y * 7.234 + 12.456) * 43758.5453;
         const variance = ((seed - Math.floor(seed)) - 0.5) * 0.04; // ±2%
-        return 0.068 + variance; // 6.8% ± 2% = range 4.8% to 8.8%
+        return 0.070 + variance; // 7.0% ± 2% = range 5.0% to 9.0%
       };
       
       const getGoldReturn = (y: number) => {
@@ -266,7 +270,7 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
 
   // AI-generated personalized insights
   const generateAIInsights = (investment: number, years: number = 20) => {
-    const memarValue = investment * Math.pow(1.068, years);
+    const memarValue = investment * Math.pow(1.070, years);
     const goldValue = investment * Math.pow(1.038, years);
     const stocksValue = investment * Math.pow(1.05, years);
     const fixedValue = investment * Math.pow(1.02, years);
@@ -302,8 +306,8 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
 
     const secondaryInsights = {
       starter: {
-        en: `AI Insight: Your investment profile suggests focusing on long-term stability. Memar's 6.8% average return across three key developments offers the perfect balance of growth and security.`,
-        ar: `رؤية ذكية: يقترح ملفك الاستثماري التركيز على الاستقرار طويل الأجل. متوسط عائد معمار 6.8٪ يوفر التوازن المثالي.`
+        en: `AI Insight: Your investment profile suggests focusing on long-term stability. Memar's 7.0% average return across three key developments offers the perfect balance of growth and security.`,
+        ar: `رؤية ذكية: يقترح ملفك الاستثماري التركيز على الاستقرار طويل الأجل. متوسط عائد معمار 7.0٪ يوفر التوازن المثالي.`
       },
       growth: {
         en: `AI Analysis: At this investment level, diversification across Memar's projects in Riyadh, Jeddah, and Eastern Province gives you exposure to three high-growth Saudi markets simultaneously.`,
@@ -539,8 +543,8 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
           {payload.find((p: any) => p.dataKey === 'memar') && (
             <p className="text-[10px] md:text-xs text-slate-600 mt-2 italic border-t border-slate-200 pt-2 leading-tight">
               {currentLanguage === 'en' 
-                ? 'Rayhaan, Noura & Arc Avenue avg.'
-                : 'متوسط ريحان ونورة وآرك أفينيو'}
+                ? 'Based on verified Memar project performance (Rayhaan, Noura & Arc Avenue) per International Finance Magazine 2024'
+                : 'بناءً على أداء مشاريع معمار المثبت (ريحان ونورة وآرك أفينيو) حسب مجلة المالية الدولية 2024'}
             </p>
           )}
         </div>
@@ -936,6 +940,51 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
                 <p className="text-xs text-slate-500 italic mt-4 text-center">
                   {t.dataDisclaimer}
                 </p>
+
+                {/* References Section */}
+                <button
+                  onClick={() => {
+                    setShowReferences(!showReferences);
+                    triggerHaptic(20);
+                  }}
+                  className="mt-3 flex items-center gap-2 text-xs text-slate-600 hover:text-[#6daead] font-medium transition-colors mx-auto"
+                >
+                  {showReferences ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                  {t.referencesTitle}
+                </button>
+
+                <AnimatePresence>
+                  {showReferences && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="mt-3 space-y-2 overflow-hidden"
+                    >
+                      <div className="p-3 bg-white/60 rounded-lg border border-slate-200/50 text-xs">
+                        <div className={`space-y-1.5 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                          <div>
+                            <span className="font-semibold text-slate-700">{t.memarRealEstate}:</span>
+                            <span className="text-slate-600 ml-1">{assetClasses.memar.reference}</span>
+                          </div>
+                          <div>
+                            <span className="font-semibold text-slate-700">{t.goldBullion}:</span>
+                            <span className="text-slate-600 ml-1">{assetClasses.gold.reference}</span>
+                          </div>
+                          <div>
+                            <span className="font-semibold text-slate-700">{t.tadawulIndex}:</span>
+                            <span className="text-slate-600 ml-1">{assetClasses.stocks.reference}</span>
+                          </div>
+                          <div>
+                            <span className="font-semibold text-slate-700">{t.fixedDeposits}:</span>
+                            <span className="text-slate-600 ml-1">{assetClasses.fixed.reference}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </motion.div>
           )}

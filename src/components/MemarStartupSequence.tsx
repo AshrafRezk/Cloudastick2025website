@@ -193,7 +193,7 @@ const MemarStartupSequence: React.FC<MemarStartupSequenceProps> = ({ onComplete 
                     onClick={handleStartJourney}
                     className="mt-12 px-10 py-4 bg-gradient-to-r from-[#6daead] to-[#1c2d36] hover:from-[#5a9a99] hover:to-[#1a252b] text-white font-semibold rounded-full shadow-xl shadow-[#6daead]/40 transition-all duration-300 transform hover:scale-105 active:scale-95"
                   >
-                    Start Your Investment Journey
+                    Start your journey
                   </motion.button>
                 )}
               </motion.div>
