@@ -607,7 +607,9 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
                   : 'bg-gradient-to-r from-[#6daead] to-[#1c2d36] left-0'
               }`}
               style={{ 
-                width: `${Math.min(100, Math.max(0, sliderPercentage))}%`,
+                width: currentLanguage === 'ar' 
+                  ? `${Math.min(100, Math.max(0, 100 - sliderPercentage))}%`
+                  : `${Math.min(100, Math.max(0, sliderPercentage))}%`,
               }}
               animate={{
                 boxShadow: isDragging 
