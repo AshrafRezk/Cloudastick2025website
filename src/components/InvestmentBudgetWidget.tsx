@@ -186,7 +186,7 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
 
   // Format number with commas
   const formatNumber = (num: number): string => {
-    return num.toLocaleString('en-US');
+    return num.toLocaleString(currentLanguage === 'ar' ? 'ar-SA' : 'en-US');
   };
 
   // Format as millions with 2 decimal places
@@ -198,7 +198,8 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
   // Format display value for input
   const formatDisplayValue = (num: number): string => {
     if (num === 0) return '';
-    return `${formatNumber(num)} SAR`;
+    const currency = currentLanguage === 'ar' ? 'ريال سعودي' : 'SAR';
+    return `${formatNumber(num)} ${currency}`;
   };
 
   // Generate chart data with YEAR-BY-YEAR fluctuations for realistic market behavior
@@ -566,7 +567,8 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
           initial={{ scale: 0.9 }}
           animate={{ scale: 1 }}
           transition={{ duration: 0.3, delay: 0.1 }}
-          className="flex items-center gap-3 mb-4 md:mb-6"
+          className={`flex items-center gap-3 mb-4 md:mb-6 ${currentLanguage === 'ar' ? 'flex-row-reverse' : ''}`}
+          dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
         >
           <motion.div
             animate={{ 
@@ -578,13 +580,13 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
               delay: 0.2,
               times: [0, 0.25, 0.5, 0.75, 1]
             }}
-            className="w-10 h-10 bg-gradient-to-br from-[#6daead] to-[#1c2d36] rounded-full flex items-center justify-center shadow-lg"
+            className="w-10 h-10 bg-gradient-to-br from-[#6daead] to-[#1c2d36] rounded-full flex items-center justify-center shadow-lg flex-shrink-0"
           >
             <Wallet className="w-5 h-5 text-white" strokeWidth={2.5} />
           </motion.div>
           <label 
             htmlFor="investment-slider" 
-            className={`text-base font-bold text-[#1c2d36] ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} 
+            className={`text-base font-bold text-[#1c2d36] flex-1 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} 
             dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
           >
             {t.title}
@@ -592,14 +594,18 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
         </motion.div>
 
         {/* Slider Container */}
-        <div className="mb-4 md:mb-6">
+        <div className="mb-4 md:mb-6" dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
           <div className="relative pt-2 pb-8">
             {/* Slider Track Background */}
             <div className="absolute top-2 left-0 right-0 h-2 bg-slate-200 rounded-full" />
             
-            {/* Slider Track Fill (Gradient) */}
+            {/* Slider Track Fill (Gradient) - RTL aware */}
             <motion.div
-              className="absolute top-2 left-0 h-2 bg-gradient-to-r from-[#6daead] to-[#1c2d36] rounded-full"
+              className={`absolute top-2 h-2 rounded-full ${
+                currentLanguage === 'ar' 
+                  ? 'bg-gradient-to-l from-[#6daead] to-[#1c2d36] right-0' 
+                  : 'bg-gradient-to-r from-[#6daead] to-[#1c2d36] left-0'
+              }`}
               style={{ 
                 width: `${Math.min(100, Math.max(0, sliderPercentage))}%`,
               }}
@@ -640,10 +646,11 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
               className="relative w-full h-2 appearance-none bg-transparent cursor-pointer z-10"
               style={{
                 WebkitAppearance: 'none',
+                direction: 'ltr', // Keep slider LTR for consistent behavior
               }}
             />
 
-            {/* Floating Tooltip on Thumb */}
+            {/* Floating Tooltip on Thumb - RTL aware */}
             <AnimatePresence>
               {isDragging && (
                 <motion.div
@@ -652,13 +659,20 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
                   exit={{ opacity: 0, y: 10, scale: 0.8 }}
                   transition={{ duration: 0.2 }}
                   className="absolute top-[-40px] pointer-events-none"
-                  style={{
-                    left: `${sliderPercentage}%`,
-                    transform: 'translateX(-50%)',
-                  }}
+                  style={currentLanguage === 'ar' 
+                    ? {
+                        right: `${100 - sliderPercentage}%`,
+                        transform: 'translateX(50%)',
+                      }
+                    : {
+                        left: `${sliderPercentage}%`,
+                        transform: 'translateX(-50%)',
+                      }
+                  }
+                  dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
                 >
-                  <div className="bg-[#1c2d36] text-white px-3 py-1 rounded-lg shadow-xl text-sm font-bold whitespace-nowrap">
-                    {formatNumber(localValue)} SAR
+                  <div className={`bg-[#1c2d36] text-white px-3 py-1 rounded-lg shadow-xl text-sm font-bold whitespace-nowrap ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}>
+                    {formatNumber(localValue)} {currentLanguage === 'ar' ? 'ريال سعودي' : 'SAR'}
                   </div>
                   <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-[#1c2d36] mx-auto" />
                 </motion.div>
@@ -666,9 +680,9 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
             </AnimatePresence>
 
             {/* Min/Max Labels */}
-            <div className={`flex justify-between text-xs text-slate-500 font-medium mt-2 ${currentLanguage === 'ar' ? 'flex-row-reverse' : ''}`}>
-              <span>{t.minLabel}</span>
-              <span>{t.maxLabel}</span>
+            <div className={`flex justify-between text-xs text-slate-500 font-medium mt-2 ${currentLanguage === 'ar' ? 'flex-row-reverse' : ''}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+              <span className={currentLanguage === 'ar' ? 'text-right' : 'text-left'}>{t.minLabel}</span>
+              <span className={currentLanguage === 'ar' ? 'text-right' : 'text-left'}>{t.maxLabel}</span>
             </div>
           </div>
         </div>
@@ -694,6 +708,7 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
             }`}
             placeholder={t.manualPlaceholder}
             dir="ltr"
+            style={{ direction: 'ltr' }}
           />
           {error && (
             <motion.p
@@ -1062,7 +1077,7 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
         </AnimatePresence>
       </div>
 
-      {/* Custom Slider Styles */}
+      {/* Custom Slider Styles - RTL aware */}
       <style>{`
         #investment-slider::-webkit-slider-thumb {
           appearance: none;
@@ -1086,6 +1101,10 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
           box-shadow: 0 6px 16px rgba(109, 174, 173, 0.6);
         }
 
+        #investment-slider[dir="rtl"]::-webkit-slider-thumb {
+          background: linear-gradient(225deg, #6daead 0%, #1c2d36 100%);
+        }
+
         #investment-slider::-moz-range-thumb {
           width: 24px;
           height: 24px;
@@ -1105,6 +1124,10 @@ const InvestmentBudgetWidget: React.FC<InvestmentBudgetWidgetProps> = ({
         #investment-slider::-moz-range-thumb:active {
           transform: scale(1.25);
           box-shadow: 0 6px 16px rgba(109, 174, 173, 0.6);
+        }
+
+        #investment-slider[dir="rtl"]::-moz-range-thumb {
+          background: linear-gradient(225deg, #6daead 0%, #1c2d36 100%);
         }
       `}</style>
     </motion.div>
