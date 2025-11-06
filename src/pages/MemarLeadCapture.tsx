@@ -13,6 +13,8 @@ interface FormData {
   description: string;
   lead_source: string;
   interest: string;
+  leadGenOfficerName: string;
+  leadGenOfficerId: string;
 }
 
 const MemarLeadCapture: React.FC = () => {
@@ -27,6 +29,8 @@ const MemarLeadCapture: React.FC = () => {
     description: '',
     lead_source: '',
     interest: '',
+    leadGenOfficerName: '',
+    leadGenOfficerId: '',
   });
   const [accountType, setAccountType] = useState<'individual' | 'company'>('individual');
   const [deviceInfo, setDeviceInfo] = useState('');
@@ -37,11 +41,33 @@ const MemarLeadCapture: React.FC = () => {
   const [showQuote, setShowQuote] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [currentLanguage, setCurrentLanguage] = useState<'en' | 'ar'>('en');
+  const [selectedPersonIndex, setSelectedPersonIndex] = useState<number | null>(null);
+  const [carouselIndex, setCarouselIndex] = useState(0);
   const formRef = useRef<HTMLFormElement>(null);
   const successAudioRef = useRef<HTMLAudioElement>(null);
   const woosh1Ref = useRef<HTMLAudioElement>(null);
   const woosh2Ref = useRef<HTMLAudioElement>(null);
   const selection1Ref = useRef<HTMLAudioElement>(null);
+
+  // People data for each interest type
+  const peopleByInterest = {
+    invest: [
+      { name: 'Abdulaziz AlHumaidhi', id: '005QE000001y4EfYAI', image: '/Assets/Cityscape/Memar/People/Investor lead owners/Abdulaziz AlHumaidhi - 005QE000001y4EfYAI.png' },
+      { name: 'CEO Office', id: '005QE000001y3byYAA', image: '/Assets/Cityscape/Memar/People/Investor lead owners/CEO Office - 005QE000001y3byYAA.png' },
+      { name: 'Mohammed Alkhulofi', id: '005QE000001ye22YAA', image: '/Assets/Cityscape/Memar/People/Investor lead owners/Mohammed Alkhulofi - 005QE000001ye22YAA.png' },
+      { name: 'Nawaf Alowla', id: '005QE000001y4EfYAl', image: '/Assets/Cityscape/Memar/People/Investor lead owners/Nawaf Alowla - 005QE000001y4EfYAl.png' },
+    ],
+    operate: [
+      { name: 'Ahmed Ibrahim', id: '005QE000001y4EfYAl', image: '/Assets/Cityscape/Memar/People/Operator lead owners/Ahmed Ibrahim - 005QE000001y4EfYAl.png' },
+      { name: 'Hamdi Abdein', id: '005QE000001y4EfYAl', image: '/Assets/Cityscape/Memar/People/Operator lead owners/Hamdi Abdein - 005QE000001y4EfYAl.png' },
+    ],
+    supply: [
+      { name: 'Procurment', id: '005QE000001y4EfYAl', image: '/Assets/Cityscape/Memar/People/Supplier lead owners/Procurment - 005QE000001y4EfYAl.png' },
+    ],
+  };
+
+  // Get current people list based on selected interest
+  const currentPeople = formData.interest ? peopleByInterest[formData.interest as keyof typeof peopleByInterest] || [] : [];
 
   // Inspirational quotes for Investment
   const quotes = {
@@ -79,6 +105,9 @@ const MemarLeadCapture: React.FC = () => {
       benefits: ["Proven Track Record", "Secure Investments", "Consistent Returns"],
       formTitle: "Book a Consultancy Meeting with a Memar Investment Professional",
       formSubtitle: "Let's discuss how you can grow your capital safely and securely",
+      whoDidYouTalkTo: "Who did you talk to today?",
+      optionalSelection: "Optional - Select if you spoke with someone from our team",
+      clearSelection: "Clear Selection",
       accountType: "Account Type",
       individual: "Individual",
       company: "Company",
@@ -118,6 +147,9 @@ const MemarLeadCapture: React.FC = () => {
       benefits: ["سجل مثبت", "استثمارات آمنة", "عوائد مستمرة"],
       formTitle: "احجز استشارة مع خبير استثمار معمار",
       formSubtitle: "دعنا نناقش كيف يمكنك تنمية رأس مالك بأمان وثقة",
+      whoDidYouTalkTo: "من الذي تحدثت إليه اليوم؟",
+      optionalSelection: "اختياري - حدد إذا تحدثت مع شخص من فريقنا",
+      clearSelection: "مسح الاختيار",
       accountType: "نوع الحساب",
       individual: "فرد",
       company: "شركة",
@@ -204,6 +236,30 @@ const MemarLeadCapture: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Auto-select Procurment when supplier is chosen
+  useEffect(() => {
+    if (formData.interest === 'supply' && currentPeople.length > 0) {
+      // Auto-select the first (and only) person for supplier
+      setSelectedPersonIndex(0);
+      setCarouselIndex(0);
+      setFormData(prev => ({
+        ...prev,
+        leadGenOfficerName: currentPeople[0].name,
+        leadGenOfficerId: currentPeople[0].id,
+      }));
+    } else if (formData.interest && formData.interest !== 'supply') {
+      // Reset selection when switching between invest/operate
+      setSelectedPersonIndex(null);
+      setCarouselIndex(0);
+      setFormData(prev => ({
+        ...prev,
+        leadGenOfficerName: '',
+        leadGenOfficerId: '',
+      }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.interest, currentPeople]);
+
   // Capture device info and query params on mount
   useEffect(() => {
     const captureDeviceInfo = () => {
@@ -269,6 +325,9 @@ Lead Source: ${source}`;
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Invalid email format';
     if (!formData.mobile.trim()) newErrors.mobile = 'Mobile number is required';
     if (!formData.interest.trim()) newErrors.interest = 'Please select your interest';
+    if (!formData.leadGenOfficerName.trim() || !formData.leadGenOfficerId.trim()) {
+      newErrors.leadGenOfficerName = 'Please select a contact person';
+    }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -313,6 +372,8 @@ Lead Source: ${source}`;
       addField('description', formData.description);
       addField('lead_source', formData.lead_source);
       addField('00NOm000003yFaM', formData.interest); // Interest dropdown field
+      addField('00NOm0000047oll', formData.leadGenOfficerName); // Lead Gen Officer Name
+      addField('00NOm0000047ooz', formData.leadGenOfficerId); // Lead Gen Officer ID
 
       // Create hidden iframe for submission
       let iframe = document.getElementById('salesforce-iframe') as HTMLIFrameElement;
@@ -385,6 +446,24 @@ Lead Source: ${source}`;
     if (field === 'first_name' && value.length < 3) {
       setShowQuote(false);
     }
+  };
+
+  const handlePersonSelect = (index: number) => {
+    // Don't allow selection change for supplier (locked to Procurment)
+    if (formData.interest === 'supply') return;
+    
+    triggerStrongHaptic(100);
+    if (selection1Ref.current) {
+      selection1Ref.current.currentTime = 0;
+      selection1Ref.current.play().catch(() => {});
+    }
+    setSelectedPersonIndex(index);
+    setCarouselIndex(index);
+    setFormData(prev => ({
+      ...prev,
+      leadGenOfficerName: currentPeople[index].name,
+      leadGenOfficerId: currentPeople[index].id,
+    }));
   };
 
   const scrollToForm = () => {
@@ -968,6 +1047,206 @@ Lead Source: ${source}`;
                   <p className="text-red-500 text-sm mt-2">{errors.interest}</p>
                 )}
               </div>
+
+              {/* People Carousel - Show when interest is selected */}
+              <AnimatePresence>
+                {formData.interest && currentPeople.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                    transition={{ duration: 0.4, type: "spring", bounce: 0.3 }}
+                  >
+                    <div className="mb-10">
+                      <label className={`block text-sm font-semibold text-slate-700 mb-4 text-center ${currentLanguage === 'ar' ? 'text-right' : 'text-center'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                        {content[currentLanguage].whoDidYouTalkTo}
+                      </label>
+                      <p className={`text-xs text-slate-500 text-center mb-6 ${currentLanguage === 'ar' ? 'text-right' : 'text-center'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                        {content[currentLanguage].optionalSelection}
+                      </p>
+                      
+                      <div className="relative max-w-4xl mx-auto">
+                        {/* Navigation Arrows - Only show if more than 3 people */}
+                        {currentPeople.length > 3 && (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (woosh1Ref.current) {
+                                  woosh1Ref.current.currentTime = 0;
+                                  woosh1Ref.current.play().catch(() => {});
+                                }
+                                setCarouselIndex(carouselIndex === 0 ? Math.max(0, currentPeople.length - 3) : carouselIndex - 1);
+                                triggerWooshHaptic();
+                              }}
+                              className="flex absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 md:w-12 md:h-12 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-300 items-center justify-center text-slate-600 hover:text-slate-900"
+                            >
+                              <svg className="w-4 h-4 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                              </svg>
+                            </button>
+                            
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (woosh1Ref.current) {
+                                  woosh1Ref.current.currentTime = 0;
+                                  woosh1Ref.current.play().catch(() => {});
+                                }
+                                setCarouselIndex(carouselIndex >= currentPeople.length - 3 ? 0 : carouselIndex + 1);
+                                triggerWooshHaptic();
+                              }}
+                              className="flex absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 md:w-12 md:h-12 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-300 items-center justify-center text-slate-600 hover:text-slate-900"
+                            >
+                              <svg className="w-4 h-4 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                              </svg>
+                            </button>
+                          </>
+                        )}
+
+                        {/* Carousel Container */}
+                        <div className={`overflow-hidden rounded-3xl ${currentPeople.length > 3 ? 'mx-2 md:mx-16' : ''}`}>
+                          <motion.div
+                            animate={{ 
+                              x: currentPeople.length > 3 
+                                ? `-${carouselIndex * (window.innerWidth < 768 ? 100 / 2 : 100 / 3)}%`
+                                : '0%'
+                            }}
+                            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                            className="flex"
+                          >
+                            {currentPeople.map((person, index) => (
+                              <motion.div
+                                key={index}
+                                className={`${
+                                  currentPeople.length === 1 ? 'min-w-full' :
+                                  currentPeople.length === 2 ? 'min-w-[50%]' :
+                                  'min-w-[50%] md:min-w-[33.333%]'
+                                } px-1 md:px-2`}
+                                whileHover={{ scale: formData.interest !== 'supply' && selectedPersonIndex === null ? 1.02 : 1 }}
+                                whileTap={{ scale: formData.interest !== 'supply' ? 0.98 : 1 }}
+                              >
+                                <motion.button
+                                  type="button"
+                                  onClick={() => handlePersonSelect(index)}
+                                  disabled={formData.interest === 'supply'}
+                                  className={`w-full p-3 md:p-4 rounded-xl md:rounded-2xl transition-all duration-300 min-h-[120px] md:min-h-[140px] ${
+                                    selectedPersonIndex === index
+                                      ? 'bg-gradient-to-br from-[#6daead] to-[#1c2d36] text-white shadow-xl shadow-[#6daead]/40'
+                                      : 'bg-white text-slate-700 hover:bg-slate-50 border-2 border-slate-200 shadow-lg'
+                                  } ${formData.interest === 'supply' ? 'cursor-default' : 'cursor-pointer'}`}
+                                >
+                                  <div className="flex flex-col items-center gap-2 md:gap-3">
+                                    {/* Avatar */}
+                                    <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden border-2 md:border-3 ${
+                                      selectedPersonIndex === index ? 'border-white/30' : 'border-slate-200'
+                                    }`}>
+                                      <img
+                                        src={person.image}
+                                        alt={person.name}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                          // Fallback if image fails to load
+                                          e.currentTarget.src = '/Assets/Cityscape/Memar/Memar_Logo.png';
+                                        }}
+                                      />
+                                    </div>
+                                    
+                                    {/* Name */}
+                                    <div className="text-center">
+                                      <h3 className={`text-xs md:text-base font-bold leading-tight break-words ${
+                                        selectedPersonIndex === index ? 'text-white' : 'text-slate-900'
+                                      }`}>
+                                        {person.name}
+                                      </h3>
+                                    </div>
+
+                                    {/* Selected Indicator */}
+                                    {selectedPersonIndex === index && (
+                                      <motion.div
+                                        initial={{ scale: 0 }}
+                                        animate={{ scale: 1 }}
+                                        className="flex items-center gap-1 mt-1"
+                                      >
+                                        <svg className="w-3 h-3 md:w-4 md:h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                        </svg>
+                                        <span className="text-xs font-semibold">{currentLanguage === 'en' ? 'Selected' : 'محدد'}</span>
+                                      </motion.div>
+                                    )}
+
+                                    {/* Locked Indicator for Supplier */}
+                                    {formData.interest === 'supply' && (
+                                      <motion.div
+                                        initial={{ scale: 0 }}
+                                        animate={{ scale: 1 }}
+                                        className="flex items-center gap-1 mt-1"
+                                      >
+                                        <svg className="w-3 h-3 md:w-4 md:h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                          <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                                        </svg>
+                                        <span className="text-xs font-semibold">{currentLanguage === 'en' ? 'Auto-Selected' : 'محدد تلقائيًا'}</span>
+                                      </motion.div>
+                                    )}
+                                  </div>
+                                </motion.button>
+                              </motion.div>
+                            ))}
+                          </motion.div>
+                        </div>
+
+                        {/* Carousel Indicators - Only show if more than 3 people */}
+                        {currentPeople.length > 3 && (
+                          <div className="flex justify-center gap-2 mt-4 md:mt-6">
+                            {Array.from({ length: Math.ceil(currentPeople.length / 3) }, (_, index) => (
+                              <button
+                                key={index}
+                                type="button"
+                                onClick={() => {
+                                  if (selection1Ref.current) {
+                                    selection1Ref.current.currentTime = 0;
+                                    selection1Ref.current.play().catch(() => {});
+                                  }
+                                  setCarouselIndex(index);
+                                  triggerStrongHaptic(60);
+                                }}
+                                className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-all duration-300 ${
+                                  index === carouselIndex
+                                    ? 'bg-[#6daead] w-6 md:w-8'
+                                    : 'bg-slate-300 hover:bg-slate-400'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Clear Selection - Only for non-supplier */}
+                        {selectedPersonIndex !== null && formData.interest !== 'supply' && (
+                          <motion.button
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            type="button"
+                            onClick={() => {
+                              setSelectedPersonIndex(null);
+                              setFormData(prev => ({
+                                ...prev,
+                                leadGenOfficerName: '',
+                                leadGenOfficerId: '',
+                              }));
+                              triggerHaptic(1);
+                            }}
+                            className={`mt-4 mx-auto block text-sm text-slate-500 hover:text-slate-700 underline ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}
+                            dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
+                          >
+                            {content[currentLanguage].clearSelection}
+                          </motion.button>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {/* Budget - Only show for Investors */}
               <AnimatePresence>
