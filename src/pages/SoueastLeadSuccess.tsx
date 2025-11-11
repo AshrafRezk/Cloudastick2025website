@@ -361,19 +361,77 @@ const SoueastLeadSuccess: React.FC = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 2.0 }}
-          className="w-full max-w-md mb-8"
+          className="w-full max-w-2xl mb-8"
         >
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-white/20">
-            <h3 className="text-xl font-semibold text-white mb-4 text-center">Need Immediate Assistance?</h3>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3 text-white/90">
-                <Phone className="w-5 h-5 text-[#ee7138]" />
-                <span>Call us for immediate support</span>
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 md:p-8 shadow-2xl border border-white/20">
+            <h3 className="text-xl md:text-2xl font-semibold text-white mb-6 text-center flex items-center justify-center gap-2">
+              <Phone className="w-6 h-6 text-[#ee7138]" />
+              Contact Us
+            </h3>
+            <div className="space-y-4">
+              <div className="flex items-start gap-4 text-white/90">
+                <Phone className="w-5 h-5 text-[#ee7138] mt-1 flex-shrink-0" />
+                <div>
+                  <p className="font-semibold mb-1">Phone</p>
+                  <a href="tel:8003050060" className="text-white hover:text-[#ee7138] transition-colors text-lg font-medium">
+                    8003050060
+                  </a>
+                </div>
               </div>
-              <div className="flex items-center gap-3 text-white/90">
-                <Mail className="w-5 h-5 text-[#ee7138]" />
-                <span>Email us with any questions</span>
+              <div className="flex items-start gap-4 text-white/90">
+                <Mail className="w-5 h-5 text-[#ee7138] mt-1 flex-shrink-0" />
+                <div>
+                  <p className="font-semibold mb-1">CRM & Inquiries Email</p>
+                  <a href="mailto:crm.ksa@soueast-motor.com" className="text-white hover:text-[#ee7138] transition-colors break-all">
+                    crm.ksa@soueast-motor.com
+                  </a>
+                </div>
               </div>
+              <div className="flex items-start gap-4 text-white/90 pt-2 border-t border-white/20">
+                <div className="w-5 h-5 flex-shrink-0"></div>
+                <div>
+                  <p className="font-semibold mb-1">Operating Hours</p>
+                  <p className="text-white/90">Sunday to Thursday, 9:00 AM – 5:30 PM</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Google Map - Riyadh Branch */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 2.2 }}
+          className="w-full max-w-4xl mb-8"
+        >
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 md:p-6 shadow-2xl border border-white/20">
+            <h3 className="text-xl md:text-2xl font-semibold text-white mb-4 text-center">
+              Visit Our Riyadh Branch
+            </h3>
+            <div className="relative w-full rounded-xl overflow-hidden shadow-lg" style={{ aspectRatio: '16/9' }}>
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3624.1234567890123!2d46.6753!3d24.7136!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0xbdada52133392732!2sSerre%20Alsharq%20Motors%20-%20Soueast!5e0!3m2!1sen!2ssa!4v1234567890123!5m2!1sen!2ssa"
+                width="100%"
+                height="100%"
+                style={{ border: 0, borderRadius: '0.75rem' }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Soueast Riyadh Branch Location"
+                className="absolute inset-0"
+              ></iframe>
+            </div>
+            <div className="mt-4 text-center">
+              <a
+                href="https://www.google.com/maps/place/Serre+Alsharq+Motors+-+Soueast+%7C+%D8%B4%D8%B1%D9%83%D8%A9+%D8%B3%D9%8A%D8%B1+%D8%A7%D9%84%D8%B4%D8%B1%D9%82+%D9%84%D9%84%D8%B3%D9%8A%D8%A7%D8%B1%D8%A7%D8%AA+-+%D8%B3%D8%A7%D9%88%D8%A7%D9%8A%D8%B3%D8%AA%E2%80%AD/data=!4m2!3m1!1s0x0:0xbdada52133392732?sa=X&ved=1t:2428&ictx=111"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-white/90 hover:text-[#ee7138] transition-colors text-sm"
+              >
+                <ExternalLink className="w-4 h-4" />
+                Open in Google Maps
+              </a>
             </div>
           </div>
         </motion.div>
