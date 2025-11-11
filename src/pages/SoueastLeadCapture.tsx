@@ -621,6 +621,37 @@ ${deviceInfo}
             </div>
 
             <form ref={formRef} onSubmit={handleSubmit} className="space-y-8">
+              {/* Personalized Quote */}
+              <AnimatePresence>
+                {showQuote && formData.first_name && personalizedQuote && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                    transition={{ duration: 0.5 }}
+                    className="mb-6 p-6 bg-gradient-to-br from-[#ee7138]/10 to-[#d85a20]/10 rounded-2xl border-2 border-[#ee7138]/30 shadow-lg"
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0">
+                        <div className="w-12 h-12 bg-gradient-to-br from-[#ee7138] to-[#d85a20] rounded-full flex items-center justify-center">
+                          <Car className="w-6 h-6 text-white" />
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <p className={`text-sm font-semibold text-[#ee7138] mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                          {currentLanguage === 'en' 
+                            ? `Hi ${formData.first_name}! Here's something special for you:`
+                            : `مرحباً ${formData.first_name}! إليك شيئاً مميزاً لك:`}
+                        </p>
+                        <p className={`text-lg text-slate-800 italic leading-relaxed ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                          "{personalizedQuote}"
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               {/* Budget Widget */}
               <SoueastBudgetWidget
                 value={formData.budget}
