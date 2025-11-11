@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Car, CheckCircle2, MapPin, Phone, Mail, MessageSquare, CreditCard } from 'lucide-react';
+import { Car, CheckCircle2, MapPin, Phone } from 'lucide-react';
 import SoueastBudgetWidget from '../components/SoueastBudgetWidget';
 import SoueastCarSelector from '../components/SoueastCarSelector';
 import SoueastColorSelector from '../components/SoueastColorSelector';
@@ -11,7 +11,6 @@ interface FormData {
   last_name: string;
   email: string;
   mobile: string;
-  company: string;
   budget: string;
   selectedCars: string[];
   preferredColors: string[];
@@ -30,7 +29,6 @@ const SoueastLeadCapture: React.FC = () => {
     last_name: '',
     email: '',
     mobile: '',
-    company: '',
     budget: '80000', // Default budget to show some cars initially
     selectedCars: [],
     preferredColors: [],
@@ -71,8 +69,6 @@ const SoueastLeadCapture: React.FC = () => {
       lastName: 'Last Name',
       email: 'Email',
       mobile: 'Mobile',
-      company: 'Company (Optional)',
-      companyPlaceholder: 'e.g., ABC Corporation',
       description: 'Additional Comments',
       descriptionPlaceholder: 'Tell us about your preferences...',
       submitButton: 'Submit Inquiry',
@@ -87,7 +83,7 @@ const SoueastLeadCapture: React.FC = () => {
       preferredContactMethodPlaceholder: 'Select preferred method',
       subChannel: 'Sub Channel',
       subChannelPlaceholder: 'Select sub channel',
-      title: 'Title',
+      title: 'Name',
       titlePlaceholder: 'Select title',
       enquiryType: 'Enquiry Type',
       enquiryTypePlaceholder: 'Select enquiry type',
@@ -102,8 +98,6 @@ const SoueastLeadCapture: React.FC = () => {
       lastName: 'اسم العائلة',
       email: 'البريد الإلكتروني',
       mobile: 'رقم الجوال',
-      company: 'الشركة (اختياري)',
-      companyPlaceholder: 'مثال: شركة ABC',
       description: 'ملاحظات إضافية',
       descriptionPlaceholder: 'أخبرنا عن تفضيلاتك...',
       submitButton: 'إرسال الاستفسار',
@@ -118,7 +112,7 @@ const SoueastLeadCapture: React.FC = () => {
       preferredContactMethodPlaceholder: 'اختر طريقة التواصل',
       subChannel: 'القناة الفرعية',
       subChannelPlaceholder: 'اختر القناة الفرعية',
-      title: 'المسمى الوظيفي',
+      title: 'الاسم',
       titlePlaceholder: 'اختر المسمى',
       enquiryType: 'نوع الاستفسار',
       enquiryTypePlaceholder: 'اختر نوع الاستفسار',
@@ -386,7 +380,6 @@ User Agent: ${userAgent}`;
       // Mobile number with country code (00966 for Saudi Arabia)
       const fullMobileNumber = formData.mobile ? `00966${formData.mobile}` : '';
       addField('mobile', fullMobileNumber);
-      addField('company', formData.company || '');
       addField('lead_source', mapLeadSource(formData.lead_source || 'Website'));
       
       // Models of Interest (multi-select field: 00NOm000004E6JN)
@@ -951,23 +944,7 @@ User Agent: ${userAgent}`;
                   )}
                 </div>
 
-                {/* Company */}
-                <div className="md:col-span-2">
-                  <label htmlFor="company" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
-                    {content[currentLanguage].company}
-                  </label>
-                  <input
-                    type="text"
-                    id="company"
-                    value={formData.company}
-                    onChange={(e) => handleInputChange('company', e.target.value)}
-                    placeholder={content[currentLanguage].companyPlaceholder}
-                    className={`w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 placeholder-slate-400 bg-white focus:border-[#ee7138] focus:outline-none transition-colors duration-200 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}
-                    dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
-                  />
-                </div>
-
-                {/* Title */}
+                {/* Title (Name) */}
                 <div>
                   <label htmlFor="title" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
                     {content[currentLanguage].title}
@@ -1000,73 +977,69 @@ User Agent: ${userAgent}`;
                   </div>
                 </div>
 
-                {/* Branch - Prominent Field */}
+                {/* Branch - Button Group */}
                 <div className="md:col-span-2">
-                  <label htmlFor="branch" className={`block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2 ${currentLanguage === 'ar' ? 'text-right flex-row-reverse' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                  <label className={`block text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2 ${currentLanguage === 'ar' ? 'text-right flex-row-reverse' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
                     <MapPin className="w-4 h-4 text-[#ee7138]" />
                     {content[currentLanguage].branch}
                   </label>
-                  <div className="relative">
-                    <select
-                      id="branch"
-                      value={formData.branch}
-                      onChange={(e) => {
-                        handleInputChange('branch', e.target.value);
-                        triggerHaptic(10);
-                        if (selection1Ref.current) {
-                          selection1Ref.current.currentTime = 0;
-                          selection1Ref.current.play().catch(() => {});
-                        }
-                      }}
-                      className={`w-full px-4 py-3 pr-10 rounded-2xl border-2 ${formData.branch ? 'border-[#ee7138] bg-[#ee7138]/5' : 'border-slate-200'} text-slate-900 bg-white focus:border-[#ee7138] focus:outline-none transition-all duration-200 appearance-none cursor-pointer font-medium ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}
-                      dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
-                    >
-                      <option value="">{content[currentLanguage].branchPlaceholder}</option>
-                      <option value="Riyadh">Riyadh</option>
-                      <option value="Jeddah">Jeddah</option>
-                      <option value="Dammam">Dammam</option>
-                    </select>
-                    <div className={`absolute top-1/2 -translate-y-1/2 ${currentLanguage === 'ar' ? 'left-4' : 'right-4'} pointer-events-none`}>
-                      <svg className="w-5 h-5 text-[#ee7138]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {['Riyadh', 'Jeddah', 'Dammam'].map((branch) => (
+                      <motion.button
+                        key={branch}
+                        type="button"
+                        onClick={() => {
+                          handleInputChange('branch', formData.branch === branch ? '' : branch);
+                          triggerHaptic(10);
+                          if (selection1Ref.current) {
+                            selection1Ref.current.currentTime = 0;
+                            selection1Ref.current.play().catch(() => {});
+                          }
+                        }}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className={`px-6 py-4 rounded-2xl border-2 font-semibold transition-all duration-200 ${
+                          formData.branch === branch
+                            ? 'border-[#ee7138] bg-[#ee7138] text-white shadow-lg shadow-[#ee7138]/30'
+                            : 'border-slate-200 bg-white text-slate-700 hover:border-[#ee7138]/50 hover:bg-[#ee7138]/5'
+                        }`}
+                      >
+                        {branch}
+                      </motion.button>
+                    ))}
                   </div>
                 </div>
 
-                {/* Preferred Contact Method */}
-                <div>
-                  <label htmlFor="preferredContactMethod" className={`block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2 ${currentLanguage === 'ar' ? 'text-right flex-row-reverse' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                {/* Preferred Contact Method - Button Group */}
+                <div className="md:col-span-2">
+                  <label className={`block text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2 ${currentLanguage === 'ar' ? 'text-right flex-row-reverse' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
                     <Phone className="w-4 h-4 text-[#ee7138]" />
                     {content[currentLanguage].preferredContactMethod}
                   </label>
-                  <div className="relative">
-                    <select
-                      id="preferredContactMethod"
-                      value={formData.preferredContactMethod}
-                      onChange={(e) => {
-                        handleInputChange('preferredContactMethod', e.target.value);
-                        triggerHaptic(10);
-                        if (selection1Ref.current) {
-                          selection1Ref.current.currentTime = 0;
-                          selection1Ref.current.play().catch(() => {});
-                        }
-                      }}
-                      className={`w-full px-4 py-3 pr-10 rounded-2xl border-2 ${formData.preferredContactMethod ? 'border-[#ee7138] bg-[#ee7138]/5' : 'border-slate-200'} text-slate-900 bg-white focus:border-[#ee7138] focus:outline-none transition-all duration-200 appearance-none cursor-pointer ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}
-                      dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
-                    >
-                      <option value="">{content[currentLanguage].preferredContactMethodPlaceholder}</option>
-                      <option value="Email">Email</option>
-                      <option value="Phone">Phone</option>
-                      <option value="SMS">SMS</option>
-                      <option value="Post">Post</option>
-                      <option value="WhatsApp">WhatsApp</option>
-                    </select>
-                    <div className={`absolute top-1/2 -translate-y-1/2 ${currentLanguage === 'ar' ? 'left-4' : 'right-4'} pointer-events-none`}>
-                      <svg className="w-5 h-5 text-[#ee7138]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </div>
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                    {['Email', 'Phone', 'SMS', 'Post', 'WhatsApp'].map((method) => (
+                      <motion.button
+                        key={method}
+                        type="button"
+                        onClick={() => {
+                          handleInputChange('preferredContactMethod', formData.preferredContactMethod === method ? '' : method);
+                          triggerHaptic(10);
+                          if (selection1Ref.current) {
+                            selection1Ref.current.currentTime = 0;
+                            selection1Ref.current.play().catch(() => {});
+                          }
+                        }}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className={`px-4 py-3 rounded-2xl border-2 font-semibold text-sm transition-all duration-200 ${
+                          formData.preferredContactMethod === method
+                            ? 'border-[#ee7138] bg-[#ee7138] text-white shadow-lg shadow-[#ee7138]/30'
+                            : 'border-slate-200 bg-white text-slate-700 hover:border-[#ee7138]/50 hover:bg-[#ee7138]/5'
+                        }`}
+                      >
+                        {method}
+                      </motion.button>
+                    ))}
                   </div>
                 </div>
 
