@@ -373,7 +373,9 @@ User Agent: ${userAgent}`;
       addField('first_name', formData.first_name);
       addField('last_name', formData.last_name);
       addField('email', formData.email);
-      addField('mobile', formData.mobile);
+      // Mobile number with country code (00966 for Saudi Arabia)
+      const fullMobileNumber = formData.mobile ? `00966${formData.mobile}` : '';
+      addField('mobile', fullMobileNumber);
       addField('company', formData.company || '');
       addField('lead_source', mapLeadSource(formData.lead_source || 'Website'));
       
@@ -404,12 +406,23 @@ User Agent: ${userAgent}`;
       
       // Comments field (00NQE00000GkBor2AF) - rich text field
       let commentsText = '';
-      if (formData.budget && parseInt(formData.budget) > 0) {
-        commentsText += `Budget: ${parseInt(formData.budget).toLocaleString('en-US')} SAR\n`;
-      }
+      
+      // User's actual comment/description
       if (formData.description) {
-        commentsText += `${formData.description}\n\n`;
+        commentsText += `${formData.description}`;
       }
+      
+      // Add separator line breaks before technical information
+      if (formData.description || (formData.budget && parseInt(formData.budget) > 0)) {
+        commentsText += '\n\n---\n\n';
+      }
+      
+      // Budget information
+      if (formData.budget && parseInt(formData.budget) > 0) {
+        commentsText += `Budget: ${parseInt(formData.budget).toLocaleString('en-US')} SAR\n\n`;
+      }
+      
+      // Device and location information
       commentsText += `Device Information:\n${deviceInfo}`;
       addField('00NQE00000GkBor2AF', commentsText);
       
@@ -905,14 +918,27 @@ User Agent: ${userAgent}`;
                   <label htmlFor="mobile" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
                     {content[currentLanguage].mobile} *
                   </label>
-                  <input
-                    type="tel"
-                    id="mobile"
-                    value={formData.mobile}
-                    onChange={(e) => handleInputChange('mobile', e.target.value)}
-                    className={`w-full px-4 py-3 rounded-2xl border-2 ${errors.mobile ? 'border-red-300' : 'border-slate-200'} text-slate-900 placeholder-slate-400 bg-white focus:border-[#ee7138] focus:outline-none transition-colors duration-200 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}
-                    dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
-                  />
+                  <div className={`flex items-stretch rounded-2xl border-2 ${errors.mobile ? 'border-red-300' : 'border-slate-200'} focus-within:border-[#ee7138] transition-colors duration-200 overflow-hidden`}>
+                    {/* Country Code - Pre-filled */}
+                    <div className={`px-4 py-3 bg-slate-100 text-slate-600 font-medium flex items-center justify-center border-r-2 border-slate-200 ${currentLanguage === 'ar' ? 'border-l-2 border-r-0' : ''}`} dir="ltr">
+                      00966
+                    </div>
+                    {/* Mobile Number Input */}
+                    <input
+                      type="tel"
+                      id="mobile"
+                      value={formData.mobile}
+                      onChange={(e) => {
+                        // Only allow digits
+                        const value = e.target.value.replace(/\D/g, '');
+                        handleInputChange('mobile', value);
+                      }}
+                      placeholder={currentLanguage === 'ar' ? '5X XXX XXXX' : '5X XXX XXXX'}
+                      className={`flex-1 px-4 py-3 text-slate-900 placeholder-slate-400 bg-white focus:outline-none ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}
+                      dir="ltr"
+                      maxLength={9}
+                    />
+                  </div>
                   {errors.mobile && (
                     <p className={`mt-1 text-sm text-red-600 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
                       {errors.mobile}
