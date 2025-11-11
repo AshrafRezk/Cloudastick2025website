@@ -163,6 +163,18 @@ export const getUpgradeAmount = (budget: number): number | null => {
   return nextTierPrice ? nextTierPrice - budget : null;
 };
 
+// Helper function to get next tier cars (cars that would be unlocked)
+export const getNextTierCars = (budget: number): CarModel[] => {
+  const nextTierPrice = getNextTierPrice(budget);
+  if (!nextTierPrice) return [];
+  
+  // Get all cars at or just above the next tier price (within reasonable range)
+  const maxPrice = nextTierPrice + 10000; // Include cars up to 10K more
+  return carModels
+    .filter(car => car.basePrice > budget && car.basePrice <= maxPrice)
+    .sort((a, b) => a.basePrice - b.basePrice);
+};
+
 // Helper function to get car by model name
 export const getCarByModel = (model: string): CarModel | undefined => {
   return carModels.find(car => car.model === model);

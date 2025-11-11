@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { TrendingUp, ArrowUp } from 'lucide-react';
-import { getCarsWithinBudget, getUpgradeAmount } from '../utils/soueastData';
+import { motion, AnimatePresence } from 'framer-motion';
+import { TrendingUp, ArrowUp, Sparkles, ChevronRight, Car } from 'lucide-react';
+import { getCarsWithinBudget, getUpgradeAmount, getNextTierCars } from '../utils/soueastData';
 
 interface SoueastBudgetWidgetProps {
   value: string;
@@ -47,7 +47,10 @@ const SoueastBudgetWidget: React.FC<SoueastBudgetWidgetProps> = ({
       manualPlaceholder: 'e.g., 80,000 SAR',
       carsAvailable: 'cars available',
       upgradeAmount: 'Add',
-      upgradeToNext: 'to unlock the next tier',
+      upgradeToNext: 'to unlock',
+      unlockButton: 'Unlock These Cars',
+      carsUnlocked: 'cars unlocked',
+      keyFeatures: 'Key Features',
       minLabel: '60K SAR',
       maxLabel: '120K SAR',
     },
@@ -58,7 +61,10 @@ const SoueastBudgetWidget: React.FC<SoueastBudgetWidgetProps> = ({
       manualPlaceholder: 'مثال: 80,000 ريال سعودي',
       carsAvailable: 'سيارة متاحة',
       upgradeAmount: 'أضف',
-      upgradeToNext: 'لفتح المستوى التالي',
+      upgradeToNext: 'لفتح',
+      unlockButton: 'فتح هذه السيارات',
+      carsUnlocked: 'سيارة مفتوحة',
+      keyFeatures: 'الميزات الرئيسية',
       minLabel: '60 ألف ريال',
       maxLabel: '120 ألف ريال',
     },
@@ -139,6 +145,19 @@ const SoueastBudgetWidget: React.FC<SoueastBudgetWidgetProps> = ({
   // Get cars within budget
   const carsInBudget = getCarsWithinBudget(localValue);
   const upgradeAmount = getUpgradeAmount(localValue);
+  const nextTierCars = getNextTierCars(localValue);
+
+  // Handle unlock button click
+  const handleUnlock = () => {
+    if (nextTierCars.length > 0 && upgradeAmount) {
+      const newBudget = localValue + upgradeAmount;
+      setLocalValue(newBudget);
+      setHasInteracted(true);
+      if (onInteraction) {
+        onInteraction();
+      }
+    }
+  };
 
   return (
     <div className="w-full">
@@ -243,18 +262,95 @@ const SoueastBudgetWidget: React.FC<SoueastBudgetWidgetProps> = ({
           </div>
         </div>
 
-        {upgradeAmount && upgradeAmount > 0 && (
+        {upgradeAmount && upgradeAmount > 0 && nextTierCars.length > 0 && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="flex items-center gap-2 pt-3 border-t border-slate-200"
+            className="pt-4 border-t border-slate-200 mt-4"
           >
-            <ArrowUp className="w-4 h-4 text-[#ee7138]" />
-            <span className="text-sm text-slate-700">
-              <span className="font-semibold text-[#ee7138]">{t.upgradeAmount} {formatValue(upgradeAmount)} SAR</span>{' '}
-              {t.upgradeToNext}
-            </span>
+            {/* Upgrade Header */}
+            <div className="flex items-start gap-3 mb-4">
+              <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-[#ee7138] to-[#d85a20] rounded-lg flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <ArrowUp className="w-4 h-4 text-[#ee7138]" />
+                  <span className="text-sm font-semibold text-slate-900">
+                    <span className="text-[#ee7138]">{t.upgradeAmount} {formatValue(upgradeAmount)} SAR</span>{' '}
+                    {t.upgradeToNext} {nextTierCars.length} {t.carsUnlocked}
+                  </span>
+                </div>
+                <p className={`text-xs text-slate-600 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                  {currentLanguage === 'en' 
+                    ? 'Unlock premium features and enhanced performance' 
+                    : 'افتح الميزات المميزة والأداء المحسّن'}
+                </p>
+              </div>
+            </div>
+
+            {/* Cars Preview */}
+            <div className="space-y-3 mb-4">
+              {nextTierCars.map((car, index) => (
+                <motion.div
+                  key={car.model}
+                  initial={{ opacity: 0, x: currentLanguage === 'ar' ? 20 : -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="bg-white rounded-xl p-3 border border-slate-200 hover:border-[#ee7138] transition-colors"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 w-16 h-16 bg-slate-100 rounded-lg overflow-hidden">
+                      <img
+                        src={car.image}
+                        alt={car.model}
+                        className="w-full h-full object-contain p-1"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = '/placeholder.svg';
+                        }}
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className={`font-semibold text-slate-900 mb-1 text-sm ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                        {car.model}
+                      </h4>
+                      <div className={`text-xs text-slate-600 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span>{car.power} hp</span>
+                          <span className="text-slate-400">•</span>
+                          <span>{car.torque} Nm</span>
+                          <span className="text-slate-400">•</span>
+                          <span>{car.transmission}</span>
+                        </div>
+                      </div>
+                      <div className={`text-xs text-slate-500 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                        <span className="font-semibold text-[#ee7138]">{formatValue(car.basePrice)} SAR</span>
+                        <span className="text-slate-400 ml-1">{currentLanguage === 'en' ? 'before VAT' : 'قبل الضريبة'}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Key Features Preview */}
+                  <div className={`mt-2 pt-2 border-t border-slate-100 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                    <p className="text-xs font-semibold text-slate-700 mb-1">{t.keyFeatures}:</p>
+                    <p className="text-xs text-slate-600 line-clamp-2">{car.keyFeatures}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Unlock Button */}
+            <motion.button
+              onClick={handleUnlock}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full px-4 py-3 bg-gradient-to-r from-[#ee7138] to-[#d85a20] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2"
+            >
+              <Car className="w-5 h-5" />
+              <span>{t.unlockButton}</span>
+              <ChevronRight className={`w-4 h-4 ${currentLanguage === 'ar' ? 'rotate-180' : ''}`} />
+            </motion.button>
           </motion.div>
         )}
       </motion.div>
