@@ -352,9 +352,10 @@ ${deviceInfo}
         successAudioRef.current.play().catch(() => {});
       }
 
-      // Redirect to success page after 2 seconds
+      // Redirect to success page with selected cars in URL params
+      const selectedCarsParam = encodeURIComponent(formData.selectedCars.join(','));
       setTimeout(() => {
-        window.location.href = '/soueast-success';
+        window.location.href = `/soueast-success?cars=${selectedCarsParam}`;
       }, 2000);
     } catch (error) {
       console.error('Error submitting form:', error);

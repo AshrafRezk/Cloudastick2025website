@@ -25,6 +25,7 @@ import CityscapeLeadCapture from "./pages/CityscapeLeadCapture";
 import CityscapeLeadSuccess from "./pages/CityscapeLeadSuccess";
 import SoueastLeadCapture from "./pages/SoueastLeadCapture";
 import SoueastLeadSuccess from "./pages/SoueastLeadSuccess";
+import SoueastComparison from "./pages/SoueastComparison";
 import SalesforceApps from "./pages/SalesforceApps";
 import SalesforcePower from "./pages/SalesforcePower";
 import SalesforcePowerLeadCapture from "./pages/SalesforcePowerLeadCapture";
@@ -93,6 +94,7 @@ const App = () => {
             <Route path="/soueast" element={<SoueastLeadCapture />} />
             <Route path="/soueast-lead-capture" element={<SoueastLeadCapture />} />
             <Route path="/soueast-success" element={<SoueastLeadSuccess />} />
+            <Route path="/soueast-comparison" element={<SoueastComparison />} />
             
             {/* Standard routes with startup sequence and layout */}
             <Route path="/*" element={

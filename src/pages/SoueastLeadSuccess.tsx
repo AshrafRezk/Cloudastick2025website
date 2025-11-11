@@ -1,12 +1,17 @@
 import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { CheckCircle2, Car, Phone, Mail } from 'lucide-react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { CheckCircle2, Car, Phone, Mail, ExternalLink, Table } from 'lucide-react';
 
 const SoueastLeadSuccess: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [videoReady, setVideoReady] = React.useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  
+  // Get selected cars from URL params
+  const selectedCarsParam = searchParams.get('cars');
+  const selectedCars = selectedCarsParam ? selectedCarsParam.split(',').filter(Boolean) : [];
 
   useEffect(() => {
     // Load YouTube iframe API
@@ -25,6 +30,17 @@ const SoueastLeadSuccess: React.FC = () => {
 
   const handleBack = () => {
     navigate('/soueast-lead-capture');
+  };
+
+  const handleVisitWebsite = () => {
+    window.open('https://soueastksa.com', '_blank');
+  };
+
+  const handleViewComparison = () => {
+    if (selectedCars.length > 0) {
+      const carsParam = encodeURIComponent(selectedCars.join(','));
+      navigate(`/soueast-comparison?cars=${carsParam}`);
+    }
   };
 
   return (
@@ -238,14 +254,40 @@ const SoueastLeadSuccess: React.FC = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 2.4 }}
-          className="flex flex-col sm:flex-row gap-4 w-full max-w-sm md:max-w-md lg:max-w-lg"
+          className="flex flex-col gap-4 w-full max-w-2xl"
         >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Visit Website Button */}
+            <motion.button
+              onClick={handleVisitWebsite}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-6 py-4 bg-gradient-to-r from-[#ee7138] to-[#d85a20] hover:from-[#d85a20] hover:to-[#ee7138] text-white text-lg font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2"
+            >
+              <ExternalLink className="w-5 h-5" />
+              Visit Soueast Website
+            </motion.button>
+
+            {/* View Comparison Button - Only show if cars were selected */}
+            {selectedCars.length >= 2 && (
+              <motion.button
+                onClick={handleViewComparison}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-6 py-4 bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white text-lg font-semibold rounded-2xl border-2 border-white/30 transition-all duration-300 flex items-center justify-center gap-2"
+              >
+                <Table className="w-5 h-5" />
+                View Comparison Table
+              </motion.button>
+            )}
+          </div>
+
           {/* Back Button */}
           <motion.button
             onClick={handleBack}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="flex-1 px-8 py-4 bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white text-lg font-semibold rounded-2xl border-2 border-white/30 transition-all duration-300 flex items-center justify-center gap-2"
+            className="w-full px-8 py-4 bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white text-lg font-semibold rounded-2xl border-2 border-white/30 transition-all duration-300 flex items-center justify-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
