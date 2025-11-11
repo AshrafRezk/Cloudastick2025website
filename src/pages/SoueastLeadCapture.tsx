@@ -347,12 +347,12 @@ ${deviceInfo}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5, delay: 0.5 }}
         onClick={handleLanguageSwitch}
-        className="fixed top-6 right-6 z-50 w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group"
-        whileHover={{ scale: 1.1 }}
+        className="fixed top-6 right-6 z-50 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group"
+        whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
       >
-        <span className="text-lg font-semibold text-[#ee7138]">
-          {currentLanguage === 'en' ? 'AR' : 'EN'}
+        <span className="text-sm font-semibold text-[#ee7138] whitespace-nowrap">
+          {currentLanguage === 'en' ? 'العربية' : 'English'}
         </span>
       </motion.button>
 
