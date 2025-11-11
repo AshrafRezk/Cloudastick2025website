@@ -283,12 +283,13 @@ User Agent: ${userAgent}`;
     try {
       // Create a hidden form for Salesforce submission
       const hiddenForm = document.createElement('form');
-      hiddenForm.action = 'https://webto.salesforce.com/servlet/servlet.WebToLead?encoding=UTF-8&orgId=00DQE000000FdFZ';
+      hiddenForm.action = 'https://webto.salesforce.com/servlet/servlet.WebToLead?encoding=UTF-8&orgId=00DQE000005J5XN';
       hiddenForm.method = 'POST';
       hiddenForm.target = 'salesforce-iframe';
       
       // Helper to add hidden fields
       const addField = (name: string, value: string) => {
+        if (!value) return; // Skip empty values
         const input = document.createElement('input');
         input.type = 'hidden';
         input.name = name;
@@ -296,29 +297,75 @@ User Agent: ${userAgent}`;
         hiddenForm.appendChild(input);
       };
 
-      // Add all form fields
-      addField('oid', '00DQE000000FdFZ');
+      // Helper to add checkbox field
+      const addCheckbox = (name: string, checked: boolean) => {
+        if (checked) {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = name;
+          input.value = '1';
+          hiddenForm.appendChild(input);
+        }
+      };
+
+      // Helper to convert color codes to color names
+      const getColorNameByCode = (colorCode: string): string => {
+        const colorMap: Record<string, string> = {
+          '#2d5016': 'Mountain Green',
+          '#FFFFFF': 'Snow White',
+          '#4a4a4a': 'Phantom Grey',
+          '#8b8b8b': 'Moon Grey',
+          '#1e3a5f': 'Ocean Blue',
+          '#000000': 'Starlit Black',
+        };
+        return colorMap[colorCode] || colorCode;
+      };
+
+      // Add all form fields per Salesforce web-to-lead form
+      addField('oid', '00DQE000005J5XN');
       addField('retURL', window.location.origin + '/soueast-success');
       addField('first_name', formData.first_name);
       addField('last_name', formData.last_name);
       addField('email', formData.email);
       addField('mobile', formData.mobile);
       addField('company', formData.company || '');
-      addField('00NQE000000wSwn', formData.budget || ''); // Budget custom field
-      addField('lead_source', formData.lead_source || 'Organic');
+      addField('lead_source', formData.lead_source || 'Website');
       
-      // Add selected cars and colors to description
-      const descriptionText = `
-Selected Cars: ${formData.selectedCars.join(', ')}
-Preferred Colors: ${formData.preferredColors.join(', ')}
-Budget: ${formData.budget ? formData.budget + ' SAR' : 'Not specified'}
-${formData.description ? '\nAdditional Comments: ' + formData.description : ''}
-
-Device Information:
-${deviceInfo}
-      `.trim();
+      // Models of Interest (multi-select field: 00NOm000004E6JN)
+      // For multi-select, Salesforce expects semicolon-separated values
+      if (formData.selectedCars.length > 0) {
+        formData.selectedCars.forEach(carModel => {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = '00NOm000004E6JN';
+          input.value = carModel;
+          hiddenForm.appendChild(input);
+        });
+      }
       
-      addField('description', descriptionText);
+      // Colors of Interest (multi-select field: 00NOm000004E6Pp)
+      // Convert color codes to color names and submit as multi-select
+      if (formData.preferredColors.length > 0) {
+        formData.preferredColors.forEach(colorCode => {
+          const colorName = getColorNameByCode(colorCode);
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = '00NOm000004E6Pp';
+          input.value = colorName;
+          hiddenForm.appendChild(input);
+        });
+      }
+      
+      // Comments field (00NQE00000GkBor2AF) - rich text field
+      const commentsText = formData.description 
+        ? `${formData.description}\n\nDevice Information:\n${deviceInfo}`
+        : `Device Information:\n${deviceInfo}`;
+      addField('00NQE00000GkBor2AF', commentsText);
+      
+      // Has Budget checkbox (00NQE000006PDWT) - check if budget is provided
+      if (formData.budget && parseInt(formData.budget) > 0) {
+        addCheckbox('00NQE000006PDWT', true);
+      }
 
       // Create hidden iframe for submission
       let iframe = document.getElementById('salesforce-iframe') as HTMLIFrameElement;
