@@ -170,15 +170,18 @@ const SoueastBudgetWidget: React.FC<SoueastBudgetWidgetProps> = ({
       </div>
 
       {/* Slider Container */}
-      <div className="relative mb-6">
+      <div className="relative mb-6" dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
         {/* Track */}
         <div className="relative h-3 bg-slate-200 rounded-full overflow-hidden">
-          {/* Filled track with gradient */}
+          {/* Filled track with gradient - RTL aware */}
           <motion.div
-            className="absolute top-0 left-0 h-full rounded-full"
+            className={`absolute top-0 h-full rounded-full ${
+              currentLanguage === 'ar' 
+                ? 'bg-gradient-to-l from-[#ee7138] to-[#d85a20] right-0' 
+                : 'bg-gradient-to-r from-[#ee7138] to-[#d85a20] left-0'
+            }`}
             style={{
               width: `${percentage}%`,
-              background: 'linear-gradient(90deg, #ee7138 0%, #d85a20 100%)',
             }}
             initial={{ width: 0 }}
             animate={{ width: `${percentage}%` }}
@@ -204,16 +207,16 @@ const SoueastBudgetWidget: React.FC<SoueastBudgetWidgetProps> = ({
         />
 
         {/* Labels */}
-        <div className="flex justify-between mt-2 text-xs text-slate-500">
+        <div className={`flex justify-between mt-2 text-xs text-slate-500 ${currentLanguage === 'ar' ? 'flex-row-reverse' : ''}`}>
           <span>{t.minLabel}</span>
           <span>{t.maxLabel}</span>
         </div>
 
         {/* Value Display */}
         <motion.div
-          className="absolute top-0 left-0 flex items-center justify-center"
+          className="absolute top-0 flex items-center justify-center"
           style={{
-            left: `calc(${percentage}% - 20px)`,
+            [currentLanguage === 'ar' ? 'right' : 'left']: `calc(${percentage}% - 20px)`,
             transform: 'translateY(-100%)',
             marginTop: '-8px',
           }}
