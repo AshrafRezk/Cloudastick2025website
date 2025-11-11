@@ -488,10 +488,12 @@ User Agent: ${userAgent}`;
         successAudioRef.current.play().catch(() => {});
       }
 
-      // Redirect to success page with selected cars in URL params
+      // Redirect to success page with selected cars and user info in URL params
       const selectedCarsParam = encodeURIComponent(formData.selectedCars.join(','));
+      const firstNameParam = encodeURIComponent(formData.first_name || '');
+      const titleParam = encodeURIComponent(formData.title || '');
       setTimeout(() => {
-        window.location.href = `/soueast-success?cars=${selectedCarsParam}`;
+        window.location.href = `/soueast-success?cars=${selectedCarsParam}&firstName=${firstNameParam}&title=${titleParam}`;
       }, 2000);
     } catch (error) {
       console.error('Error submitting form:', error);
@@ -755,37 +757,6 @@ User Agent: ${userAgent}`;
             </div>
 
             <form ref={formRef} onSubmit={handleSubmit} className="space-y-8">
-              {/* Personalized Quote */}
-              <AnimatePresence>
-                {showQuote && formData.first_name && personalizedQuote && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -20, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -20, scale: 0.95 }}
-                    transition={{ duration: 0.5 }}
-                    className="mb-6 p-6 bg-gradient-to-br from-[#ee7138]/10 to-[#d85a20]/10 rounded-2xl border-2 border-[#ee7138]/30 shadow-lg"
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className="flex-shrink-0">
-                        <div className="w-12 h-12 bg-gradient-to-br from-[#ee7138] to-[#d85a20] rounded-full flex items-center justify-center">
-                          <Car className="w-6 h-6 text-white" />
-                        </div>
-                      </div>
-                      <div className="flex-1">
-                        <p className={`text-sm font-semibold text-[#ee7138] mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
-                          {currentLanguage === 'en' 
-                            ? `Hi ${formData.first_name}! Here's something special for you:`
-                            : `مرحباً ${formData.first_name}! إليك شيئاً مميزاً لك:`}
-                        </p>
-                        <p className={`text-lg text-slate-800 italic leading-relaxed ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
-                          "{personalizedQuote}"
-                        </p>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
               {/* Budget Widget */}
               <SoueastBudgetWidget
                 value={formData.budget}
@@ -851,6 +822,72 @@ User Agent: ${userAgent}`;
 
               {/* Personal Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-8 border-t border-slate-200">
+                {/* Personalized Quote - Above First Name */}
+                <div className="md:col-span-2">
+                  <AnimatePresence>
+                    {showQuote && formData.first_name && personalizedQuote && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                        transition={{ duration: 0.5 }}
+                        className="mb-6 p-6 bg-gradient-to-br from-[#ee7138]/10 to-[#d85a20]/10 rounded-2xl border-2 border-[#ee7138]/30 shadow-lg"
+                      >
+                        <div className="flex items-start gap-4">
+                          <div className="flex-shrink-0">
+                            <div className="w-12 h-12 bg-gradient-to-br from-[#ee7138] to-[#d85a20] rounded-full flex items-center justify-center">
+                              <Car className="w-6 h-6 text-white" />
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            <p className={`text-sm font-semibold text-[#ee7138] mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                              {currentLanguage === 'en' 
+                                ? `Hi ${formData.first_name}! Here's something special for you:`
+                                : `مرحباً ${formData.first_name}! إليك شيئاً مميزاً لك:`}
+                            </p>
+                            <p className={`text-lg text-slate-800 italic leading-relaxed ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                              "{personalizedQuote}"
+                            </p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {/* Title (Name) - Before First Name */}
+                <div>
+                  <label htmlFor="title" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                    {content[currentLanguage].title}
+                  </label>
+                  <div className="relative">
+                    <select
+                      id="title"
+                      value={formData.title}
+                      onChange={(e) => {
+                        handleInputChange('title', e.target.value);
+                        triggerHaptic(10);
+                        if (selection1Ref.current) {
+                          selection1Ref.current.currentTime = 0;
+                          selection1Ref.current.play().catch(() => {});
+                        }
+                      }}
+                      className={`w-full px-4 py-3 pr-10 rounded-2xl border-2 ${formData.title ? 'border-[#ee7138] bg-[#ee7138]/5' : 'border-slate-200'} text-slate-900 bg-white focus:border-[#ee7138] focus:outline-none transition-all duration-200 appearance-none cursor-pointer ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}
+                      dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
+                    >
+                      <option value="">{content[currentLanguage].titlePlaceholder}</option>
+                      <option value="Mr.">Mr.</option>
+                      <option value="Ms.">Ms.</option>
+                      <option value="Mrs.">Mrs.</option>
+                    </select>
+                    <div className={`absolute top-1/2 -translate-y-1/2 ${currentLanguage === 'ar' ? 'left-4' : 'right-4'} pointer-events-none`}>
+                      <svg className="w-5 h-5 text-[#ee7138]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
                 {/* First Name */}
                 <div>
                   <label htmlFor="first_name" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
@@ -944,38 +981,6 @@ User Agent: ${userAgent}`;
                   )}
                 </div>
 
-                {/* Title (Name) */}
-                <div>
-                  <label htmlFor="title" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
-                    {content[currentLanguage].title}
-                  </label>
-                  <div className="relative">
-                    <select
-                      id="title"
-                      value={formData.title}
-                      onChange={(e) => {
-                        handleInputChange('title', e.target.value);
-                        triggerHaptic(10);
-                        if (selection1Ref.current) {
-                          selection1Ref.current.currentTime = 0;
-                          selection1Ref.current.play().catch(() => {});
-                        }
-                      }}
-                      className={`w-full px-4 py-3 pr-10 rounded-2xl border-2 ${formData.title ? 'border-[#ee7138] bg-[#ee7138]/5' : 'border-slate-200'} text-slate-900 bg-white focus:border-[#ee7138] focus:outline-none transition-all duration-200 appearance-none cursor-pointer ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}
-                      dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
-                    >
-                      <option value="">{content[currentLanguage].titlePlaceholder}</option>
-                      <option value="Mr.">Mr.</option>
-                      <option value="Ms.">Ms.</option>
-                      <option value="Mrs.">Mrs.</option>
-                    </select>
-                    <div className={`absolute top-1/2 -translate-y-1/2 ${currentLanguage === 'ar' ? 'left-4' : 'right-4'} pointer-events-none`}>
-                      <svg className="w-5 h-5 text-[#ee7138]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
 
                 {/* Branch - Button Group */}
                 <div className="md:col-span-2">

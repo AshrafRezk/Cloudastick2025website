@@ -1,7 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CheckCircle2, Car, Phone, Mail, ExternalLink, Table } from 'lucide-react';
+import { carModels, type CarModel } from '../utils/soueastData';
 
 const SoueastLeadSuccess: React.FC = () => {
   const navigate = useNavigate();
@@ -9,9 +10,84 @@ const SoueastLeadSuccess: React.FC = () => {
   const [videoReady, setVideoReady] = React.useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   
-  // Get selected cars from URL params
+  // Get selected cars and user info from URL params
   const selectedCarsParam = searchParams.get('cars');
   const selectedCars = selectedCarsParam ? selectedCarsParam.split(',').filter(Boolean) : [];
+  const firstName = searchParams.get('firstName') || '';
+  const title = searchParams.get('title') || '';
+  
+  // Get car details for selected models
+  const selectedCarDetails = useMemo(() => {
+    return selectedCars
+      .map(model => carModels.find(car => car.model === model))
+      .filter((car): car is CarModel => car !== undefined);
+  }, [selectedCars]);
+  
+  // Detect language (simple detection based on name or default to English)
+  const currentLanguage = React.useMemo(() => {
+    // You could add language detection logic here, for now defaulting to English
+    return 'en';
+  }, []);
+  
+  // Generate personalized message about car choices
+  const personalizedMessage = useMemo(() => {
+    if (selectedCarDetails.length === 0) return '';
+    
+    const name = title && firstName ? `${title} ${firstName}` : firstName || (currentLanguage === 'ar' ? 'عميلنا العزيز' : 'Valued Customer');
+    const carNames = selectedCarDetails.map(c => c.model).join(' and ');
+    
+    const reasons: string[] = [];
+    const reasonsAr: string[] = [];
+    
+    // Check for specific features
+    const hasHybrid = selectedCarDetails.some(c => c.model.includes('PHEV') || c.model.includes('DM'));
+    const hasPremium = selectedCarDetails.some(c => c.model.includes('PREMIUM') || c.model.includes('LUX'));
+    const hasS09 = selectedCarDetails.some(c => c.category === 'S09');
+    const hasS07 = selectedCarDetails.some(c => c.category === 'S07');
+    const hasS06 = selectedCarDetails.some(c => c.category === 'S06');
+    
+    if (hasHybrid) {
+      reasons.push('eco-friendly hybrid technology that saves fuel and reduces emissions');
+      reasonsAr.push('تقنية هجينة صديقة للبيئة توفر الوقود وتقلل الانبعاثات');
+    }
+    if (hasPremium) {
+      reasons.push('premium features like panoramic sunroofs, advanced safety systems, and luxury interiors');
+      reasonsAr.push('ميزات مميزة مثل السقف البانورامي وأنظمة السلامة المتقدمة والديكورات الفاخرة');
+    }
+    if (hasS09) {
+      reasons.push('spacious S09 models perfect for families with exceptional comfort and performance');
+      reasonsAr.push('موديلات S09 الواسعة المثالية للعائلات مع راحة وأداء استثنائي');
+    }
+    if (hasS07) {
+      reasons.push('versatile S07 models offering the perfect balance of style and functionality');
+      reasonsAr.push('موديلات S07 المتعددة الاستخدامات التي توفر التوازن المثالي بين الأناقة والوظائف');
+    }
+    if (hasS06) {
+      reasons.push('compact yet powerful S06 models ideal for city driving and efficiency');
+      reasonsAr.push('موديلات S06 المدمجة والقوية المثالية للقيادة في المدينة والكفاءة');
+    }
+    
+    // Add general reasons
+    if (reasons.length < 3) {
+      reasons.push('advanced turbocharged engines delivering impressive power and efficiency');
+      reasons.push('modern technology and safety features for peace of mind');
+      reasons.push('excellent value with competitive pricing in the Saudi market');
+      reasonsAr.push('محركات توربينية متقدمة توفر قوة وكفاءة مذهلة');
+      reasonsAr.push('تقنيات حديثة وميزات السلامة لراحة البال');
+      reasonsAr.push('قيمة ممتازة مع أسعار تنافسية في السوق السعودي');
+    }
+    
+    const selectedReasons = reasons.slice(0, 5);
+    const selectedReasonsAr = reasonsAr.slice(0, 5);
+    const reasonsText = selectedReasons.map((r, i) => `${i + 1}. ${r}`).join('\n');
+    const reasonsTextAr = selectedReasonsAr.map((r, i) => `${i + 1}. ${r}`).join('\n');
+    
+    if (currentLanguage === 'ar') {
+      return `${name}، لقد قمت باختيارات ممتازة مع ${carNames}! إليك لماذا هذه الموديلات من Soueast مثالية لك:\n\n${reasonsTextAr}\n\nاختيارك يُظهر ذوقاً رفيعاً في الجمع بين الأداء والتكنولوجيا والقيمة. نحن متحمسون لمساعدتك في تجربة هذه المركبات المذهلة!`;
+    }
+    
+    return `${name}, you've made excellent choices with the ${carNames}! Here's why these Soueast models are perfect for you:\n\n${reasonsText}\n\nYour selection shows great taste in combining performance, technology, and value. We're excited to help you experience these amazing vehicles!`;
+  }, [selectedCarDetails, firstName, title, currentLanguage]);
 
   useEffect(() => {
     // Load YouTube iframe API
@@ -180,10 +256,36 @@ const SoueastLeadSuccess: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1.0 }}
-            className="text-base md:text-lg lg:text-xl text-white/80 max-w-2xl mx-auto"
+            className="text-base md:text-lg lg:text-xl text-white/80 max-w-2xl mx-auto mb-6"
           >
             Our sales team will reach out to you shortly with personalized offers and more information about your selected vehicles.
           </motion.p>
+
+          {/* Personalized Car Choice Message */}
+          {personalizedMessage && selectedCarDetails.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 1.2 }}
+              className="max-w-3xl mx-auto mt-8 p-6 md:p-8 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 shadow-xl"
+            >
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0">
+                  <div className="w-12 h-12 bg-gradient-to-br from-[#ee7138] to-[#d85a20] rounded-full flex items-center justify-center">
+                    <Car className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl md:text-2xl font-bold text-white mb-4">
+                    {currentLanguage === 'ar' ? 'لماذا اختياراتك مثالية' : 'Why Your Choices Are Perfect'}
+                  </h3>
+                  <div className="text-white/90 text-base md:text-lg leading-relaxed whitespace-pre-line">
+                    {personalizedMessage}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
         </motion.div>
 
         {/* Info Card */}
