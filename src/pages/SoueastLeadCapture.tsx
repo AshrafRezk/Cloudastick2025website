@@ -17,6 +17,11 @@ interface FormData {
   preferredColors: string[];
   description: string;
   lead_source: string;
+  branch: string;
+  preferredContactMethod: string;
+  subChannel: string;
+  title: string;
+  enquiryType: string;
 }
 
 const SoueastLeadCapture: React.FC = () => {
@@ -31,6 +36,11 @@ const SoueastLeadCapture: React.FC = () => {
     preferredColors: [],
     description: '',
     lead_source: '',
+    branch: '',
+    preferredContactMethod: '',
+    subChannel: '',
+    title: '',
+    enquiryType: '',
   });
   const [deviceInfo, setDeviceInfo] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -71,6 +81,16 @@ const SoueastLeadCapture: React.FC = () => {
       required: 'Required',
       invalidEmail: 'Invalid email format',
       selectAtLeastOneCar: 'Please select at least one car',
+      branch: 'Branch',
+      branchPlaceholder: 'Select a branch',
+      preferredContactMethod: 'Preferred Contact Method',
+      preferredContactMethodPlaceholder: 'Select preferred method',
+      subChannel: 'Sub Channel',
+      subChannelPlaceholder: 'Select sub channel',
+      title: 'Title',
+      titlePlaceholder: 'e.g., Mr., Mrs., Dr.',
+      enquiryType: 'Enquiry Type',
+      enquiryTypePlaceholder: 'Select enquiry type',
     },
     ar: {
       title: 'ابحث عن سيارتك المثالية من Soueast',
@@ -92,6 +112,16 @@ const SoueastLeadCapture: React.FC = () => {
       required: 'مطلوب',
       invalidEmail: 'صيغة البريد الإلكتروني غير صحيحة',
       selectAtLeastOneCar: 'يرجى اختيار سيارة واحدة على الأقل',
+      branch: 'الفرع',
+      branchPlaceholder: 'اختر الفرع',
+      preferredContactMethod: 'طريقة التواصل المفضلة',
+      preferredContactMethodPlaceholder: 'اختر طريقة التواصل',
+      subChannel: 'القناة الفرعية',
+      subChannelPlaceholder: 'اختر القناة الفرعية',
+      title: 'المسمى الوظيفي',
+      titlePlaceholder: 'مثال: السيد، السيدة، الدكتور',
+      enquiryType: 'نوع الاستفسار',
+      enquiryTypePlaceholder: 'اختر نوع الاستفسار',
     },
   };
 
@@ -386,6 +416,31 @@ User Agent: ${userAgent}`;
       // Has Budget checkbox (00NQE000006PDWT) - check if budget is provided
       if (formData.budget && parseInt(formData.budget) > 0) {
         addCheckbox('00NQE000006PDWT', true);
+      }
+
+      // Branch (00NQE00000CUPYN)
+      if (formData.branch) {
+        addField('00NQE00000CUPYN', formData.branch);
+      }
+
+      // Preferred Contact Method (00NQE00000GG0PR)
+      if (formData.preferredContactMethod) {
+        addField('00NQE00000GG0PR', formData.preferredContactMethod);
+      }
+
+      // Sub Channel (00NQE00000CUdpp)
+      if (formData.subChannel) {
+        addField('00NQE00000CUdpp', formData.subChannel);
+      }
+
+      // Title
+      if (formData.title) {
+        addField('title', formData.title);
+      }
+
+      // Enquiry Type (00NQE00000Gk6kL)
+      if (formData.enquiryType) {
+        addField('00NQE00000Gk6kL', formData.enquiryType);
       }
 
       // Create hidden iframe for submission
@@ -879,6 +934,148 @@ User Agent: ${userAgent}`;
                     className={`w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 placeholder-slate-400 bg-white focus:border-[#ee7138] focus:outline-none transition-colors duration-200 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}
                     dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
                   />
+                </div>
+
+                {/* Title */}
+                <div>
+                  <label htmlFor="title" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                    {content[currentLanguage].title}
+                  </label>
+                  <input
+                    type="text"
+                    id="title"
+                    value={formData.title}
+                    onChange={(e) => {
+                      handleInputChange('title', e.target.value);
+                      triggerHaptic(10);
+                    }}
+                    placeholder={content[currentLanguage].titlePlaceholder}
+                    className={`w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 placeholder-slate-400 bg-white focus:border-[#ee7138] focus:outline-none transition-colors duration-200 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}
+                    dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
+                  />
+                </div>
+
+                {/* Branch */}
+                <div>
+                  <label htmlFor="branch" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                    {content[currentLanguage].branch}
+                  </label>
+                  <select
+                    id="branch"
+                    value={formData.branch}
+                    onChange={(e) => {
+                      handleInputChange('branch', e.target.value);
+                      triggerHaptic(10);
+                      if (selection1Ref.current) {
+                        selection1Ref.current.currentTime = 0;
+                        selection1Ref.current.play().catch(() => {});
+                      }
+                    }}
+                    className={`w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 bg-white focus:border-[#ee7138] focus:outline-none transition-colors duration-200 appearance-none cursor-pointer ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}
+                    dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
+                  >
+                    <option value="">{content[currentLanguage].branchPlaceholder}</option>
+                    <option value="Riyadh">Riyadh</option>
+                    <option value="Jeddah">Jeddah</option>
+                    <option value="Dammam">Dammam</option>
+                  </select>
+                </div>
+
+                {/* Preferred Contact Method */}
+                <div>
+                  <label htmlFor="preferredContactMethod" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                    {content[currentLanguage].preferredContactMethod}
+                  </label>
+                  <select
+                    id="preferredContactMethod"
+                    value={formData.preferredContactMethod}
+                    onChange={(e) => {
+                      handleInputChange('preferredContactMethod', e.target.value);
+                      triggerHaptic(10);
+                      if (selection1Ref.current) {
+                        selection1Ref.current.currentTime = 0;
+                        selection1Ref.current.play().catch(() => {});
+                      }
+                    }}
+                    className={`w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 bg-white focus:border-[#ee7138] focus:outline-none transition-colors duration-200 appearance-none cursor-pointer ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}
+                    dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
+                  >
+                    <option value="">{content[currentLanguage].preferredContactMethodPlaceholder}</option>
+                    <option value="Email">Email</option>
+                    <option value="Phone">Phone</option>
+                    <option value="SMS">SMS</option>
+                    <option value="Post">Post</option>
+                    <option value="WhatsApp">WhatsApp</option>
+                  </select>
+                </div>
+
+                {/* Sub Channel */}
+                <div>
+                  <label htmlFor="subChannel" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                    {content[currentLanguage].subChannel}
+                  </label>
+                  <select
+                    id="subChannel"
+                    value={formData.subChannel}
+                    onChange={(e) => {
+                      handleInputChange('subChannel', e.target.value);
+                      triggerHaptic(10);
+                      if (selection1Ref.current) {
+                        selection1Ref.current.currentTime = 0;
+                        selection1Ref.current.play().catch(() => {});
+                      }
+                    }}
+                    className={`w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 bg-white focus:border-[#ee7138] focus:outline-none transition-colors duration-200 appearance-none cursor-pointer ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}
+                    dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
+                  >
+                    <option value="">{content[currentLanguage].subChannelPlaceholder}</option>
+                    <option value="Phone Call">Phone Call</option>
+                    <option value="WhatsApp">WhatsApp</option>
+                    <option value="Inbound">Inbound</option>
+                    <option value="SMS">SMS</option>
+                    <option value="Email">Email</option>
+                    <option value="Google Search">Google Search</option>
+                    <option value="Google Display">Google Display</option>
+                    <option value="Instagram">Instagram</option>
+                    <option value="Facebook">Facebook</option>
+                    <option value="TikTok">TikTok</option>
+                    <option value="Snapchat">Snapchat</option>
+                    <option value="X">X</option>
+                    <option value="SE Website">SE Website</option>
+                    <option value="Auto Show">Auto Show</option>
+                    <option value="Mall Exhibition">Mall Exhibition</option>
+                    <option value="Launch Event">Launch Event</option>
+                    <option value="Telesales">Telesales</option>
+                    <option value="Radio">Radio</option>
+                    <option value="OOH">OOH</option>
+                    <option value="Outdoor">Outdoor</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                {/* Enquiry Type */}
+                <div>
+                  <label htmlFor="enquiryType" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                    {content[currentLanguage].enquiryType}
+                  </label>
+                  <select
+                    id="enquiryType"
+                    value={formData.enquiryType}
+                    onChange={(e) => {
+                      handleInputChange('enquiryType', e.target.value);
+                      triggerHaptic(10);
+                      if (selection1Ref.current) {
+                        selection1Ref.current.currentTime = 0;
+                        selection1Ref.current.play().catch(() => {});
+                      }
+                    }}
+                    className={`w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 bg-white focus:border-[#ee7138] focus:outline-none transition-colors duration-200 appearance-none cursor-pointer ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}
+                    dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
+                  >
+                    <option value="">{content[currentLanguage].enquiryTypePlaceholder}</option>
+                    <option value="Cash">Cash</option>
+                    <option value="Lease to Own">Lease to Own</option>
+                  </select>
                 </div>
 
                 {/* Description */}
