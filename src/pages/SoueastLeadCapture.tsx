@@ -71,7 +71,7 @@ const SoueastLeadCapture: React.FC = () => {
       selectAtLeastOneCar: 'Please select at least one car',
     },
     ar: {
-      title: 'ابحث عن سيارتك المثالية من ساوث إيست',
+      title: 'ابحث عن سيارتك المثالية من Soueast',
       motto: 'سهّل حياتك',
       subtitle: 'استكشف مجموعة سياراتنا المميزة وابحث عن السيارة التي تناسب أسلوبك وميزانيتك',
       formTitle: 'احصل على عرضك الشخصي',
