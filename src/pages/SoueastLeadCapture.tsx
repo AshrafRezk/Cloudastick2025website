@@ -83,7 +83,7 @@ const SoueastLeadCapture: React.FC = () => {
       preferredContactMethodPlaceholder: 'Select preferred method',
       subChannel: 'Sub Channel',
       subChannelPlaceholder: 'Select sub channel',
-      title: 'Name',
+      titleLabel: 'Title',
       titlePlaceholder: 'Select title',
       enquiryType: 'Enquiry Type',
       enquiryTypePlaceholder: 'Select enquiry type',
@@ -112,7 +112,7 @@ const SoueastLeadCapture: React.FC = () => {
       preferredContactMethodPlaceholder: 'اختر طريقة التواصل',
       subChannel: 'القناة الفرعية',
       subChannelPlaceholder: 'اختر القناة الفرعية',
-      title: 'الاسم',
+      titleLabel: 'المسمى الوظيفي',
       titlePlaceholder: 'اختر المسمى',
       enquiryType: 'نوع الاستفسار',
       enquiryTypePlaceholder: 'اختر نوع الاستفسار',
@@ -855,10 +855,10 @@ User Agent: ${userAgent}`;
                   </AnimatePresence>
                 </div>
 
-                {/* Title (Name) - Before First Name */}
+                {/* Title - Before First Name */}
                 <div>
                   <label htmlFor="title" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
-                    {content[currentLanguage].title}
+                    {content[currentLanguage].titleLabel}
                   </label>
                   <div className="relative">
                     <select
