@@ -71,7 +71,7 @@ const SoueastLeadSuccess: React.FC = () => {
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-8 md:mb-12 lg:mb-16"
+          className="text-center mb-8 md:mb-12 lg:mb-16 w-full"
         >
           {/* Soueast Logo */}
           <motion.div
@@ -80,7 +80,7 @@ const SoueastLeadSuccess: React.FC = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="mb-8"
           >
-            <div className="w-32 h-32 md:w-40 md:h-40 mx-auto relative">
+            <div className="w-40 h-40 md:w-48 md:h-48 lg:w-56 lg:h-56 mx-auto relative">
               <motion.div
                 animate={{
                   scale: [1, 1.05, 1],
@@ -95,15 +95,42 @@ const SoueastLeadSuccess: React.FC = () => {
               />
               <div className="w-full h-full bg-white rounded-3xl shadow-2xl flex items-center justify-center p-4 md:p-6 relative z-10">
                 <img
-                  src="/Assets/Customers/Soueast/SoueastLogoTransparent(White).png"
+                  src="/Assets/Customers/Soueast/SoueastLogoTransparent(Black).png"
                   alt="Soueast"
                   className="w-full h-full object-contain"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/Assets/Customers/Soueast/SoueastLogoTransparent(Black).png';
+                    // Fallback to white logo if black doesn't load
+                    (e.target as HTMLImageElement).src = '/Assets/Customers/Soueast/SoueastLogoTransparent(White).png';
                   }}
                 />
               </div>
             </div>
+          </motion.div>
+
+          {/* YouTube Video */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="relative w-full max-w-4xl mx-auto mb-8 md:mb-12 aspect-video rounded-2xl overflow-hidden shadow-2xl border border-white/20"
+          >
+            {videoReady && (
+              <iframe
+                ref={iframeRef}
+                className="absolute inset-0 w-full h-full"
+                src="https://www.youtube.com/embed/bWLgMcO5opg?autoplay=1&mute=0&controls=1&loop=1&playlist=bWLgMcO5opg"
+                title="YouTube video player"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerPolicy="strict-origin-when-cross-origin"
+                allowFullScreen
+              ></iframe>
+            )}
+            {!videoReady && (
+              <div className="absolute inset-0 bg-slate-800/50 flex items-center justify-center">
+                <div className="text-white/70 text-lg">Loading video...</div>
+              </div>
+            )}
           </motion.div>
 
           {/* Motto */}
