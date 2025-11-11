@@ -38,6 +38,8 @@ const SoueastLeadCapture: React.FC = () => {
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [currentLanguage, setCurrentLanguage] = useState<'en' | 'ar'>('en');
+  const [personalizedQuote, setPersonalizedQuote] = useState('');
+  const [showQuote, setShowQuote] = useState(false);
   const [videoFailedBackground, setVideoFailedBackground] = useState(false);
   const [backgroundVideoLoaded, setBackgroundVideoLoaded] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
@@ -370,11 +372,54 @@ ${deviceInfo}
     triggerHaptic(1);
   };
 
+  // Inspirational quotes about Soueast and automotive
+  const quotes = {
+    en: [
+      "{name}, your perfect Soueast is waiting to ease your life.",
+      "{name}, discover the freedom of driving with Soueast's premium vehicles.",
+      "{name}, experience innovation and style with Soueast's cutting-edge technology.",
+      "{name}, find your ideal companion on the road with Soueast.",
+      "{name}, elevate your driving experience with Soueast's exceptional quality.",
+      "{name}, join thousands of satisfied drivers who chose Soueast.",
+      "{name}, make every journey memorable with a Soueast vehicle.",
+      "{name}, unlock premium features and performance with Soueast.",
+      "{name}, drive with confidence knowing you chose Soueast excellence.",
+      "{name}, your next adventure starts with Soueast.",
+    ],
+    ar: [
+      "{name}، سيارتك المثالية من Soueast في انتظارك لتسهيل حياتك.",
+      "{name}، اكتشف حرية القيادة مع سيارات Soueast المميزة.",
+      "{name}، جرب الابتكار والأناقة مع تقنية Soueast المتطورة.",
+      "{name}، ابحث عن رفيقك المثالي على الطريق مع Soueast.",
+      "{name}، ارتق بتجربة القيادة مع جودة Soueast الاستثنائية.",
+      "{name}، انضم إلى آلاف السائقين الراضين الذين اختاروا Soueast.",
+      "{name}، اجعل كل رحلة لا تُنسى مع سيارة Soueast.",
+      "{name}، افتح الميزات المميزة والأداء مع Soueast.",
+      "{name}، قُد بثقة مع العلم أنك اخترت تميز Soueast.",
+      "{name}، مغامرتك القادمة تبدأ مع Soueast.",
+    ]
+  };
+
   const handleInputChange = (field: keyof FormData, value: string | string[]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     // Clear error for this field
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));
+    }
+    
+    // Show personalized quote when typing last name after first name is complete
+    if (field === 'last_name' && typeof value === 'string' && formData.first_name.length >= 3 && !showQuote && value.length > 0) {
+      const currentQuotes = quotes[currentLanguage];
+      const randomQuote = currentQuotes[Math.floor(Math.random() * currentQuotes.length)];
+      const personalized = randomQuote.replace('{name}', formData.first_name);
+      setPersonalizedQuote(personalized);
+      setShowQuote(true);
+      triggerHaptic(1);
+    }
+    
+    // Hide quote if first name is cleared
+    if (field === 'first_name' && typeof value === 'string' && value.length < 3) {
+      setShowQuote(false);
     }
   };
 
