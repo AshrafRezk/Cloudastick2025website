@@ -321,6 +321,22 @@ User Agent: ${userAgent}`;
         return colorMap[colorCode] || colorCode;
       };
 
+      // Map lead source to Salesforce values
+      const mapLeadSource = (source: string): string => {
+        const sourceLower = source.toLowerCase();
+        // Map common URL param values to Salesforce lead_source options
+        if (sourceLower.includes('event') || sourceLower.includes('gitex') || sourceLower.includes('exhibition')) return 'Events';
+        if (sourceLower.includes('social') || sourceLower.includes('instagram') || sourceLower.includes('facebook') || sourceLower.includes('tiktok') || sourceLower.includes('snapchat') || sourceLower.includes('twitter') || sourceLower.includes('x')) return 'Social media';
+        if (sourceLower.includes('ad') || sourceLower.includes('google') || sourceLower.includes('display')) return 'Ads';
+        if (sourceLower.includes('walk') || sourceLower.includes('visit')) return 'Walk-in';
+        if (sourceLower.includes('friend') || sourceLower.includes('referral')) return 'Friends';
+        if (sourceLower.includes('website') || sourceLower.includes('organic') || sourceLower.includes('direct')) return 'Website';
+        if (sourceLower.includes('influencer')) return 'Influencers';
+        if (sourceLower.includes('call') || sourceLower.includes('phone')) return 'Call Center';
+        // Default to Website if no match
+        return 'Website';
+      };
+
       // Add all form fields per Salesforce web-to-lead form
       addField('oid', '00DQE000005J5XN');
       addField('retURL', window.location.origin + '/soueast-success');
@@ -329,7 +345,7 @@ User Agent: ${userAgent}`;
       addField('email', formData.email);
       addField('mobile', formData.mobile);
       addField('company', formData.company || '');
-      addField('lead_source', formData.lead_source || 'Website');
+      addField('lead_source', mapLeadSource(formData.lead_source || 'Website'));
       
       // Models of Interest (multi-select field: 00NOm000004E6JN)
       // For multi-select, Salesforce expects semicolon-separated values
@@ -357,9 +373,14 @@ User Agent: ${userAgent}`;
       }
       
       // Comments field (00NQE00000GkBor2AF) - rich text field
-      const commentsText = formData.description 
-        ? `${formData.description}\n\nDevice Information:\n${deviceInfo}`
-        : `Device Information:\n${deviceInfo}`;
+      let commentsText = '';
+      if (formData.budget && parseInt(formData.budget) > 0) {
+        commentsText += `Budget: ${parseInt(formData.budget).toLocaleString('en-US')} SAR\n`;
+      }
+      if (formData.description) {
+        commentsText += `${formData.description}\n\n`;
+      }
+      commentsText += `Device Information:\n${deviceInfo}`;
       addField('00NQE00000GkBor2AF', commentsText);
       
       // Has Budget checkbox (00NQE000006PDWT) - check if budget is provided
