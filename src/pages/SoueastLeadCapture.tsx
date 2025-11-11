@@ -38,11 +38,14 @@ const SoueastLeadCapture: React.FC = () => {
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [currentLanguage, setCurrentLanguage] = useState<'en' | 'ar'>('en');
+  const [videoFailedBackground, setVideoFailedBackground] = useState(false);
+  const [backgroundVideoLoaded, setBackgroundVideoLoaded] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const successAudioRef = useRef<HTMLAudioElement>(null);
   const woosh1Ref = useRef<HTMLAudioElement>(null);
   const woosh2Ref = useRef<HTMLAudioElement>(null);
   const selection1Ref = useRef<HTMLAudioElement>(null);
+  const videoRefBackground = useRef<HTMLVideoElement>(null);
 
   // Language content
   const content = {
@@ -125,6 +128,67 @@ const SoueastLeadCapture: React.FC = () => {
     const timer = setTimeout(setAudioVolume, 100);
     
     return () => clearTimeout(timer);
+  }, []);
+
+  // Enhanced background video loading strategy
+  useEffect(() => {
+    const loadAndPlayVideo = async () => {
+      if (!videoRefBackground.current) return;
+      
+      const video = videoRefBackground.current;
+      
+      // Set optimal video properties for autoplay
+      video.muted = true;
+      video.volume = 0;
+      video.playsInline = true;
+      video.preload = 'auto';
+      video.currentTime = 0;
+      
+      // Add event listeners
+      const handleCanPlay = () => {
+        video.play().catch(error => {
+          console.log('Video play failed, retrying...', error);
+          setTimeout(() => {
+            if (video && !video.paused) return;
+            video.play().catch(console.error);
+          }, 500);
+        });
+      };
+      
+      const handleLoadedData = () => {
+        setVideoFailedBackground(false);
+        setBackgroundVideoLoaded(true);
+      };
+      
+      const handleError = () => {
+        console.log('Background video error');
+        setVideoFailedBackground(true);
+      };
+      
+      video.addEventListener('canplay', handleCanPlay, { once: true });
+      video.addEventListener('loadeddata', handleLoadedData, { once: true });
+      video.addEventListener('error', handleError);
+      
+      video.load();
+      
+      return () => {
+        video.removeEventListener('canplay', handleCanPlay);
+        video.removeEventListener('loadeddata', handleLoadedData);
+        video.removeEventListener('error', handleError);
+      };
+    };
+
+    const loadVideo = () => {
+      loadAndPlayVideo().catch(console.error);
+    };
+
+    loadVideo();
+    
+    const timers = [100, 500, 1000, 2000].map(delay => 
+      setTimeout(loadVideo, delay)
+    );
+    
+    return () => timers.forEach(clearTimeout);
   }, []);
 
   // Capture device info and query params on mount
@@ -357,25 +421,55 @@ ${deviceInfo}
       </motion.button>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center px-4 py-20 overflow-hidden">
-        {/* Background Animation */}
-        <div className="absolute inset-0 opacity-30">
-          <motion.div
-            animate={{
-              backgroundPosition: ['0% 0%', '100% 100%'],
-            }}
-            transition={{
-              duration: 20,
-              repeat: Infinity,
-              repeatType: 'reverse',
-            }}
-            className="w-full h-full"
-            style={{
-              backgroundImage: 'radial-gradient(circle, rgba(238, 113, 56, 0.1) 1px, transparent 1px)',
-              backgroundSize: '40px 40px',
-            }}
-          />
-        </div>
+      <section className="relative min-h-screen flex items-center justify-center px-4 py-20 overflow-hidden bg-gradient-to-br from-slate-50 via-slate-100 to-slate-50">
+        {/* Background Video */}
+        {!videoFailedBackground && (
+          <div className="absolute inset-0 overflow-hidden">
+            <video
+              ref={videoRefBackground}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              className="absolute inset-0 w-full h-full object-cover opacity-40"
+              style={{ 
+                minWidth: '100%', 
+                minHeight: '100%',
+                width: 'auto',
+                height: 'auto'
+              }}
+              onError={() => setVideoFailedBackground(true)}
+            >
+              <source src="/Assets/Customers/Soueast/SOUEAST — Distinct by design..mp4" type="video/mp4" />
+              <source src="./Assets/Customers/Soueast/SOUEAST — Distinct by design..mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+            {/* Overlay for better text visibility */}
+            <div className="absolute inset-0 bg-gradient-to-b from-white/60 via-white/40 to-white/60" />
+          </div>
+        )}
+        
+        {/* Fallback background pattern */}
+        {videoFailedBackground && (
+          <div className="absolute inset-0 opacity-30">
+            <motion.div
+              animate={{
+                backgroundPosition: ['0% 0%', '100% 100%'],
+              }}
+              transition={{
+                duration: 20,
+                repeat: Infinity,
+                repeatType: 'reverse',
+              }}
+              className="w-full h-full"
+              style={{
+                backgroundImage: 'radial-gradient(circle, rgba(238, 113, 56, 0.1) 1px, transparent 1px)',
+                backgroundSize: '40px 40px',
+              }}
+            />
+          </div>
+        )}
 
         {/* Content */}
         <div className="relative z-10 max-w-4xl mx-auto text-center">
