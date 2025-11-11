@@ -73,11 +73,23 @@ const SoueastLeadSuccess: React.FC = () => {
             </div>
           </motion.div>
 
+          {/* Motto */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="mb-4"
+          >
+            <span className="inline-block px-6 py-2 bg-gradient-to-r from-[#ee7138] to-[#d85a20] text-white text-lg md:text-xl font-semibold rounded-full shadow-lg">
+              Ease Your Life
+            </span>
+          </motion.div>
+
           {/* Success Icon */}
           <motion.div
             initial={{ opacity: 0, scale: 0 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.4, type: 'spring', stiffness: 200 }}
+            transition={{ duration: 0.8, delay: 0.5, type: 'spring', stiffness: 200 }}
             className="mb-6"
           >
             <div className="w-24 h-24 md:w-32 md:h-32 mx-auto bg-gradient-to-br from-[#ee7138] to-[#d85a20] rounded-full flex items-center justify-center shadow-2xl">

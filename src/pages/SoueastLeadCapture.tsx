@@ -48,6 +48,7 @@ const SoueastLeadCapture: React.FC = () => {
   const content = {
     en: {
       title: 'Find Your Perfect Soueast',
+      motto: 'Ease Your Life',
       subtitle: 'Explore our premium vehicle lineup and find the car that matches your style and budget',
       formTitle: 'Get Your Personalized Quote',
       formSubtitle: 'Fill in your details and we\'ll get back to you with the best offers',
@@ -68,6 +69,7 @@ const SoueastLeadCapture: React.FC = () => {
     },
     ar: {
       title: 'ابحث عن سيارتك المثالية من ساوث إيست',
+      motto: 'سهّل حياتك',
       subtitle: 'استكشف مجموعة سياراتنا المميزة وابحث عن السيارة التي تناسب أسلوبك وميزانيتك',
       formTitle: 'احصل على عرضك الشخصي',
       formSubtitle: 'املأ بياناتك وسنتواصل معك بأفضل العروض',
@@ -410,11 +412,23 @@ ${deviceInfo}
             </div>
           </motion.div>
 
+          {/* Motto */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="mb-4"
+          >
+            <span className="inline-block px-6 py-2 bg-gradient-to-r from-[#ee7138] to-[#d85a20] text-white text-lg md:text-xl font-semibold rounded-full shadow-lg">
+              {content[currentLanguage].motto}
+            </span>
+          </motion.div>
+
           {/* Heading */}
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
             className={`text-4xl md:text-6xl font-bold text-slate-900 mb-6 ${currentLanguage === 'ar' ? 'text-right' : 'text-center'}`}
             dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
           >
@@ -425,7 +439,7 @@ ${deviceInfo}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
             className={`text-xl md:text-2xl text-slate-600 mb-12 max-w-3xl mx-auto ${currentLanguage === 'ar' ? 'text-right' : 'text-center'}`}
             dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
           >
