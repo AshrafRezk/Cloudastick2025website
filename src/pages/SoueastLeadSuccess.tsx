@@ -1,10 +1,27 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, Car, Phone, Mail } from 'lucide-react';
 
 const SoueastLeadSuccess: React.FC = () => {
   const navigate = useNavigate();
+  const [videoReady, setVideoReady] = React.useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  useEffect(() => {
+    // Load YouTube iframe API
+    const tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    const firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+
+    // Set video ready after a short delay to ensure iframe is loaded
+    const timer = setTimeout(() => {
+      setVideoReady(true);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleBack = () => {
     navigate('/soueast-lead-capture');
@@ -220,7 +237,7 @@ const SoueastLeadSuccess: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 2.2 }}
+          transition={{ duration: 0.8, delay: 2.4 }}
           className="flex flex-col sm:flex-row gap-4 w-full max-w-sm md:max-w-md lg:max-w-lg"
         >
           {/* Back Button */}
@@ -241,7 +258,7 @@ const SoueastLeadSuccess: React.FC = () => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 2.4 }}
+          transition={{ duration: 0.8, delay: 2.6 }}
           className="mt-12 text-center"
         >
           <p className="text-sm md:text-base text-white/70">
