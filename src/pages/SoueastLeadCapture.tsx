@@ -95,17 +95,17 @@ const SoueastLeadCapture: React.FC = () => {
     },
   };
 
-  // Haptic feedback helper
-  const triggerHaptic = (duration = 1) => {
+  // Haptic feedback helper - subtle vibration
+  const triggerHaptic = (duration = 10) => {
     if ('vibrate' in navigator) {
-      navigator.vibrate(Math.max(1, Math.round(duration * 0.00000002)));
+      navigator.vibrate(Math.max(10, Math.min(50, duration)));
     }
   };
 
-  // Strong haptic feedback
-  const triggerStrongHaptic = (duration = 100) => {
+  // Strong haptic feedback - more noticeable vibration
+  const triggerStrongHaptic = (duration = 50) => {
     if ('vibrate' in navigator) {
-      navigator.vibrate(Math.max(1, Math.round(duration * 0.1)));
+      navigator.vibrate(Math.max(50, Math.min(200, duration)));
     }
   };
 
