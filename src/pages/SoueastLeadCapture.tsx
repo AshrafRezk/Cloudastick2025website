@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Car, CheckCircle2 } from 'lucide-react';
+import { Car, CheckCircle2, MapPin, Phone, Mail, MessageSquare, CreditCard } from 'lucide-react';
 import SoueastBudgetWidget from '../components/SoueastBudgetWidget';
 import SoueastCarSelector from '../components/SoueastCarSelector';
 import SoueastColorSelector from '../components/SoueastColorSelector';
@@ -955,127 +955,159 @@ User Agent: ${userAgent}`;
                   />
                 </div>
 
-                {/* Branch */}
-                <div>
-                  <label htmlFor="branch" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                {/* Branch - Prominent Field */}
+                <div className="md:col-span-2">
+                  <label htmlFor="branch" className={`block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2 ${currentLanguage === 'ar' ? 'text-right flex-row-reverse' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                    <MapPin className="w-4 h-4 text-[#ee7138]" />
                     {content[currentLanguage].branch}
                   </label>
-                  <select
-                    id="branch"
-                    value={formData.branch}
-                    onChange={(e) => {
-                      handleInputChange('branch', e.target.value);
-                      triggerHaptic(10);
-                      if (selection1Ref.current) {
-                        selection1Ref.current.currentTime = 0;
-                        selection1Ref.current.play().catch(() => {});
-                      }
-                    }}
-                    className={`w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 bg-white focus:border-[#ee7138] focus:outline-none transition-colors duration-200 appearance-none cursor-pointer ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}
-                    dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
-                  >
-                    <option value="">{content[currentLanguage].branchPlaceholder}</option>
-                    <option value="Riyadh">Riyadh</option>
-                    <option value="Jeddah">Jeddah</option>
-                    <option value="Dammam">Dammam</option>
-                  </select>
+                  <div className="relative">
+                    <select
+                      id="branch"
+                      value={formData.branch}
+                      onChange={(e) => {
+                        handleInputChange('branch', e.target.value);
+                        triggerHaptic(10);
+                        if (selection1Ref.current) {
+                          selection1Ref.current.currentTime = 0;
+                          selection1Ref.current.play().catch(() => {});
+                        }
+                      }}
+                      className={`w-full px-4 py-3 pr-10 rounded-2xl border-2 ${formData.branch ? 'border-[#ee7138] bg-[#ee7138]/5' : 'border-slate-200'} text-slate-900 bg-white focus:border-[#ee7138] focus:outline-none transition-all duration-200 appearance-none cursor-pointer font-medium ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}
+                      dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
+                    >
+                      <option value="">{content[currentLanguage].branchPlaceholder}</option>
+                      <option value="Riyadh">Riyadh</option>
+                      <option value="Jeddah">Jeddah</option>
+                      <option value="Dammam">Dammam</option>
+                    </select>
+                    <div className={`absolute top-1/2 -translate-y-1/2 ${currentLanguage === 'ar' ? 'left-4' : 'right-4'} pointer-events-none`}>
+                      <svg className="w-5 h-5 text-[#ee7138]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Preferred Contact Method */}
                 <div>
-                  <label htmlFor="preferredContactMethod" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                  <label htmlFor="preferredContactMethod" className={`block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2 ${currentLanguage === 'ar' ? 'text-right flex-row-reverse' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                    <Phone className="w-4 h-4 text-[#ee7138]" />
                     {content[currentLanguage].preferredContactMethod}
                   </label>
-                  <select
-                    id="preferredContactMethod"
-                    value={formData.preferredContactMethod}
-                    onChange={(e) => {
-                      handleInputChange('preferredContactMethod', e.target.value);
-                      triggerHaptic(10);
-                      if (selection1Ref.current) {
-                        selection1Ref.current.currentTime = 0;
-                        selection1Ref.current.play().catch(() => {});
-                      }
-                    }}
-                    className={`w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 bg-white focus:border-[#ee7138] focus:outline-none transition-colors duration-200 appearance-none cursor-pointer ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}
-                    dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
-                  >
-                    <option value="">{content[currentLanguage].preferredContactMethodPlaceholder}</option>
-                    <option value="Email">Email</option>
-                    <option value="Phone">Phone</option>
-                    <option value="SMS">SMS</option>
-                    <option value="Post">Post</option>
-                    <option value="WhatsApp">WhatsApp</option>
-                  </select>
+                  <div className="relative">
+                    <select
+                      id="preferredContactMethod"
+                      value={formData.preferredContactMethod}
+                      onChange={(e) => {
+                        handleInputChange('preferredContactMethod', e.target.value);
+                        triggerHaptic(10);
+                        if (selection1Ref.current) {
+                          selection1Ref.current.currentTime = 0;
+                          selection1Ref.current.play().catch(() => {});
+                        }
+                      }}
+                      className={`w-full px-4 py-3 pr-10 rounded-2xl border-2 ${formData.preferredContactMethod ? 'border-[#ee7138] bg-[#ee7138]/5' : 'border-slate-200'} text-slate-900 bg-white focus:border-[#ee7138] focus:outline-none transition-all duration-200 appearance-none cursor-pointer ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}
+                      dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
+                    >
+                      <option value="">{content[currentLanguage].preferredContactMethodPlaceholder}</option>
+                      <option value="Email">Email</option>
+                      <option value="Phone">Phone</option>
+                      <option value="SMS">SMS</option>
+                      <option value="Post">Post</option>
+                      <option value="WhatsApp">WhatsApp</option>
+                    </select>
+                    <div className={`absolute top-1/2 -translate-y-1/2 ${currentLanguage === 'ar' ? 'left-4' : 'right-4'} pointer-events-none`}>
+                      <svg className="w-5 h-5 text-[#ee7138]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Sub Channel */}
                 <div>
-                  <label htmlFor="subChannel" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                  <label htmlFor="subChannel" className={`block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2 ${currentLanguage === 'ar' ? 'text-right flex-row-reverse' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                    <MessageSquare className="w-4 h-4 text-[#ee7138]" />
                     {content[currentLanguage].subChannel}
                   </label>
-                  <select
-                    id="subChannel"
-                    value={formData.subChannel}
-                    onChange={(e) => {
-                      handleInputChange('subChannel', e.target.value);
-                      triggerHaptic(10);
-                      if (selection1Ref.current) {
-                        selection1Ref.current.currentTime = 0;
-                        selection1Ref.current.play().catch(() => {});
-                      }
-                    }}
-                    className={`w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 bg-white focus:border-[#ee7138] focus:outline-none transition-colors duration-200 appearance-none cursor-pointer ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}
-                    dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
-                  >
-                    <option value="">{content[currentLanguage].subChannelPlaceholder}</option>
-                    <option value="Phone Call">Phone Call</option>
-                    <option value="WhatsApp">WhatsApp</option>
-                    <option value="Inbound">Inbound</option>
-                    <option value="SMS">SMS</option>
-                    <option value="Email">Email</option>
-                    <option value="Google Search">Google Search</option>
-                    <option value="Google Display">Google Display</option>
-                    <option value="Instagram">Instagram</option>
-                    <option value="Facebook">Facebook</option>
-                    <option value="TikTok">TikTok</option>
-                    <option value="Snapchat">Snapchat</option>
-                    <option value="X">X</option>
-                    <option value="SE Website">SE Website</option>
-                    <option value="Auto Show">Auto Show</option>
-                    <option value="Mall Exhibition">Mall Exhibition</option>
-                    <option value="Launch Event">Launch Event</option>
-                    <option value="Telesales">Telesales</option>
-                    <option value="Radio">Radio</option>
-                    <option value="OOH">OOH</option>
-                    <option value="Outdoor">Outdoor</option>
-                    <option value="Other">Other</option>
-                  </select>
+                  <div className="relative">
+                    <select
+                      id="subChannel"
+                      value={formData.subChannel}
+                      onChange={(e) => {
+                        handleInputChange('subChannel', e.target.value);
+                        triggerHaptic(10);
+                        if (selection1Ref.current) {
+                          selection1Ref.current.currentTime = 0;
+                          selection1Ref.current.play().catch(() => {});
+                        }
+                      }}
+                      className={`w-full px-4 py-3 pr-10 rounded-2xl border-2 ${formData.subChannel ? 'border-[#ee7138] bg-[#ee7138]/5' : 'border-slate-200'} text-slate-900 bg-white focus:border-[#ee7138] focus:outline-none transition-all duration-200 appearance-none cursor-pointer ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}
+                      dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
+                    >
+                      <option value="">{content[currentLanguage].subChannelPlaceholder}</option>
+                      <option value="Phone Call">Phone Call</option>
+                      <option value="WhatsApp">WhatsApp</option>
+                      <option value="Inbound">Inbound</option>
+                      <option value="SMS">SMS</option>
+                      <option value="Email">Email</option>
+                      <option value="Google Search">Google Search</option>
+                      <option value="Google Display">Google Display</option>
+                      <option value="Instagram">Instagram</option>
+                      <option value="Facebook">Facebook</option>
+                      <option value="TikTok">TikTok</option>
+                      <option value="Snapchat">Snapchat</option>
+                      <option value="X">X</option>
+                      <option value="SE Website">SE Website</option>
+                      <option value="Auto Show">Auto Show</option>
+                      <option value="Mall Exhibition">Mall Exhibition</option>
+                      <option value="Launch Event">Launch Event</option>
+                      <option value="Telesales">Telesales</option>
+                      <option value="Radio">Radio</option>
+                      <option value="OOH">OOH</option>
+                      <option value="Outdoor">Outdoor</option>
+                      <option value="Other">Other</option>
+                    </select>
+                    <div className={`absolute top-1/2 -translate-y-1/2 ${currentLanguage === 'ar' ? 'left-4' : 'right-4'} pointer-events-none`}>
+                      <svg className="w-5 h-5 text-[#ee7138]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Enquiry Type */}
                 <div>
-                  <label htmlFor="enquiryType" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                  <label htmlFor="enquiryType" className={`block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2 ${currentLanguage === 'ar' ? 'text-right flex-row-reverse' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                    <CreditCard className="w-4 h-4 text-[#ee7138]" />
                     {content[currentLanguage].enquiryType}
                   </label>
-                  <select
-                    id="enquiryType"
-                    value={formData.enquiryType}
-                    onChange={(e) => {
-                      handleInputChange('enquiryType', e.target.value);
-                      triggerHaptic(10);
-                      if (selection1Ref.current) {
-                        selection1Ref.current.currentTime = 0;
-                        selection1Ref.current.play().catch(() => {});
-                      }
-                    }}
-                    className={`w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 bg-white focus:border-[#ee7138] focus:outline-none transition-colors duration-200 appearance-none cursor-pointer ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}
-                    dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
-                  >
-                    <option value="">{content[currentLanguage].enquiryTypePlaceholder}</option>
-                    <option value="Cash">Cash</option>
-                    <option value="Lease to Own">Lease to Own</option>
-                  </select>
+                  <div className="relative">
+                    <select
+                      id="enquiryType"
+                      value={formData.enquiryType}
+                      onChange={(e) => {
+                        handleInputChange('enquiryType', e.target.value);
+                        triggerHaptic(10);
+                        if (selection1Ref.current) {
+                          selection1Ref.current.currentTime = 0;
+                          selection1Ref.current.play().catch(() => {});
+                        }
+                      }}
+                      className={`w-full px-4 py-3 pr-10 rounded-2xl border-2 ${formData.enquiryType ? 'border-[#ee7138] bg-[#ee7138]/5' : 'border-slate-200'} text-slate-900 bg-white focus:border-[#ee7138] focus:outline-none transition-all duration-200 appearance-none cursor-pointer ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}
+                      dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
+                    >
+                      <option value="">{content[currentLanguage].enquiryTypePlaceholder}</option>
+                      <option value="Cash">Cash</option>
+                      <option value="Lease to Own">Lease to Own</option>
+                    </select>
+                    <div className={`absolute top-1/2 -translate-y-1/2 ${currentLanguage === 'ar' ? 'left-4' : 'right-4'} pointer-events-none`}>
+                      <svg className="w-5 h-5 text-[#ee7138]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Description */}
