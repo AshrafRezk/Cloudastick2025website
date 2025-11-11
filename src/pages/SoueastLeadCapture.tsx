@@ -88,7 +88,7 @@ const SoueastLeadCapture: React.FC = () => {
       subChannel: 'Sub Channel',
       subChannelPlaceholder: 'Select sub channel',
       title: 'Title',
-      titlePlaceholder: 'e.g., Mr., Mrs., Dr.',
+      titlePlaceholder: 'Select title',
       enquiryType: 'Enquiry Type',
       enquiryTypePlaceholder: 'Select enquiry type',
     },
@@ -119,7 +119,7 @@ const SoueastLeadCapture: React.FC = () => {
       subChannel: 'القناة الفرعية',
       subChannelPlaceholder: 'اختر القناة الفرعية',
       title: 'المسمى الوظيفي',
-      titlePlaceholder: 'مثال: السيد، السيدة، الدكتور',
+      titlePlaceholder: 'اختر المسمى',
       enquiryType: 'نوع الاستفسار',
       enquiryTypePlaceholder: 'اختر نوع الاستفسار',
     },
@@ -263,8 +263,18 @@ const SoueastLeadCapture: React.FC = () => {
         || urlParams.get('src')
         || 'Organic'; // Default
       
-      // Set lead source in form data
-      setFormData(prev => ({ ...prev, lead_source: leadSource }));
+      // Capture sub channel from URL params (if provided)
+      const subChannel = urlParams.get('sub_channel') 
+        || urlParams.get('subChannel')
+        || urlParams.get('subchannel')
+        || urlParams.get('channel');
+      
+      // Set lead source and sub channel in form data
+      setFormData(prev => ({ 
+        ...prev, 
+        lead_source: leadSource,
+        subChannel: subChannel || ''
+      }));
       
       const info = `Device: ${deviceType}
 Browser: ${browser}
@@ -449,11 +459,6 @@ User Agent: ${userAgent}`;
       // Title
       if (formData.title) {
         addField('title', formData.title);
-      }
-
-      // Enquiry Type (00NQE00000Gk6kL)
-      if (formData.enquiryType) {
-        addField('00NQE00000Gk6kL', formData.enquiryType);
       }
 
       // Create hidden iframe for submission
@@ -967,18 +972,32 @@ User Agent: ${userAgent}`;
                   <label htmlFor="title" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
                     {content[currentLanguage].title}
                   </label>
-                  <input
-                    type="text"
-                    id="title"
-                    value={formData.title}
-                    onChange={(e) => {
-                      handleInputChange('title', e.target.value);
-                      triggerHaptic(10);
-                    }}
-                    placeholder={content[currentLanguage].titlePlaceholder}
-                    className={`w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-slate-900 placeholder-slate-400 bg-white focus:border-[#ee7138] focus:outline-none transition-colors duration-200 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}
-                    dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
-                  />
+                  <div className="relative">
+                    <select
+                      id="title"
+                      value={formData.title}
+                      onChange={(e) => {
+                        handleInputChange('title', e.target.value);
+                        triggerHaptic(10);
+                        if (selection1Ref.current) {
+                          selection1Ref.current.currentTime = 0;
+                          selection1Ref.current.play().catch(() => {});
+                        }
+                      }}
+                      className={`w-full px-4 py-3 pr-10 rounded-2xl border-2 ${formData.title ? 'border-[#ee7138] bg-[#ee7138]/5' : 'border-slate-200'} text-slate-900 bg-white focus:border-[#ee7138] focus:outline-none transition-all duration-200 appearance-none cursor-pointer ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}
+                      dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
+                    >
+                      <option value="">{content[currentLanguage].titlePlaceholder}</option>
+                      <option value="Mr.">Mr.</option>
+                      <option value="Ms.">Ms.</option>
+                      <option value="Mrs.">Mrs.</option>
+                    </select>
+                    <div className={`absolute top-1/2 -translate-y-1/2 ${currentLanguage === 'ar' ? 'left-4' : 'right-4'} pointer-events-none`}>
+                      <svg className="w-5 h-5 text-[#ee7138]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Branch - Prominent Field */}
@@ -1051,90 +1070,6 @@ User Agent: ${userAgent}`;
                   </div>
                 </div>
 
-                {/* Sub Channel */}
-                <div>
-                  <label htmlFor="subChannel" className={`block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2 ${currentLanguage === 'ar' ? 'text-right flex-row-reverse' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
-                    <MessageSquare className="w-4 h-4 text-[#ee7138]" />
-                    {content[currentLanguage].subChannel}
-                  </label>
-                  <div className="relative">
-                    <select
-                      id="subChannel"
-                      value={formData.subChannel}
-                      onChange={(e) => {
-                        handleInputChange('subChannel', e.target.value);
-                        triggerHaptic(10);
-                        if (selection1Ref.current) {
-                          selection1Ref.current.currentTime = 0;
-                          selection1Ref.current.play().catch(() => {});
-                        }
-                      }}
-                      className={`w-full px-4 py-3 pr-10 rounded-2xl border-2 ${formData.subChannel ? 'border-[#ee7138] bg-[#ee7138]/5' : 'border-slate-200'} text-slate-900 bg-white focus:border-[#ee7138] focus:outline-none transition-all duration-200 appearance-none cursor-pointer ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}
-                      dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
-                    >
-                      <option value="">{content[currentLanguage].subChannelPlaceholder}</option>
-                      <option value="Phone Call">Phone Call</option>
-                      <option value="WhatsApp">WhatsApp</option>
-                      <option value="Inbound">Inbound</option>
-                      <option value="SMS">SMS</option>
-                      <option value="Email">Email</option>
-                      <option value="Google Search">Google Search</option>
-                      <option value="Google Display">Google Display</option>
-                      <option value="Instagram">Instagram</option>
-                      <option value="Facebook">Facebook</option>
-                      <option value="TikTok">TikTok</option>
-                      <option value="Snapchat">Snapchat</option>
-                      <option value="X">X</option>
-                      <option value="SE Website">SE Website</option>
-                      <option value="Auto Show">Auto Show</option>
-                      <option value="Mall Exhibition">Mall Exhibition</option>
-                      <option value="Launch Event">Launch Event</option>
-                      <option value="Telesales">Telesales</option>
-                      <option value="Radio">Radio</option>
-                      <option value="OOH">OOH</option>
-                      <option value="Outdoor">Outdoor</option>
-                      <option value="Other">Other</option>
-                    </select>
-                    <div className={`absolute top-1/2 -translate-y-1/2 ${currentLanguage === 'ar' ? 'left-4' : 'right-4'} pointer-events-none`}>
-                      <svg className="w-5 h-5 text-[#ee7138]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Enquiry Type */}
-                <div>
-                  <label htmlFor="enquiryType" className={`block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2 ${currentLanguage === 'ar' ? 'text-right flex-row-reverse' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
-                    <CreditCard className="w-4 h-4 text-[#ee7138]" />
-                    {content[currentLanguage].enquiryType}
-                  </label>
-                  <div className="relative">
-                    <select
-                      id="enquiryType"
-                      value={formData.enquiryType}
-                      onChange={(e) => {
-                        handleInputChange('enquiryType', e.target.value);
-                        triggerHaptic(10);
-                        if (selection1Ref.current) {
-                          selection1Ref.current.currentTime = 0;
-                          selection1Ref.current.play().catch(() => {});
-                        }
-                      }}
-                      className={`w-full px-4 py-3 pr-10 rounded-2xl border-2 ${formData.enquiryType ? 'border-[#ee7138] bg-[#ee7138]/5' : 'border-slate-200'} text-slate-900 bg-white focus:border-[#ee7138] focus:outline-none transition-all duration-200 appearance-none cursor-pointer ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}
-                      dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
-                    >
-                      <option value="">{content[currentLanguage].enquiryTypePlaceholder}</option>
-                      <option value="Cash">Cash</option>
-                      <option value="Lease to Own">Lease to Own</option>
-                    </select>
-                    <div className={`absolute top-1/2 -translate-y-1/2 ${currentLanguage === 'ar' ? 'left-4' : 'right-4'} pointer-events-none`}>
-                      <svg className="w-5 h-5 text-[#ee7138]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
 
                 {/* Description */}
                 <div className="md:col-span-2">
