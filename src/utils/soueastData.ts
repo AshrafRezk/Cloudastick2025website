@@ -175,8 +175,11 @@ export const getCarsByCategory = (category: 'S06' | 'S07' | 'S09'): CarModel[] =
 
 // Exterior color options
 export const exteriorColors = [
-  { name: 'Orange', code: '#ee7138', displayName: 'Orange' },
-  { name: 'Black', code: '#000000', displayName: 'Black' },
-  { name: 'White', code: '#FFFFFF', displayName: 'White' },
+  { name: 'Mountain Green', code: '#2d5016', displayName: 'Mountain Green' },
+  { name: 'Snow White', code: '#FFFFFF', displayName: 'Snow White' },
+  { name: 'Phantom Grey', code: '#4a4a4a', displayName: 'Phantom Grey' },
+  { name: 'Moon Grey', code: '#8b8b8b', displayName: 'Moon Grey' },
+  { name: 'Ocean Blue', code: '#1e3a5f', displayName: 'Ocean Blue' },
+  { name: 'Starlit Black', code: '#000000', displayName: 'Starlit Black' },
 ];
 

@@ -54,18 +54,18 @@ const SoueastColorSelector: React.FC<SoueastColorSelectorProps> = ({
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {exteriorColors.map((color, index) => {
           const selected = isSelected(color.code);
-          const isDark = color.code === '#000000';
-          const isLight = color.code === '#FFFFFF';
+          const isDark = color.code === '#000000' || color.code === '#1e3a5f' || color.code === '#2d5016' || color.code === '#4a4a4a';
+          const isLight = color.code === '#FFFFFF' || color.code === '#8b8b8b';
           
           return (
             <motion.div
               key={color.code}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3, delay: index * 0.1 }}
+              transition={{ duration: 0.3, delay: index * 0.05 }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => handleColorToggle(color.code)}
@@ -79,7 +79,7 @@ const SoueastColorSelector: React.FC<SoueastColorSelectorProps> = ({
             >
               {/* Color Swatch */}
               <div
-                className="w-24 h-24 md:w-32 md:h-32 relative"
+                className="w-full h-24 md:h-32 relative"
                 style={{ backgroundColor: color.code }}
               >
                 {/* Checkmark Overlay */}
@@ -93,18 +93,18 @@ const SoueastColorSelector: React.FC<SoueastColorSelectorProps> = ({
                     >
                       <div className={`
                         rounded-full p-2
-                        ${isDark || isLight ? 'bg-[#ee7138]' : 'bg-white'}
+                        ${isDark ? 'bg-[#ee7138]' : 'bg-white'}
                       `}>
                         <Check className={`
                           w-6 h-6
-                          ${isDark || isLight ? 'text-white' : 'text-[#ee7138]'}
+                          ${isDark ? 'text-white' : 'text-[#ee7138]'}
                         `} />
                       </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
 
-                {/* Border for white color */}
+                {/* Border for light colors */}
                 {isLight && (
                   <div className="absolute inset-0 border-2 border-slate-300 rounded-xl" />
                 )}
@@ -114,7 +114,7 @@ const SoueastColorSelector: React.FC<SoueastColorSelectorProps> = ({
               <div className={`
                 px-3 py-2 text-center text-sm font-semibold
                 ${selected ? 'bg-[#ee7138] text-white' : 'bg-slate-50 text-slate-900'}
-                ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}
+                ${currentLanguage === 'ar' ? 'text-right' : 'text-center'}
               `} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
                 {color.displayName}
               </div>
