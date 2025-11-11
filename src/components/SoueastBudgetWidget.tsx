@@ -48,7 +48,8 @@ const SoueastBudgetWidget: React.FC<SoueastBudgetWidgetProps> = ({
       carsAvailable: 'cars available',
       upgradeAmount: 'Add',
       upgradeToNext: 'to unlock',
-      unlockButton: 'Unlock These Cars',
+      unlockButton: 'Unlock This Car',
+      unlockPrice: 'Unlock for',
       carsUnlocked: 'cars unlocked',
       keyFeatures: 'Key Features',
       minLabel: '60K SAR',
@@ -62,7 +63,8 @@ const SoueastBudgetWidget: React.FC<SoueastBudgetWidgetProps> = ({
       carsAvailable: 'سيارة متاحة',
       upgradeAmount: 'أضف',
       upgradeToNext: 'لفتح',
-      unlockButton: 'فتح هذه السيارات',
+      unlockButton: 'فتح هذه السيارة',
+      unlockPrice: 'فتح مقابل',
       carsUnlocked: 'سيارة مفتوحة',
       keyFeatures: 'الميزات الرئيسية',
       minLabel: '60 ألف ريال',
@@ -147,15 +149,12 @@ const SoueastBudgetWidget: React.FC<SoueastBudgetWidgetProps> = ({
   const upgradeAmount = getUpgradeAmount(localValue);
   const nextTierCars = getNextTierCars(localValue);
 
-  // Handle unlock button click
-  const handleUnlock = () => {
-    if (nextTierCars.length > 0 && upgradeAmount) {
-      const newBudget = localValue + upgradeAmount;
-      setLocalValue(newBudget);
-      setHasInteracted(true);
-      if (onInteraction) {
-        onInteraction();
-      }
+  // Handle unlock button click for a specific car
+  const handleUnlockCar = (carPrice: number) => {
+    setLocalValue(carPrice);
+    setHasInteracted(true);
+    if (onInteraction) {
+      onInteraction();
     }
   };
 
@@ -291,66 +290,70 @@ const SoueastBudgetWidget: React.FC<SoueastBudgetWidgetProps> = ({
             </div>
 
             {/* Cars Preview */}
-            <div className="space-y-3 mb-4">
-              {nextTierCars.map((car, index) => (
-                <motion.div
-                  key={car.model}
-                  initial={{ opacity: 0, x: currentLanguage === 'ar' ? 20 : -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="bg-white rounded-xl p-3 border border-slate-200 hover:border-[#ee7138] transition-colors"
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 w-16 h-16 bg-slate-100 rounded-lg overflow-hidden">
-                      <img
-                        src={car.image}
-                        alt={car.model}
-                        className="w-full h-full object-contain p-1"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = '/placeholder.svg';
-                        }}
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className={`font-semibold text-slate-900 mb-1 text-sm ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
-                        {car.model}
-                      </h4>
-                      <div className={`text-xs text-slate-600 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span>{car.power} hp</span>
-                          <span className="text-slate-400">•</span>
-                          <span>{car.torque} Nm</span>
-                          <span className="text-slate-400">•</span>
-                          <span>{car.transmission}</span>
+            <div className="space-y-3">
+              {nextTierCars.map((car, index) => {
+                const carUpgradeAmount = car.basePrice - localValue;
+                return (
+                  <motion.div
+                    key={car.model}
+                    initial={{ opacity: 0, x: currentLanguage === 'ar' ? 20 : -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="bg-white rounded-xl p-4 border border-slate-200 hover:border-[#ee7138] transition-colors"
+                  >
+                    <div className="flex items-start gap-3 mb-3">
+                      <div className="flex-shrink-0 w-16 h-16 bg-slate-100 rounded-lg overflow-hidden">
+                        <img
+                          src={car.image}
+                          alt={car.model}
+                          className="w-full h-full object-contain p-1"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = '/placeholder.svg';
+                          }}
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className={`font-semibold text-slate-900 mb-1 text-sm ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                          {car.model}
+                        </h4>
+                        <div className={`text-xs text-slate-600 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span>{car.power} hp</span>
+                            <span className="text-slate-400">•</span>
+                            <span>{car.torque} Nm</span>
+                            <span className="text-slate-400">•</span>
+                            <span>{car.transmission}</span>
+                          </div>
+                        </div>
+                        <div className={`text-xs text-slate-500 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                          <span className="font-semibold text-[#ee7138]">{formatValue(car.basePrice)} SAR</span>
+                          <span className="text-slate-400 ml-1">{currentLanguage === 'en' ? 'before VAT' : 'قبل الضريبة'}</span>
                         </div>
                       </div>
-                      <div className={`text-xs text-slate-500 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
-                        <span className="font-semibold text-[#ee7138]">{formatValue(car.basePrice)} SAR</span>
-                        <span className="text-slate-400 ml-1">{currentLanguage === 'en' ? 'before VAT' : 'قبل الضريبة'}</span>
-                      </div>
                     </div>
-                  </div>
-                  
-                  {/* Key Features Preview */}
-                  <div className={`mt-2 pt-2 border-t border-slate-100 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
-                    <p className="text-xs font-semibold text-slate-700 mb-1">{t.keyFeatures}:</p>
-                    <p className="text-xs text-slate-600 line-clamp-2">{car.keyFeatures}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+                    
+                    {/* Key Features Preview */}
+                    <div className={`mb-3 pt-3 border-t border-slate-100 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                      <p className="text-xs font-semibold text-slate-700 mb-1">{t.keyFeatures}:</p>
+                      <p className="text-xs text-slate-600 line-clamp-2">{car.keyFeatures}</p>
+                    </div>
 
-            {/* Unlock Button */}
-            <motion.button
-              onClick={handleUnlock}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="w-full px-4 py-3 bg-gradient-to-r from-[#ee7138] to-[#d85a20] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2"
-            >
-              <Car className="w-5 h-5" />
-              <span>{t.unlockButton}</span>
-              <ChevronRight className={`w-4 h-4 ${currentLanguage === 'ar' ? 'rotate-180' : ''}`} />
-            </motion.button>
+                    {/* Individual Unlock Button */}
+                    <motion.button
+                      onClick={() => handleUnlockCar(car.basePrice)}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="w-full px-4 py-2.5 bg-gradient-to-r from-[#ee7138] to-[#d85a20] text-white text-sm font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+                    >
+                      <Car className="w-4 h-4" />
+                      <span>{t.unlockButton}</span>
+                      <span className="text-xs opacity-90">({t.unlockPrice} {formatValue(carUpgradeAmount)} SAR)</span>
+                      <ChevronRight className={`w-4 h-4 ${currentLanguage === 'ar' ? 'rotate-180' : ''}`} />
+                    </motion.button>
+                  </motion.div>
+                );
+              })}
+            </div>
           </motion.div>
         )}
       </motion.div>
