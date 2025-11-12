@@ -53,14 +53,14 @@ const MemarLeadCapture: React.FC = () => {
   // People data for each interest type
   const peopleByInterest = {
     invest: [
-      { name: 'Mohammed Alkhulofi', id: '005QE000001ye22YAA', image: '/Assets/Cityscape/Memar/People/Investor lead owners/Mohammed Alkhulofi - 005QE000001ye22YAA.png' },
-      { name: 'Nawaf Alowla', id: '005QE000001y4EfYAl', image: '/Assets/Cityscape/Memar/People/Investor lead owners/Nawaf Alowla - 005QE000001y4EfYAI.png' },
+      { name: 'Mohammed Alkhulofi', title: 'Director of Development', id: '005QE000001ye22YAA', image: '/Assets/Cityscape/Memar/People/Investor lead owners/Mohammed Alkhulofi - 005QE000001ye22YAA.png' },
+      { name: 'Nawaf Alowla', title: 'Marketing Manager', id: '005QE000001y4EfYAl', image: '/Assets/Cityscape/Memar/People/Investor lead owners/Nawaf Alowla - 005QE000001y4EfYAI.png' },
       { name: 'CEO Office', id: '005QE000001y3byYAA', image: '/Assets/Cityscape/Memar/People/Investor lead owners/CEO Office - 005QE000001y3byYAA.png' },
-      { name: 'Abdulaziz AlHumaidhi', id: '005QE000001y4EfYAI', image: '/Assets/Cityscape/Memar/People/Investor lead owners/Abdulaziz AlHumaidhi - 005QE000001y4EfYAI.png' },
+      { name: 'Abdulaziz AlHumaidhi', title: 'Business Development Manager', id: '005QE000001y4EfYAI', image: '/Assets/Cityscape/Memar/People/Investor lead owners/Abdulaziz AlHumaidhi - 005QE000001y4EfYAI.png' },
     ],
     operate: [
-      { name: 'Ahmed Ibrahim', id: '005QE000001y4EfYAl', image: '/Assets/Cityscape/Memar/People/Operator lead owners/Ahmed Ibrahim - 005QE000001y4EfYAI.png' },
-      { name: 'Hamdi Abdein', id: '005QE000001y4EfYAl', image: '/Assets/Cityscape/Memar/People/Operator lead owners/Hamdi Abdein - 005QE000001y4EfYAI.png' },
+      { name: 'Ahmed Ibrahim', title: 'Operations Manager', id: '005QE000001y4EfYAl', image: '/Assets/Cityscape/Memar/People/Operator lead owners/Ahmed Ibrahim - 005QE000001y4EfYAI.png' },
+      { name: 'Hamdi Abdein', title: 'Hospitality Manager', id: '005QE000001y4EfYAl', image: '/Assets/Cityscape/Memar/People/Operator lead owners/Hamdi Abdein - 005QE000001y4EfYAI.png' },
     ],
     supply: [
       { name: 'Procurement', id: '005QE000001y4EfYAl', image: '/Assets/Cityscape/Memar/People/Supplier lead owners/Procurement - 005QE000001y4EfYAI.png' },
@@ -1159,6 +1159,13 @@ Lead Source: ${source}`;
                                       }`}>
                                         {person.name}
                                       </h3>
+                                      {person.title && (
+                                        <p className={`mt-1 text-[10px] md:text-xs font-medium ${
+                                          selectedPersonIndex === index ? 'text-white/80' : 'text-slate-500'
+                                        }`}>
+                                          {person.title}
+                                        </p>
+                                      )}
                                     </div>
 
                                     {/* Selected Indicator */}
