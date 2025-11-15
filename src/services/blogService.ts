@@ -3,10 +3,9 @@
  * Handles fetching blogs from Salesforce via Netlify function
  */
 
-import { useSalesforce } from '../contexts/SalesforceContext';
-
 export interface BlogPost {
   id: string;
+  urlName: string;
   title: string;
   content: string;
   publishedDate: string | null;
@@ -97,19 +96,21 @@ export const fetchBlogs = async (
 };
 
 /**
- * Fetch a single blog by ID from Salesforce
+ * Fetch a single blog by URL_Name__c from Salesforce
  */
-export const fetchBlogById = async (
-  blogId: string,
+export const fetchBlogByUrlName = async (
+  urlName: string,
   accessToken: string,
   instanceUrl: string
 ): Promise<BlogPost | null> => {
   try {
-    console.log(`📰 Fetching blog ${blogId} from Salesforce...`);
+    console.log(`📰 Fetching blog with URL name: ${urlName} from Salesforce...`);
 
-    // SOQL query to fetch specific blog by ID
+    // SOQL query to fetch specific blog by URL_Name__c
+    // Escape single quotes in urlName to prevent SOQL injection
+    const escapedUrlName = urlName.replace(/'/g, "\\'");
     const soqlQuery = encodeURIComponent(
-      `SELECT Id, Header__c, Content__c, Published_Date__c FROM Blog_Post__c WHERE Id = '${blogId}' LIMIT 1`
+      `SELECT Id, Header__c, Content__c, Published_Date__c, URL_Name__c FROM Blog_Post__c WHERE URL_Name__c = '${escapedUrlName}' LIMIT 1`
     );
 
     const queryUrl = `${instanceUrl}/services/data/v58.0/query/?q=${soqlQuery}`;
@@ -136,6 +137,7 @@ export const fetchBlogById = async (
     const record = data.records[0];
     const blog: BlogPost = {
       id: record.Id,
+      urlName: record.URL_Name__c || '',
       title: record.Header__c || '',
       content: record.Content__c || '',
       publishedDate: record.Published_Date__c || null,
@@ -145,7 +147,7 @@ export const fetchBlogById = async (
     console.log('✅ Successfully fetched blog');
     return blog;
   } catch (error) {
-    console.error('❌ Error fetching blog by ID:', error);
+    console.error('❌ Error fetching blog by URL name:', error);
     throw error;
   }
 };

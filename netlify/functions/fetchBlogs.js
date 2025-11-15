@@ -48,7 +48,7 @@ exports.handler = async (event, context) => {
 
     // SOQL query to fetch latest 3 published blogs
     const soqlQuery = encodeURIComponent(
-      "SELECT Id, Header__c, Content__c, Published_Date__c FROM Blog_Post__c WHERE Published_Date__c != null ORDER BY Published_Date__c DESC LIMIT 3"
+      "SELECT Id, Header__c, Content__c, Published_Date__c, URL_Name__c FROM Blog_Post__c WHERE Published_Date__c != null AND URL_Name__c != null ORDER BY Published_Date__c DESC LIMIT 3"
     );
 
     const queryUrl = `${instance_url}/services/data/v58.0/query/?q=${soqlQuery}`;
@@ -77,6 +77,7 @@ exports.handler = async (event, context) => {
     // Transform Salesforce records to blog format
     const blogs = (data.records || []).map((record) => ({
       id: record.Id,
+      urlName: record.URL_Name__c || '',
       title: record.Header__c || '',
       content: record.Content__c || '',
       publishedDate: record.Published_Date__c || null,

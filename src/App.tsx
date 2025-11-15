@@ -120,7 +120,7 @@ const App = () => {
                           <Route path="/salesforce-power-success" element={<SalesforcePowerSuccess />} />
                           <Route path="/salesforce-comparison" element={<SalesforceComparisonTable />} />
                       <Route path="/intelligence-capture" element={<CaptureIntelligence />} />
-                      <Route path="/blog/:id" element={<BlogDetail />} />
+                      <Route path="/blog/:slug" element={<BlogDetail />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </Layout>

@@ -57,8 +57,8 @@ const BlogShifter = () => {
   }, [blogPosts.length]);
 
   // Handle navigation to blog detail
-  const handleReadMore = (blogId: string) => {
-    navigate(`/blog/${blogId}`);
+  const handleReadMore = (urlName: string) => {
+    navigate(`/blog/${urlName}`);
   };
 
   // Calculate read time estimate (rough estimate: 200 words per minute)
@@ -139,7 +139,7 @@ const BlogShifter = () => {
           exit={{ opacity: 0, x: -100, rotateY: 15 }}
           transition={{ duration: 0.6, ease: "easeInOut" }}
           className="bg-gradient-to-br from-card/90 to-background/90 backdrop-blur-sm rounded-2xl p-8 border border-border/50 hover:border-brand-primary/30 transition-all duration-500 group perspective-1000 cursor-pointer"
-          onClick={() => handleReadMore(currentPost.id)}
+          onClick={() => handleReadMore(currentPost.urlName)}
         >
           <div className="flex flex-col lg:flex-row gap-8">
             <div className="flex-1">
@@ -170,7 +170,7 @@ const BlogShifter = () => {
                   whileHover={{ x: 5 }}
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleReadMore(currentPost.id);
+                    handleReadMore(currentPost.urlName);
                   }}
                   className="flex items-center gap-2 text-brand-primary hover:text-brand-secondary transition-colors duration-300 group"
                 >

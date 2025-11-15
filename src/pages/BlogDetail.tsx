@@ -3,11 +3,11 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Calendar, ArrowLeft, Loader2, AlertCircle } from "lucide-react";
 import { useSalesforce } from "../contexts/SalesforceContext";
-import { fetchBlogById, type BlogPost } from "../services/blogService";
+import { fetchBlogByUrlName, type BlogPost } from "../services/blogService";
 import AnimatedSection from "../components/AnimatedSection";
 
 const BlogDetail = () => {
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { authData, isLoading: authLoading } = useSalesforce();
   const [blog, setBlog] = useState<BlogPost | null>(null);
@@ -16,8 +16,8 @@ const BlogDetail = () => {
 
   useEffect(() => {
     const loadBlog = async () => {
-      if (!id) {
-        setError("Blog ID is missing");
+      if (!slug) {
+        setError("Blog URL name is missing");
         setIsLoading(false);
         return;
       }
@@ -33,7 +33,7 @@ const BlogDetail = () => {
       try {
         setIsLoading(true);
         setError(null);
-        const blogData = await fetchBlogById(id, authData.access_token, authData.instance_url);
+        const blogData = await fetchBlogByUrlName(slug, authData.access_token, authData.instance_url);
         
         if (!blogData) {
           setError("Blog not found");
