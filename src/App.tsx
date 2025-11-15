@@ -31,6 +31,7 @@ import SalesforcePower from "./pages/SalesforcePower";
 import SalesforcePowerLeadCapture from "./pages/SalesforcePowerLeadCapture";
 import SalesforcePowerSuccess from "./pages/SalesforcePowerSuccess";
 import SalesforceComparisonTable from "./pages/SalesforceComparisonTable";
+import CaptureIntelligence from "./pages/CaptureIntelligence";
 import { LanguageProvider } from "./contexts/LanguageContext";
 
 const queryClient = new QueryClient();
@@ -115,6 +116,7 @@ const App = () => {
                           <Route path="/salesforce-power-lead-capture" element={<SalesforcePowerLeadCapture />} />
                           <Route path="/salesforce-power-success" element={<SalesforcePowerSuccess />} />
                           <Route path="/salesforce-comparison" element={<SalesforceComparisonTable />} />
+                      <Route path="/intelligence-capture" element={<CaptureIntelligence />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </Layout>
