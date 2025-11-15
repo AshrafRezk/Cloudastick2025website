@@ -5,7 +5,7 @@
  * Environment variables required:
  * - SALESFORCE_CLIENT_ID
  * - SALESFORCE_CLIENT_SECRET
- * - SALESFORCE_TOKEN_URL (optional, defaults to cloudastick.my.salesforce.com)
+ * - SALESFORCE_TOKEN_URL
  */
 
 exports.handler = async (event, context) => {
@@ -47,12 +47,13 @@ exports.handler = async (event, context) => {
     // Salesforce OAuth credentials from environment variables
     const clientId = process.env.SALESFORCE_CLIENT_ID;
     const clientSecret = process.env.SALESFORCE_CLIENT_SECRET;
-    const tokenUrl = process.env.SALESFORCE_TOKEN_URL || 'https://cloudastick.my.salesforce.com/services/oauth2/token';
+    const tokenUrl = process.env.SALESFORCE_TOKEN_URL;
 
-    if (!clientId || !clientSecret) {
+    if (!clientId || !clientSecret || !tokenUrl) {
       console.error('❌ Missing Salesforce credentials');
       console.error('Client ID present:', !!clientId);
       console.error('Client Secret present:', !!clientSecret);
+      console.error('Token URL present:', !!tokenUrl);
       return {
         statusCode: 500,
         headers: {
@@ -61,7 +62,7 @@ exports.handler = async (event, context) => {
         },
         body: JSON.stringify({ 
           error: 'Salesforce credentials not configured',
-          message: 'Please set SALESFORCE_CLIENT_ID and SALESFORCE_CLIENT_SECRET environment variables in Netlify.'
+          message: 'Please set SALESFORCE_CLIENT_ID, SALESFORCE_CLIENT_SECRET, and SALESFORCE_TOKEN_URL environment variables in Netlify.'
         }),
       };
     }
