@@ -1,6 +1,11 @@
 /**
  * Netlify Function for Salesforce OAuth Authentication
  * Uses client credentials flow for server-to-server authentication
+ * 
+ * Environment variables required:
+ * - SALESFORCE_CLIENT_ID
+ * - SALESFORCE_CLIENT_SECRET
+ * - SALESFORCE_TOKEN_URL (optional, defaults to cloudastick.my.salesforce.com)
  */
 
 exports.handler = async (event, context) => {
