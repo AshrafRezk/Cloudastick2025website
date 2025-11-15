@@ -37,6 +37,12 @@ exports.handler = async (event, context) => {
 
   try {
     console.log('🔐 Salesforce Auth - Authentication request received');
+    console.log('Environment check:', {
+      hasClientId: !!process.env.SALESFORCE_CLIENT_ID,
+      hasClientSecret: !!process.env.SALESFORCE_CLIENT_SECRET,
+      clientIdLength: process.env.SALESFORCE_CLIENT_ID?.length || 0,
+      clientSecretLength: process.env.SALESFORCE_CLIENT_SECRET?.length || 0
+    });
 
     // Salesforce OAuth credentials from environment variables
     const clientId = process.env.SALESFORCE_CLIENT_ID;
@@ -44,6 +50,9 @@ exports.handler = async (event, context) => {
     const tokenUrl = process.env.SALESFORCE_TOKEN_URL || 'https://cloudastick.my.salesforce.com/services/oauth2/token';
 
     if (!clientId || !clientSecret) {
+      console.error('❌ Missing Salesforce credentials');
+      console.error('Client ID present:', !!clientId);
+      console.error('Client Secret present:', !!clientSecret);
       return {
         statusCode: 500,
         headers: {
@@ -51,7 +60,8 @@ exports.handler = async (event, context) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          error: 'Salesforce credentials not configured. Please set SALESFORCE_CLIENT_ID and SALESFORCE_CLIENT_SECRET environment variables.'
+          error: 'Salesforce credentials not configured',
+          message: 'Please set SALESFORCE_CLIENT_ID and SALESFORCE_CLIENT_SECRET environment variables in Netlify.'
         }),
       };
     }
@@ -63,20 +73,30 @@ exports.handler = async (event, context) => {
     formData.append('client_secret', clientSecret);
 
     console.log('📤 Sending OAuth request to Salesforce...');
+    console.log('Token URL:', tokenUrl);
+    console.log('Form data keys:', ['grant_type', 'client_id', 'client_secret']);
 
-    const response = await fetch(tokenUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: formData.toString(),
-    });
+    let response;
+    try {
+      response = await fetch(tokenUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData.toString(),
+      });
+    } catch (fetchError) {
+      console.error('❌ Fetch error:', fetchError);
+      throw new Error(`Network error connecting to Salesforce: ${fetchError.message}`);
+    }
 
     console.log('📥 Salesforce Response Status:', response.status);
+    console.log('📥 Salesforce Response Headers:', Object.fromEntries(response.headers.entries()));
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('❌ Salesforce OAuth Error:', errorText);
+      console.error('❌ Salesforce OAuth Error Response:', errorText);
+      console.error('❌ Status Code:', response.status);
       throw new Error(`Salesforce authentication failed: ${response.status} - ${errorText}`);
     }
 
@@ -105,6 +125,9 @@ exports.handler = async (event, context) => {
     console.error('Error Type:', typeof error);
     console.error('Error Message:', error.message);
     console.error('Error Stack:', error.stack);
+    console.error('Full Error:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    
+    const errorMessage = error instanceof Error ? error.message : String(error);
     
     return {
       statusCode: 500,
@@ -114,7 +137,7 @@ exports.handler = async (event, context) => {
       },
       body: JSON.stringify({ 
         error: 'Failed to authenticate with Salesforce',
-        message: error.message
+        message: errorMessage
       }),
     };
   }
