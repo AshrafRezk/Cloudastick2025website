@@ -32,7 +32,9 @@ import SalesforcePowerLeadCapture from "./pages/SalesforcePowerLeadCapture";
 import SalesforcePowerSuccess from "./pages/SalesforcePowerSuccess";
 import SalesforceComparisonTable from "./pages/SalesforceComparisonTable";
 import CaptureIntelligence from "./pages/CaptureIntelligence";
+import BlogDetail from "./pages/BlogDetail";
 import { LanguageProvider } from "./contexts/LanguageContext";
+import { SalesforceProvider } from "./contexts/SalesforceContext";
 
 const queryClient = new QueryClient();
 
@@ -70,9 +72,10 @@ const App = () => {
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <LanguageProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
+            <SalesforceProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
             <ScrollToTop />
             <Routes>
             {/* Special routes for Tarwtl - no standard startup or layout */}
@@ -117,6 +120,7 @@ const App = () => {
                           <Route path="/salesforce-power-success" element={<SalesforcePowerSuccess />} />
                           <Route path="/salesforce-comparison" element={<SalesforceComparisonTable />} />
                       <Route path="/intelligence-capture" element={<CaptureIntelligence />} />
+                      <Route path="/blog/:id" element={<BlogDetail />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </Layout>
@@ -125,6 +129,7 @@ const App = () => {
             } />
           </Routes>
             </BrowserRouter>
+            </SalesforceProvider>
             </LanguageProvider>
             </TooltipProvider>
           </QueryClientProvider>

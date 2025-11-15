@@ -1,50 +1,54 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, User, ArrowRight, BarChart3 } from "lucide-react";
+import { Calendar, ArrowRight, BarChart3, Loader2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useSalesforce } from "../contexts/SalesforceContext";
+import { fetchBlogs, type BlogPost } from "../services/blogService";
 
 const BlogShifter = () => {
-  const blogPosts = [
-    {
-      id: 1,
-      title: "The Future of CRM: AI-Powered Customer Insights",
-      excerpt: "Discover how artificial intelligence is revolutionizing customer relationship management and driving business growth.",
-      author: "Mina Michel",
-      date: "Dec 15, 2024",
-      category: "AI & CRM",
-      readTime: "5 min read"
-    },
-    {
-      id: 2,
-      title: "Salesforce Implementation Best Practices for 2025",
-      excerpt: "Essential strategies and tips for successful Salesforce deployment that maximize ROI and user adoption.",
-      author: "Ashraf Rezk",
-      date: "Dec 12, 2024",
-      category: "Implementation",
-      readTime: "7 min read"
-    },
-    {
-      id: 3,
-      title: "Customer Experience Optimization in the Digital Age",
-      excerpt: "Learn how to leverage modern CRM tools to create exceptional customer experiences that drive loyalty.",
-      author: "Marina Danial",
-      date: "Dec 10, 2024",
-      category: "Customer Experience",
-      readTime: "6 min read"
-    },
-    {
-      id: 4,
-      title: "Automation Workflows That Transform Business Processes",
-      excerpt: "Explore advanced automation techniques that streamline operations and boost productivity across your organization.",
-      author: "Mourad Takawi",
-      date: "Dec 8, 2024",
-      category: "Automation",
-      readTime: "8 min read"
-    }
-  ];
-
+  const navigate = useNavigate();
+  const { authData, isLoading: authLoading } = useSalesforce();
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  // Fetch blogs from Salesforce
   useEffect(() => {
+    const loadBlogs = async () => {
+      if (authLoading) return;
+      
+      if (!authData?.access_token || !authData?.instance_url) {
+        setError("Salesforce authentication not available");
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        setError(null);
+        const blogs = await fetchBlogs(authData.access_token, authData.instance_url);
+        setBlogPosts(blogs);
+        
+        // Reset index to 0 when blogs are loaded
+        if (blogs.length > 0) {
+          setCurrentIndex(0);
+        }
+      } catch (err) {
+        console.error("Failed to load blogs:", err);
+        setError(err instanceof Error ? err.message : "Failed to load blogs");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadBlogs();
+  }, [authData, authLoading]);
+
+  // Auto-rotate through blogs
+  useEffect(() => {
+    if (blogPosts.length === 0) return;
+
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % blogPosts.length);
     }, 4000);
@@ -52,7 +56,51 @@ const BlogShifter = () => {
     return () => clearInterval(interval);
   }, [blogPosts.length]);
 
+  // Handle navigation to blog detail
+  const handleReadMore = (blogId: string) => {
+    navigate(`/blog/${blogId}`);
+  };
+
+  // Calculate read time estimate (rough estimate: 200 words per minute)
+  const calculateReadTime = (content: string): string => {
+    if (!content) return "2 min read";
+    const textContent = content.replace(/<[^>]*>/g, '');
+    const wordCount = textContent.split(/\s+/).length;
+    const minutes = Math.ceil(wordCount / 200);
+    return `${minutes} min read`;
+  };
+
+  // Loading state
+  if (authLoading || isLoading) {
+    return (
+      <div className="relative max-w-4xl mx-auto">
+        <div className="bg-gradient-to-br from-card/90 to-background/90 backdrop-blur-sm rounded-2xl p-8 border border-border/50 flex items-center justify-center min-h-[400px]">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="w-8 h-8 text-brand-primary animate-spin" />
+            <p className="text-muted-foreground">Loading blogs...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error || blogPosts.length === 0) {
+    return (
+      <div className="relative max-w-4xl mx-auto">
+        <div className="bg-gradient-to-br from-card/90 to-background/90 backdrop-blur-sm rounded-2xl p-8 border border-border/50 flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <p className="text-muted-foreground">
+              {error || "No blogs available at the moment."}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const currentPost = blogPosts[currentIndex];
+  const readTime = calculateReadTime(currentPost.content);
 
   return (
     <div className="relative max-w-4xl mx-auto">
@@ -90,15 +138,16 @@ const BlogShifter = () => {
           animate={{ opacity: 1, x: 0, rotateY: 0 }}
           exit={{ opacity: 0, x: -100, rotateY: 15 }}
           transition={{ duration: 0.6, ease: "easeInOut" }}
-          className="bg-gradient-to-br from-card/90 to-background/90 backdrop-blur-sm rounded-2xl p-8 border border-border/50 hover:border-brand-primary/30 transition-all duration-500 group perspective-1000"
+          className="bg-gradient-to-br from-card/90 to-background/90 backdrop-blur-sm rounded-2xl p-8 border border-border/50 hover:border-brand-primary/30 transition-all duration-500 group perspective-1000 cursor-pointer"
+          onClick={() => handleReadMore(currentPost.id)}
         >
           <div className="flex flex-col lg:flex-row gap-8">
             <div className="flex-1">
               <div className="flex items-center gap-4 mb-4">
                 <span className="px-3 py-1 bg-brand-primary/20 text-brand-primary rounded-full text-sm font-medium">
-                  {currentPost.category}
+                  Blog
                 </span>
-                <span className="text-muted-foreground text-sm">{currentPost.readTime}</span>
+                <span className="text-muted-foreground text-sm">{readTime}</span>
               </div>
               
               <h3 className="text-2xl lg:text-3xl font-bold text-foreground mb-4 group-hover:text-brand-primary transition-colors duration-300">
@@ -106,23 +155,23 @@ const BlogShifter = () => {
               </h3>
               
               <p className="text-muted-foreground text-lg leading-relaxed mb-6">
-                {currentPost.excerpt}
+                {currentPost.excerpt || "Read the full article to learn more..."}
               </p>
               
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4 text-muted-foreground">
                   <div className="flex items-center gap-2">
-                    <User className="w-4 h-4" />
-                    <span className="text-sm">{currentPost.author}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
-                    <span className="text-sm">{currentPost.date}</span>
+                    <span className="text-sm">{currentPost.formattedDate || "Published"}</span>
                   </div>
                 </div>
                 
                 <motion.button
                   whileHover={{ x: 5 }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleReadMore(currentPost.id);
+                  }}
                   className="flex items-center gap-2 text-brand-primary hover:text-brand-secondary transition-colors duration-300 group"
                 >
                   <span className="text-sm font-medium">Read More</span>
@@ -141,20 +190,22 @@ const BlogShifter = () => {
       </AnimatePresence>
 
       {/* Navigation */}
-      <div className="flex justify-center mt-8 gap-4">
-        <button
-          onClick={() => setCurrentIndex((prev) => (prev - 1 + blogPosts.length) % blogPosts.length)}
-          className="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors duration-300 border border-gray-600"
-        >
-          Previous
-        </button>
-        <button
-          onClick={() => setCurrentIndex((prev) => (prev + 1) % blogPosts.length)}
-          className="px-6 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-500 transition-colors duration-300"
-        >
-          Next
-        </button>
-      </div>
+      {blogPosts.length > 1 && (
+        <div className="flex justify-center mt-8 gap-4">
+          <button
+            onClick={() => setCurrentIndex((prev) => (prev - 1 + blogPosts.length) % blogPosts.length)}
+            className="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors duration-300 border border-gray-600"
+          >
+            Previous
+          </button>
+          <button
+            onClick={() => setCurrentIndex((prev) => (prev + 1) % blogPosts.length)}
+            className="px-6 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-500 transition-colors duration-300"
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 };
