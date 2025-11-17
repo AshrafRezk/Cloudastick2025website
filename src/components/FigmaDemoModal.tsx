@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { X } from 'lucide-react';
+import { X, ExternalLink } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -17,7 +17,7 @@ const FigmaDemoModal: React.FC<FigmaDemoModalProps> = ({ isOpen, onClose }) => {
   const hasLoadedRef = useRef(false);
 
   const figmaEmbedUrl = 'https://embed.figma.com/proto/9DYKuegyYCcLdKMlww48BC/Walkthrough?node-id=35-54&p=f&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=35%3A54&embed-host=share';
-  const figmaDirectUrl = 'https://www.figma.com/proto/9DYKuegyYCcLdKMlww48BC/Walkthrough?node-id=35-54&p=f&t=CsZvU5HD3uFw94qx-1&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=35%3A54';
+  const figmaDirectUrl = 'https://www.figma.com/proto/9DYKuegyYCcLdKMlww48BC/Walkthrough?node-id=35-54&p=f&t=lSeN4IWKTxtwfYI1-1&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=35%3A54';
 
   const handleRedirect = useCallback(() => {
     window.open(figmaDirectUrl, '_blank', 'noopener,noreferrer');
@@ -69,13 +69,25 @@ const FigmaDemoModal: React.FC<FigmaDemoModalProps> = ({ isOpen, onClose }) => {
         {/* Header with Close Button */}
         <div className="flex items-center justify-between p-4 border-b border-gray-700 flex-shrink-0">
           <h2 className="text-xl font-bold text-cyan-400">Try Demo - Real Estate Walkthrough</h2>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-700 rounded-lg transition-colors duration-200"
-            aria-label="Close modal"
-          >
-            <X className="w-6 h-6 text-white" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                window.open(figmaDirectUrl, '_blank', 'noopener,noreferrer');
+              }}
+              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors duration-200 flex items-center gap-2 text-sm font-medium text-white"
+              aria-label="Open in Figma"
+            >
+              <ExternalLink className="w-4 h-4" />
+              <span>Show in Cloudastick's Figma</span>
+            </button>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-700 rounded-lg transition-colors duration-200"
+              aria-label="Close modal"
+            >
+              <X className="w-6 h-6 text-white" />
+            </button>
+          </div>
         </div>
 
         {/* Figma Iframe Container */}
