@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import {
@@ -12,7 +12,56 @@ interface FigmaDemoModalProps {
 }
 
 const FigmaDemoModal: React.FC<FigmaDemoModalProps> = ({ isOpen, onClose }) => {
-  const figmaUrl = 'https://www.figma.com/proto/9DYKuegyYCcLdKMlww48BC/Walkthrough?node-id=35-54&p=f&t=CsZvU5HD3uFw94qx-1&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=35%3A54';
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const errorTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const hasLoadedRef = useRef(false);
+
+  const figmaEmbedUrl = 'https://embed.figma.com/proto/9DYKuegyYCcLdKMlww48BC/Walkthrough?node-id=35-54&p=f&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=35%3A54&embed-host=share';
+  const figmaDirectUrl = 'https://www.figma.com/proto/9DYKuegyYCcLdKMlww48BC/Walkthrough?node-id=35-54&p=f&t=CsZvU5HD3uFw94qx-1&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=35%3A54';
+
+  const handleRedirect = useCallback(() => {
+    window.open(figmaDirectUrl, '_blank', 'noopener,noreferrer');
+    onClose();
+  }, [onClose]);
+
+  useEffect(() => {
+    if (isOpen) {
+      hasLoadedRef.current = false;
+      // Set a timeout as a fallback - if iframe doesn't load properly, redirect
+      // This handles cases where the iframe shows an error state
+      errorTimeoutRef.current = setTimeout(() => {
+        // If we reach here and haven't detected successful load, redirect
+        if (!hasLoadedRef.current) {
+          handleRedirect();
+        }
+      }, 5000); // Give it 5 seconds to load
+    }
+
+    return () => {
+      if (errorTimeoutRef.current) {
+        clearTimeout(errorTimeoutRef.current);
+      }
+    };
+  }, [isOpen, handleRedirect]);
+
+  const handleIframeError = useCallback(() => {
+    // If iframe fails to load, automatically redirect
+    if (errorTimeoutRef.current) {
+      clearTimeout(errorTimeoutRef.current);
+    }
+    handleRedirect();
+  }, [handleRedirect]);
+
+  // Listen for iframe load events
+  const handleIframeLoad = useCallback(() => {
+    // Mark as loaded successfully
+    hasLoadedRef.current = true;
+    // Clear the error timeout if iframe loads successfully
+    if (errorTimeoutRef.current) {
+      clearTimeout(errorTimeoutRef.current);
+      errorTimeoutRef.current = null;
+    }
+  }, []);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -37,10 +86,14 @@ const FigmaDemoModal: React.FC<FigmaDemoModalProps> = ({ isOpen, onClose }) => {
           className="flex-1 w-full relative overflow-hidden"
         >
           <iframe
-            src={figmaUrl}
+            ref={iframeRef}
+            src={figmaEmbedUrl}
             className="absolute inset-0 w-full h-full border-0"
+            style={{ border: '1px solid rgba(0, 0, 0, 0.1)' }}
             allow="fullscreen"
             title="Figma Demo - Real Estate Walkthrough"
+            onError={handleIframeError}
+            onLoad={handleIframeLoad}
           />
         </motion.div>
       </DialogContent>
