@@ -65,6 +65,7 @@ import { getClientsByIndustry, getAllClients } from '../utils/clientFilter';
 import { getClientLogoPath } from '../utils/clientLogoHelper';
 import ClientModal from '../components/ClientModal';
 import { ClientInfo } from '../data/clientsData';
+import FigmaDemoModal from '../components/FigmaDemoModal';
 
 // Modern Carousel Hub and Spoke Component
 const HubAndSpokeVisualization = React.memo(({ 
@@ -372,6 +373,7 @@ const SalesforcePower = () => {
   const [showProductRecommendation, setShowProductRecommendation] = useState<boolean>(false);
   const [selectedClient, setSelectedClient] = useState<ClientInfo | null>(null);
   const [showClientModal, setShowClientModal] = useState<boolean>(false);
+  const [showDemoModal, setShowDemoModal] = useState<boolean>(false);
 
   // Memoized hover handler to prevent unnecessary re-renders
   const handleProductHover = useCallback((productId: string | null) => {
@@ -383,6 +385,16 @@ const SalesforcePower = () => {
     triggerHaptic([10, 5, 10], '/Assets/selection4new.mp3');
     setSelectedClient(client);
     setShowClientModal(true);
+  };
+
+  // Handle demo modal
+  const handleOpenDemo = () => {
+    triggerHaptic([15, 10, 15], '/Assets/selection3new.mp3');
+    setShowDemoModal(true);
+  };
+
+  const handleCloseDemo = () => {
+    setShowDemoModal(false);
   };
 
   // Copy table link function
@@ -1093,6 +1105,24 @@ const SalesforcePower = () => {
                   : personalizeText(t('power.hero.subtitle'))
                 }
               </p>
+
+              {/* Try Demo Button - Only show for Real Estate */}
+              {selectedIndustry === 'real-estate' && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.2 }}
+                  className="mb-8 flex justify-center"
+                >
+                  <button
+                    onClick={handleOpenDemo}
+                    className="px-8 py-4 rounded-xl font-semibold transition-all duration-300 flex items-center gap-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105 cursor-pointer"
+                  >
+                    <Play className="w-5 h-5" />
+                    <span>Try Demo</span>
+                  </button>
+                </motion.div>
+              )}
 
               {/* Company Inputs - Only show if not pre-filled from URL */}
               {!hasPrefilledParams && (
@@ -3033,6 +3063,12 @@ const SalesforcePower = () => {
         onSuccess={handleLeadModalSuccess}
         title={isDirectAccess ? "Get Your Personalized Analysis" : "Complete Your Profile"}
         subtitle={isDirectAccess ? "Tell us about your company to receive a customized comparison report" : "Add your company details to personalize your experience"}
+      />
+
+      {/* Figma Demo Modal */}
+      <FigmaDemoModal
+        isOpen={showDemoModal}
+        onClose={handleCloseDemo}
       />
     </div>
   );
