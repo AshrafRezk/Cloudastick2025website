@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { X, ExternalLink } from 'lucide-react';
+import { ExternalLink, X } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -65,8 +65,8 @@ const FigmaDemoModal: React.FC<FigmaDemoModalProps> = ({ isOpen, onClose }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[95vw] w-[95vw] max-h-[95vh] h-[95vh] bg-gradient-to-br from-gray-900 to-gray-800 border-gray-700 text-white p-0 overflow-hidden flex flex-col">
-        {/* Header with Close Button */}
+      <DialogContent className="max-w-[95vw] w-[95vw] max-h-[95vh] h-[95vh] bg-gradient-to-br from-gray-900 to-gray-800 border-gray-700 text-white p-0 overflow-hidden flex flex-col [&>button]:!hidden">
+        {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-700 flex-shrink-0">
           <h2 className="text-xl font-bold text-cyan-400">Try Demo - Real Estate Walkthrough</h2>
           <div className="flex items-center gap-2">

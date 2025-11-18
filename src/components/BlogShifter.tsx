@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, ArrowRight, BarChart3, Loader2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Calendar, ArrowRight, BarChart3, Loader2, BookOpen } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
 import { useSalesforce } from "../contexts/SalesforceContext";
 import { fetchBlogs, type BlogPost } from "../services/blogService";
 
@@ -45,13 +45,13 @@ const BlogShifter = () => {
     loadBlogs();
   }, [authData, authLoading]);
 
-  // Auto-rotate through blogs
+  // Auto-rotate through blogs (slowed down to 8 seconds)
   useEffect(() => {
     if (blogPosts.length === 0) return;
 
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % blogPosts.length);
-    }, 4000);
+    }, 8000); // Changed from 4000ms to 8000ms (8 seconds)
 
     return () => clearInterval(interval);
   }, [blogPosts.length]);
@@ -111,7 +111,7 @@ const BlogShifter = () => {
             className="h-full bg-brand-gradient"
             initial={{ width: "0%" }}
             animate={{ width: "100%" }}
-            transition={{ duration: 4, ease: "linear" }}
+            transition={{ duration: 8, ease: "linear" }}
             key={currentIndex}
           />
         </div>
@@ -190,22 +190,37 @@ const BlogShifter = () => {
       </AnimatePresence>
 
       {/* Navigation */}
-      {blogPosts.length > 1 && (
-        <div className="flex justify-center mt-8 gap-4">
-          <button
-            onClick={() => setCurrentIndex((prev) => (prev - 1 + blogPosts.length) % blogPosts.length)}
-            className="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors duration-300 border border-gray-600"
+      <div className="flex flex-col items-center mt-8 gap-4">
+        {blogPosts.length > 1 && (
+          <div className="flex justify-center gap-4">
+            <button
+              onClick={() => setCurrentIndex((prev) => (prev - 1 + blogPosts.length) % blogPosts.length)}
+              className="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors duration-300 border border-gray-600"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => setCurrentIndex((prev) => (prev + 1) % blogPosts.length)}
+              className="px-6 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-500 transition-colors duration-300"
+            >
+              Next
+            </button>
+          </div>
+        )}
+        
+        {/* View All Blogs Button */}
+        <Link to="/blogs">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-brand-primary to-brand-secondary text-white rounded-lg hover:shadow-lg hover:shadow-brand-primary/25 transition-all duration-300 font-medium"
           >
-            Previous
-          </button>
-          <button
-            onClick={() => setCurrentIndex((prev) => (prev + 1) % blogPosts.length)}
-            className="px-6 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-500 transition-colors duration-300"
-          >
-            Next
-          </button>
-        </div>
-      )}
+            <BookOpen className="w-5 h-5" />
+            <span>View All Blogs</span>
+            <ArrowRight className="w-4 h-4" />
+          </motion.button>
+        </Link>
+      </div>
     </div>
   );
 };

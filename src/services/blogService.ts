@@ -17,6 +17,18 @@ export interface BlogResponse {
   blogs: BlogPost[];
 }
 
+export interface PaginatedBlogResponse {
+  blogs: BlogPost[];
+  pagination: {
+    page: number;
+    pageSize: number;
+    totalCount: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
+}
+
 /**
  * Format date from Salesforce format to readable format
  */
@@ -148,6 +160,57 @@ export const fetchBlogByUrlName = async (
     return blog;
   } catch (error) {
     console.error('❌ Error fetching blog by URL name:', error);
+    throw error;
+  }
+};
+
+/**
+ * Fetch all blogs from Salesforce with pagination
+ */
+export const fetchAllBlogs = async (
+  accessToken: string,
+  instanceUrl: string,
+  page: number = 1,
+  pageSize: number = 10
+): Promise<PaginatedBlogResponse> => {
+  try {
+    console.log(`📰 Fetching all blogs from Salesforce (page ${page}, size ${pageSize})...`);
+
+    const response = await fetch('/.netlify/functions/fetchAllBlogs', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        access_token: accessToken,
+        instance_url: instanceUrl,
+        page,
+        pageSize,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `Failed to fetch blogs: ${response.status}`);
+    }
+
+    const data: PaginatedBlogResponse = await response.json();
+    
+    // Transform and format blog data
+    const blogs: BlogPost[] = data.blogs.map((blog) => ({
+      ...blog,
+      formattedDate: formatDate(blog.publishedDate),
+      excerpt: extractExcerpt(blog.content),
+    }));
+
+    console.log(`✅ Successfully fetched ${blogs.length} blogs (page ${page} of ${data.pagination.totalPages})`);
+    
+    return {
+      blogs,
+      pagination: data.pagination,
+    };
+  } catch (error) {
+    console.error('❌ Error fetching all blogs:', error);
     throw error;
   }
 };

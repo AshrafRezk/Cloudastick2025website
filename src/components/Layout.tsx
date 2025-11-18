@@ -20,6 +20,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     { name: t('nav.salesforce'), path: "/salesforce-power" },
     { name: t('nav.clients'), path: "/clients" },
     { name: t('nav.learn'), path: "/learn" },
+    { name: t('nav.merchandise'), path: "/merchandise" },
     { name: t('nav.feedback'), path: "/feedback" },
     { name: t('nav.contact'), path: "/contact" },
   ];

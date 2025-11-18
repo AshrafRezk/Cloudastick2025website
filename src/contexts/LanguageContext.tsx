@@ -88,6 +88,7 @@ const translations = {
     'nav.salesforce': 'Salesforce',
     'nav.clients': 'Clients',
     'nav.learn': 'Learn',
+    'nav.merchandise': 'Merchandise',
     'nav.feedback': 'Feedback',
     'nav.contact': 'Contact',
     
@@ -575,6 +576,7 @@ const translations = {
     'nav.salesforce': 'Salesforce',
     'nav.clients': 'العملاء',
     'nav.learn': 'التعلم',
+    'nav.merchandise': 'المنتجات',
     'nav.feedback': 'التقييمات',
     'nav.contact': 'اتصل بنا',
     

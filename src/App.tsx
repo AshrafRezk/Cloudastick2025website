@@ -33,6 +33,8 @@ import SalesforcePowerSuccess from "./pages/SalesforcePowerSuccess";
 import SalesforceComparisonTable from "./pages/SalesforceComparisonTable";
 import CaptureIntelligence from "./pages/CaptureIntelligence";
 import BlogDetail from "./pages/BlogDetail";
+import Blogs from "./pages/Blogs";
+import Merchandise from "./pages/Merchandise";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { SalesforceProvider } from "./contexts/SalesforceContext";
 
@@ -114,12 +116,14 @@ const App = () => {
                       <Route path="/feedback" element={<Feedback />} />
                       <Route path="/contact" element={<Contact />} />
                       <Route path="/learn" element={<Learn />} />
+                      <Route path="/merchandise" element={<Merchandise />} />
                       <Route path="/salesforce-apps" element={<SalesforceApps />} />
                           <Route path="/salesforce-power" element={<SalesforcePower />} />
                           <Route path="/salesforce-power-lead-capture" element={<SalesforcePowerLeadCapture />} />
                           <Route path="/salesforce-power-success" element={<SalesforcePowerSuccess />} />
                           <Route path="/salesforce-comparison" element={<SalesforceComparisonTable />} />
                       <Route path="/intelligence-capture" element={<CaptureIntelligence />} />
+                      <Route path="/blogs" element={<Blogs />} />
                       <Route path="/blog/:slug" element={<BlogDetail />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
