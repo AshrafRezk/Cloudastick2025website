@@ -34,7 +34,23 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const { projectId, password, ...updatedFields } = JSON.parse(event.body);
+    // Parse request body with error handling
+    let requestData;
+    try {
+      requestData = JSON.parse(event.body || '{}');
+    } catch (parseError) {
+      console.error('❌ Failed to parse request body:', parseError);
+      return {
+        statusCode: 400,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ error: 'Invalid request body. Expected JSON.' }),
+      };
+    }
+
+    const { projectId, password, ...updatedFields } = requestData;
 
     if (!projectId) {
       return {
@@ -62,14 +78,35 @@ exports.handler = async (event, context) => {
     console.log('🔄 Updating project team data for:', projectId);
 
     // Initialize Netlify Blobs store
-    const store = getStore('project-teams');
+    let store;
+    try {
+      store = getStore('project-teams');
+    } catch (storeError) {
+      console.error('❌ Failed to initialize blob store:', storeError);
+      return {
+        statusCode: 500,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          error: 'Failed to initialize storage',
+          message: 'Unable to connect to project team storage. Please try again.',
+        }),
+      };
+    }
 
     // Get existing project data
     let projectData = {};
     try {
       const existingData = await store.get(projectId);
       if (existingData) {
-        projectData = JSON.parse(existingData);
+        try {
+          projectData = JSON.parse(existingData);
+        } catch (parseError) {
+          console.error('❌ Failed to parse existing project data:', parseError);
+          // Continue with empty projectData
+        }
       }
     } catch (e) {
       console.log('No existing project data found, creating new');
@@ -86,14 +123,34 @@ exports.handler = async (event, context) => {
     };
 
     // Save updated project data
-    await store.set(projectId, JSON.stringify(updatedData));
+    try {
+      await store.set(projectId, JSON.stringify(updatedData));
+    } catch (saveError) {
+      console.error('❌ Failed to save project data:', saveError);
+      return {
+        statusCode: 500,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          error: 'Failed to save project data',
+          message: 'Unable to save project team data. Please try again.',
+        }),
+      };
+    }
 
     // Update project index
     let projectIndex = [];
     try {
       const existingIndex = await store.get('_project_index');
       if (existingIndex) {
-        projectIndex = JSON.parse(existingIndex);
+        try {
+          projectIndex = JSON.parse(existingIndex);
+        } catch (parseError) {
+          console.error('❌ Failed to parse project index:', parseError);
+          // Continue with empty index
+        }
       }
     } catch (e) {
       console.log('Creating new project index');
@@ -112,7 +169,12 @@ exports.handler = async (event, context) => {
     projectIndex.push(indexEntry);
 
     // Save updated project index
-    await store.set('_project_index', JSON.stringify(projectIndex));
+    try {
+      await store.set('_project_index', JSON.stringify(projectIndex));
+    } catch (indexError) {
+      console.error('❌ Failed to update project index:', indexError);
+      // Don't fail the whole request if index update fails, but log it
+    }
 
     console.log('✅ Project team data updated successfully');
 
@@ -132,6 +194,15 @@ exports.handler = async (event, context) => {
 
   } catch (error) {
     console.error('❌ Error updating project team data:', error);
+    console.error('Error stack:', error.stack);
+    console.error('Error name:', error.name);
+    
+    // Ensure we always return a valid response
+    const errorMessage = error.message || 'An unexpected error occurred';
+    const sanitizedMessage = errorMessage.length > 200 
+      ? errorMessage.substring(0, 200) + '...' 
+      : errorMessage;
+    
     return {
       statusCode: 500,
       headers: {
@@ -140,7 +211,7 @@ exports.handler = async (event, context) => {
       },
       body: JSON.stringify({
         error: 'Failed to update project team data',
-        message: error.message,
+        message: sanitizedMessage,
       }),
     };
   }
