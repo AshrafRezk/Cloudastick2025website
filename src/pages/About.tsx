@@ -162,7 +162,7 @@ const About = () => {
     { 
       id: 19, name: "John Shedoudy", 
       role: t('team.salesforceConsultant'), 
-      image: "/Assets/Company Members/John_Shedoudy_Salesforce_Consultant.png",
+      image: "/Assets/Company Members/John_Shedoudy_Salesforce_Consultant.png?v=2",
       icons: [Settings, Wrench],
       hoverElements: [t('team.hoverElements.configuration'), t('team.hoverElements.optimization')],
       color: "from-teal-400 to-cyan-500"

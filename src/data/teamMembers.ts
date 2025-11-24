@@ -164,7 +164,7 @@ export const teamMembers: TeamMember[] = [
     id: "john-shedoudy",
     name: "John Shedoudy",
     role: "Salesforce Consultant",
-    image: "/Assets/Company Members/John_Shedoudy_Salesforce_Consultant.png",
+    image: "/Assets/Company Members/John_Shedoudy_Salesforce_Consultant.png?v=2",
     profileSlug: "john-shedoudy",
     description: "Expert in Salesforce implementation and optimization, John delivers tailored solutions that enhance business processes and drive operational efficiency."
   },
