@@ -111,7 +111,7 @@ const BlogShifter = () => {
             className="h-full bg-brand-gradient"
             initial={{ width: "0%" }}
             animate={{ width: "100%" }}
-            transition={{ duration: 8, ease: "linear" }}
+            transition={{ duration: 12, ease: "linear" }}
             key={currentIndex}
           />
         </div>
