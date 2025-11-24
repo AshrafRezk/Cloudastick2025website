@@ -49,7 +49,7 @@ const BlogDetail = () => {
     };
 
     loadBlog();
-  }, [id, authData, authLoading]);
+  }, [slug, authData, authLoading]);
 
   // Render HTML content safely
   const renderContent = (content: string) => {
