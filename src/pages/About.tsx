@@ -130,7 +130,7 @@ const About = () => {
     { 
       name: "Andrea Makary", 
       role: t('team.technicalArchitect'), 
-      image: "/Assets/Company Members/Andrea_Makary_Technical_Architect.png",
+      image: "/Assets/Company Members/Andrea_Makary_Technical_Architect.png?v=2",
       icons: [ShieldIcon, Globe],
       hoverElements: [t('team.hoverElements.architecture'), t('team.hoverElements.security')],
       color: "from-slate-400 to-gray-500"
@@ -146,7 +146,7 @@ const About = () => {
     { 
       id: 17, name: "Marina Danial", 
       role: "CFO Cloudastick and COO of Techsa", 
-      image: "/Assets/Company Members/Marina_Danial_CFO_Cloudastick_and_COO_of_Techsa.png",
+      image: "/Assets/Company Members/Marina_Danial_CFO_Cloudastick_and_COO_of_Techsa.png?v=2",
       icons: [CreditCard, TrendingUp],
       hoverElements: [t('team.hoverElements.finance'), t('team.hoverElements.operations')],
       color: "from-emerald-400 to-teal-500"
@@ -154,7 +154,7 @@ const About = () => {
     { 
       id: 18, name: "Jenny Maged", 
       role: t('team.salesforceConsultant'), 
-      image: "/Assets/Company Members/Jenny_Maged_Salesforce_Consultant.png",
+      image: "/Assets/Company Members/Jenny_Maged_Salesforce_Consultant.png?v=2",
       icons: [Code, Settings],
       hoverElements: [t('team.hoverElements.development'), t('team.hoverElements.configuration')],
       color: "from-blue-400 to-indigo-500"
@@ -170,7 +170,7 @@ const About = () => {
     { 
       id: 20, name: "Mariam Mahmoud", 
       role: t('team.salesforceConsultant'), 
-      image: "/Assets/Company Members/Mariam_Mahmoud_Salesforce_Consultant.png",
+      image: "/Assets/Company Members/Mariam_Mahmoud_Salesforce_Consultant.png?v=2",
       icons: [Users, UserCheck],
       hoverElements: [t('team.hoverElements.userAdoption'), t('team.hoverElements.training')],
       color: "from-purple-400 to-pink-500",
@@ -179,7 +179,7 @@ const About = () => {
     { 
       id: 21, name: "Omar Bazid", 
       role: t('team.salesforceConsultant'), 
-      image: "/Assets/Company Members/Omar_Bazid_Salesforce_Consultant.png",
+      image: "/Assets/Company Members/Omar_Bazid_Salesforce_Consultant.png?v=2",
       icons: [TrendingUp, Target],
       hoverElements: [t('team.hoverElements.scalability'), t('team.hoverElements.growth')],
       color: "from-green-400 to-emerald-500",
