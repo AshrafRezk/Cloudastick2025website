@@ -16,6 +16,8 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
 import { useToast } from '../hooks/use-toast';
+import SalesforceLookup, { SalesforceRecord } from '../components/SalesforceLookup';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 
 const ProjectTeam: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -44,6 +46,11 @@ const ProjectTeam: React.FC = () => {
   const [teamProfiles, setTeamProfiles] = useState<Record<string, any>>({});
   const [expandedMember, setExpandedMember] = useState<string | null>(null);
   
+  // Salesforce lookup state
+  const [lookupObjectType, setLookupObjectType] = useState<'Opportunity' | 'SFDC_Project__c' | 'Account'>('SFDC_Project__c');
+  const [selectedSalesforceRecord, setSelectedSalesforceRecord] = useState<SalesforceRecord | null>(null);
+  const [useManualEntry, setUseManualEntry] = useState(false);
+  
   const EDIT_PASSWORD = 'Cloudastick@Team$';
 
   // Check if user is authenticated (from sessionStorage)
@@ -67,6 +74,13 @@ const ProjectTeam: React.FC = () => {
           setSelectedTeam(data.selectedTeam || []);
           setProjectScope(data.projectScope || '');
           setDeliverables(data.deliverables || '');
+          
+          // If we have a projectId, we can try to identify the record type
+          // For now, we'll default to SFDC_Project__c if it's an 18-character ID
+          if (data.projectId && data.projectId.length === 18) {
+            // Could potentially fetch record details to determine type
+            // For now, keep default lookup type
+          }
           
           // If company name exists but no logo, try to fetch
           if (data.companyName && !data.companyLogo) {
@@ -156,10 +170,13 @@ const ProjectTeam: React.FC = () => {
 
   // Handle save
   const handleSave = async () => {
-    if (!projectId) {
+    // Use selected Salesforce record ID if available, otherwise use manual projectId
+    const recordIdToSave = selectedSalesforceRecord?.id || projectId;
+    
+    if (!recordIdToSave) {
       toast({
-        title: 'Project ID required',
-        description: 'Please provide a project ID.',
+        title: 'Record required',
+        description: 'Please select a Salesforce record (Project, Opportunity, or Account) or enter a record ID.',
         variant: 'destructive',
       });
       return;
@@ -168,7 +185,7 @@ const ProjectTeam: React.FC = () => {
     setIsSaving(true);
     try {
       const data = {
-        projectId,
+        projectId: recordIdToSave,
         companyName,
         companyLogo: manualLogoUrl || companyLogo,
         selectedTeam,
@@ -177,7 +194,7 @@ const ProjectTeam: React.FC = () => {
       };
 
       if (isEditMode) {
-        await updateProjectTeam(projectId, data, EDIT_PASSWORD);
+        await updateProjectTeam(recordIdToSave, data, EDIT_PASSWORD);
         toast({
           title: 'Project updated',
           description: 'Project team data has been updated successfully.',
@@ -287,18 +304,95 @@ const ProjectTeam: React.FC = () => {
           <p className="text-gray-400">Select team members and define project details</p>
         </div>
 
-        {/* Project ID and Company Name (Editable in edit mode) */}
+        {/* Salesforce Record Lookup and Company Name (Editable in edit mode) */}
         {isEditMode && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div className="space-y-4 mb-6">
             <div>
-              <Label htmlFor="projectId" className="text-gray-300">Project ID</Label>
-              <Input
-                id="projectId"
-                value={projectId}
-                onChange={(e) => setProjectId(e.target.value)}
-                placeholder="SFDC_Project__c ID or Opportunity ID"
-                className="bg-gray-800 border-gray-600 text-white"
-              />
+              <div className="flex items-center justify-between mb-2">
+                <Label className="text-gray-300">Link to Salesforce Record</Label>
+                <button
+                  onClick={() => {
+                    setUseManualEntry(!useManualEntry);
+                    if (!useManualEntry) {
+                      setSelectedSalesforceRecord(null);
+                    }
+                  }}
+                  className="text-xs text-cyan-400 hover:text-cyan-300"
+                >
+                  {useManualEntry ? 'Use Lookup' : 'Enter ID Manually'}
+                </button>
+              </div>
+              
+              {!useManualEntry ? (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                      <Label className="text-gray-400 text-sm mb-2 block">Record Type</Label>
+                      <Select
+                        value={lookupObjectType}
+                        onValueChange={(value: 'Opportunity' | 'SFDC_Project__c' | 'Account') => {
+                          setLookupObjectType(value);
+                          setSelectedSalesforceRecord(null);
+                          setProjectId('');
+                        }}
+                      >
+                        <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-gray-800 border-gray-600">
+                          <SelectItem value="SFDC_Project__c">Project</SelectItem>
+                          <SelectItem value="Opportunity">Opportunity</SelectItem>
+                          <SelectItem value="Account">Account</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="md:col-span-3">
+                      <SalesforceLookup
+                        objectType={lookupObjectType}
+                        onChange={(record) => {
+                          setSelectedSalesforceRecord(record);
+                          if (record) {
+                            setProjectId(record.id);
+                            // Auto-populate company name if available
+                            if (record.accountName) {
+                              setCompanyName(record.accountName);
+                            }
+                          } else {
+                            setProjectId('');
+                          }
+                        }}
+                        placeholder={`Search ${lookupObjectType === 'SFDC_Project__c' ? 'Project' : lookupObjectType}...`}
+                        label=""
+                      />
+                    </div>
+                  </div>
+                  {selectedSalesforceRecord && (
+                    <div className="mt-2 p-3 bg-gray-800/50 rounded-lg border border-gray-700">
+                      <div className="text-sm text-gray-300">
+                        <span className="font-semibold">Selected:</span> {selectedSalesforceRecord.name}
+                        {selectedSalesforceRecord.accountName && (
+                          <span className="text-gray-400 ml-2">• Account: {selectedSalesforceRecord.accountName}</span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div>
+                  <Input
+                    value={projectId}
+                    onChange={(e) => {
+                      setProjectId(e.target.value);
+                      setSelectedSalesforceRecord(null);
+                    }}
+                    placeholder="Enter Salesforce Record ID (e.g., 0061234567890ABC)"
+                    className="bg-gray-800 border-gray-600 text-white"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Enter the Salesforce ID for Project (SFDC_Project__c), Opportunity, or Account
+                  </p>
+                </div>
+              )}
             </div>
             <div>
               <Label htmlFor="companyName" className="text-gray-300">Company Name</Label>
@@ -309,6 +403,15 @@ const ProjectTeam: React.FC = () => {
                 placeholder="Company Name"
                 className="bg-gray-800 border-gray-600 text-white"
               />
+            </div>
+          </div>
+        )}
+        
+        {/* Display selected record info when not in edit mode */}
+        {!isEditMode && projectId && (
+          <div className="mb-6 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+            <div className="text-sm text-gray-300">
+              <span className="font-semibold">Linked Record ID:</span> {projectId}
             </div>
           </div>
         )}
