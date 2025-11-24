@@ -11,6 +11,22 @@ export interface ProjectTeamData {
   updatedAt?: string;
 }
 
+export interface ProjectTeamListItem {
+  projectId: string;
+  companyName: string;
+  updatedAt: string;
+  createdAt?: string;
+  teamMemberCount: number;
+  hasScope: boolean;
+  hasDeliverables: boolean;
+}
+
+export interface ProjectTeamListResponse {
+  success: boolean;
+  projects: ProjectTeamListItem[];
+  total: number;
+}
+
 export interface SaveProjectTeamRequest {
   projectId: string;
   companyName?: string;
@@ -122,6 +138,61 @@ export async function updateProjectTeam(
     return await response.json();
   } catch (error) {
     console.error('Error updating project team:', error);
+    throw error;
+  }
+}
+
+/**
+ * List all project teams (password protected)
+ */
+export async function listProjectTeams(password: string): Promise<ProjectTeamListResponse> {
+  try {
+    const params = new URLSearchParams();
+    params.append('password', password);
+
+    const response = await fetch(`/.netlify/functions/listProjectTeams?${params.toString()}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to list project teams');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error listing project teams:', error);
+    throw error;
+  }
+}
+
+/**
+ * Delete project team data (password protected)
+ */
+export async function deleteProjectTeam(projectId: string, password: string): Promise<ProjectTeamResponse> {
+  try {
+    const response = await fetch('/.netlify/functions/deleteProjectTeam', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        projectId,
+        password,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to delete project team');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error deleting project team:', error);
     throw error;
   }
 }
