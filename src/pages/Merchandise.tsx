@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ShoppingBag, TShirt, Coffee, Gift, Star, ShoppingCart } from "lucide-react";
+import { ShoppingBag, Shirt, Coffee, Gift, Star, ShoppingCart } from "lucide-react";
 import AnimatedSection from "../components/AnimatedSection";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
@@ -90,7 +90,7 @@ const Merchandise = () => {
 
   const categories = [
     { id: "all", name: "All Products", icon: ShoppingBag },
-    { id: "apparel", name: "Apparel", icon: TShirt },
+    { id: "apparel", name: "Apparel", icon: Shirt },
     { id: "accessories", name: "Accessories", icon: Gift },
   ];
 
