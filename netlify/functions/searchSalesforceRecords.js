@@ -173,8 +173,15 @@ exports.handler = async (event, context) => {
         }
       }
       
-      // Handle specific error cases
-      if (errorMessage.includes('No such column') || errorMessage.includes('INVALID_FIELD')) {
+      // Handle specific error cases - check for field-related errors
+      // Salesforce can return various error formats for missing fields
+      const isFieldError = errorMessage.includes('No such column') || 
+                          errorMessage.includes('INVALID_FIELD') ||
+                          errorMessage.includes('field does not exist') ||
+                          errorMessage.includes('sObject type') ||
+                          (errorMessage.includes('Account__r') || errorMessage.includes('Opportunity__r'));
+      
+      if (isFieldError) {
         // Field doesn't exist - try simpler query for SFDC_Project__c
         if (objectType === 'SFDC_Project__c') {
           console.log('⚠️ Field not found, trying simplified query...');
