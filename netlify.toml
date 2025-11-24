@@ -29,6 +29,12 @@
 
 # Cache static assets (with revalidation to allow updates)
 [[headers]]
+  for = "/Assets/Company Members/*"
+  [headers.values]
+    Cache-Control = "public, max-age=3600, must-revalidate"
+
+# Cache other assets
+[[headers]]
   for = "/Assets/*"
   [headers.values]
     Cache-Control = "public, max-age=86400, must-revalidate"
