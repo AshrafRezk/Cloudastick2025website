@@ -35,6 +35,7 @@ import CaptureIntelligence from "./pages/CaptureIntelligence";
 import BlogDetail from "./pages/BlogDetail";
 import Blogs from "./pages/Blogs";
 import Merchandise from "./pages/Merchandise";
+import ProjectTeam from "./pages/ProjectTeam";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { SalesforceProvider } from "./contexts/SalesforceContext";
 
@@ -101,6 +102,9 @@ const App = () => {
             <Route path="/soueast-lead-capture" element={<SoueastLeadCapture />} />
             <Route path="/soueast-success" element={<SoueastLeadSuccess />} />
             <Route path="/soueast-comparison" element={<SoueastComparison />} />
+            
+            {/* Special route for Project Team - no standard startup or layout */}
+            <Route path="/project-team" element={<ProjectTeam />} />
             
             {/* Standard routes with startup sequence and layout */}
             <Route path="/*" element={
