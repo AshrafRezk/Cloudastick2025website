@@ -480,35 +480,93 @@ const SalesforcePower = () => {
     }
   };
 
-  // Fetch company logo function
+  // Fetch company logo function with multiple fallback methods
   const fetchCompanyLogo = useCallback(async (website: string) => {
-    if (!website.trim()) return;
+    if (!website || !website.trim()) {
+      console.warn('No website provided for logo fetch');
+      return;
+    }
     
     setLogoLoading(true);
     setLogoError(false);
     
+    // Normalize the website to get clean domain
+    const normalized = normalizeWebsiteUrl(website.trim());
+    const domain = normalized.domain || normalized.display || website.trim();
+    
+    if (!domain) {
+      console.warn('Could not extract domain from website:', website);
+      setLogoError(true);
+      setLogoLoading(false);
+      return;
+    }
+    
+    console.log('Fetching logo for domain:', domain);
+    
     try {
+      // Method 1: Try Netlify function (uses Clearbit + favicon)
       const response = await fetch('/.netlify/functions/fetchLogo', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ website: website.trim() }),
+        body: JSON.stringify({ website: domain }),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch logo');
+      if (response.ok) {
+        const data = await response.json();
+        
+        if (data.logoUrl) {
+          console.log('Logo found via Netlify function:', data.source);
+          setCompanyLogo(data.logoUrl);
+          setLogoError(false);
+          setLogoLoading(false);
+          return;
+        }
       }
-
-      const data = await response.json();
       
-      if (data.logoUrl) {
-        setCompanyLogo(data.logoUrl);
-        setLogoError(false);
-      } else {
-        setCompanyLogo(null);
-        setLogoError(true);
+      // Method 2: Try Clearbit directly as fallback
+      console.log('Netlify function did not return logo, trying Clearbit directly...');
+      const clearbitUrl = `https://logo.clearbit.com/${domain}`;
+      try {
+        const clearbitResponse = await fetch(clearbitUrl, { method: 'HEAD' });
+        if (clearbitResponse.ok) {
+          const contentType = clearbitResponse.headers.get('content-type');
+          if (contentType && contentType.startsWith('image/')) {
+            console.log('Logo found via Clearbit direct');
+            setCompanyLogo(clearbitUrl);
+            setLogoError(false);
+            setLogoLoading(false);
+            return;
+          }
+        }
+      } catch (clearbitError) {
+        console.warn('Clearbit direct fetch failed:', clearbitError);
       }
+      
+      // Method 3: Try Google favicon as last resort
+      console.log('Clearbit failed, trying Google favicon...');
+      const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+      try {
+        const faviconResponse = await fetch(faviconUrl, { method: 'HEAD' });
+        if (faviconResponse.ok) {
+          const contentType = faviconResponse.headers.get('content-type');
+          if (contentType && contentType.startsWith('image/')) {
+            console.log('Logo found via Google favicon');
+            setCompanyLogo(faviconUrl);
+            setLogoError(false);
+            setLogoLoading(false);
+            return;
+          }
+        }
+      } catch (faviconError) {
+        console.warn('Google favicon fetch failed:', faviconError);
+      }
+      
+      // No logo found from any method
+      console.warn('No logo found for domain:', domain);
+      setCompanyLogo(null);
+      setLogoError(true);
     } catch (error) {
       console.error('Error fetching company logo:', error);
       setCompanyLogo(null);
@@ -657,8 +715,14 @@ const SalesforcePower = () => {
           const normalized = normalizeWebsiteUrl(decodedWebsite);
           setCompanyWebsite(normalized.display);
           
-          // Fetch logo and enrich in parallel
-          const logoPromise = fetchCompanyLogo(normalized.domain);
+          // Fetch logo - ensure we always try to fetch it
+          // Use the normalized domain (which is clean and ready for logo APIs)
+          const logoPromise = fetchCompanyLogo(normalized.domain || normalized.display || decodedWebsite).catch((error) => {
+            console.error('Logo fetch failed:', error);
+            // Don't block preloading if logo fails - set error state but continue
+            setLogoError(true);
+            setCompanyLogo(null);
+          });
           
           // Enrich company data directly (avoid dependency on enrichCompanyData callback)
           if (normalized.domain && !loadingIntelligence) {
@@ -1022,6 +1086,36 @@ const SalesforcePower = () => {
   const selectedIndustryData = selectedIndustry 
     ? getIndustryById(selectedIndustry) 
     : genericIndustryData || null;
+
+  // Prepare industries for grid display
+  // If the selected industry is not in the first 8, replace Telecom with it
+  const displayIndustries = useMemo(() => {
+    const firstEight = industries.slice(0, 8);
+    
+    // Determine which industry to show (selectedIndustry or genericIndustryData)
+    const industryToShow = selectedIndustry 
+      ? getIndustryById(selectedIndustry)
+      : genericIndustryData;
+    
+    // Check if the industry to show is in the first 8
+    const isInFirstEight = industryToShow 
+      ? firstEight.some(ind => ind.id === industryToShow.id)
+      : false;
+    
+    // If we have an industry to show and it's not in the first 8, replace Telecom
+    if (industryToShow && !isInFirstEight) {
+      // Find Telecom index (should be index 3, but let's find it dynamically)
+      const telecomIndex = firstEight.findIndex(ind => ind.id === 'telecommunications');
+      if (telecomIndex !== -1) {
+        const updated = [...firstEight];
+        // Replace Telecom with the industry to show
+        updated[telecomIndex] = industryToShow;
+        return updated;
+      }
+    }
+    
+    return firstEight;
+  }, [industries, selectedIndustry, genericIndustryData]);
 
   // Core products for platform overview - use first 6 products for better visualization
   const coreProducts = salesforceProducts.slice(0, 6);
@@ -1428,9 +1522,18 @@ const SalesforcePower = () => {
               transition={{ duration: 0.8, delay: 0.3 }}
               className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 max-w-7xl mx-auto mb-24"
             >
-              {industries.slice(0, 8).map((industry, index) => {
-                const isSelected = selectedIndustry === industry.id;
-                const isNotSelected = selectedIndustry && selectedIndustry !== industry.id;
+              {displayIndustries.map((industry, index) => {
+                // Check if this industry is selected
+                // For matched industry: check if selectedIndustry matches
+                // For generic industry: check if we have genericIndustryData and no selectedIndustry
+                const isSelected = selectedIndustry 
+                  ? selectedIndustry === industry.id
+                  : (genericIndustryData && industry.id === 'generic');
+                
+                // Check if another industry is selected (for dimming effect)
+                const isNotSelected = selectedIndustry 
+                  ? selectedIndustry !== industry.id
+                  : (genericIndustryData && industry.id !== 'generic');
                 
                 return (
                   <motion.div
@@ -1444,7 +1547,13 @@ const SalesforcePower = () => {
                     transition={{ duration: 0.5, delay: 0.1 * index }}
                     whileHover={{ scale: 1.05, y: -8 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => handleIndustrySelect(industry.id)}
+                    onClick={() => {
+                      // If it's the generic industry, don't change selection (it's already selected)
+                      if (industry.id === 'generic') {
+                        return;
+                      }
+                      handleIndustrySelect(industry.id);
+                    }}
                     className={`relative bg-gradient-to-br ${industry.gradient} rounded-2xl p-4 sm:p-6 md:p-8 cursor-pointer group transition-all duration-300 hover:shadow-2xl backdrop-blur-sm
                       ${isSelected 
                         ? 'border-2 border-yellow-400 shadow-[0_0_30px_rgba(251,191,36,0.5)] ring-2 ring-yellow-400/50' 
