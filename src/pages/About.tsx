@@ -5,7 +5,7 @@ import {
   Heart, Zap, Users, Eye, Shield, Target, Award, TrendingUp,
   Code, Palette, Users2, Headphones, Wrench, MessageSquare, 
   BarChart3, Settings, UserCheck, Briefcase, Lightbulb, 
-  Globe, Database, Shield as ShieldIcon, Star
+  Globe, Database, Shield as ShieldIcon, Star, CreditCard
 } from "lucide-react";
 import AnimatedSection from "../components/AnimatedSection";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -142,6 +142,22 @@ const About = () => {
       icons: [Briefcase, Target],
       hoverElements: [t('team.hoverElements.projectDelivery'), t('team.hoverElements.timeline')],
       color: "from-lime-400 to-green-500"
+    },
+    { 
+      id: 17, name: "Marina Danial", 
+      role: "CFO Cloudastick and COO of Techsa", 
+      image: "/Assets/Company Members/Marina_Danial_CFO_Cloudastick_and_COO_of_Techsa.png",
+      icons: [CreditCard, TrendingUp],
+      hoverElements: [t('team.hoverElements.finance'), t('team.hoverElements.operations')],
+      color: "from-emerald-400 to-teal-500"
+    },
+    { 
+      id: 18, name: "Jenny Maged", 
+      role: t('team.salesforceConsultant'), 
+      image: "/Assets/Company Members/Jenny_Maged_Salesforce_Consultant.png",
+      icons: [Code, Settings],
+      hoverElements: [t('team.hoverElements.development'), t('team.hoverElements.configuration')],
+      color: "from-blue-400 to-indigo-500"
     }
   ];
 

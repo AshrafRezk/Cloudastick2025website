@@ -5,7 +5,7 @@ import {
   ArrowRight, BarChart3, Users, Zap,
   Code, Palette, Users2, Headphones, Wrench, MessageSquare, 
   Settings, UserCheck, Briefcase, Lightbulb, 
-  Globe, Database, Shield as ShieldIcon, Star, Target, Award, TrendingUp
+  Globe, Database, Shield as ShieldIcon, Star, Target, Award, TrendingUp, CreditCard
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -150,6 +150,22 @@ const Home = () => {
       hoverElements: [t('team.hoverElements.projectDelivery'), t('team.hoverElements.timeline')],
       color: "from-lime-400 to-green-500",
       description: "Ensuring successful project delivery, Mariam coordinates complex Salesforce implementations while maintaining timelines, budgets, and stakeholder satisfaction."
+    },
+    { 
+      id: 17, name: "Marina Danial", role: "CFO Cloudastick and COO of Techsa", 
+      image: "/Assets/Company Members/Marina_Danial_CFO_Cloudastick_and_COO_of_Techsa.png",
+      icons: [CreditCard, TrendingUp],
+      hoverElements: [t('team.hoverElements.finance'), t('team.hoverElements.operations')],
+      color: "from-emerald-400 to-teal-500",
+      description: "Leading financial strategy and operations, Marina ensures Cloudastick's financial health while driving operational excellence across both Cloudastick and Techsa."
+    },
+    { 
+      id: 18, name: "Jenny Maged", role: t('team.salesforceConsultant'), 
+      image: "/Assets/Company Members/Jenny_Maged_Salesforce_Consultant.png",
+      icons: [Code, Settings],
+      hoverElements: [t('team.hoverElements.development'), t('team.hoverElements.configuration')],
+      color: "from-blue-400 to-indigo-500",
+      description: "Delivering expert Salesforce consulting services, Jenny helps businesses optimize their CRM processes and achieve their digital transformation goals."
     }
   ];
 
