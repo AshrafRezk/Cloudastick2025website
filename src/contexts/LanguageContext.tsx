@@ -91,6 +91,7 @@ const translations = {
     'nav.merchandise': 'Merchandise',
     'nav.feedback': 'Feedback',
     'nav.contact': 'Contact',
+    'nav.more': 'More',
     
     // Home Page
     'home.hero.title': 'Transform Your Business with Salesforce',
@@ -579,6 +580,7 @@ const translations = {
     'nav.merchandise': 'المنتجات',
     'nav.feedback': 'التقييمات',
     'nav.contact': 'اتصل بنا',
+    'nav.more': 'المزيد',
     
     // Home Page
     'home.hero.title': 'حوّل عملك مع Salesforce',

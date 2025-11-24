@@ -1,31 +1,52 @@
 
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Menu, X, Home } from "lucide-react";
+import { Menu, X, Home, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import Mira from "./Mira";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useLanguage } from "../contexts/LanguageContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { t } = useLanguage();
 
-  const navItems = [
+  // Main navigation items (visible in menu)
+  const mainNavItems = [
     { name: 'home-icon', path: "/", isIcon: true },
     { name: t('nav.about'), path: "/about" },
     { name: t('nav.services'), path: "/services" },
     { name: t('nav.apps'), path: "/salesforce-apps" },
     { name: t('nav.salesforce'), path: "/salesforce-power" },
     { name: t('nav.clients'), path: "/clients" },
-    { name: t('nav.learn'), path: "/learn" },
-    { name: t('nav.merchandise'), path: "/merchandise" },
     { name: t('nav.feedback'), path: "/feedback" },
     { name: t('nav.contact'), path: "/contact" },
   ];
 
+  // Items to show in "More" dropdown
+  const moreNavItems = [
+    { name: t('nav.learn'), path: "/learn" },
+    { name: t('nav.merchandise'), path: "/merchandise" },
+  ];
+
+  // All items for mobile menu
+  const allNavItems = [
+    ...mainNavItems,
+    ...moreNavItems,
+  ];
+
   const isActive = (path: string) => location.pathname === path;
+  
+  // Check if any "More" item is active
+  const isMoreActive = moreNavItems.some(item => isActive(item.path));
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -56,7 +77,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
-              {navItems.map((item) => (
+              {mainNavItems.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
@@ -81,6 +102,40 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                   )}
                 </Link>
               ))}
+              
+              {/* More Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  className={`relative px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-1 ${
+                    isMoreActive
+                      ? "text-brand-primary"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {t('nav.more') || 'More'}
+                  <ChevronDown className="h-4 w-4" />
+                  {isMoreActive && (
+                    <motion.div
+                      layoutId="activeTabMore"
+                      className="absolute inset-0 bg-brand-primary/10 rounded-md"
+                      initial={false}
+                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    />
+                  )}
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="min-w-[160px]">
+                  {moreNavItems.map((item) => (
+                    <DropdownMenuItem
+                      key={item.path}
+                      onClick={() => navigate(item.path)}
+                      className={isActive(item.path) ? "bg-brand-primary/10 text-brand-primary" : ""}
+                    >
+                      {item.name}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              
               <LanguageSwitcher />
             </div>
 
@@ -106,7 +161,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             className="md:hidden bg-card border-t border-border"
           >
             <div className="px-2 pt-2 pb-3 space-y-1">
-              {navItems.map((item) => (
+              {allNavItems.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
