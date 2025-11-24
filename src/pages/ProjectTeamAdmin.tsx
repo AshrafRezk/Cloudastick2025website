@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Lock, Loader2, Search, Eye, Edit, Trash2, 
   Building2, Users, Calendar, FileText, X,
-  AlertTriangle, RefreshCw, Target
+  AlertTriangle, RefreshCw, Target, Plus
 } from 'lucide-react';
 import { 
   listProjectTeams, 
@@ -141,6 +141,11 @@ const ProjectTeamAdmin: React.FC = () => {
     }
   };
 
+  // Create new project - redirect to project-team page
+  const handleCreateProject = () => {
+    navigate('/project-team');
+  };
+
   // Edit project - redirect to project-team page
   const handleEditProject = (projectId: string) => {
     navigate(`/project-team?projectId=${projectId}`);
@@ -253,6 +258,13 @@ const ProjectTeamAdmin: React.FC = () => {
               <p className="text-gray-400">Manage all project team configurations</p>
             </div>
             <div className="flex gap-2">
+              <Button
+                onClick={handleCreateProject}
+                className="bg-cyan-500 hover:bg-cyan-600 text-white"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Create New Project
+              </Button>
               <Button
                 onClick={loadProjects}
                 disabled={isLoading}
