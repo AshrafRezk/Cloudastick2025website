@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Search, Loader2, Building2, Briefcase, FolderKanban, X } from 'lucide-react';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
@@ -90,7 +90,7 @@ const SalesforceLookup: React.FC<SalesforceLookupProps> = ({
   const Icon = getObjectIcon();
 
   // Search Salesforce records
-  const searchRecords = async (term: string) => {
+  const searchRecords = useCallback(async (term: string) => {
     if (!authData || !term || term.trim().length < 2) {
       setResults([]);
       return;
@@ -135,14 +135,15 @@ const SalesforceLookup: React.FC<SalesforceLookupProps> = ({
       // Parse successful response
       let data;
       try {
-        const responseText = await response.text();
-        data = JSON.parse(responseText);
+        data = await response.json();
       } catch (parseError) {
         console.error('Failed to parse response:', parseError);
         throw new Error('Invalid response from server');
       }
 
-      setResults(data.records || []);
+      // Handle both direct records array and wrapped response format
+      const records = data.records || (Array.isArray(data) ? data : []);
+      setResults(records);
       setShowResults(true);
     } catch (error: any) {
       console.error('Error searching Salesforce records:', error);
@@ -165,7 +166,7 @@ const SalesforceLookup: React.FC<SalesforceLookupProps> = ({
     } finally {
       setIsSearching(false);
     }
-  };
+  }, [authData, objectType, toast]);
 
   // Handle search input with debounce
   useEffect(() => {
@@ -187,7 +188,7 @@ const SalesforceLookup: React.FC<SalesforceLookupProps> = ({
         clearTimeout(searchTimeoutRef.current);
       }
     };
-  }, [searchTerm, authData]);
+  }, [searchTerm, searchRecords]);
 
   // Handle record selection
   const handleSelectRecord = (record: SalesforceRecord) => {
