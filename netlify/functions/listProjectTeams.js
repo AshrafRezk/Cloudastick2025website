@@ -53,7 +53,10 @@ exports.handler = async (event, context) => {
     console.log('📋 Listing all project teams...');
 
     // Initialize Netlify Blobs store
-    const store = getStore('project-teams');
+    const store = getStore({
+      name: 'project-teams',
+      context,
+    });
 
     // Get project index
     let projectIndex = [];

@@ -55,7 +55,10 @@ exports.handler = async (event, context) => {
     console.log('💾 Saving company data for:', cleanDomain);
 
     // Initialize Netlify Blobs store
-    const store = getStore('company-intelligence');
+    const store = getStore({
+      name: 'company-intelligence',
+      context,
+    });
 
     // Prepare data to save
     const companyData = {

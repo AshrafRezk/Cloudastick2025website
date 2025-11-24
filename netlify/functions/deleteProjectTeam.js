@@ -78,7 +78,10 @@ exports.handler = async (event, context) => {
     console.log('🗑️ Deleting project team data for:', projectId);
 
     // Initialize Netlify Blobs store
-    const store = getStore('project-teams');
+    const store = getStore({
+      name: 'project-teams',
+      context,
+    });
 
     // Check if project exists
     const existingData = await store.get(projectId);

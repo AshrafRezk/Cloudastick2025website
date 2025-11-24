@@ -78,23 +78,10 @@ exports.handler = async (event, context) => {
     console.log('🔄 Updating project team data for:', projectId);
 
     // Initialize Netlify Blobs store
-    let store;
-    try {
-      store = getStore('project-teams');
-    } catch (storeError) {
-      console.error('❌ Failed to initialize blob store:', storeError);
-      return {
-        statusCode: 500,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          error: 'Failed to initialize storage',
-          message: 'Unable to connect to project team storage. Please try again.',
-        }),
-      };
-    }
+    const store = getStore({
+      name: 'project-teams',
+      context,
+    });
 
     // Get existing project data
     let projectData = {};

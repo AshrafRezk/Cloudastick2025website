@@ -47,7 +47,10 @@ exports.handler = async (event, context) => {
     console.log('💾 Saving project team data for:', projectId);
 
     // Initialize Netlify Blobs store
-    const store = getStore('project-teams');
+    const store = getStore({
+      name: 'project-teams',
+      context,
+    });
 
     // Prepare data to save
     const projectData = {

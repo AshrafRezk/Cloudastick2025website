@@ -95,7 +95,10 @@ exports.handler = async (event, context) => {
     console.log('🔍 Searching for:', cleanQuery);
 
     // Initialize Netlify Blobs store
-    const store = getStore('company-intelligence');
+    const store = getStore({
+      name: 'company-intelligence',
+      context,
+    });
 
     // Try exact match first
     const exactMatch = await store.get(cleanQuery);

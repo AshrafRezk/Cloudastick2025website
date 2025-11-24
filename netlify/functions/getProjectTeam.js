@@ -47,7 +47,10 @@ exports.handler = async (event, context) => {
     console.log('📖 Retrieving project team data:', projectId || company);
 
     // Initialize Netlify Blobs store
-    const store = getStore('project-teams');
+    const store = getStore({
+      name: 'project-teams',
+      context,
+    });
 
     let projectData = null;
 
