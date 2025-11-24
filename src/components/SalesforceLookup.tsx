@@ -11,6 +11,8 @@ export interface SalesforceRecord {
   type: 'Opportunity' | 'Project' | 'Account';
   accountName?: string;
   accountId?: string;
+  accountIndustry?: string;
+  accountWebsite?: string;
   opportunityName?: string;
   opportunityId?: string;
   additionalInfo?: string;

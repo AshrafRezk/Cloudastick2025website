@@ -82,11 +82,12 @@ exports.handler = async (event, context) => {
 
     if (objectType === 'Opportunity') {
       // Use AccountId check to avoid null reference errors
-      soqlQuery = `SELECT Id, Name, AccountId, Account.Name, CloseDate, StageName, Amount FROM Opportunity WHERE (Name LIKE '%${escapedSearchTerm}%' OR (AccountId != null AND Account.Name LIKE '%${escapedSearchTerm}%')) ORDER BY Name LIMIT 20`;
+      // Include Account Industry and Website for auto-population
+      soqlQuery = `SELECT Id, Name, AccountId, Account.Name, Account.Industry, Account.Website, CloseDate, StageName, Amount FROM Opportunity WHERE (Name LIKE '%${escapedSearchTerm}%' OR (AccountId != null AND Account.Name LIKE '%${escapedSearchTerm}%')) ORDER BY Name LIMIT 20`;
     } else if (objectType === 'SFDC_Project__c') {
       // Try to query with relationship fields, but handle if they don't exist
-      // First try with all fields, if it fails, we'll fall back to basic query
-      soqlQuery = `SELECT Id, Name, Account__c, Account__r.Name, Opportunity__c, Opportunity__r.Name FROM SFDC_Project__c WHERE Name LIKE '%${escapedSearchTerm}%' ORDER BY Name LIMIT 20`;
+      // Include Account Industry and Website for auto-population
+      soqlQuery = `SELECT Id, Name, Account__c, Account__r.Name, Account__r.Industry, Account__r.Website, Opportunity__c, Opportunity__r.Name FROM SFDC_Project__c WHERE Name LIKE '%${escapedSearchTerm}%' ORDER BY Name LIMIT 20`;
     } else if (objectType === 'Account') {
       soqlQuery = `SELECT Id, Name, Type, Industry, Website FROM Account WHERE Name LIKE '%${escapedSearchTerm}%' ORDER BY Name LIMIT 20`;
     }
@@ -148,6 +149,8 @@ exports.handler = async (event, context) => {
               type: 'Project',
               accountName: '',
               accountId: '',
+              accountIndustry: '',
+              accountWebsite: '',
               additionalInfo: 'Limited fields available',
             }));
             
@@ -178,19 +181,25 @@ exports.handler = async (event, context) => {
     const records = (data.records || []).map((record) => {
       try {
         if (objectType === 'Opportunity') {
-          // Salesforce returns Account as an object with Name property
+          // Salesforce returns Account as an object with Name, Industry, Website properties
           const accountName = record.Account ? (record.Account.Name || '') : '';
+          const accountIndustry = record.Account ? (record.Account.Industry || '') : '';
+          const accountWebsite = record.Account ? (record.Account.Website || '') : '';
           return {
             id: record.Id,
             name: record.Name || '',
             type: 'Opportunity',
             accountName: accountName,
             accountId: record.AccountId || '',
+            accountIndustry: accountIndustry,
+            accountWebsite: accountWebsite,
             additionalInfo: `Stage: ${record.StageName || 'N/A'} | Close Date: ${record.CloseDate || 'N/A'}`,
           };
         } else if (objectType === 'SFDC_Project__c') {
           // Handle relationship fields - they may not exist
           const accountName = record.Account__r ? (record.Account__r.Name || '') : '';
+          const accountIndustry = record.Account__r ? (record.Account__r.Industry || '') : '';
+          const accountWebsite = record.Account__r ? (record.Account__r.Website || '') : '';
           const opportunityName = record.Opportunity__r ? (record.Opportunity__r.Name || '') : '';
           return {
             id: record.Id,
@@ -198,6 +207,8 @@ exports.handler = async (event, context) => {
             type: 'Project',
             accountName: accountName,
             accountId: record.Account__c || '',
+            accountIndustry: accountIndustry,
+            accountWebsite: accountWebsite,
             opportunityName: opportunityName,
             opportunityId: record.Opportunity__c || '',
             additionalInfo: accountName ? `Account: ${accountName}` : (opportunityName ? `Opportunity: ${opportunityName}` : ''),
@@ -208,6 +219,8 @@ exports.handler = async (event, context) => {
             name: record.Name || '',
             type: 'Account',
             accountName: record.Name || '',
+            accountIndustry: record.Industry || '',
+            accountWebsite: record.Website || '',
             additionalInfo: `${record.Type || 'N/A'} | ${record.Industry || 'N/A'}`,
           };
         }

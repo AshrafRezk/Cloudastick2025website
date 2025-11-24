@@ -254,11 +254,10 @@ const ProjectTeam: React.FC = () => {
               {/* Cloudastick Logo */}
               <div className="flex items-center gap-2">
                 <img 
-                  src="/Assets/Cloudiator800*800.png" 
+                  src="/Assets/Company Logos/white-logo-dark.webp" 
                   alt="Cloudastick" 
-                  className="h-12 w-12 object-contain"
+                  className="h-12 w-auto object-contain"
                 />
-                <span className="text-xl font-bold text-cyan-400">Cloudastick</span>
               </div>
               
               {/* Company Logo */}
@@ -349,16 +348,35 @@ const ProjectTeam: React.FC = () => {
                     <div className="md:col-span-3">
                       <SalesforceLookup
                         objectType={lookupObjectType}
-                        onChange={(record) => {
+                        onChange={async (record) => {
                           setSelectedSalesforceRecord(record);
                           if (record) {
                             setProjectId(record.id);
-                            // Auto-populate company name if available
+                            // Auto-populate company name from Account
                             if (record.accountName) {
                               setCompanyName(record.accountName);
                             }
+                            // Auto-populate website from Account
+                            if (record.accountWebsite) {
+                              setCompanyWebsite(record.accountWebsite);
+                              // Fetch logo using the website
+                              setLogoLoading(true);
+                              try {
+                                const result = await fetchCompanyLogo(record.accountWebsite);
+                                if (result.logoUrl) {
+                                  setCompanyLogo(result.logoUrl);
+                                }
+                              } catch (error) {
+                                console.error('Error fetching logo:', error);
+                              } finally {
+                                setLogoLoading(false);
+                              }
+                            }
                           } else {
                             setProjectId('');
+                            setCompanyName('');
+                            setCompanyWebsite('');
+                            setCompanyLogo('');
                           }
                         }}
                         placeholder={`Search ${lookupObjectType === 'SFDC_Project__c' ? 'Project' : lookupObjectType}...`}
@@ -368,10 +386,20 @@ const ProjectTeam: React.FC = () => {
                   </div>
                   {selectedSalesforceRecord && (
                     <div className="mt-2 p-3 bg-gray-800/50 rounded-lg border border-gray-700">
-                      <div className="text-sm text-gray-300">
-                        <span className="font-semibold">Selected:</span> {selectedSalesforceRecord.name}
+                      <div className="text-sm text-gray-300 space-y-1">
+                        <div>
+                          <span className="font-semibold">Selected:</span> {selectedSalesforceRecord.name}
+                        </div>
                         {selectedSalesforceRecord.accountName && (
-                          <span className="text-gray-400 ml-2">• Account: {selectedSalesforceRecord.accountName}</span>
+                          <div className="text-gray-400">
+                            <span className="font-medium">Account:</span> {selectedSalesforceRecord.accountName}
+                            {selectedSalesforceRecord.accountIndustry && (
+                              <span className="ml-2">• Industry: {selectedSalesforceRecord.accountIndustry}</span>
+                            )}
+                            {selectedSalesforceRecord.accountWebsite && (
+                              <span className="ml-2">• Website: {selectedSalesforceRecord.accountWebsite}</span>
+                            )}
+                          </div>
                         )}
                       </div>
                     </div>
