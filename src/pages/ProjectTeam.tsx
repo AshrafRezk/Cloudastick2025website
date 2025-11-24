@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { 
   Users, CheckCircle2, X, Save, Edit, Lock, 
   Building2, FileText, Target, Loader2,
-  Eye, EyeOff, Upload
+  Eye, EyeOff, Upload, GraduationCap
 } from 'lucide-react';
 import { teamMembers, getTeamMemberById } from '../data/teamMembers';
 import { getTeamMemberProfile } from '../data/teamProfiles';
@@ -539,6 +539,12 @@ const ProjectTeam: React.FC = () => {
                       {isSelected && (
                         <div className="absolute top-2 right-2 bg-cyan-400 rounded-full p-1">
                           <CheckCircle2 className="h-5 w-5 text-gray-900" />
+                        </div>
+                      )}
+                      {/* Academy icon */}
+                      {member.isAcademy && (
+                        <div className="absolute top-2 left-2 w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white">
+                          <GraduationCap className="w-5 h-5 text-white" />
                         </div>
                       )}
                     </div>

@@ -11,6 +11,7 @@ export interface TeamMember {
   hoverElements?: string[];
   color?: string;
   description?: string;
+  isAcademy?: boolean; // indicates if member is part of the academy
 }
 
 // Team members data consolidated from About.tsx and Home.tsx
@@ -173,7 +174,8 @@ export const teamMembers: TeamMember[] = [
     role: "Salesforce Consultant",
     image: "/Assets/Company Members/Mariam_Mahmoud_Salesforce_Consultant.png",
     profileSlug: "mariam-mahmoud",
-    description: "Specializing in Salesforce configuration and user adoption, Mariam ensures seamless platform integration and empowers teams to maximize CRM value."
+    description: "Specializing in Salesforce configuration and user adoption, Mariam ensures seamless platform integration and empowers teams to maximize CRM value.",
+    isAcademy: true
   },
   {
     id: "omar-bazid",
@@ -181,7 +183,8 @@ export const teamMembers: TeamMember[] = [
     role: "Salesforce Consultant",
     image: "/Assets/Company Members/Omar_Bazid_Salesforce_Consultant.png",
     profileSlug: "omar-bazid",
-    description: "Focused on delivering scalable Salesforce solutions, Omar combines technical expertise with business acumen to transform customer engagement strategies."
+    description: "Focused on delivering scalable Salesforce solutions, Omar combines technical expertise with business acumen to transform customer engagement strategies.",
+    isAcademy: true
   }
 ];
 

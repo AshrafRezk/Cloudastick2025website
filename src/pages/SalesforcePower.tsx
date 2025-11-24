@@ -1840,23 +1840,23 @@ const SalesforcePower = () => {
               {/* Team members with duplicates for seamless loop */}
               {(() => {
                 const teamMembers = [
-                  { name: 'Mina Michel', role: 'Founder of Cloudastick Systems', image: 'Mina_Michel_Founder_of_Cloudastick_Systems.png' },
-                  { name: 'Ashraf Rezk', role: 'Head of Tech', image: 'Ashraf_Rezk_Head_of_Tech.png' },
-                  { name: 'Andrea Makary', role: 'Technical Architect', image: 'Andrea_Makary_Technical_Architect.png' },
-                  { name: 'Mariam Mamdouh', role: 'Project Manager', image: 'Mariam_Mamdouh_Project_Manager.png' },
-                  { name: 'Omar El Borae', role: 'Customer Success Manager', image: 'Omar_El_Borae_Customer_Success_Manager.png' },
-                  { name: 'Ahmed Salah', role: 'Salesforce Consultant', image: 'Ahmed_Salah_Salesforce_Consultant.png' },
-                  { name: 'Farida Esam', role: 'Marketing Cloud Consultant', image: 'Farida_Esam_Marketing_Cloud_Consultant.png' },
-                  { name: 'Mireille Rafik', role: 'Marketing Cloud Consultant', image: 'Mireille_Rafik_Marketing_Cloud_Consultant.png' },
-                  { name: 'Andrew Osama', role: 'Salesforce Consultant', image: 'Andrew_Osama_Salesforce_Consultant.png' },
-                  { name: 'Fady Maged', role: 'Salesforce Consultant', image: 'Fady_Maged_Salesforce_Consultant.png' },
-                  { name: 'Maheen Imran', role: 'Salesforce Consultant', image: 'Maheen_Imran_Salesforce_Consultant.png' },
-                  { name: 'Carine Felix', role: 'Brand and People Experience Specialist', image: 'Carine_Felix_Brand_and_People_Experience_Specialist.png' },
-                  { name: 'Marina Danial', role: 'CFO Cloudastick and COO of Techsa', image: 'Marina_Danial_CFO_Cloudastick_and_COO_of_Techsa.png' },
-                  { name: 'Jenny Maged', role: 'Salesforce Consultant', image: 'Jenny_Maged_Salesforce_Consultant.png' },
-                  { name: 'John Shedoudy', role: 'Salesforce Consultant', image: 'John_Shedoudy_Salesforce_Consultant.png' },
-                  { name: 'Mariam Mahmoud', role: 'Salesforce Consultant', image: 'Mariam_Mahmoud_Salesforce_Consultant.png' },
-                  { name: 'Omar Bazid', role: 'Salesforce Consultant', image: 'Omar_Bazid_Salesforce_Consultant.png' }
+                  { name: 'Mina Michel', role: 'Founder of Cloudastick Systems', image: 'Mina_Michel_Founder_of_Cloudastick_Systems.png', isAcademy: false },
+                  { name: 'Ashraf Rezk', role: 'Head of Tech', image: 'Ashraf_Rezk_Head_of_Tech.png', isAcademy: false },
+                  { name: 'Andrea Makary', role: 'Technical Architect', image: 'Andrea_Makary_Technical_Architect.png', isAcademy: false },
+                  { name: 'Mariam Mamdouh', role: 'Project Manager', image: 'Mariam_Mamdouh_Project_Manager.png', isAcademy: false },
+                  { name: 'Omar El Borae', role: 'Customer Success Manager', image: 'Omar_El_Borae_Customer_Success_Manager.png', isAcademy: false },
+                  { name: 'Ahmed Salah', role: 'Salesforce Consultant', image: 'Ahmed_Salah_Salesforce_Consultant.png', isAcademy: false },
+                  { name: 'Farida Esam', role: 'Marketing Cloud Consultant', image: 'Farida_Esam_Marketing_Cloud_Consultant.png', isAcademy: false },
+                  { name: 'Mireille Rafik', role: 'Marketing Cloud Consultant', image: 'Mireille_Rafik_Marketing_Cloud_Consultant.png', isAcademy: false },
+                  { name: 'Andrew Osama', role: 'Salesforce Consultant', image: 'Andrew_Osama_Salesforce_Consultant.png', isAcademy: false },
+                  { name: 'Fady Maged', role: 'Salesforce Consultant', image: 'Fady_Maged_Salesforce_Consultant.png', isAcademy: false },
+                  { name: 'Maheen Imran', role: 'Salesforce Consultant', image: 'Maheen_Imran_Salesforce_Consultant.png', isAcademy: false },
+                  { name: 'Carine Felix', role: 'Brand and People Experience Specialist', image: 'Carine_Felix_Brand_and_People_Experience_Specialist.png', isAcademy: false },
+                  { name: 'Marina Danial', role: 'CFO Cloudastick and COO of Techsa', image: 'Marina_Danial_CFO_Cloudastick_and_COO_of_Techsa.png', isAcademy: false },
+                  { name: 'Jenny Maged', role: 'Salesforce Consultant', image: 'Jenny_Maged_Salesforce_Consultant.png', isAcademy: false },
+                  { name: 'John Shedoudy', role: 'Salesforce Consultant', image: 'John_Shedoudy_Salesforce_Consultant.png', isAcademy: false },
+                  { name: 'Mariam Mahmoud', role: 'Salesforce Consultant', image: 'Mariam_Mahmoud_Salesforce_Consultant.png', isAcademy: true },
+                  { name: 'Omar Bazid', role: 'Salesforce Consultant', image: 'Omar_Bazid_Salesforce_Consultant.png', isAcademy: true }
                 ];
 
                 return [...teamMembers, ...teamMembers].map((member, index) => (
@@ -1865,7 +1865,7 @@ const SalesforcePower = () => {
                     className="flex-shrink-0 group"
                   >
                     <div className="relative">
-                      <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-700 group-hover:border-cyan-400 transition-all duration-300 shadow-lg group-hover:shadow-cyan-500/50">
+                      <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-700 group-hover:border-cyan-400 transition-all duration-300 shadow-lg group-hover:shadow-cyan-500/50 relative">
                         <img
                           src={`/Assets/Company Members/${member.image}`}
                           alt={member.name}
@@ -1875,6 +1875,12 @@ const SalesforcePower = () => {
                             e.currentTarget.src = '/placeholder.svg';
                           }}
                         />
+                        {/* Academy icon */}
+                        {member.isAcademy && (
+                          <div className="absolute top-0 left-0 w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white">
+                            <GraduationCap className="w-4 h-4 text-white" />
+                          </div>
+                        )}
                       </div>
                       <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gray-900 border border-cyan-400 rounded-lg px-3 py-2 whitespace-nowrap z-10 shadow-xl">
                         <p className="text-white font-semibold text-sm">{member.name}</p>

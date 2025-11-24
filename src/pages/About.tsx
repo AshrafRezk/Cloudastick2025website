@@ -5,7 +5,7 @@ import {
   Heart, Zap, Users, Eye, Shield, Target, Award, TrendingUp,
   Code, Palette, Users2, Headphones, Wrench, MessageSquare, 
   BarChart3, Settings, UserCheck, Briefcase, Lightbulb, 
-  Globe, Database, Shield as ShieldIcon, Star, CreditCard
+  Globe, Database, Shield as ShieldIcon, Star, CreditCard, GraduationCap
 } from "lucide-react";
 import AnimatedSection from "../components/AnimatedSection";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -173,7 +173,8 @@ const About = () => {
       image: "/Assets/Company Members/Mariam_Mahmoud_Salesforce_Consultant.png",
       icons: [Users, UserCheck],
       hoverElements: [t('team.hoverElements.userAdoption'), t('team.hoverElements.training')],
-      color: "from-purple-400 to-pink-500"
+      color: "from-purple-400 to-pink-500",
+      isAcademy: true
     },
     { 
       id: 21, name: "Omar Bazid", 
@@ -181,7 +182,8 @@ const About = () => {
       image: "/Assets/Company Members/Omar_Bazid_Salesforce_Consultant.png",
       icons: [TrendingUp, Target],
       hoverElements: [t('team.hoverElements.scalability'), t('team.hoverElements.growth')],
-      color: "from-green-400 to-emerald-500"
+      color: "from-green-400 to-emerald-500",
+      isAcademy: true
     }
   ];
 
@@ -465,6 +467,13 @@ const About = () => {
                       <div className="absolute -bottom-2 -left-2 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
                         {React.createElement(member.icons[1], { className: "w-4 h-4 text-gray-700" })}
                       </div>
+                      
+                      {/* Academy icon */}
+                      {member.isAcademy && (
+                        <div className="absolute top-0 left-0 w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 border-2 border-white">
+                          <GraduationCap className="w-5 h-5 text-white" />
+                        </div>
+                      )}
                     </div>
                   </div>
                   

@@ -5,7 +5,7 @@ import {
   ArrowRight, BarChart3, Users, Zap,
   Code, Palette, Users2, Headphones, Wrench, MessageSquare, 
   Settings, UserCheck, Briefcase, Lightbulb, 
-  Globe, Database, Shield as ShieldIcon, Star, Target, Award, TrendingUp, CreditCard
+  Globe, Database, Shield as ShieldIcon, Star, Target, Award, TrendingUp, CreditCard, GraduationCap
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -181,7 +181,8 @@ const Home = () => {
       icons: [Users, UserCheck],
       hoverElements: [t('team.hoverElements.userAdoption'), t('team.hoverElements.training')],
       color: "from-purple-400 to-pink-500",
-      description: "Specializing in Salesforce configuration and user adoption, Mariam ensures seamless platform integration and empowers teams to maximize CRM value."
+      description: "Specializing in Salesforce configuration and user adoption, Mariam ensures seamless platform integration and empowers teams to maximize CRM value.",
+      isAcademy: true
     },
     { 
       id: 21, name: "Omar Bazid", role: t('team.salesforceConsultant'), 
@@ -189,7 +190,8 @@ const Home = () => {
       icons: [TrendingUp, Target],
       hoverElements: [t('team.hoverElements.scalability'), t('team.hoverElements.growth')],
       color: "from-green-400 to-emerald-500",
-      description: "Focused on delivering scalable Salesforce solutions, Omar combines technical expertise with business acumen to transform customer engagement strategies."
+      description: "Focused on delivering scalable Salesforce solutions, Omar combines technical expertise with business acumen to transform customer engagement strategies.",
+      isAcademy: true
     }
   ];
 
@@ -296,12 +298,30 @@ const Home = () => {
                     transition={{ duration: 0.6, ease: "easeInOut" }}
                     className="relative z-10"
                   >
-                    <div className="w-80 h-80 md:w-96 md:h-96 rounded-full overflow-hidden border-4 border-brand-primary/30 shadow-2xl">
+                    <div className="w-80 h-80 md:w-96 md:h-96 rounded-full overflow-hidden border-4 border-brand-primary/30 shadow-2xl relative">
                       <img 
                         src={currentMember.image} 
                         alt={currentMember.name}
                         className="w-full h-full object-cover"
                       />
+                      
+                      {/* Academy icon */}
+                      {currentMember.isAcademy && (
+                        <motion.div
+                          className="absolute top-2 left-2 w-14 h-14 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white"
+                          animate={{ 
+                            scale: [1, 1.1, 1],
+                            rotate: [0, 5, -5, 0]
+                          }}
+                          transition={{ 
+                            duration: 2, 
+                            repeat: Infinity, 
+                            ease: "easeInOut" 
+                          }}
+                        >
+                          <GraduationCap className="w-7 h-7 text-white" />
+                        </motion.div>
+                      )}
                     </div>
                     
                     {/* Role-specific floating icons */}
