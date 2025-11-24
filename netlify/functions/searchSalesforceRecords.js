@@ -1,18 +1,9 @@
 /**
  * Netlify Function to search Salesforce records
  * Supports searching Opportunities, Projects (SFDC_Project__c), and Accounts
+ * 
+ * Note: Uses global fetch (available in Node.js 18+)
  */
-
-// Ensure fetch is available (Node.js 18+ has it globally, but we'll add a fallback check)
-let fetchFunction = globalThis.fetch;
-if (!fetchFunction && typeof require !== 'undefined') {
-  // Fallback for older Node.js versions (shouldn't be needed with Node 18)
-  try {
-    fetchFunction = require('node-fetch');
-  } catch (e) {
-    console.warn('Fetch not available, will use global fetch');
-  }
-}
 
 exports.handler = async (event, context) => {
   // Set timeout to prevent hanging (Netlify functions have a 10s default timeout for free tier, 26s for pro)
@@ -133,8 +124,7 @@ exports.handler = async (event, context) => {
 
     let response;
     try {
-      // Use the fetch function (global or fallback)
-      const fetchToUse = fetchFunction || fetch;
+      // Use global fetch (available in Node.js 18+)
       
       // Create abort controller for timeout (if available)
       let controller;
@@ -155,7 +145,7 @@ exports.handler = async (event, context) => {
       }
       
       try {
-        response = await fetchToUse(queryUrl, fetchOptions);
+        response = await fetch(queryUrl, fetchOptions);
         if (timeoutId) clearTimeout(timeoutId);
       } catch (fetchErr) {
         if (timeoutId) clearTimeout(timeoutId);
@@ -231,7 +221,6 @@ exports.handler = async (event, context) => {
           
           let simpleResponse;
           try {
-            const fetchToUse = fetchFunction || fetch;
             const simpleFetchOptions = {
               method: 'GET',
               headers: {
@@ -249,7 +238,7 @@ exports.handler = async (event, context) => {
             }
             
             try {
-              simpleResponse = await fetchToUse(simpleQueryUrl, simpleFetchOptions);
+              simpleResponse = await fetch(simpleQueryUrl, simpleFetchOptions);
               if (simpleTimeoutId) clearTimeout(simpleTimeoutId);
             } catch (simpleFetchErr) {
               if (simpleTimeoutId) clearTimeout(simpleTimeoutId);
