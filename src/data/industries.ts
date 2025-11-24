@@ -2701,3 +2701,123 @@ export const getIndustriesByCategory = (category: string): IndustryData[] => {
   const industryIds = categories[category as keyof typeof categories] || [];
   return industries.filter(industry => industryIds.includes(industry.id));
 };
+
+/**
+ * Create generic industry data for unknown industries
+ * Provides professional business language appropriate for any industry
+ */
+export function createGenericIndustryData(industryName?: string): IndustryData {
+  const displayName = industryName || 'Your Industry';
+  
+  return {
+    id: 'generic',
+    name: displayName,
+    shortName: displayName,
+    icon: Building2,
+    gradient: 'from-slate-500 to-gray-600',
+    description: `Transform your business operations, customer relationships, and growth with Salesforce solutions tailored for ${displayName.toLowerCase()}.`,
+    recommendedProducts: ['sales-cloud', 'service-cloud', 'marketing-cloud', 'data-cloud'],
+    useCases: [
+      'Customer Relationship Management',
+      'Sales Pipeline Optimization',
+      'Marketing Automation',
+      'Customer Service Excellence',
+      'Data-Driven Decision Making'
+    ],
+    successMetrics: [
+      { value: '35%', description: 'increase in sales productivity' },
+      { value: '40%', description: 'improvement in customer satisfaction' },
+      { value: '30%', description: 'reduction in operational costs' },
+      { value: '45%', description: 'faster time to market' }
+    ],
+    keyChallenges: [
+      'Managing customer relationships effectively',
+      'Streamlining sales processes',
+      'Improving customer service delivery',
+      'Making data-driven decisions'
+    ],
+    marketSize: 'Growing market',
+    growthRate: 'Expanding opportunities',
+    painPoints: [
+      'Fragmented data across multiple systems',
+      'Inefficient sales and marketing processes',
+      'Poor customer visibility',
+      'Manual and time-consuming workflows'
+    ],
+    integrations: [
+      'ERP Systems',
+      'Accounting Software',
+      'Marketing Tools',
+      'Business Intelligence Platforms',
+      'MuleSoft for API integrations'
+    ],
+    dataSources: [
+      'Customer databases',
+      'Sales and marketing systems',
+      'Financial and operational data',
+      'Third-party data sources'
+    ],
+    comparisonMetrics: [
+      {
+        metric: 'Sales Process Automation',
+        metricKey: 'generic.metrics.salesAutomation',
+        salesforce: { score: 10, label: 'AI-Powered Automation', description: 'Einstein AI-powered sales automation with predictive analytics and intelligent workflow optimization' },
+        hubspot: { score: 7, label: 'Good Automation', description: 'Solid automation features with basic AI capabilities' },
+        zoho: { score: 6, label: 'Standard Automation', description: 'Basic sales automation with standard features' },
+        freshworks: { score: 5, label: 'Limited Automation', description: 'Basic automation with limited customization' },
+        odoo: { score: 6, label: 'Custom Automation', description: 'Requires configuration for automation workflows' },
+        salezbuzz: { score: 6, label: 'Basic Automation', description: 'Standard sales automation features' }
+      },
+      {
+        metric: 'Customer Relationship Management',
+        metricKey: 'generic.metrics.crm',
+        salesforce: { score: 10, label: 'Enterprise CRM', description: 'Complete 360-degree customer view with AI-powered insights and predictive analytics' },
+        hubspot: { score: 8, label: 'Strong CRM', description: 'Comprehensive CRM with good customer management features' },
+        zoho: { score: 7, label: 'Good CRM', description: 'Solid CRM capabilities with standard features' },
+        freshworks: { score: 6, label: 'Basic CRM', description: 'Basic customer management functionality' },
+        odoo: { score: 7, label: 'Custom CRM', description: 'Configurable CRM with customization options' },
+        salezbuzz: { score: 6, label: 'Standard CRM', description: 'Basic CRM features with standard functionality' }
+      },
+      {
+        metric: 'Marketing Automation',
+        metricKey: 'generic.metrics.marketing',
+        salesforce: { score: 10, label: 'Advanced Marketing', description: 'AI-powered marketing automation with personalization and cross-channel campaigns' },
+        hubspot: { score: 9, label: 'Excellent Marketing', description: 'Strong marketing automation with good campaign management' },
+        zoho: { score: 6, label: 'Basic Marketing', description: 'Standard marketing automation features' },
+        freshworks: { score: 4, label: 'Limited Marketing', description: 'Basic marketing features with limited automation' },
+        odoo: { score: 5, label: 'Custom Marketing', description: 'Requires setup for marketing automation' },
+        salezbuzz: { score: 5, label: 'Basic Marketing', description: 'Standard marketing features' }
+      },
+      {
+        metric: 'Customer Service',
+        metricKey: 'generic.metrics.service',
+        salesforce: { score: 10, label: 'Enterprise Service', description: 'AI-powered service cloud with omnichannel support and intelligent case routing' },
+        hubspot: { score: 7, label: 'Good Service', description: 'Solid customer service features with ticket management' },
+        zoho: { score: 7, label: 'Good Service', description: 'Comprehensive service management capabilities' },
+        freshworks: { score: 9, label: 'Excellent Service', description: 'Strong focus on customer service with advanced features' },
+        odoo: { score: 6, label: 'Custom Service', description: 'Configurable service management' },
+        salezbuzz: { score: 6, label: 'Standard Service', description: 'Basic customer service features' }
+      },
+      {
+        metric: 'Data Analytics & Reporting',
+        metricKey: 'generic.metrics.analytics',
+        salesforce: { score: 10, label: 'AI Analytics Suite', description: 'Einstein Analytics with predictive insights and customizable dashboards' },
+        hubspot: { score: 8, label: 'Strong Analytics', description: 'Good reporting and analytics capabilities' },
+        zoho: { score: 7, label: 'Good Analytics', description: 'Comprehensive reporting with BI features' },
+        freshworks: { score: 5, label: 'Basic Analytics', description: 'Standard reporting features' },
+        odoo: { score: 7, label: 'Custom Analytics', description: 'Configurable reporting and analytics' },
+        salezbuzz: { score: 6, label: 'Standard Analytics', description: 'Basic reporting and analytics' }
+      },
+      {
+        metric: 'Integration Capabilities',
+        metricKey: 'generic.metrics.integration',
+        salesforce: { score: 10, label: 'Enterprise Integration', description: 'MuleSoft-powered integration platform with extensive app ecosystem' },
+        hubspot: { score: 8, label: 'Good Integration', description: 'Strong integration marketplace with many connectors' },
+        zoho: { score: 7, label: 'Good Integration', description: 'Wide range of integrations available' },
+        freshworks: { score: 6, label: 'Basic Integration', description: 'Standard integration capabilities' },
+        odoo: { score: 8, label: 'Strong Integration', description: 'Good integration options with customization' },
+        salezbuzz: { score: 6, label: 'Standard Integration', description: 'Basic integration features' }
+      }
+    ]
+  };
+}

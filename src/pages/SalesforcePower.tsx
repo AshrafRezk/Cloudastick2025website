@@ -54,11 +54,12 @@ import Button from '../components/Button';
 import LeadCaptureModal from '../components/LeadCaptureModal';
 import { salesforceProducts, getProductsByIndustry } from '../data/salesforceProducts';
 import { erpIntegrations } from '../data/erpIntegrations';
-import { industries, getIndustryById } from '../data/industries';
+import { industries, getIndustryById, createGenericIndustryData } from '../data/industries';
+import { matchIndustryFromUrl } from '../utils/industryMatcher';
 import { useToast } from '../hooks/use-toast';
 import CompanyLogo from '../components/CompanyLogo';
 import { formatWebsiteUrl } from '../services/logoService';
-import { enrichCompany, initCompanyIntelligence, CompanyIntelligence } from '../services/companyIntelligence';
+import { enrichCompany as enrichCompanyService, initCompanyIntelligence, CompanyIntelligence } from '../services/companyIntelligence';
 import ProductRecommendationBanner from '../components/ProductRecommendationBanner';
 import { normalizeWebsiteUrl, formatForLogoFetch } from '../utils/urlNormalizer';
 import { getClientsByIndustry, getAllClients } from '../utils/clientFilter';
@@ -374,6 +375,8 @@ const SalesforcePower = () => {
   const [selectedClient, setSelectedClient] = useState<ClientInfo | null>(null);
   const [showClientModal, setShowClientModal] = useState<boolean>(false);
   const [showDemoModal, setShowDemoModal] = useState<boolean>(false);
+  const [isPreloading, setIsPreloading] = useState<boolean>(false);
+  const [genericIndustryData, setGenericIndustryData] = useState<ReturnType<typeof createGenericIndustryData> | null>(null);
 
   // Memoized hover handler to prevent unnecessary re-renders
   const handleProductHover = useCallback((productId: string | null) => {
@@ -551,7 +554,7 @@ const SalesforcePower = () => {
     
     setLoadingIntelligence(true);
     try {
-      const intelligence = await enrichCompany(website);
+      const intelligence = await enrichCompanyService(website);
       setCompanyIntelligence(intelligence);
       
       // Auto-fill company name if not already set
@@ -559,12 +562,12 @@ const SalesforcePower = () => {
         setCompanyName(intelligence.companyData.companyName);
       }
       
-      // Auto-select industry based on detection (user can change it)
-      if (intelligence.companyData.normalizedIndustry && !selectedIndustry) {
+      // Auto-select industry based on detection (only if not already set from URL)
+      if (intelligence.companyData.normalizedIndustry && !selectedIndustry && !genericIndustryData) {
         // Map normalized industry to our industry card IDs (closest matches)
         const industryMapping: { [key: string]: string } = {
           'real-estate': 'real-estate',
-          'construction': 'manufacturing', // Construction → Manufacturing (closest)
+          'construction': 'real-estate', // Construction → Real Estate (better match)
           'insurance': 'financial-services', // Insurance → Financial Services
           'manufacturing': 'manufacturing',
           'travel-tourism': 'travel-tourism',
@@ -587,59 +590,141 @@ const SalesforcePower = () => {
         setShowProductRecommendation(true);
       }
       
-      // Simple success message
-      toast({
-        title: "✨ All personalized now",
-        description: `Ready for ${intelligence.companyData.companyName}`,
-      });
+      // Only show success message if not preloading (to avoid duplicate toasts)
+      if (!isPreloading) {
+        toast({
+          title: "✨ All personalized now",
+          description: `Ready for ${intelligence.companyData.companyName}`,
+        });
+      }
     } catch (error) {
       console.error('Failed to enrich company:', error);
       // Don't show error toast - graceful degradation
     } finally {
       setLoadingIntelligence(false);
     }
-  }, [loadingIntelligence, companyName, selectedIndustry, toast]);
+  }, [loadingIntelligence, companyName, selectedIndustry, genericIndustryData, isPreloading, toast]);
 
   // Initialize company intelligence service on mount
   useEffect(() => {
     initCompanyIntelligence();
   }, []);
 
-  // Read company info from URL parameters on mount
+  // Read company info from URL parameters on mount and preload data
   useEffect(() => {
     // Read URL parameters (shortened keys: cn=company name, cw=company website)
     const companyNameParam = searchParams.get('cn') || searchParams.get('companyName');
     const companyWebsiteParam = searchParams.get('cw') || searchParams.get('companyWebsite');
     const industryParam = searchParams.get('industry');
     
-    // Check if both company name and website are pre-filled from URL
-    if (companyNameParam && companyWebsiteParam) {
-      setHasPrefilledParams(true);
+    // Check if we need to preload (have URL params)
+    const needsPreload = companyNameParam || companyWebsiteParam || industryParam;
+    
+    if (!needsPreload) {
+      return; // No URL params, no preloading needed
     }
     
+    // Set preloading state
+    setIsPreloading(true);
+    
+    // Process industry parameter with matching
+    if (industryParam) {
+      const matchedIndustry = matchIndustryFromUrl(industryParam);
+      if (matchedIndustry) {
+        // Found a match, use it
+        setSelectedIndustry(matchedIndustry);
+        setGenericIndustryData(null);
+      } else {
+        // No match found, create generic industry data
+        const decodedIndustry = decodeURIComponent(industryParam);
+        const genericData = createGenericIndustryData(decodedIndustry);
+        setGenericIndustryData(genericData);
+        setSelectedIndustry(null);
+      }
+    }
+    
+    // Process company name
     if (companyNameParam) {
       setCompanyName(decodeURIComponent(companyNameParam));
     }
     
-    if (industryParam) {
-      setSelectedIndustry(industryParam);
-    }
-    
-    if (companyWebsiteParam) {
-      const decodedWebsite = decodeURIComponent(companyWebsiteParam);
-      // Normalize the URL
-      const normalized = normalizeWebsiteUrl(decodedWebsite);
-      setCompanyWebsite(normalized.display);
-      
-      // Fetch logo and enrich using normalized domain
-      fetchCompanyLogo(normalized.domain);
-      
-      // Only enrich if no company name was provided
-      if (!companyNameParam) {
-        enrichCompanyData(normalized.domain);
+    // Process company website and preload data
+    const preloadData = async () => {
+      try {
+        if (companyWebsiteParam) {
+          const decodedWebsite = decodeURIComponent(companyWebsiteParam);
+          // Normalize the URL
+          const normalized = normalizeWebsiteUrl(decodedWebsite);
+          setCompanyWebsite(normalized.display);
+          
+          // Fetch logo and enrich in parallel
+          const logoPromise = fetchCompanyLogo(normalized.domain);
+          
+          // Enrich company data directly (avoid dependency on enrichCompanyData callback)
+          if (normalized.domain && !loadingIntelligence) {
+            setLoadingIntelligence(true);
+            try {
+              const intelligence = await enrichCompanyService(normalized.domain);
+              setCompanyIntelligence(intelligence);
+              
+              // Auto-fill company name if not already set
+              if (!companyNameParam && intelligence.companyData.companyName) {
+                setCompanyName(intelligence.companyData.companyName);
+              }
+              
+              // Auto-select industry based on detection (only if not already set from URL)
+              if (intelligence.companyData.normalizedIndustry && !industryParam && !selectedIndustry && !genericIndustryData) {
+                const industryMapping: { [key: string]: string } = {
+                  'real-estate': 'real-estate',
+                  'construction': 'real-estate',
+                  'insurance': 'financial-services',
+                  'manufacturing': 'manufacturing',
+                  'travel-tourism': 'travel-tourism',
+                  'education': 'professional-services',
+                  'retail': 'commerce-cloud',
+                  'healthcare': 'healthcare-life-sciences',
+                  'finance': 'financial-services',
+                  'technology': 'professional-services',
+                  'other': 'professional-services'
+                };
+                
+                const industryId = industryMapping[intelligence.companyData.normalizedIndustry];
+                if (industryId) {
+                  setSelectedIndustry(industryId);
+                }
+              }
+              
+              // Show product recommendation if available
+              if (intelligence.recommendedProduct) {
+                setShowProductRecommendation(true);
+              }
+            } catch (error) {
+              console.error('Failed to enrich company:', error);
+            } finally {
+              setLoadingIntelligence(false);
+            }
+          }
+          
+          // Wait for logo to complete
+          await logoPromise;
+        }
+        
+        // Check if both company name and website are pre-filled from URL
+        if (companyNameParam && companyWebsiteParam) {
+          setHasPrefilledParams(true);
+        }
+      } catch (error) {
+        console.error('Error during preload:', error);
+        // Don't block rendering on error, just log it
+      } finally {
+        // Preloading complete
+        setIsPreloading(false);
       }
-    }
-  }, [searchParams, fetchCompanyLogo, enrichCompanyData]);
+    };
+    
+    preloadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, fetchCompanyLogo]);
 
   // CSV download function
   const downloadComparisonCSV = () => {
@@ -934,11 +1019,26 @@ const SalesforcePower = () => {
 
   // Get industry-specific products
   const industryProducts = selectedIndustry ? getProductsByIndustry(selectedIndustry) : [];
-  const selectedIndustryData = selectedIndustry ? getIndustryById(selectedIndustry) : null;
+  const selectedIndustryData = selectedIndustry 
+    ? getIndustryById(selectedIndustry) 
+    : genericIndustryData || null;
 
   // Core products for platform overview - use first 6 products for better visualization
   const coreProducts = salesforceProducts.slice(0, 6);
 
+
+  // Loading screen when preloading data from URL params
+  if (isPreloading) {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center" dir={isRTL ? 'rtl' : 'ltr'}>
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+          <h2 className="text-2xl font-bold mb-2">Loading Your Personalized Experience</h2>
+          <p className="text-gray-400">Fetching company data and AI insights...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-900 text-white" dir={isRTL ? 'rtl' : 'ltr'}>
