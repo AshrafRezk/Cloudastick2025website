@@ -158,6 +158,30 @@ export const teamMembers: TeamMember[] = [
     image: "/Assets/Company Members/Jenny_Maged_Salesforce_Consultant.png",
     profileSlug: "jenny-maged",
     description: "Delivering expert Salesforce consulting services, Jenny helps businesses optimize their CRM processes and achieve their digital transformation goals."
+  },
+  {
+    id: "john-shedoudy",
+    name: "John Shedoudy",
+    role: "Salesforce Consultant",
+    image: "/Assets/Company Members/John_Shedoudy_Salesforce_Consultant.png",
+    profileSlug: "john-shedoudy",
+    description: "Expert in Salesforce implementation and optimization, John delivers tailored solutions that enhance business processes and drive operational efficiency."
+  },
+  {
+    id: "mariam-mahmoud",
+    name: "Mariam Mahmoud",
+    role: "Salesforce Consultant",
+    image: "/Assets/Company Members/Mariam_Mahmoud_Salesforce_Consultant.png",
+    profileSlug: "mariam-mahmoud",
+    description: "Specializing in Salesforce configuration and user adoption, Mariam ensures seamless platform integration and empowers teams to maximize CRM value."
+  },
+  {
+    id: "omar-bazid",
+    name: "Omar Bazid",
+    role: "Salesforce Consultant",
+    image: "/Assets/Company Members/Omar_Bazid_Salesforce_Consultant.png",
+    profileSlug: "omar-bazid",
+    description: "Focused on delivering scalable Salesforce solutions, Omar combines technical expertise with business acumen to transform customer engagement strategies."
   }
 ];
 

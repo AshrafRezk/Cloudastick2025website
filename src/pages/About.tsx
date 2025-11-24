@@ -158,6 +158,30 @@ const About = () => {
       icons: [Code, Settings],
       hoverElements: [t('team.hoverElements.development'), t('team.hoverElements.configuration')],
       color: "from-blue-400 to-indigo-500"
+    },
+    { 
+      id: 19, name: "John Shedoudy", 
+      role: t('team.salesforceConsultant'), 
+      image: "/Assets/Company Members/John_Shedoudy_Salesforce_Consultant.png",
+      icons: [Settings, Wrench],
+      hoverElements: [t('team.hoverElements.configuration'), t('team.hoverElements.optimization')],
+      color: "from-teal-400 to-cyan-500"
+    },
+    { 
+      id: 20, name: "Mariam Mahmoud", 
+      role: t('team.salesforceConsultant'), 
+      image: "/Assets/Company Members/Mariam_Mahmoud_Salesforce_Consultant.png",
+      icons: [Users, UserCheck],
+      hoverElements: [t('team.hoverElements.userAdoption'), t('team.hoverElements.training')],
+      color: "from-purple-400 to-pink-500"
+    },
+    { 
+      id: 21, name: "Omar Bazid", 
+      role: t('team.salesforceConsultant'), 
+      image: "/Assets/Company Members/Omar_Bazid_Salesforce_Consultant.png",
+      icons: [TrendingUp, Target],
+      hoverElements: [t('team.hoverElements.scalability'), t('team.hoverElements.growth')],
+      color: "from-green-400 to-emerald-500"
     }
   ];
 

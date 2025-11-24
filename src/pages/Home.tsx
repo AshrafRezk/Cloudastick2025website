@@ -166,6 +166,30 @@ const Home = () => {
       hoverElements: [t('team.hoverElements.development'), t('team.hoverElements.configuration')],
       color: "from-blue-400 to-indigo-500",
       description: "Delivering expert Salesforce consulting services, Jenny helps businesses optimize their CRM processes and achieve their digital transformation goals."
+    },
+    { 
+      id: 19, name: "John Shedoudy", role: t('team.salesforceConsultant'), 
+      image: "/Assets/Company Members/John_Shedoudy_Salesforce_Consultant.png",
+      icons: [Settings, Wrench],
+      hoverElements: [t('team.hoverElements.configuration'), t('team.hoverElements.optimization')],
+      color: "from-teal-400 to-cyan-500",
+      description: "Expert in Salesforce implementation and optimization, John delivers tailored solutions that enhance business processes and drive operational efficiency."
+    },
+    { 
+      id: 20, name: "Mariam Mahmoud", role: t('team.salesforceConsultant'), 
+      image: "/Assets/Company Members/Mariam_Mahmoud_Salesforce_Consultant.png",
+      icons: [Users, UserCheck],
+      hoverElements: [t('team.hoverElements.userAdoption'), t('team.hoverElements.training')],
+      color: "from-purple-400 to-pink-500",
+      description: "Specializing in Salesforce configuration and user adoption, Mariam ensures seamless platform integration and empowers teams to maximize CRM value."
+    },
+    { 
+      id: 21, name: "Omar Bazid", role: t('team.salesforceConsultant'), 
+      image: "/Assets/Company Members/Omar_Bazid_Salesforce_Consultant.png",
+      icons: [TrendingUp, Target],
+      hoverElements: [t('team.hoverElements.scalability'), t('team.hoverElements.growth')],
+      color: "from-green-400 to-emerald-500",
+      description: "Focused on delivering scalable Salesforce solutions, Omar combines technical expertise with business acumen to transform customer engagement strategies."
     }
   ];
 

@@ -475,6 +475,10 @@ const translations = {
     'team.hoverElements.emailMarketing': 'Email Marketing',
     'team.hoverElements.projectDelivery': 'Project Delivery',
     'team.hoverElements.timeline': 'Timeline',
+    'team.hoverElements.optimization': 'Optimization',
+    'team.hoverElements.userAdoption': 'User Adoption',
+    'team.hoverElements.training': 'Training',
+    'team.hoverElements.scalability': 'Scalability',
     'team.technicalArchitect': 'Technical Architect',
     'team.projectManager': 'Project Manager',
     
@@ -964,6 +968,10 @@ const translations = {
     'team.hoverElements.emailMarketing': 'التسويق عبر البريد الإلكتروني',
     'team.hoverElements.projectDelivery': 'تسليم المشروع',
     'team.hoverElements.timeline': 'الجدول الزمني',
+    'team.hoverElements.optimization': 'التحسين',
+    'team.hoverElements.userAdoption': 'اعتماد المستخدم',
+    'team.hoverElements.training': 'التدريب',
+    'team.hoverElements.scalability': 'قابلية التوسع',
     'team.technicalArchitect': 'مهندس معماري تقني',
     'team.projectManager': 'مدير المشروع',
     
