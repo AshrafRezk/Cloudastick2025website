@@ -1844,7 +1844,7 @@ const SalesforcePower = () => {
                   { name: 'Ashraf Rezk', role: 'Head of Tech', image: 'Ashraf_Rezk_Head_of_Tech.png', isAcademy: false },
                   { name: 'Andrea Makary', role: 'Technical Architect', image: 'Andrea_Makary_Technical_Architect.png', isAcademy: false },
                   { name: 'Mariam Mamdouh', role: 'Project Manager', image: 'Mariam_Mamdouh_Project_Manager.png', isAcademy: false },
-                  { name: 'Omar El Borae', role: 'Customer Success Manager', image: 'Omar_El_Borae_Customer_Success_Manager.png', isAcademy: false },
+                  { name: 'Omar El Borae', role: 'Customer Success Manager', image: 'Omar_El_Borae_Customer_Success_Manager.png?v=2', isAcademy: false },
                   { name: 'Ahmed Salah', role: 'Salesforce Consultant', image: 'Ahmed_Salah_Salesforce_Consultant.png', isAcademy: false },
                   { name: 'Farida Esam', role: 'Marketing Cloud Consultant', image: 'Farida_Esam_Marketing_Cloud_Consultant.png', isAcademy: false },
                   { name: 'Mireille Rafik', role: 'Marketing Cloud Consultant', image: 'Mireille_Rafik_Marketing_Cloud_Consultant.png', isAcademy: false },

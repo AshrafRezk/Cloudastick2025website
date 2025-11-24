@@ -36,7 +36,7 @@ export const teamMembers: TeamMember[] = [
     id: "omar-el-borae",
     name: "Omar El Borae",
     role: "Customer Success Manager",
-    image: "/Assets/Company Members/Omar_El_Borae_Customer_Success_Manager.png",
+    image: "/Assets/Company Members/Omar_El_Borae_Customer_Success_Manager.png?v=2",
     profileSlug: "omar-el-borae",
     description: "Ensuring customer success in the Salesforce ecosystem, Omar works closely with clients to maximize their platform investment and achieve their business transformation goals."
   },

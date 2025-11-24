@@ -34,7 +34,7 @@ const About = () => {
     { 
       name: "Omar El Borae", 
       role: t('team.customerSuccess'), 
-      image: "/Assets/Company Members/Omar_El_Borae_Customer_Success_Manager.png",
+      image: "/Assets/Company Members/Omar_El_Borae_Customer_Success_Manager.png?v=2",
       icons: [Headphones, UserCheck],
       hoverElements: [t('team.hoverElements.support'), t('team.hoverElements.success')],
       color: "from-green-400 to-teal-500"
