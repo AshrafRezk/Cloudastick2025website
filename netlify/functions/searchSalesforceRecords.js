@@ -29,7 +29,23 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const { access_token, instance_url, searchTerm, objectType } = JSON.parse(event.body || '{}');
+    // Parse request body with error handling
+    let requestData;
+    try {
+      requestData = JSON.parse(event.body || '{}');
+    } catch (parseError) {
+      console.error('❌ Failed to parse request body:', parseError);
+      return {
+        statusCode: 400,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ error: 'Invalid request body. Expected JSON.' }),
+      };
+    }
+
+    const { access_token, instance_url, searchTerm, objectType } = requestData;
 
     if (!access_token || !instance_url) {
       return {
@@ -72,11 +88,13 @@ exports.handler = async (event, context) => {
 
     // Build SOQL query based on object type
     // Escape special SOQL characters to prevent injection
+    // For LIKE queries, we need to escape single quotes and backslashes
+    // We escape % and _ to prevent wildcard injection, but users can still use them if needed
     const escapedSearchTerm = searchTerm
-      .replace(/'/g, "\\'")
-      .replace(/\\/g, '\\\\')
-      .replace(/%/g, '\\%')
-      .replace(/_/g, '\\_');
+      .replace(/\\/g, '\\\\')  // Escape backslashes first
+      .replace(/'/g, "\\'")     // Escape single quotes
+      .replace(/%/g, '\\%')     // Escape % wildcards
+      .replace(/_/g, '\\_');    // Escape _ wildcards
     
     let soqlQuery = '';
 
@@ -98,30 +116,61 @@ exports.handler = async (event, context) => {
     console.log('📤 Querying Salesforce...');
     console.log('📝 SOQL Query:', soqlQuery);
 
-    const response = await fetch(queryUrl, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${access_token}`,
-        'Content-Type': 'application/json',
-      },
-    });
+    let response;
+    try {
+      response = await fetch(queryUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+    } catch (fetchError) {
+      console.error('❌ Network error fetching from Salesforce:', fetchError);
+      return {
+        statusCode: 500,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          error: 'Failed to connect to Salesforce',
+          message: fetchError.message || 'Network error occurred',
+        }),
+      };
+    }
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('❌ Salesforce API Error:', errorText);
+      let errorText = '';
+      try {
+        errorText = await response.text();
+      } catch (textError) {
+        console.error('❌ Failed to read error response:', textError);
+        errorText = `HTTP ${response.status}: ${response.statusText}`;
+      }
+      
+      console.error('❌ Salesforce API Error:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorText: errorText.substring(0, 500), // Limit log size
+      });
       
       // Try to parse Salesforce error response
       let errorMessage = `Salesforce API error: ${response.status}`;
-      try {
-        const errorData = JSON.parse(errorText);
-        if (errorData[0] && errorData[0].message) {
-          errorMessage = errorData[0].message;
-        } else if (errorData.message) {
-          errorMessage = errorData.message;
+      if (errorText) {
+        try {
+          const errorData = JSON.parse(errorText);
+          if (Array.isArray(errorData) && errorData[0] && errorData[0].message) {
+            errorMessage = errorData[0].message;
+          } else if (errorData.message) {
+            errorMessage = errorData.message;
+          } else if (typeof errorData === 'string') {
+            errorMessage = errorData;
+          }
+        } catch (parseError) {
+          // If parsing fails, use the raw error text (truncated if too long)
+          errorMessage = errorText.length > 200 ? errorText.substring(0, 200) + '...' : errorText;
         }
-      } catch (e) {
-        // If parsing fails, use the raw error text
-        errorMessage = errorText;
       }
       
       // Handle specific error cases
@@ -133,16 +182,31 @@ exports.handler = async (event, context) => {
           const simpleEncodedQuery = encodeURIComponent(simpleQuery);
           const simpleQueryUrl = `${instance_url}/services/data/v58.0/query/?q=${simpleEncodedQuery}`;
           
-          const simpleResponse = await fetch(simpleQueryUrl, {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${access_token}`,
-              'Content-Type': 'application/json',
-            },
-          });
+          let simpleResponse;
+          try {
+            simpleResponse = await fetch(simpleQueryUrl, {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${access_token}`,
+                'Content-Type': 'application/json',
+              },
+            });
+          } catch (fetchError) {
+            console.error('❌ Network error on simplified query:', fetchError);
+            // Fall through to return the original error
+          }
           
-          if (simpleResponse.ok) {
-            const simpleData = await simpleResponse.json();
+          if (simpleResponse && simpleResponse.ok) {
+            let simpleData;
+            try {
+              const simpleResponseText = await simpleResponse.text();
+              simpleData = JSON.parse(simpleResponseText);
+            } catch (parseError) {
+              console.error('❌ Failed to parse simplified query response:', parseError);
+              // Fall through to return the original error
+            }
+            
+            if (simpleData) {
             const records = (simpleData.records || []).map((record) => ({
               id: record.Id,
               name: record.Name,
@@ -171,10 +235,40 @@ exports.handler = async (event, context) => {
         }
       }
       
-      throw new Error(errorMessage);
+      // Return error response instead of throwing
+      return {
+        statusCode: response.status >= 400 && response.status < 500 ? response.status : 500,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          error: 'Salesforce API error',
+          message: errorMessage,
+        }),
+      };
     }
 
-    const data = await response.json();
+    // Parse successful response
+    let data;
+    try {
+      const responseText = await response.text();
+      data = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error('❌ Failed to parse Salesforce response:', parseError);
+      return {
+        statusCode: 500,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          error: 'Failed to parse Salesforce response',
+          message: 'Invalid JSON response from Salesforce API',
+        }),
+      };
+    }
+    
     console.log(`✅ Found ${data.records?.length || 0} records`);
 
     // Transform records to a consistent format

@@ -59,6 +59,20 @@ const SalesforceLookup: React.FC<SalesforceLookupProps> = ({
     }
   };
 
+  // Get plural form of object type name
+  const getPluralObjectTypeName = () => {
+    switch (objectType) {
+      case 'Opportunity':
+        return 'opportunities';
+      case 'SFDC_Project__c':
+        return 'projects';
+      case 'Account':
+        return 'accounts';
+      default:
+        return 'records';
+    }
+  };
+
   // Get icon for object type
   const getObjectIcon = () => {
     switch (objectType) {
@@ -98,21 +112,56 @@ const SalesforceLookup: React.FC<SalesforceLookupProps> = ({
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to search records');
+        // Try to parse error response as JSON, but handle non-JSON responses
+        let errorMessage = `Search failed (${response.status})`;
+        try {
+          const errorText = await response.text();
+          if (errorText) {
+            try {
+              const errorData = JSON.parse(errorText);
+              errorMessage = errorData.message || errorData.error || errorMessage;
+            } catch {
+              // If not JSON, use the text as error message (truncated if too long)
+              errorMessage = errorText.length > 100 ? errorText.substring(0, 100) + '...' : errorText;
+            }
+          }
+        } catch (textError) {
+          // If we can't read the response, use status-based message
+          errorMessage = `Search failed: ${response.status} ${response.statusText || 'Unknown error'}`;
+        }
+        throw new Error(errorMessage);
       }
 
-      const data = await response.json();
+      // Parse successful response
+      let data;
+      try {
+        const responseText = await response.text();
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('Failed to parse response:', parseError);
+        throw new Error('Invalid response from server');
+      }
+
       setResults(data.records || []);
       setShowResults(true);
     } catch (error: any) {
       console.error('Error searching Salesforce records:', error);
+      
+      // Provide user-friendly error messages
+      let errorMessage = 'Failed to search Salesforce records';
+      if (error.message) {
+        errorMessage = error.message;
+      } else if (error instanceof TypeError && error.message.includes('fetch')) {
+        errorMessage = 'Network error: Unable to connect to server';
+      }
+      
       toast({
         title: 'Search failed',
-        description: error.message || 'Failed to search Salesforce records',
+        description: errorMessage,
         variant: 'destructive',
       });
       setResults([]);
+      setShowResults(false);
     } finally {
       setIsSearching(false);
     }
@@ -255,7 +304,7 @@ const SalesforceLookup: React.FC<SalesforceLookupProps> = ({
 
       {showResults && searchTerm.length >= 2 && results.length === 0 && !isSearching && (
         <div className="absolute z-50 w-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-4 text-center text-gray-400">
-          No {getObjectTypeName().toLowerCase()}s found
+          No {getPluralObjectTypeName()} found
         </div>
       )}
 
