@@ -5,6 +5,156 @@
  * Note: Uses global fetch (available in Node.js 18+)
  */
 
+/**
+ * Check if error indicates object is not supported/accessible
+ */
+function isObjectNotSupported(errorMessage, objectType) {
+  const lowerError = errorMessage.toLowerCase();
+  const lowerObjectType = objectType.toLowerCase();
+  
+  return (
+    lowerError.includes('sobject type') && 
+    (lowerError.includes('is not supported') || 
+     lowerError.includes('is not accessible') ||
+     lowerError.includes('not found')) &&
+    lowerError.includes(lowerObjectType)
+  ) || (
+    lowerError.includes('invalid_type') ||
+    lowerError.includes('object type') && lowerError.includes('not available')
+  );
+}
+
+/**
+ * Check if error indicates permission/access issue
+ */
+function isPermissionError(errorMessage) {
+  const lowerError = errorMessage.toLowerCase();
+  return (
+    lowerError.includes('insufficient access') ||
+    lowerError.includes('permission denied') ||
+    lowerError.includes('access denied') ||
+    lowerError.includes('not authorized') ||
+    lowerError.includes('forbidden')
+  );
+}
+
+/**
+ * Check if error indicates field-level issue (not object-level)
+ */
+function isFieldError(errorMessage) {
+  const lowerError = errorMessage.toLowerCase();
+  return (
+    lowerError.includes('no such column') ||
+    lowerError.includes('invalid_field') ||
+    lowerError.includes('field does not exist') ||
+    lowerError.includes('cannot find field')
+  );
+}
+
+/**
+ * Check object availability using Salesforce Describe API
+ * Returns { available: boolean, errorCode?: string, message?: string }
+ */
+async function checkObjectAvailability(instance_url, access_token, objectType) {
+  try {
+    const describeUrl = `${instance_url}/services/data/v58.0/sobjects/${objectType}/describe`;
+    
+    const fetchOptions = {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${access_token}`,
+        'Content-Type': 'application/json',
+      },
+    };
+    
+    // Add timeout if available
+    let controller;
+    let timeoutId;
+    if (typeof AbortController !== 'undefined') {
+      controller = new AbortController();
+      timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout for describe
+      fetchOptions.signal = controller.signal;
+    }
+    
+    let response;
+    try {
+      response = await fetch(describeUrl, fetchOptions);
+      if (timeoutId) clearTimeout(timeoutId);
+    } catch (fetchErr) {
+      if (timeoutId) clearTimeout(timeoutId);
+      throw fetchErr;
+    }
+    
+    if (!response.ok) {
+      let errorText = '';
+      try {
+        errorText = await response.text();
+      } catch (e) {
+        errorText = `HTTP ${response.status}`;
+      }
+      
+      // Parse error to determine type
+      let errorMessage = errorText;
+      try {
+        const errorData = JSON.parse(errorText);
+        if (Array.isArray(errorData) && errorData[0] && errorData[0].message) {
+          errorMessage = errorData[0].message;
+        } else if (errorData.message) {
+          errorMessage = errorData.message;
+        }
+      } catch (e) {
+        // Use raw text
+      }
+      
+      if (isObjectNotSupported(errorMessage, objectType)) {
+        return {
+          available: false,
+          errorCode: 'OBJECT_NOT_SUPPORTED',
+          message: errorMessage
+        };
+      } else if (isPermissionError(errorMessage)) {
+        return {
+          available: false,
+          errorCode: 'INSUFFICIENT_ACCESS',
+          message: errorMessage
+        };
+      } else {
+        return {
+          available: false,
+          errorCode: 'DESCRIBE_ERROR',
+          message: errorMessage
+        };
+      }
+    }
+    
+    // Object is available
+    return { available: true };
+  } catch (error) {
+    console.error('Error checking object availability:', error);
+    // If check fails, we'll proceed with the query anyway
+    return { available: true, error: error.message };
+  }
+}
+
+/**
+ * Get user-friendly error message based on error type
+ */
+function getUserFriendlyErrorMessage(errorMessage, objectType, errorCode) {
+  const displayName = objectType === 'SFDC_Project__c' ? 'Project' : objectType;
+  
+  if (errorCode === 'OBJECT_NOT_SUPPORTED') {
+    return `The ${displayName} object is not available in your Salesforce org. Please contact your administrator to enable this object or use a different object type.`;
+  } else if (errorCode === 'INSUFFICIENT_ACCESS') {
+    return `You don't have permission to access ${displayName} records. Please contact your Salesforce administrator to grant read access.`;
+  } else if (isObjectNotSupported(errorMessage, objectType)) {
+    return `The ${displayName} object is not available in your Salesforce org. Please contact your administrator or use a different object type.`;
+  } else if (isPermissionError(errorMessage)) {
+    return `You don't have permission to access ${displayName} records. Please contact your Salesforce administrator.`;
+  } else {
+    return errorMessage;
+  }
+}
+
 exports.handler = async (event, context) => {
   // Set timeout to prevent hanging (Netlify functions have a 10s default timeout for free tier, 26s for pro)
   context.callbackWaitsForEmptyEventLoop = false;
@@ -91,6 +241,39 @@ exports.handler = async (event, context) => {
     console.log(`🔍 Searching ${objectType} for: "${searchTerm}"`);
     console.log(`📋 Instance URL: ${instance_url}`);
     console.log(`🔑 Access Token: ${access_token.substring(0, 10)}...`);
+
+    // Check object availability before querying (optional but recommended for better UX)
+    // This helps catch object-level errors early with clearer messages
+    console.log(`🔎 Checking ${objectType} availability...`);
+    const availabilityCheck = await checkObjectAvailability(instance_url, access_token, objectType);
+    
+    if (!availabilityCheck.available) {
+      const displayName = objectType === 'SFDC_Project__c' ? 'Project' : objectType;
+      const userMessage = getUserFriendlyErrorMessage(
+        availabilityCheck.message || 'Object not available',
+        objectType,
+        availabilityCheck.errorCode
+      );
+      
+      console.error(`❌ Object ${objectType} is not available:`, availabilityCheck.errorCode);
+      
+      return {
+        statusCode: 400,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          error: 'Object not available',
+          errorCode: availabilityCheck.errorCode || 'OBJECT_NOT_SUPPORTED',
+          message: userMessage,
+          objectType: objectType,
+          suggestedAction: availabilityCheck.errorCode === 'INSUFFICIENT_ACCESS'
+            ? 'Contact your Salesforce administrator to grant read permissions for this object.'
+            : 'Verify the object exists in your Salesforce org or use a different object type.'
+        }),
+      };
+    }
 
     // Build SOQL query based on object type
     // Escape special SOQL characters to prevent injection
@@ -203,16 +386,39 @@ exports.handler = async (event, context) => {
         }
       }
       
-      // Handle specific error cases - check for field-related errors
-      // Salesforce can return various error formats for missing fields
-      const isFieldError = errorMessage.includes('No such column') || 
-                          errorMessage.includes('INVALID_FIELD') ||
-                          errorMessage.includes('field does not exist') ||
-                          errorMessage.includes('sObject type') ||
-                          (errorMessage.includes('Account__r') || errorMessage.includes('Opportunity__r'));
+      // Categorize error type
+      const objectNotSupported = isObjectNotSupported(errorMessage, objectType);
+      const permissionIssue = isPermissionError(errorMessage);
+      const fieldIssue = isFieldError(errorMessage);
       
-      if (isFieldError) {
-        // Field doesn't exist - try simpler query for SFDC_Project__c
+      // Handle object-level errors first (object not supported or permission issues)
+      if (objectNotSupported || permissionIssue) {
+        const displayName = objectType === 'SFDC_Project__c' ? 'Project' : objectType;
+        const errorCode = objectNotSupported ? 'OBJECT_NOT_SUPPORTED' : 'INSUFFICIENT_ACCESS';
+        const userMessage = getUserFriendlyErrorMessage(errorMessage, objectType, errorCode);
+        
+        console.error(`❌ Object-level error for ${objectType}:`, errorCode);
+        
+        return {
+          statusCode: 400,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            error: objectNotSupported ? 'Object not supported' : 'Insufficient access',
+            errorCode: errorCode,
+            message: userMessage,
+            objectType: objectType,
+            suggestedAction: permissionIssue
+              ? 'Contact your Salesforce administrator to grant read permissions for this object.'
+              : 'Verify the object exists in your Salesforce org or use a different object type.'
+          }),
+        };
+      }
+      
+      // Handle field-level errors - try simpler query for SFDC_Project__c
+      if (fieldIssue) {
         if (objectType === 'SFDC_Project__c') {
           console.log('⚠️ Field not found, trying simplified query...');
           const simpleQuery = `SELECT Id, Name FROM SFDC_Project__c WHERE Name LIKE '%${escapedSearchTerm}%' ORDER BY Name LIMIT 20`;
@@ -289,7 +495,11 @@ exports.handler = async (event, context) => {
         }
       }
       
-      // Return error response instead of throwing
+      // Return structured error response
+      const displayName = objectType === 'SFDC_Project__c' ? 'Project' : objectType;
+      const errorCode = fieldIssue ? 'INVALID_FIELD' : 'SALESFORCE_API_ERROR';
+      const userMessage = getUserFriendlyErrorMessage(errorMessage, objectType, errorCode);
+      
       return {
         statusCode: response.status >= 400 && response.status < 500 ? response.status : 500,
         headers: {
@@ -298,7 +508,13 @@ exports.handler = async (event, context) => {
         },
         body: JSON.stringify({
           error: 'Salesforce API error',
-          message: errorMessage,
+          errorCode: errorCode,
+          message: userMessage,
+          objectType: objectType,
+          rawError: errorMessage, // Include raw error for debugging
+          suggestedAction: fieldIssue
+            ? 'Some fields may not be accessible. Try a different search or contact your administrator.'
+            : 'Please try again or contact your Salesforce administrator if the issue persists.'
         }),
       };
     }
