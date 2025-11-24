@@ -91,7 +91,18 @@ const SalesforceLookup: React.FC<SalesforceLookupProps> = ({
 
   // Search Salesforce records
   const searchRecords = useCallback(async (term: string) => {
-    if (!authData || !term || term.trim().length < 2) {
+    if (!term || term.trim().length < 2) {
+      setResults([]);
+      return;
+    }
+
+    // Validate authentication data
+    if (!authData || !authData.access_token || !authData.instance_url) {
+      toast({
+        title: 'Authentication required',
+        description: 'Please authenticate with Salesforce to search records.',
+        variant: 'destructive',
+      });
       setResults([]);
       return;
     }
@@ -117,12 +128,29 @@ const SalesforceLookup: React.FC<SalesforceLookupProps> = ({
         try {
           const errorText = await response.text();
           if (errorText) {
-            try {
-              const errorData = JSON.parse(errorText);
-              errorMessage = errorData.message || errorData.error || errorMessage;
-            } catch {
-              // If not JSON, use the text as error message (truncated if too long)
-              errorMessage = errorText.length > 100 ? errorText.substring(0, 100) + '...' : errorText;
+            // Check if response is HTML (common for 404 pages, etc.)
+            const isHTML = /^\s*<(!DOCTYPE|html|!\[CDATA)/i.test(errorText.trim());
+            
+            if (isHTML) {
+              // For HTML responses, provide a user-friendly message
+              if (response.status === 404) {
+                errorMessage = 'Search service not found. Please check your configuration.';
+              } else if (response.status === 500) {
+                errorMessage = 'Server error occurred. Please try again later.';
+              } else {
+                errorMessage = `Search failed: ${response.status} ${response.statusText || 'Unknown error'}`;
+              }
+            } else {
+              try {
+                const errorData = JSON.parse(errorText);
+                errorMessage = errorData.message || errorData.error || errorMessage;
+              } catch {
+                // If not JSON and not HTML, strip any HTML tags and use the text
+                const strippedText = errorText.replace(/<[^>]*>/g, '').trim();
+                if (strippedText && strippedText.length > 0) {
+                  errorMessage = strippedText.length > 100 ? strippedText.substring(0, 100) + '...' : strippedText;
+                }
+              }
             }
           }
         } catch (textError) {
@@ -151,7 +179,18 @@ const SalesforceLookup: React.FC<SalesforceLookupProps> = ({
       // Provide user-friendly error messages
       let errorMessage = 'Failed to search Salesforce records';
       if (error.message) {
-        errorMessage = error.message;
+        // Strip any remaining HTML tags from error message
+        errorMessage = error.message.replace(/<[^>]*>/g, '').trim();
+        // If message is still too long or contains HTML entities, provide a simpler message
+        if (errorMessage.length > 200 || errorMessage.includes('&lt;') || errorMessage.includes('&gt;')) {
+          if (errorMessage.includes('404') || errorMessage.includes('not found')) {
+            errorMessage = 'Search service not available. Please try again later.';
+          } else if (errorMessage.includes('500') || errorMessage.includes('server')) {
+            errorMessage = 'Server error occurred. Please try again later.';
+          } else {
+            errorMessage = 'Unable to search at this time. Please try again.';
+          }
+        }
       } else if (error instanceof TypeError && error.message.includes('fetch')) {
         errorMessage = 'Network error: Unable to connect to server';
       }
