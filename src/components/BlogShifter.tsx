@@ -45,13 +45,13 @@ const BlogShifter = () => {
     loadBlogs();
   }, [authData, authLoading]);
 
-  // Auto-rotate through blogs (slowed down to 8 seconds)
+  // Auto-rotate through blogs (slowed down to 12 seconds for better readability)
   useEffect(() => {
     if (blogPosts.length === 0) return;
 
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % blogPosts.length);
-    }, 8000); // Changed from 4000ms to 8000ms (8 seconds)
+    }, 12000); // 12 seconds - slower for better user experience
 
     return () => clearInterval(interval);
   }, [blogPosts.length]);
