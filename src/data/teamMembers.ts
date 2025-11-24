@@ -132,7 +132,7 @@ export const teamMembers: TeamMember[] = [
     id: "andrea-makary",
     name: "Andrea Makary",
     role: "Technical Architect",
-    image: "/Assets/Company Members/Andrea_Makary_Technical_Architect.png",
+    image: "/Assets/Company Members/Andrea_Makary_Technical_Architect.png?v=2",
     profileSlug: "andrea-makary",
     description: "Designing enterprise-grade Salesforce architectures, Andrea ensures scalable, secure, and maintainable solutions that support long-term business growth."
   },
@@ -148,7 +148,7 @@ export const teamMembers: TeamMember[] = [
     id: "marina-danial",
     name: "Marina Danial",
     role: "CFO Cloudastick and COO of Techsa",
-    image: "/Assets/Company Members/Marina_Danial_CFO_Cloudastick_and_COO_of_Techsa.png",
+    image: "/Assets/Company Members/Marina_Danial_CFO_Cloudastick_and_COO_of_Techsa.png?v=2",
     profileSlug: "marina-danial",
     description: "Leading financial strategy and operations, Marina ensures Cloudastick's financial health while driving operational excellence across both Cloudastick and Techsa."
   },
@@ -156,7 +156,7 @@ export const teamMembers: TeamMember[] = [
     id: "jenny-maged",
     name: "Jenny Maged",
     role: "Salesforce Consultant",
-    image: "/Assets/Company Members/Jenny_Maged_Salesforce_Consultant.png",
+    image: "/Assets/Company Members/Jenny_Maged_Salesforce_Consultant.png?v=2",
     profileSlug: "jenny-maged",
     description: "Delivering expert Salesforce consulting services, Jenny helps businesses optimize their CRM processes and achieve their digital transformation goals."
   },
@@ -172,7 +172,7 @@ export const teamMembers: TeamMember[] = [
     id: "mariam-mahmoud",
     name: "Mariam Mahmoud",
     role: "Salesforce Consultant",
-    image: "/Assets/Company Members/Mariam_Mahmoud_Salesforce_Consultant.png",
+    image: "/Assets/Company Members/Mariam_Mahmoud_Salesforce_Consultant.png?v=2",
     profileSlug: "mariam-mahmoud",
     description: "Specializing in Salesforce configuration and user adoption, Mariam ensures seamless platform integration and empowers teams to maximize CRM value.",
     isAcademy: true
@@ -181,7 +181,7 @@ export const teamMembers: TeamMember[] = [
     id: "omar-bazid",
     name: "Omar Bazid",
     role: "Salesforce Consultant",
-    image: "/Assets/Company Members/Omar_Bazid_Salesforce_Consultant.png",
+    image: "/Assets/Company Members/Omar_Bazid_Salesforce_Consultant.png?v=2",
     profileSlug: "omar-bazid",
     description: "Focused on delivering scalable Salesforce solutions, Omar combines technical expertise with business acumen to transform customer engagement strategies.",
     isAcademy: true
