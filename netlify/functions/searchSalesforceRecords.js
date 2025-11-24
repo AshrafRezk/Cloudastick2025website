@@ -2,7 +2,22 @@
  * Netlify Function to search Salesforce records
  * Supports searching Opportunities, Projects (SFDC_Project__c), and Accounts
  */
+
+// Ensure fetch is available (Node.js 18+ has it globally, but we'll add a fallback check)
+let fetchFunction = globalThis.fetch;
+if (!fetchFunction && typeof require !== 'undefined') {
+  // Fallback for older Node.js versions (shouldn't be needed with Node 18)
+  try {
+    fetchFunction = require('node-fetch');
+  } catch (e) {
+    console.warn('Fetch not available, will use global fetch');
+  }
+}
+
 exports.handler = async (event, context) => {
+  // Set timeout to prevent hanging (Netlify functions have a 10s default timeout for free tier, 26s for pro)
+  context.callbackWaitsForEmptyEventLoop = false;
+
   // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
     return {
@@ -118,15 +133,40 @@ exports.handler = async (event, context) => {
 
     let response;
     try {
-      response = await fetch(queryUrl, {
+      // Use the fetch function (global or fallback)
+      const fetchToUse = fetchFunction || fetch;
+      
+      // Create abort controller for timeout (if available)
+      let controller;
+      let timeoutId;
+      const fetchOptions = {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${access_token}`,
           'Content-Type': 'application/json',
         },
-      });
+      };
+      
+      // Add timeout if AbortController is available
+      if (typeof AbortController !== 'undefined') {
+        controller = new AbortController();
+        timeoutId = setTimeout(() => controller.abort(), 20000); // 20 second timeout
+        fetchOptions.signal = controller.signal;
+      }
+      
+      try {
+        response = await fetchToUse(queryUrl, fetchOptions);
+        if (timeoutId) clearTimeout(timeoutId);
+      } catch (fetchErr) {
+        if (timeoutId) clearTimeout(timeoutId);
+        throw fetchErr;
+      }
     } catch (fetchError) {
       console.error('❌ Network error fetching from Salesforce:', fetchError);
+      const errorMessage = fetchError.name === 'AbortError' || fetchError.message?.includes('timeout')
+        ? 'Request timed out. Please try again.'
+        : fetchError.message || 'Network error occurred';
+      
       return {
         statusCode: 500,
         headers: {
@@ -135,7 +175,7 @@ exports.handler = async (event, context) => {
         },
         body: JSON.stringify({
           error: 'Failed to connect to Salesforce',
-          message: fetchError.message || 'Network error occurred',
+          message: errorMessage,
         }),
       };
     }
@@ -191,13 +231,30 @@ exports.handler = async (event, context) => {
           
           let simpleResponse;
           try {
-            simpleResponse = await fetch(simpleQueryUrl, {
+            const fetchToUse = fetchFunction || fetch;
+            const simpleFetchOptions = {
               method: 'GET',
               headers: {
                 'Authorization': `Bearer ${access_token}`,
                 'Content-Type': 'application/json',
               },
-            });
+            };
+            
+            let simpleController;
+            let simpleTimeoutId;
+            if (typeof AbortController !== 'undefined') {
+              simpleController = new AbortController();
+              simpleTimeoutId = setTimeout(() => simpleController.abort(), 20000);
+              simpleFetchOptions.signal = simpleController.signal;
+            }
+            
+            try {
+              simpleResponse = await fetchToUse(simpleQueryUrl, simpleFetchOptions);
+              if (simpleTimeoutId) clearTimeout(simpleTimeoutId);
+            } catch (simpleFetchErr) {
+              if (simpleTimeoutId) clearTimeout(simpleTimeoutId);
+              throw simpleFetchErr;
+            }
           } catch (fetchError) {
             console.error('❌ Network error on simplified query:', fetchError);
             // Fall through to return the original error
@@ -214,30 +271,31 @@ exports.handler = async (event, context) => {
             }
             
             if (simpleData) {
-            const records = (simpleData.records || []).map((record) => ({
-              id: record.Id,
-              name: record.Name,
-              type: 'Project',
-              accountName: '',
-              accountId: '',
-              accountIndustry: '',
-              accountWebsite: '',
-              additionalInfo: 'Limited fields available',
-            }));
-            
-            return {
-              statusCode: 200,
-              headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                success: true,
-                records,
-                totalSize: simpleData.totalSize || 0,
-                warning: 'Some fields are not accessible',
-              }),
-            };
+              const records = (simpleData.records || []).map((record) => ({
+                id: record.Id,
+                name: record.Name,
+                type: 'Project',
+                accountName: '',
+                accountId: '',
+                accountIndustry: '',
+                accountWebsite: '',
+                additionalInfo: 'Limited fields available',
+              }));
+              
+              return {
+                statusCode: 200,
+                headers: {
+                  'Access-Control-Allow-Origin': '*',
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  success: true,
+                  records,
+                  totalSize: simpleData.totalSize || 0,
+                  warning: 'Some fields are not accessible',
+                }),
+              };
+            }
           }
         }
       }
@@ -346,6 +404,16 @@ exports.handler = async (event, context) => {
 
   } catch (error) {
     console.error('❌ Search Salesforce Records Function Error:', error);
+    console.error('Error stack:', error.stack);
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
+    
+    // Ensure we always return a valid response
+    const errorMessage = error.message || 'An unexpected error occurred';
+    const sanitizedMessage = errorMessage.length > 200 
+      ? errorMessage.substring(0, 200) + '...' 
+      : errorMessage;
+    
     return {
       statusCode: 500,
       headers: {
@@ -354,7 +422,7 @@ exports.handler = async (event, context) => {
       },
       body: JSON.stringify({
         error: 'Failed to search Salesforce records',
-        message: error.message,
+        message: sanitizedMessage,
       }),
     };
   }
