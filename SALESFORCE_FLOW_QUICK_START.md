@@ -2,6 +2,12 @@
 
 The fastest way to set up push notifications using only Flows!
 
+## ⚠️ IMPORTANT: Deploy First!
+
+**You MUST deploy the code to Netlify BEFORE configuring Salesforce!**
+
+The webhook endpoints must exist before Salesforce can send data to them. See `DEPLOY_BEFORE_SALESFORCE.md` for details.
+
 ## 🚀 Quick Setup (5 Minutes)
 
 ### Step 1: Create Named Credential (2 minutes)

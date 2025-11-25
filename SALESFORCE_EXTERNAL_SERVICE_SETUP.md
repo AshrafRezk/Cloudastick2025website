@@ -2,6 +2,12 @@
 
 Salesforce now requires an **External Service** to be created before you can use HTTP Callouts in Flows. Here's how to set it up.
 
+## ⚠️ IMPORTANT: Deploy First!
+
+**You MUST deploy the code to Netlify BEFORE configuring Salesforce!**
+
+The webhook endpoints must exist before Salesforce can send data to them. See `DEPLOY_BEFORE_SALESFORCE.md` for details.
+
 ## Step 1: Create External Service
 
 ### 1.1 Navigate to External Services

@@ -2,6 +2,12 @@
 
 Complete guide to set up push notifications for the **Push_Notification__c** custom object.
 
+## ⚠️ IMPORTANT: Deploy First!
+
+**You MUST deploy the code to Netlify BEFORE configuring Salesforce!**
+
+The webhook endpoints must exist before Salesforce can send data to them. See `DEPLOY_BEFORE_SALESFORCE.md` for details.
+
 ## Overview
 
 When a record is created or updated in the `Push_Notification__c` object, a push notification will be sent to subscribed users in your PWA.
