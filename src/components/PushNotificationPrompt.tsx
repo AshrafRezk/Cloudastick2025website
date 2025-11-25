@@ -17,7 +17,7 @@ export function PushNotificationPrompt() {
     subscribe,
     requestPermission
   } = usePushNotifications({
-    salesforceObjectType: 'Push_Notification__c',
+    salesforceObjectType: 'Push_Notification__c', // Match your Salesforce object
     autoSubscribe: false
   });
 
