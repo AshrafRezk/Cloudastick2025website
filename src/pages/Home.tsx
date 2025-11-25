@@ -192,6 +192,14 @@ const Home = () => {
       color: "from-green-400 to-emerald-500",
       description: "Focused on delivering scalable Salesforce solutions, Omar combines technical expertise with business acumen to transform customer engagement strategies.",
       isAcademy: true
+    },
+    { 
+      id: 22, name: "Sakshi Dokarimare", role: t('team.salesforceConsultant'), 
+      image: "/Assets/Company Members/Sakshi_Dokarimare_Salesforce_Consultant.png",
+      icons: [Code, Target],
+      hoverElements: [t('team.hoverElements.development'), t('team.hoverElements.strategy')],
+      color: "from-indigo-400 to-blue-500",
+      description: "Expert Salesforce consultant delivering innovative solutions and driving business transformation through strategic CRM implementations."
     }
   ];
 

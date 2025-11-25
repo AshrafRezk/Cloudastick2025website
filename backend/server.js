@@ -13,6 +13,9 @@ app.use(express.json());
 // Serve static files from the dist directory
 app.use(express.static(path.join(__dirname, '../dist')));
 
+// In-memory storage for push subscriptions (in production, use a database)
+const pushSubscriptions = new Map();
+
 // Cloudiator API endpoint
 app.post('/api/cloudiator', async (req, res) => {
   console.log('🤖 Backend - Cloudiator API call received');
@@ -94,6 +97,85 @@ app.post('/api/cloudiator', async (req, res) => {
       error: `I apologize, but I'm experiencing technical difficulties. Error: ${error.message}. Please try again in a moment or contact our team directly at arezk@cloudastick.com.` 
     });
   }
+});
+
+// Push Notification Endpoints
+
+// Subscribe to push notifications
+app.post('/api/push/subscribe', async (req, res) => {
+  try {
+    const { subscription, userId, salesforceObjectType } = req.body;
+
+    if (!subscription || !subscription.endpoint) {
+      return res.status(400).json({ error: 'Invalid subscription data' });
+    }
+
+    // Store subscription (in production, save to database)
+    const subscriptionId = subscription.endpoint;
+    pushSubscriptions.set(subscriptionId, {
+      subscription,
+      userId,
+      salesforceObjectType,
+      createdAt: new Date().toISOString()
+    });
+
+    console.log('📱 Push subscription saved:', {
+      subscriptionId,
+      userId,
+      salesforceObjectType,
+      totalSubscriptions: pushSubscriptions.size
+    });
+
+    res.status(200).json({ 
+      success: true,
+      message: 'Subscription saved successfully'
+    });
+  } catch (error) {
+    console.error('❌ Error saving subscription:', error);
+    res.status(500).json({ error: 'Failed to save subscription' });
+  }
+});
+
+// Unsubscribe from push notifications
+app.post('/api/push/unsubscribe', async (req, res) => {
+  try {
+    const { subscription } = req.body;
+
+    if (!subscription || !subscription.endpoint) {
+      return res.status(400).json({ error: 'Invalid subscription data' });
+    }
+
+    // Remove subscription
+    const subscriptionId = subscription.endpoint;
+    pushSubscriptions.delete(subscriptionId);
+
+    console.log('📱 Push subscription removed:', {
+      subscriptionId,
+      totalSubscriptions: pushSubscriptions.size
+    });
+
+    res.status(200).json({ 
+      success: true,
+      message: 'Subscription removed successfully'
+    });
+  } catch (error) {
+    console.error('❌ Error removing subscription:', error);
+    res.status(500).json({ error: 'Failed to remove subscription' });
+  }
+});
+
+// Get all subscriptions (for testing/admin purposes)
+app.get('/api/push/subscriptions', (req, res) => {
+  const subscriptions = Array.from(pushSubscriptions.values());
+  res.status(200).json({ 
+    count: subscriptions.length,
+    subscriptions: subscriptions.map(sub => ({
+      userId: sub.userId,
+      salesforceObjectType: sub.salesforceObjectType,
+      createdAt: sub.createdAt,
+      endpoint: sub.subscription.endpoint.substring(0, 50) + '...'
+    }))
+  });
 });
 
 // Serve React app for all other routes

@@ -185,6 +185,14 @@ export const teamMembers: TeamMember[] = [
     profileSlug: "omar-bazid",
     description: "Focused on delivering scalable Salesforce solutions, Omar combines technical expertise with business acumen to transform customer engagement strategies.",
     isAcademy: true
+  },
+  {
+    id: "sakshi-dokarimare",
+    name: "Sakshi Dokarimare",
+    role: "Salesforce Consultant",
+    image: "/Assets/Company Members/Sakshi_Dokarimare_Salesforce_Consultant.png",
+    profileSlug: "sakshi-dokarimare",
+    description: "Expert Salesforce consultant delivering innovative solutions and driving business transformation through strategic CRM implementations."
   }
 ];
 

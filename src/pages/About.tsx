@@ -184,6 +184,14 @@ const About = () => {
       hoverElements: [t('team.hoverElements.scalability'), t('team.hoverElements.growth')],
       color: "from-green-400 to-emerald-500",
       isAcademy: true
+    },
+    { 
+      id: 22, name: "Sakshi Dokarimare", 
+      role: t('team.salesforceConsultant'), 
+      image: "/Assets/Company Members/Sakshi_Dokarimare_Salesforce_Consultant.png",
+      icons: [Code, Target],
+      hoverElements: [t('team.hoverElements.development'), t('team.hoverElements.strategy')],
+      color: "from-indigo-400 to-blue-500"
     }
   ];
 
