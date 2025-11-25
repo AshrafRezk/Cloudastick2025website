@@ -38,6 +38,12 @@ export function PushNotificationPrompt() {
       return;
     }
     
+    // Check if permission is already denied on page load
+    if (Notification.permission === 'denied') {
+      console.log('⚠️ Notifications already blocked on page load');
+      // Still show the prompt so user knows they need to unblock
+    }
+    
     // Show prompt after 3 seconds
     const timer = setTimeout(() => {
       setShowPrompt(true);
@@ -104,43 +110,71 @@ export function PushNotificationPrompt() {
 
   const handleEnable = async () => {
     try {
+      console.log('🔔 Enable button clicked!');
+      console.log('Current permission state:', permission);
+      console.log('Current Notification.permission:', Notification.permission);
+      
       setLocalError(null);
       
+      // Check actual browser permission (might be different from state)
+      const actualPermission = Notification.permission;
+      console.log('Actual browser permission:', actualPermission);
+      
       // If permission is blocked, we can't request it again
-      if (permission === 'denied') {
+      if (actualPermission === 'denied' || permission === 'denied') {
+        console.log('❌ Notifications are blocked');
         setLocalError('Notifications are blocked. Please enable them in your browser settings (see instructions below).');
         return;
       }
 
       // Request permission if not already granted
-      if (permission === 'default') {
-        const newPermission = await requestPermission();
+      if (actualPermission === 'default' || permission === 'default') {
+        console.log('📋 Requesting notification permission...');
         
-        // Check the actual browser permission after request
-        const actualPermission = Notification.permission;
-        
-        if (actualPermission === 'denied') {
-          setLocalError('Notifications were blocked. Please enable them in your browser settings.');
+        try {
+          await requestPermission();
+          
+          // Wait a moment for state to update
+          await new Promise(resolve => setTimeout(resolve, 200));
+          
+          // Check the actual browser permission after request
+          const newPermission = Notification.permission;
+          console.log('Permission after request:', newPermission);
+          
+          if (newPermission === 'denied') {
+            console.log('❌ User blocked notifications');
+            setLocalError('Notifications were blocked. Please enable them in your browser settings.');
+            return;
+          }
+          
+          if (newPermission !== 'granted') {
+            console.log('⚠️ Permission not granted:', newPermission);
+            setLocalError('Notification permission was not granted.');
+            return;
+          }
+          
+          console.log('✅ Permission granted, subscribing...');
+          // Permission granted, now subscribe
+          await subscribe();
+          setIsDismissed(true);
+          localStorage.setItem('push-notification-prompt-dismissed', 'true');
+        } catch (permError) {
+          console.error('❌ Error requesting permission:', permError);
+          setLocalError(permError instanceof Error ? permError.message : 'Failed to request notification permission');
           return;
         }
-        
-        if (actualPermission !== 'granted') {
-          setLocalError('Notification permission was not granted.');
-          return;
-        }
-        
-        // Permission granted, now subscribe
-        await subscribe();
-        setIsDismissed(true);
-        localStorage.setItem('push-notification-prompt-dismissed', 'true');
-      } else if (permission === 'granted') {
+      } else if (actualPermission === 'granted' || permission === 'granted') {
+        console.log('✅ Permission already granted, subscribing...');
         // Already granted, just subscribe
         await subscribe();
         setIsDismissed(true);
         localStorage.setItem('push-notification-prompt-dismissed', 'true');
+      } else {
+        console.log('⚠️ Unknown permission state:', actualPermission, permission);
+        setLocalError('Unable to determine notification permission status.');
       }
     } catch (error) {
-      console.error('Failed to enable notifications:', error);
+      console.error('❌ Failed to enable notifications:', error);
       setLocalError(error instanceof Error ? error.message : 'Failed to enable notifications');
     }
   };
@@ -182,11 +216,17 @@ export function PushNotificationPrompt() {
             
             <div className="flex gap-2">
               <Button
-                onClick={handleEnable}
-                disabled={isLoading}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('🔔 Button onClick triggered!');
+                  handleEnable();
+                }}
+                disabled={isLoading || permission === 'denied'}
                 size="sm"
                 variant="secondary"
                 className="flex-1 text-xs"
+                type="button"
               >
                 {isLoading ? 'Enabling...' : 'Enable Notifications'}
               </Button>

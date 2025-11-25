@@ -84,7 +84,16 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
     throw new Error('Notifications are not supported in this browser');
   }
 
+  console.log('📋 Calling Notification.requestPermission()...');
+  console.log('Current permission before request:', Notification.permission);
+  
+  // Note: This must be called in response to a user gesture (button click)
+  // If called outside user gesture, it will be ignored
   const permission = await Notification.requestPermission();
+  
+  console.log('Permission result:', permission);
+  console.log('Notification.permission after request:', Notification.permission);
+  
   return permission;
 }
 

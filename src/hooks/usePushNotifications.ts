@@ -97,31 +97,43 @@ export function usePushNotifications(
     }
   }, [autoSubscribe, permission, registration, isSubscribed, isLoading]);
 
-  const requestPermission = useCallback(async () => {
+  const requestPermission = useCallback(async (): Promise<NotificationPermission> => {
     try {
+      console.log('🔔 requestPermission called');
       setError(null);
       
       // Check current permission first
       const currentPerm = await getNotificationPermission();
+      console.log('Current permission:', currentPerm);
+      
       if (currentPerm === 'denied') {
+        console.log('❌ Permission already denied');
         setPermission('denied');
         setError('Notifications are blocked. Please enable them in your browser settings.');
         return 'denied';
       }
       
+      console.log('📋 Calling Notification.requestPermission()...');
       const perm = await requestNotificationPermission();
+      console.log('Permission result:', perm);
+      
       setPermission(perm);
       
       if (perm !== 'granted') {
         if (perm === 'denied') {
+          console.log('❌ User denied permission');
           setError('Notifications were blocked. Please enable them in your browser settings.');
         } else {
+          console.log('⚠️ Permission not granted:', perm);
           setError('Notification permission was not granted');
         }
+      } else {
+        console.log('✅ Permission granted!');
       }
       
       return perm;
     } catch (err) {
+      console.error('❌ Error in requestPermission:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to request permission';
       setError(errorMessage);
       throw err;
