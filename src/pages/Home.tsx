@@ -14,6 +14,7 @@ import Button from "../components/Button";
 import BlogShifter from "../components/BlogShifter";
 import ProductCarousel from "../components/ProductCarousel";
 import { useLanguage } from "../contexts/LanguageContext";
+import { PushNotificationPrompt } from "../components/PushNotificationPrompt";
 
 const Home = () => {
   // State for animated hero
@@ -237,6 +238,9 @@ const Home = () => {
 
   return (
     <div className="min-h-screen">
+      {/* Push Notification Prompt */}
+      <PushNotificationPrompt />
+      
       {/* Animated Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted to-background overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-brand-primary/10 via-transparent to-transparent"></div>
