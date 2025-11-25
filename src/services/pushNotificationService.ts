@@ -18,7 +18,7 @@ export interface NotificationPayload {
   badge?: string;
   tag?: string;
   url?: string;
-  data?: Record<string, any>;
+  data?: Record<string, unknown>;
 }
 
 /**
@@ -27,7 +27,7 @@ export interface NotificationPayload {
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding)
-    .replace(/\-/g, '+')
+    .replace(/-/g, '+')
     .replace(/_/g, '/');
 
   const rawData = window.atob(base64);
@@ -133,18 +133,38 @@ export async function subscribeToPushNotifications(
     const vapidPublicKey = getVapidPublicKey();
     
     if (!vapidPublicKey) {
-      throw new Error('VAPID public key is not configured');
+      const error = 'VAPID public key is not configured. Please set VITE_VAPID_PUBLIC_KEY in environment variables.';
+      console.error('❌', error);
+      throw new Error(error);
     }
 
+    console.log('🔑 Using VAPID key:', vapidPublicKey.substring(0, 20) + '...');
+    
+    // Check if already subscribed
+    const existingSubscription = await registration.pushManager.getSubscription();
+    if (existingSubscription) {
+      console.log('✅ Already have a subscription, using existing one');
+      return existingSubscription;
+    }
+
+    console.log('🔄 Creating new push subscription...');
+    const keyArray = urlBase64ToUint8Array(vapidPublicKey);
     const subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
+      applicationServerKey: keyArray as unknown as ArrayBuffer
     });
 
-    console.log('Push subscription created:', subscription);
+    const p256dhKey = subscription.getKey('p256dh');
+    console.log('✅ Push subscription created successfully:', {
+      endpoint: subscription.endpoint.substring(0, 50) + '...',
+      hasKeys: !!p256dhKey
+    });
     return subscription;
   } catch (error) {
-    console.error('Push subscription failed:', error);
+    console.error('❌ Push subscription failed:', error);
+    if (error instanceof Error) {
+      console.error('Error details:', error.message);
+    }
     throw error;
   }
 }
@@ -243,9 +263,13 @@ export async function saveSubscriptionToBackend(
       throw new Error(`Failed to save subscription: ${response.statusText}`);
     }
 
-    console.log('Subscription saved to backend');
+    const result = await response.json();
+    console.log('✅ Subscription saved to backend:', result);
   } catch (error) {
-    console.error('Failed to save subscription:', error);
+    console.error('❌ Failed to save subscription:', error);
+    if (error instanceof Error) {
+      console.error('Error details:', error.message);
+    }
     throw error;
   }
 }

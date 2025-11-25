@@ -63,13 +63,25 @@ export function usePushNotifications(
           setRegistration(reg);
 
           if (reg) {
+            // Wait a bit for service worker to be fully ready
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
             // Check if already subscribed
             const subscription = await getPushSubscription(reg);
-            setIsSubscribed(!!subscription);
+            const isSub = !!subscription;
+            setIsSubscribed(isSub);
+            
+            if (isSub) {
+              console.log('✅ Already subscribed:', subscription?.endpoint);
+            } else {
+              console.log('ℹ️ Not subscribed yet');
+            }
           }
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to check push notification support');
+        const errorMsg = err instanceof Error ? err.message : 'Failed to check push notification support';
+        setError(errorMsg);
+        console.error('Push notification check error:', err);
       } finally {
         setIsLoading(false);
       }
@@ -123,14 +135,20 @@ export function usePushNotifications(
       setError(null);
       setIsLoading(true);
 
+      console.log('🔄 Starting subscription process...');
       const subscription = await subscribeToPushNotifications(registration);
       
       if (subscription) {
+        console.log('✅ Push subscription created, saving to backend...');
         await saveSubscriptionToBackend(subscription, userId, salesforceObjectType);
+        console.log('✅ Subscription saved successfully!');
         setIsSubscribed(true);
+      } else {
+        throw new Error('Failed to create push subscription');
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to subscribe';
+      console.error('❌ Subscription error:', err);
       setError(errorMessage);
       throw err;
     } finally {
