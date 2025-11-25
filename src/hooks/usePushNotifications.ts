@@ -100,12 +100,27 @@ export function usePushNotifications(
   const requestPermission = useCallback(async () => {
     try {
       setError(null);
+      
+      // Check current permission first
+      const currentPerm = await getNotificationPermission();
+      if (currentPerm === 'denied') {
+        setPermission('denied');
+        setError('Notifications are blocked. Please enable them in your browser settings.');
+        return 'denied';
+      }
+      
       const perm = await requestNotificationPermission();
       setPermission(perm);
       
       if (perm !== 'granted') {
-        setError('Notification permission was denied');
+        if (perm === 'denied') {
+          setError('Notifications were blocked. Please enable them in your browser settings.');
+        } else {
+          setError('Notification permission was not granted');
+        }
       }
+      
+      return perm;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to request permission';
       setError(errorMessage);

@@ -6,7 +6,7 @@
 import { useState, useEffect } from 'react';
 import { usePushNotifications } from '../hooks/usePushNotifications';
 import { Button } from '@/components/ui/button';
-import { X, Bell } from 'lucide-react';
+import { X, Bell, AlertCircle } from 'lucide-react';
 
 export function PushNotificationPrompt() {
   const {
@@ -23,6 +23,12 @@ export function PushNotificationPrompt() {
 
   const [isDismissed, setIsDismissed] = useState(false);
   const [showPrompt, setShowPrompt] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
+
+  const handleDismiss = () => {
+    setIsDismissed(true);
+    localStorage.setItem('push-notification-prompt-dismissed', 'true');
+  };
 
   // Check if user has previously dismissed the prompt
   useEffect(() => {
@@ -43,39 +49,100 @@ export function PushNotificationPrompt() {
   // Don't show if:
   // - Not supported
   // - Already subscribed
-  // - Permission denied
-  // - User dismissed it
+  // - User dismissed it (unless permission is denied - show help)
   // - Already granted permission
   // - Prompt hasn't been triggered yet
   if (
     !isSupported ||
     isSubscribed ||
-    permission === 'denied' ||
-    isDismissed ||
-    permission === 'granted' ||
+    (isDismissed && permission !== 'denied') ||
+    (permission === 'granted' && !isSubscribed) ||
     !showPrompt
   ) {
+    // Show special message if blocked
+    if (permission === 'denied' && showPrompt && !isDismissed) {
+      return (
+        <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-96 z-50 animate-in slide-in-from-bottom-5">
+          <div className="bg-red-600/90 rounded-lg shadow-2xl border border-red-500/50 p-4 backdrop-blur-sm">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0">
+                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                  <AlertCircle className="w-5 h-5 text-white" />
+                </div>
+              </div>
+              
+              <div className="flex-1 min-w-0">
+                <h3 className="text-white font-semibold text-sm mb-1">
+                  Notifications Are Blocked
+                </h3>
+                <p className="text-white/90 text-xs mb-3">
+                  Notifications are blocked in your browser. To enable them:
+                </p>
+                <ol className="text-white/90 text-xs list-decimal list-inside mb-3 space-y-1">
+                  <li>Click the lock/info icon in your browser's address bar</li>
+                  <li>Find "Notifications" in the permissions list</li>
+                  <li>Change it from "Block" to "Allow"</li>
+                  <li>Refresh this page</li>
+                </ol>
+                
+                <Button
+                  onClick={handleDismiss}
+                  size="sm"
+                  variant="secondary"
+                  className="w-full text-xs"
+                >
+                  Got it
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
     return null;
   }
 
   const handleEnable = async () => {
     try {
+      setLocalError(null);
+      
+      // If permission is blocked, we can't request it again
+      if (permission === 'denied') {
+        setLocalError('Notifications are blocked. Please enable them in your browser settings (see instructions below).');
+        return;
+      }
+
+      // Request permission if not already granted
       if (permission === 'default') {
-        await requestPermission();
-      }
-      if (permission === 'granted') {
+        const newPermission = await requestPermission();
+        
+        // Check the actual browser permission after request
+        const actualPermission = Notification.permission;
+        
+        if (actualPermission === 'denied') {
+          setLocalError('Notifications were blocked. Please enable them in your browser settings.');
+          return;
+        }
+        
+        if (actualPermission !== 'granted') {
+          setLocalError('Notification permission was not granted.');
+          return;
+        }
+        
+        // Permission granted, now subscribe
         await subscribe();
+        setIsDismissed(true);
+        localStorage.setItem('push-notification-prompt-dismissed', 'true');
+      } else if (permission === 'granted') {
+        // Already granted, just subscribe
+        await subscribe();
+        setIsDismissed(true);
+        localStorage.setItem('push-notification-prompt-dismissed', 'true');
       }
-      setIsDismissed(true);
-      localStorage.setItem('push-notification-prompt-dismissed', 'true');
     } catch (error) {
       console.error('Failed to enable notifications:', error);
+      setLocalError(error instanceof Error ? error.message : 'Failed to enable notifications');
     }
-  };
-
-  const handleDismiss = () => {
-    setIsDismissed(true);
-    localStorage.setItem('push-notification-prompt-dismissed', 'true');
   };
 
   return (
@@ -95,6 +162,23 @@ export function PushNotificationPrompt() {
             <p className="text-white/90 text-xs mb-3">
               Get instant notifications from Salesforce even when the app is closed.
             </p>
+            
+            {localError && (
+              <div className="bg-red-500/20 border border-red-500/50 rounded p-2 mb-3">
+                <p className="text-white text-xs mb-2">{localError}</p>
+                {localError.includes('blocked') && (
+                  <div className="text-white/80 text-xs space-y-1">
+                    <p className="font-semibold">To enable notifications:</p>
+                    <ol className="list-decimal list-inside ml-2 space-y-0.5">
+                      <li>Click the lock/info icon in your browser's address bar</li>
+                      <li>Find "Notifications" in the permissions list</li>
+                      <li>Change it from "Block" to "Allow"</li>
+                      <li>Refresh this page</li>
+                    </ol>
+                  </div>
+                )}
+              </div>
+            )}
             
             <div className="flex gap-2">
               <Button
