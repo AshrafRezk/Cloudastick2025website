@@ -29,6 +29,13 @@ function getSalesforceAuth(authData: any): { access_token: string; instance_url:
   };
 }
 
+// Helper to check if a string matches Salesforce ID pattern (15 or 18 characters, alphanumeric)
+function isSalesforceId(value: string): boolean {
+  // Salesforce IDs are 15 or 18 characters, alphanumeric
+  const salesforceIdPattern = /^[a-zA-Z0-9]{15}$|^[a-zA-Z0-9]{18}$/;
+  return salesforceIdPattern.test(value);
+}
+
 // Helper to fetch Salesforce image with authentication and convert to data URL
 async function fetchSalesforceImage(
   imageUrl: string,
@@ -38,6 +45,54 @@ async function fetchSalesforceImage(
     // Check if it's a Salesforce URL or ContentDocument reference
     if (!imageUrl) {
       return null;
+    }
+    
+    // Trim whitespace
+    imageUrl = imageUrl.trim();
+    
+    // Check if it's a ContentDocument ID (Salesforce ID pattern)
+    if (isSalesforceId(imageUrl)) {
+      // Query ContentVersion to get the actual file download URL
+      try {
+        const escapedId = imageUrl.replace(/'/g, "\\'");
+        const soqlQuery = encodeURIComponent(
+          `SELECT ContentDocumentId, VersionDataUrl, FileExtension, ContentType FROM ContentVersion WHERE ContentDocumentId = '${escapedId}' ORDER BY CreatedDate DESC LIMIT 1`
+        );
+        const queryUrl = `${auth.instance_url}/services/data/v58.0/query/?q=${soqlQuery}`;
+        
+        const queryResponse = await fetch(queryUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${auth.access_token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (queryResponse.ok) {
+          const queryData = await queryResponse.json();
+          if (queryData.records && queryData.records.length > 0) {
+            const versionDataUrl = queryData.records[0].VersionDataUrl;
+            if (versionDataUrl) {
+              // Use the VersionDataUrl to fetch the image
+              imageUrl = versionDataUrl;
+              console.log('Resolved ContentDocument ID to URL:', versionDataUrl);
+            } else {
+              console.warn('ContentVersion query returned no VersionDataUrl for ID:', imageUrl);
+              return null;
+            }
+          } else {
+            console.warn('No ContentVersion found for ContentDocument ID:', imageUrl);
+            return null;
+          }
+        } else {
+          const errorText = await queryResponse.text();
+          console.warn('Failed to query ContentVersion:', queryResponse.status, errorText);
+          return null;
+        }
+      } catch (queryError) {
+        console.warn('Error querying ContentVersion for ID:', imageUrl, queryError);
+        return null;
+      }
     }
     
     // If it's not a Salesforce URL (external URL), return as-is
@@ -58,16 +113,12 @@ async function fetchSalesforceImage(
     } else if (imageUrl.startsWith('http')) {
       fullUrl = imageUrl;
     } else {
-      // Might be a ContentDocument ID or other reference
       // Try to construct a proper URL
       fullUrl = `${auth.instance_url}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
     }
     
-    // For ContentDocument URLs, ensure we're using the download endpoint
-    if (fullUrl.includes('sfc/servlet.shepherd')) {
-      // ContentDocument URL - add session ID if needed
-      // The URL should already be correct, just need auth
-    }
+    // For ContentDocument URLs (sfc/servlet.shepherd), they should work with auth headers
+    // Some URLs might need session ID in query params, but auth header should be sufficient
     
     // Fetch image with authentication
     const response = await fetch(fullUrl, {
@@ -80,13 +131,20 @@ async function fetchSalesforceImage(
     
     if (!response.ok) {
       console.warn('Failed to fetch Salesforce image:', response.status, response.statusText, fullUrl);
+      // Log more details for debugging
+      try {
+        const errorText = await response.text();
+        console.warn('Response body:', errorText.substring(0, 200));
+      } catch (e) {
+        // Ignore error reading response
+      }
       return null;
     }
     
     // Check if response is actually an image
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.startsWith('image/')) {
-      console.warn('Salesforce image URL did not return an image:', contentType);
+      console.warn('Salesforce image URL did not return an image. Content-Type:', contentType, 'URL:', fullUrl);
       return null;
     }
     
@@ -116,6 +174,7 @@ const ProjectTeamView: React.FC = () => {
   // State
   const [projectId, setProjectId] = useState(projectIdParam || '');
   const [companyName, setCompanyName] = useState(companyParam || '');
+  const [opportunityName, setOpportunityName] = useState<string>('');
   const [companyLogo, setCompanyLogo] = useState<string>('');
   const [companyWebsite, setCompanyWebsite] = useState<string>('');
   const [selectedTeam, setSelectedTeam] = useState<string[]>([]);
@@ -200,15 +259,16 @@ const ProjectTeamView: React.FC = () => {
               let companyNameFromSF = companyParam || '';
               let companyWebsiteFromSF = '';
               let accountImageFromSF: string | null = null;
+              let opportunityNameFromSF = '';
               
               // Always try to get Account details since logo lives on Account
               let accountIdToFetch = sfData.accountId;
               
               if (!accountIdToFetch && sfData.opportunityId) {
-                // Get Account ID from Opportunity, including Account image
+                // Get Account ID from Opportunity, including Account image and Opportunity name
                 try {
-                  // Try common Account image field names
-                  const oppUrl = `${auth.instance_url}/services/data/v58.0/sobjects/Opportunity/${sfData.opportunityId}?fields=AccountId,Account.Name,Account.Website,Account.Image,Account.Image__c,Account.Logo__c,Account.Company_Logo__c`;
+                  // Include Opportunity Name and Account fields
+                  const oppUrl = `${auth.instance_url}/services/data/v58.0/sobjects/Opportunity/${sfData.opportunityId}?fields=Id,Name,AccountId,Account.Name,Account.Website,Account.Image,Account.Image__c,Account.Logo__c,Account.Company_Logo__c`;
                   const oppResponse = await fetch(oppUrl, {
                     method: 'GET',
                     headers: {
@@ -221,12 +281,31 @@ const ProjectTeamView: React.FC = () => {
                     accountIdToFetch = oppData.AccountId;
                     companyNameFromSF = oppData.Account?.Name || oppData.Name || companyNameFromSF;
                     companyWebsiteFromSF = oppData.Account?.Website || '';
+                    opportunityNameFromSF = oppData.Name || '';
                     
                     // Try to get Account image (check multiple possible field names)
                     accountImageFromSF = oppData.Account?.Image__c || oppData.Account?.Logo__c || oppData.Account?.Company_Logo__c || oppData.Account?.Image || null;
                   }
                 } catch (e) {
                   console.warn('Error fetching Opportunity details:', e);
+                }
+              } else if (sfData.opportunityId) {
+                // We have opportunityId but also have accountId, still fetch Opportunity name
+                try {
+                  const oppUrl = `${auth.instance_url}/services/data/v58.0/sobjects/Opportunity/${sfData.opportunityId}?fields=Id,Name`;
+                  const oppResponse = await fetch(oppUrl, {
+                    method: 'GET',
+                    headers: {
+                      'Authorization': `Bearer ${auth.access_token}`,
+                      'Content-Type': 'application/json',
+                    },
+                  });
+                  if (oppResponse.ok) {
+                    const oppData = await oppResponse.json();
+                    opportunityNameFromSF = oppData.Name || '';
+                  }
+                } catch (e) {
+                  console.warn('Error fetching Opportunity name:', e);
                 }
               } else if (!accountIdToFetch && sfData.projectId) {
                 // Get Account ID from Project, including Account image
@@ -292,6 +371,11 @@ const ProjectTeamView: React.FC = () => {
                 setCompanyWebsite(companyWebsiteFromSF);
               }
               
+              // Set opportunity name if we fetched it
+              if (opportunityNameFromSF) {
+                setOpportunityName(opportunityNameFromSF);
+              }
+              
               // Set Account image as company logo if we found it
               if (accountImageFromSF) {
                 // Fetch and convert Salesforce image to data URL if needed
@@ -341,7 +425,7 @@ const ProjectTeamView: React.FC = () => {
           setCompanyName(data.companyName);
           // Only set logo from data if we haven't already set it from Account image/website
           if (data.companyLogo) {
-            setCompanyLogo(data.companyLogo);
+          setCompanyLogo(data.companyLogo);
           }
           setSelectedTeam(data.selectedTeam || []);
           setProjectScope(data.projectScope || '');
@@ -497,6 +581,9 @@ const ProjectTeamView: React.FC = () => {
         {/* Project Info Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Project Team</h1>
+          {opportunityName && (
+            <p className="text-xl text-cyan-400 font-semibold mb-2">{opportunityName}</p>
+          )}
           <p className="text-gray-400">Your dedicated team of Salesforce experts</p>
         </div>
 
