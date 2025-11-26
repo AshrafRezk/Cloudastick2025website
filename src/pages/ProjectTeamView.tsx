@@ -29,6 +29,81 @@ function getSalesforceAuth(authData: any): { access_token: string; instance_url:
   };
 }
 
+// Helper to fetch Salesforce image with authentication and convert to data URL
+async function fetchSalesforceImage(
+  imageUrl: string,
+  auth: { access_token: string; instance_url: string }
+): Promise<string | null> {
+  try {
+    // Check if it's a Salesforce URL or ContentDocument reference
+    if (!imageUrl) {
+      return null;
+    }
+    
+    // If it's not a Salesforce URL (external URL), return as-is
+    const isSalesforceUrl = imageUrl.startsWith(auth.instance_url) || 
+                           imageUrl.startsWith('/') ||
+                           imageUrl.includes('salesforce.com') ||
+                           imageUrl.includes('sfc/servlet.shepherd');
+    
+    if (!isSalesforceUrl) {
+      // Not a Salesforce URL, return as-is (might be external URL)
+      return imageUrl;
+    }
+    
+    // Construct full URL if it's a relative path
+    let fullUrl: string;
+    if (imageUrl.startsWith('/')) {
+      fullUrl = `${auth.instance_url}${imageUrl}`;
+    } else if (imageUrl.startsWith('http')) {
+      fullUrl = imageUrl;
+    } else {
+      // Might be a ContentDocument ID or other reference
+      // Try to construct a proper URL
+      fullUrl = `${auth.instance_url}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
+    }
+    
+    // For ContentDocument URLs, ensure we're using the download endpoint
+    if (fullUrl.includes('sfc/servlet.shepherd')) {
+      // ContentDocument URL - add session ID if needed
+      // The URL should already be correct, just need auth
+    }
+    
+    // Fetch image with authentication
+    const response = await fetch(fullUrl, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${auth.access_token}`,
+        'Accept': 'image/*',
+      },
+    });
+    
+    if (!response.ok) {
+      console.warn('Failed to fetch Salesforce image:', response.status, response.statusText, fullUrl);
+      return null;
+    }
+    
+    // Check if response is actually an image
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.startsWith('image/')) {
+      console.warn('Salesforce image URL did not return an image:', contentType);
+      return null;
+    }
+    
+    // Convert to blob then data URL
+    const blob = await response.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch (error) {
+    console.warn('Error fetching Salesforce image:', error);
+    return null;
+  }
+}
+
 const ProjectTeamView: React.FC = () => {
   const [searchParams] = useSearchParams();
   const projectIdParam = searchParams.get('projectId');
@@ -219,7 +294,25 @@ const ProjectTeamView: React.FC = () => {
               
               // Set Account image as company logo if we found it
               if (accountImageFromSF) {
-                setCompanyLogo(accountImageFromSF);
+                // Fetch and convert Salesforce image to data URL if needed
+                setLogoLoading(true);
+                try {
+                  const fetchedImageUrl = await fetchSalesforceImage(accountImageFromSF, auth);
+                  if (fetchedImageUrl) {
+                    setCompanyLogo(fetchedImageUrl);
+                    // Update data.companyLogo with fetched image
+                    data.companyLogo = fetchedImageUrl;
+                  } else {
+                    // If fetching failed, try to use original URL (might work for some cases)
+                    setCompanyLogo(accountImageFromSF);
+                  }
+                } catch (error) {
+                  console.error('Error fetching Salesforce image:', error);
+                  // Fallback to original URL
+                  setCompanyLogo(accountImageFromSF);
+                } finally {
+                  setLogoLoading(false);
+                }
               } else if (companyWebsiteFromSF) {
                 // Only fetch website logo if we don't have Account image
                 setLogoLoading(true);
