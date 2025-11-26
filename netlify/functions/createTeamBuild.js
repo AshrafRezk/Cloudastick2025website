@@ -215,25 +215,128 @@ exports.handler = async (event, context) => {
         }),
       };
 
+      let compositeSucceeded = false;
+      
       try {
         const compositeResponse = await fetch(compositeUrl, compositeOptions);
-        const compositeResult = await compositeResponse.json();
+        
+        if (!compositeResponse.ok) {
+          // Composite API failed, will fallback to individual creation
+          console.log(`⚠️ Composite API failed with status ${compositeResponse.status}, will create members individually...`);
+          throw new Error(`Composite API returned ${compositeResponse.status}`);
+        }
 
-        if (compositeResponse.ok && compositeResult.compositeResponse) {
+        const compositeResult = await compositeResponse.json();
+        console.log('Composite API response structure:', Object.keys(compositeResult));
+
+        // Check if we have compositeResponse array (standard Salesforce Composite API response)
+        if (compositeResult.compositeResponse && Array.isArray(compositeResult.compositeResponse)) {
+          let successCount = 0;
           compositeResult.compositeResponse.forEach((item, index) => {
             if (item.httpStatusCode === 201 && item.body && item.body.id) {
               memberIds.push(item.body.id);
+              successCount++;
             } else {
               const memberName = teamMembers[index];
-              const errorMsg = item.body && item.body[0] ? item.body[0].message : 'Unknown error';
+              const errorMsg = item.body && Array.isArray(item.body) && item.body[0] ? item.body[0].message : (item.body?.message || 'Unknown error');
               memberErrors.push({ memberName, error: errorMsg });
               console.error(`❌ Failed to create member ${memberName}:`, errorMsg);
             }
           });
-        } else {
-          // Fallback: create members individually
-          console.log('⚠️ Composite API failed, creating members individually...');
-          for (const memberName of teamMembers) {
+          console.log(`✅ Composite API created ${successCount} of ${teamMembers.length} member(s)`);
+          compositeSucceeded = true;
+        } 
+        // Check if we have records array (alternative response format - shouldn't happen with composite/sobjects)
+        else if (compositeResult.records && Array.isArray(compositeResult.records)) {
+          compositeResult.records.forEach((record, index) => {
+            if (record.id) {
+              memberIds.push(record.id);
+            } else {
+              const memberName = teamMembers[index];
+              memberErrors.push({ memberName, error: 'No ID returned' });
+            }
+          });
+          console.log(`✅ Composite API created ${memberIds.length} member(s) via records format`);
+          compositeSucceeded = true;
+        }
+        // If composite API returned OK but we can't parse it, verify by querying existing members
+        else if (compositeResponse.ok) {
+          console.warn('⚠️ Composite API returned OK but unexpected response format. Verifying by querying existing members...');
+          // Query existing members to see if they were actually created
+          const verifySoql = `SELECT Id, Name FROM Team_build_member__c WHERE Team_build__c = '${teamBuildId.replace(/'/g, "\\'")}'`;
+          const verifyEncoded = encodeURIComponent(verifySoql);
+          const verifyUrl = `${instance_url}/services/data/v58.0/query/?q=${verifyEncoded}`;
+          
+          try {
+            const verifyResponse = await fetch(verifyUrl, {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${access_token}`,
+                'Content-Type': 'application/json',
+              },
+            });
+            
+            if (verifyResponse.ok) {
+              const verifyResult = await verifyResponse.json();
+              const existingMembers = verifyResult.records || [];
+              console.log(`Found ${existingMembers.length} existing members after composite API call`);
+              
+              if (existingMembers.length >= teamMembers.length) {
+                // Members were created, just add their IDs
+                existingMembers.forEach(m => memberIds.push(m.Id));
+                compositeSucceeded = true;
+                console.log('✅ Verified: Composite API succeeded, members were created');
+              } else {
+                // Not all members were created, need to create missing ones individually
+                const existingNames = new Set(existingMembers.map(m => m.Name));
+                const missingMembers = teamMembers.filter(name => !existingNames.has(name));
+                console.log(`⚠️ Only ${existingMembers.length} of ${teamMembers.length} members created. Missing: ${missingMembers.join(', ')}`);
+                // Will fall through to individual creation for missing members
+                existingMembers.forEach(m => memberIds.push(m.Id));
+              }
+            }
+          } catch (verifyError) {
+            console.error('Error verifying members:', verifyError);
+            // Can't verify, assume composite failed
+          }
+        }
+      } catch (compositeError) {
+        console.error('❌ Composite API error:', compositeError.message);
+      }
+
+      // Only create individually if composite API didn't succeed or some members are missing
+      if (!compositeSucceeded || memberIds.length < teamMembers.length) {
+        const existingNames = memberIds.length > 0 ? new Set() : new Set(); // We don't have names, only IDs
+        // Query to get existing member names to avoid duplicates
+        const checkSoql = `SELECT Name FROM Team_build_member__c WHERE Team_build__c = '${teamBuildId.replace(/'/g, "\\'")}'`;
+        const checkEncoded = encodeURIComponent(checkSoql);
+        const checkUrl = `${instance_url}/services/data/v58.0/query/?q=${checkEncoded}`;
+        
+        let existingMemberNames = new Set();
+        try {
+          const checkResponse = await fetch(checkUrl, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${access_token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+          
+          if (checkResponse.ok) {
+            const checkResult = await checkResponse.json();
+            existingMemberNames = new Set((checkResult.records || []).map((m: any) => m.Name));
+            console.log(`Found ${existingMemberNames.size} existing members to avoid duplicates`);
+          }
+        } catch (checkError) {
+          console.warn('Could not check existing members:', checkError);
+        }
+        
+        // Only create members that don't already exist
+        const membersToCreate = teamMembers.filter(name => !existingMemberNames.has(name));
+        
+        if (membersToCreate.length > 0) {
+          console.log(`Creating ${membersToCreate.length} missing member(s) individually...`);
+          for (const memberName of membersToCreate) {
             try {
               const memberRecord = {
                 Team_build__c: teamBuildId,
@@ -262,10 +365,9 @@ exports.handler = async (event, context) => {
               memberErrors.push({ memberName, error: memberError.message });
             }
           }
+        } else {
+          console.log('✅ All members already exist, no duplicates created');
         }
-      } catch (compositeError) {
-        console.error('❌ Error creating team members:', compositeError);
-        // Continue - Team build was created successfully
       }
     }
 
