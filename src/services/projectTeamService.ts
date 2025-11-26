@@ -327,12 +327,18 @@ export async function updateProjectTeam(
     }
 
     // First, get the existing Team build to find the teamBuildId
-    let existing: ProjectTeamData | null;
+    // For new builds, getProjectTeam will return null (404), which is expected
+    let existing: ProjectTeamData | null = null;
     try {
       existing = await getProjectTeam(projectId, undefined, updates.recordType);
-    } catch (error) {
-      // If getProjectTeam throws, it might be a 404, which is okay for create
-      existing = null;
+    } catch (error: any) {
+      // If getProjectTeam throws with 404 or "not found", that's expected for new builds
+      if (error?.message?.includes('not found') || error?.message?.includes('404')) {
+        existing = null;
+      } else {
+        // For other errors, re-throw
+        throw error;
+      }
     }
     
     if (!existing || !existing.teamBuildId) {
