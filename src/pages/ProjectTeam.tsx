@@ -66,7 +66,13 @@ const ProjectTeam: React.FC = () => {
       
       setIsLoading(true);
       try {
-        const data = await getProjectTeam(projectIdParam || undefined, companyParam || undefined);
+        // Determine record type from URL params or lookup object type
+        let recordType: 'Account' | 'Opportunity' | 'SFDC_Project__c' | undefined;
+        if (lookupObjectType) {
+          recordType = lookupObjectType;
+        }
+        
+        const data = await getProjectTeam(projectIdParam || undefined, companyParam || undefined, recordType);
         if (data) {
           setProjectId(data.projectId);
           setCompanyName(data.companyName);
@@ -75,11 +81,16 @@ const ProjectTeam: React.FC = () => {
           setProjectScope(data.projectScope || '');
           setDeliverables(data.deliverables || '');
           
-          // If we have a projectId, we can try to identify the record type
-          // For now, we'll default to SFDC_Project__c if it's an 18-character ID
-          if (data.projectId && data.projectId.length === 18) {
-            // Could potentially fetch record details to determine type
-            // For now, keep default lookup type
+          // Set lookup object type based on which field is populated
+          if (data.accountId) {
+            setLookupObjectType('Account');
+            setProjectId(data.accountId);
+          } else if (data.opportunityId) {
+            setLookupObjectType('Opportunity');
+            setProjectId(data.opportunityId);
+          } else if (data.projectId_sf) {
+            setLookupObjectType('SFDC_Project__c');
+            setProjectId(data.projectId_sf);
           }
           
           // If company name exists but no logo, try to fetch
@@ -89,13 +100,31 @@ const ProjectTeam: React.FC = () => {
         }
       } catch (error) {
         console.error('Error loading project data:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Failed to load project team data from Salesforce.';
+        
+        // Don't show error toast for 404 (not found) - it's expected for new projects
+        if (!errorMessage.includes('not found') && !errorMessage.includes('404')) {
+          if (errorMessage.includes('authentication') || errorMessage.includes('token')) {
+            toast({
+              title: 'Authentication Error',
+              description: 'Please refresh the page to re-authenticate with Salesforce.',
+              variant: 'destructive',
+            });
+          } else {
+            toast({
+              title: 'Error loading project',
+              description: errorMessage,
+              variant: 'destructive',
+            });
+          }
+        }
       } finally {
         setIsLoading(false);
       }
     };
 
     loadProjectData();
-  }, [projectIdParam, companyParam]);
+  }, [projectIdParam, companyParam, lookupObjectType]);
 
   // Fetch logo for company
   const fetchLogoForCompany = async (company: string) => {
@@ -182,6 +211,16 @@ const ProjectTeam: React.FC = () => {
       return;
     }
 
+    // Determine record type
+    let recordType: 'Account' | 'Opportunity' | 'SFDC_Project__c' | undefined;
+    if (selectedSalesforceRecord) {
+      recordType = lookupObjectType;
+    } else if (projectId) {
+      // Try to infer from ID format (18-char IDs) or default to Project
+      // For now, default to Project if not specified
+      recordType = 'SFDC_Project__c';
+    }
+
     setIsSaving(true);
     try {
       const data = {
@@ -191,27 +230,50 @@ const ProjectTeam: React.FC = () => {
         selectedTeam,
         projectScope,
         deliverables,
+        recordType,
+        // Map lookup fields based on record type
+        ...(recordType === 'Account' && { accountId: recordIdToSave }),
+        ...(recordType === 'Opportunity' && { opportunityId: recordIdToSave }),
+        ...(recordType === 'SFDC_Project__c' && { projectId_sf: recordIdToSave }),
       };
 
       if (isEditMode) {
         await updateProjectTeam(recordIdToSave, data, EDIT_PASSWORD);
         toast({
           title: 'Project updated',
-          description: 'Project team data has been updated successfully.',
+          description: 'Project team data has been updated successfully in Salesforce.',
         });
       } else {
         await saveProjectTeam(data);
         toast({
           title: 'Project saved',
-          description: 'Project team data has been saved successfully.',
+          description: 'Project team data has been saved successfully to Salesforce.',
         });
       }
     } catch (error: any) {
-      toast({
-        title: 'Error saving',
-        description: error.message || 'Failed to save project team data.',
-        variant: 'destructive',
-      });
+      console.error('Error saving project team:', error);
+      const errorMessage = error?.message || 'Failed to save project team data to Salesforce.';
+      
+      // Check for specific error types
+      if (errorMessage.includes('authentication') || errorMessage.includes('token')) {
+        toast({
+          title: 'Authentication Error',
+          description: 'Please refresh the page to re-authenticate with Salesforce.',
+          variant: 'destructive',
+        });
+      } else if (errorMessage.includes('permission') || errorMessage.includes('INSUFFICIENT_ACCESS')) {
+        toast({
+          title: 'Permission Denied',
+          description: 'You do not have permission to perform this action. Please contact your Salesforce administrator.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Error saving',
+          description: errorMessage,
+          variant: 'destructive',
+        });
+      }
     } finally {
       setIsSaving(false);
     }
