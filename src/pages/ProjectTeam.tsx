@@ -53,6 +53,11 @@ const ProjectTeam: React.FC = () => {
   const [selectedSalesforceRecord, setSelectedSalesforceRecord] = useState<SalesforceRecord | null>(null);
   const [useManualEntry, setUseManualEntry] = useState(false);
   
+  // Prevent double function calls
+  const saveInProgressRef = useRef(false);
+  const lastSaveTimeRef = useRef<number>(0);
+  const DEBOUNCE_MS = 2000; // 2 seconds debounce
+  
   const EDIT_PASSWORD = 'Cloudastick@Team$';
 
   // Check if user is authenticated (from sessionStorage)
@@ -200,8 +205,32 @@ const ProjectTeam: React.FC = () => {
     }
   };
 
-  // Handle save
+  // Handle save with double-call protection
   const handleSave = async () => {
+    // Prevent double calls: check if save is already in progress
+    if (saveInProgressRef.current) {
+      console.warn('Save already in progress, ignoring duplicate call');
+      toast({
+        title: 'Save in progress',
+        description: 'Please wait for the current save operation to complete.',
+        variant: 'default',
+      });
+      return;
+    }
+
+    // Debounce: prevent rapid successive calls
+    const now = Date.now();
+    const timeSinceLastSave = now - lastSaveTimeRef.current;
+    if (timeSinceLastSave < DEBOUNCE_MS) {
+      console.warn(`Save debounced: ${timeSinceLastSave}ms since last save (minimum ${DEBOUNCE_MS}ms)`);
+      toast({
+        title: 'Please wait',
+        description: 'Please wait a moment before saving again.',
+        variant: 'default',
+      });
+      return;
+    }
+
     // Use selected Salesforce record ID if available, otherwise use manual projectId
     const recordIdToSave = selectedSalesforceRecord?.id || projectId;
     
@@ -224,7 +253,12 @@ const ProjectTeam: React.FC = () => {
       recordType = 'SFDC_Project__c';
     }
 
+    // Set flags to prevent double calls
+    saveInProgressRef.current = true;
+    lastSaveTimeRef.current = now;
     setIsSaving(true);
+    
+    console.log(`💾 [${now}] Starting save operation for record: ${recordIdToSave}`);
     try {
       const data = {
         projectId: recordIdToSave,
@@ -288,6 +322,8 @@ const ProjectTeam: React.FC = () => {
       }
     } finally {
       setIsSaving(false);
+      saveInProgressRef.current = false;
+      console.log(`✅ Save operation completed`);
     }
   };
 
@@ -802,6 +838,7 @@ const ProjectTeam: React.FC = () => {
         </div>
 
         {/* Save and Share Buttons */}
+        {/* Note: Save button is disabled when isSaving is true to prevent double calls */}
         <div className="flex justify-end gap-3">
           {projectId && selectedTeam.length > 0 && (
             <Button
@@ -825,8 +862,8 @@ const ProjectTeam: React.FC = () => {
           )}
           <Button
             onClick={handleSave}
-            disabled={isSaving || !projectId}
-            className="bg-cyan-600 hover:bg-cyan-700 text-white px-8"
+            disabled={isSaving || saveInProgressRef.current || !projectId}
+            className="bg-cyan-600 hover:bg-cyan-700 text-white px-8 disabled:opacity-50 disabled:cursor-not-allowed"
             size="lg"
           >
             {isSaving ? (
