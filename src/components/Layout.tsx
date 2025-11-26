@@ -23,7 +23,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const mainNavItems = [
     { name: 'home-icon', path: "/", isIcon: true },
     { name: t('nav.about'), path: "/about" },
-    { name: t('nav.services'), path: "/services" },
     { name: t('nav.apps'), path: "/salesforce-apps" },
     { name: t('nav.salesforce'), path: "/salesforce-power" },
     { name: t('nav.clients'), path: "/clients" },
@@ -33,6 +32,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   // Items to show in "More" dropdown
   const moreNavItems = [
+    { name: t('nav.services'), path: "/services" },
     { name: t('nav.learn'), path: "/learn" },
     { name: t('nav.merchandise'), path: "/merchandise" },
   ];
