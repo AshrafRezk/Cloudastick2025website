@@ -106,17 +106,19 @@ const ProjectTeamView: React.FC = () => {
                 })
                 .filter((id: string | undefined): id is string => !!id);
               
-              // Fetch account/opportunity/project details to get company name and website
+              // Fetch account/opportunity/project details to get company name, website, and image
               let companyNameFromSF = companyParam || '';
               let companyWebsiteFromSF = '';
+              let accountImageFromSF: string | null = null;
               
               // Always try to get Account details since logo lives on Account
               let accountIdToFetch = sfData.accountId;
               
               if (!accountIdToFetch && sfData.opportunityId) {
-                // Get Account ID from Opportunity
+                // Get Account ID from Opportunity, including Account image
                 try {
-                  const oppUrl = `${auth.instance_url}/services/data/v58.0/sobjects/Opportunity/${sfData.opportunityId}?fields=AccountId,Account.Name,Account.Website`;
+                  // Try common Account image field names
+                  const oppUrl = `${auth.instance_url}/services/data/v58.0/sobjects/Opportunity/${sfData.opportunityId}?fields=AccountId,Account.Name,Account.Website,Account.Image,Account.Image__c,Account.Logo__c,Account.Company_Logo__c`;
                   const oppResponse = await fetch(oppUrl, {
                     method: 'GET',
                     headers: {
@@ -129,14 +131,17 @@ const ProjectTeamView: React.FC = () => {
                     accountIdToFetch = oppData.AccountId;
                     companyNameFromSF = oppData.Account?.Name || oppData.Name || companyNameFromSF;
                     companyWebsiteFromSF = oppData.Account?.Website || '';
+                    
+                    // Try to get Account image (check multiple possible field names)
+                    accountImageFromSF = oppData.Account?.Image__c || oppData.Account?.Logo__c || oppData.Account?.Company_Logo__c || oppData.Account?.Image || null;
                   }
                 } catch (e) {
                   console.warn('Error fetching Opportunity details:', e);
                 }
               } else if (!accountIdToFetch && sfData.projectId) {
-                // Get Account ID from Project
+                // Get Account ID from Project, including Account image
                 try {
-                  const projectUrl = `${auth.instance_url}/services/data/v58.0/sobjects/SFDC_Project__c/${sfData.projectId}?fields=Account__c,Account__r.Name,Account__r.Website`;
+                  const projectUrl = `${auth.instance_url}/services/data/v58.0/sobjects/SFDC_Project__c/${sfData.projectId}?fields=Account__c,Account__r.Name,Account__r.Website,Account__r.Image,Account__r.Image__c,Account__r.Logo__c,Account__r.Company_Logo__c`;
                   const projectResponse = await fetch(projectUrl, {
                     method: 'GET',
                     headers: {
@@ -149,16 +154,20 @@ const ProjectTeamView: React.FC = () => {
                     accountIdToFetch = projectData.Account__c;
                     companyNameFromSF = projectData.Account__r?.Name || projectData.Name || companyNameFromSF;
                     companyWebsiteFromSF = projectData.Account__r?.Website || '';
+                    
+                    // Try to get Account image from Project's Account relationship
+                    accountImageFromSF = projectData.Account__r?.Image__c || projectData.Account__r?.Logo__c || projectData.Account__r?.Company_Logo__c || projectData.Account__r?.Image || null;
                   }
                 } catch (e) {
                   console.warn('Error fetching Project details:', e);
                 }
               }
               
-              // Fetch Account details directly if we have Account ID (for logo)
-              if (accountIdToFetch && !companyWebsiteFromSF) {
+              // Fetch Account details directly if we have Account ID and haven't gotten image yet
+              if (accountIdToFetch && !accountImageFromSF) {
                 try {
-                  const accountUrl = `${auth.instance_url}/services/data/v58.0/sobjects/Account/${accountIdToFetch}?fields=Name,Website`;
+                  // Try to fetch Account with image fields
+                  const accountUrl = `${auth.instance_url}/services/data/v58.0/sobjects/Account/${accountIdToFetch}?fields=Name,Website,Image,Image__c,Logo__c,Company_Logo__c`;
                   const accountResponse = await fetch(accountUrl, {
                     method: 'GET',
                     headers: {
@@ -169,7 +178,10 @@ const ProjectTeamView: React.FC = () => {
                   if (accountResponse.ok) {
                     const accountData = await accountResponse.json();
                     companyNameFromSF = accountData.Name || companyNameFromSF;
-                    companyWebsiteFromSF = accountData.Website || '';
+                    companyWebsiteFromSF = accountData.Website || companyWebsiteFromSF;
+                    
+                    // Try to get Account image (check multiple possible field names)
+                    accountImageFromSF = accountData.Image__c || accountData.Logo__c || accountData.Company_Logo__c || accountData.Image || null;
                   }
                 } catch (e) {
                   console.warn('Error fetching Account details:', e);
@@ -179,24 +191,29 @@ const ProjectTeamView: React.FC = () => {
               data = {
                 projectId: sfData.accountId || sfData.opportunityId || sfData.projectId || teamBuildIdParam,
                 companyName: companyNameFromSF,
-                companyLogo: '',
+                companyLogo: accountImageFromSF || '', // Use Account image if available
                 selectedTeam,
                 projectScope: sfData.scope || '',
                 deliverables: sfData.deliverables || '',
               };
               
-              // Set website for logo fetching
+              // Set website for logo fetching (as fallback)
               if (companyWebsiteFromSF) {
                 setCompanyWebsite(companyWebsiteFromSF);
               }
               
-              // Fetch company logo immediately if we have website
-              if (companyWebsiteFromSF && !data.companyLogo) {
+              // Set Account image as company logo if we found it
+              if (accountImageFromSF) {
+                setCompanyLogo(accountImageFromSF);
+              } else if (companyWebsiteFromSF) {
+                // Only fetch website logo if we don't have Account image
                 setLogoLoading(true);
                 try {
                   const logoResult = await fetchCompanyLogo(companyWebsiteFromSF);
                   if (logoResult.logoUrl) {
                     setCompanyLogo(logoResult.logoUrl);
+                    // Update data.companyLogo with fetched logo so it's not overwritten later
+                    data.companyLogo = logoResult.logoUrl;
                   }
                 } catch (error) {
                   console.error('Error fetching logo:', error);
@@ -214,7 +231,10 @@ const ProjectTeamView: React.FC = () => {
         if (data) {
           setProjectId(data.projectId);
           setCompanyName(data.companyName);
-          setCompanyLogo(data.companyLogo);
+          // Only set logo from data if we haven't already set it from Account image/website
+          if (data.companyLogo) {
+            setCompanyLogo(data.companyLogo);
+          }
           setSelectedTeam(data.selectedTeam || []);
           setProjectScope(data.projectScope || '');
           setDeliverables(data.deliverables || '');
