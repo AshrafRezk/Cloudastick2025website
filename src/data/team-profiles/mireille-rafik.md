@@ -4,10 +4,12 @@
 - Years: 10
 - Certificates: 12
 
+## Education
+- Graduated from Alexandria university with masters in commerce and marketing in IAE Poitiers
+
 ## Career Track
-- Cloudastick Systems (2020-Present)
-- Previous Company (2015-2020)
-- Earlier Company (2010-2015)
+- Cloudastick (2025-Present)
+- NBE (2023-2025)
 
 ## Bio
 Specializing in Salesforce Marketing Cloud, Mireille helps businesses create personalized customer journeys and drive engagement through data-driven marketing automation strategies.
