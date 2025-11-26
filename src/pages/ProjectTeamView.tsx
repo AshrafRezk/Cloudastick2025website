@@ -15,31 +15,18 @@ import { getTeamMemberProfile } from '../data/teamProfiles';
 import { getProjectTeam } from '../services/projectTeamService';
 import { fetchCompanyLogo } from '../services/logoService';
 import { Label } from '../components/ui/label';
+import { useSalesforce } from '../contexts/SalesforceContext';
 
-// Helper to get Salesforce auth (same as in projectTeamService)
-function getSalesforceAuth(): { access_token: string; instance_url: string } | null {
-  try {
-    const stored = localStorage.getItem('salesforce_auth_data');
-    if (!stored) return null;
-    const authData = JSON.parse(stored);
-    
-    const expiresAt = localStorage.getItem('salesforce_auth_expires_at');
-    if (expiresAt && Date.now() >= parseInt(expiresAt, 10)) {
-      return null;
-    }
-    
-    if (!authData.access_token || !authData.instance_url) {
-      return null;
-    }
-    
-    return {
-      access_token: authData.access_token,
-      instance_url: authData.instance_url,
-    };
-  } catch (error) {
-    console.error('Error loading Salesforce auth:', error);
+// Helper to get Salesforce auth from context
+function getSalesforceAuth(authData: any): { access_token: string; instance_url: string } | null {
+  if (!authData || !authData.access_token || !authData.instance_url) {
     return null;
   }
+  
+  return {
+    access_token: authData.access_token,
+    instance_url: authData.instance_url,
+  };
 }
 
 const ProjectTeamView: React.FC = () => {
@@ -47,6 +34,9 @@ const ProjectTeamView: React.FC = () => {
   const projectIdParam = searchParams.get('projectId');
   const companyParam = searchParams.get('company');
   const teamBuildIdParam = searchParams.get('teamBuildId');
+  
+  // Salesforce authentication
+  const { authData, isLoading: isAuthLoading, error: authError, refreshAuth } = useSalesforce();
   
   // State
   const [projectId, setProjectId] = useState(projectIdParam || '');
@@ -56,15 +46,40 @@ const ProjectTeamView: React.FC = () => {
   const [selectedTeam, setSelectedTeam] = useState<string[]>([]);
   const [projectScope, setProjectScope] = useState('');
   const [deliverables, setDeliverables] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [teamProfiles, setTeamProfiles] = useState<Record<string, any>>({});
   const [expandedMember, setExpandedMember] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [logoLoading, setLogoLoading] = useState(false);
 
-  // Load project data
+  // Load project data - wait for authentication first
   useEffect(() => {
     const loadProjectData = async () => {
+      // Wait for authentication to complete
+      if (isAuthLoading) {
+        return; // Still authenticating, wait
+      }
+      
+      // Check authentication error
+      if (authError) {
+        setError(`Authentication failed: ${authError}. Please refresh the page.`);
+        setIsLoading(false);
+        return;
+      }
+      
+      // Check if we have authentication data
+      if (!authData) {
+        // Try to refresh authentication
+        try {
+          await refreshAuth();
+          return; // Will retry after refresh
+        } catch (err) {
+          setError('Failed to authenticate with Salesforce. Please refresh the page.');
+          setIsLoading(false);
+          return;
+        }
+      }
+      
       if (!projectIdParam && !companyParam && !teamBuildIdParam) {
         setError('No project ID, company name, or team build ID provided');
         setIsLoading(false);
@@ -79,7 +94,7 @@ const ProjectTeamView: React.FC = () => {
         
         // If teamBuildId is provided, fetch directly by ID
         if (teamBuildIdParam) {
-          const auth = getSalesforceAuth();
+          const auth = getSalesforceAuth(authData);
           if (!auth) {
             throw new Error('Salesforce authentication required. Please refresh the page.');
           }
@@ -281,7 +296,8 @@ const ProjectTeamView: React.FC = () => {
     };
 
     loadProjectData();
-  }, [projectIdParam, companyParam, teamBuildIdParam]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectIdParam, companyParam, teamBuildIdParam, isAuthLoading, authData, authError]);
 
   // Load team member profiles
   useEffect(() => {
@@ -312,12 +328,15 @@ const ProjectTeamView: React.FC = () => {
     .map(id => getTeamMemberById(id))
     .filter(Boolean);
 
-  if (isLoading) {
+  // Show loading while authenticating or loading project data
+  if (isAuthLoading || isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-12 w-12 animate-spin text-cyan-400 mx-auto mb-4" />
-          <p className="text-gray-400">Loading project team...</p>
+          <p className="text-gray-400">
+            {isAuthLoading ? 'Loading your project details...' : 'Loading project team...'}
+          </p>
         </div>
       </div>
     );
