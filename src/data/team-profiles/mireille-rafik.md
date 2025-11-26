@@ -1,8 +1,8 @@
 # Mireille Rafik
 
 ## Experience
-- Years: 10
-- Certificates: 12
+- Years: 3
+- Certificates: 1
 
 ## Education
 - Graduated from Alexandria university with masters in commerce and marketing in IAE Poitiers
