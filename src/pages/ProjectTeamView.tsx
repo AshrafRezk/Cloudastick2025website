@@ -110,9 +110,55 @@ const ProjectTeamView: React.FC = () => {
               let companyNameFromSF = companyParam || '';
               let companyWebsiteFromSF = '';
               
-              if (sfData.accountId) {
+              // Always try to get Account details since logo lives on Account
+              let accountIdToFetch = sfData.accountId;
+              
+              if (!accountIdToFetch && sfData.opportunityId) {
+                // Get Account ID from Opportunity
                 try {
-                  const accountUrl = `${auth.instance_url}/services/data/v58.0/sobjects/Account/${sfData.accountId}?fields=Name,Website`;
+                  const oppUrl = `${auth.instance_url}/services/data/v58.0/sobjects/Opportunity/${sfData.opportunityId}?fields=AccountId,Account.Name,Account.Website`;
+                  const oppResponse = await fetch(oppUrl, {
+                    method: 'GET',
+                    headers: {
+                      'Authorization': `Bearer ${auth.access_token}`,
+                      'Content-Type': 'application/json',
+                    },
+                  });
+                  if (oppResponse.ok) {
+                    const oppData = await oppResponse.json();
+                    accountIdToFetch = oppData.AccountId;
+                    companyNameFromSF = oppData.Account?.Name || oppData.Name || companyNameFromSF;
+                    companyWebsiteFromSF = oppData.Account?.Website || '';
+                  }
+                } catch (e) {
+                  console.warn('Error fetching Opportunity details:', e);
+                }
+              } else if (!accountIdToFetch && sfData.projectId) {
+                // Get Account ID from Project
+                try {
+                  const projectUrl = `${auth.instance_url}/services/data/v58.0/sobjects/SFDC_Project__c/${sfData.projectId}?fields=Account__c,Account__r.Name,Account__r.Website`;
+                  const projectResponse = await fetch(projectUrl, {
+                    method: 'GET',
+                    headers: {
+                      'Authorization': `Bearer ${auth.access_token}`,
+                      'Content-Type': 'application/json',
+                    },
+                  });
+                  if (projectResponse.ok) {
+                    const projectData = await projectResponse.json();
+                    accountIdToFetch = projectData.Account__c;
+                    companyNameFromSF = projectData.Account__r?.Name || projectData.Name || companyNameFromSF;
+                    companyWebsiteFromSF = projectData.Account__r?.Website || '';
+                  }
+                } catch (e) {
+                  console.warn('Error fetching Project details:', e);
+                }
+              }
+              
+              // Fetch Account details directly if we have Account ID (for logo)
+              if (accountIdToFetch && !companyWebsiteFromSF) {
+                try {
+                  const accountUrl = `${auth.instance_url}/services/data/v58.0/sobjects/Account/${accountIdToFetch}?fields=Name,Website`;
                   const accountResponse = await fetch(accountUrl, {
                     method: 'GET',
                     headers: {
@@ -127,42 +173,6 @@ const ProjectTeamView: React.FC = () => {
                   }
                 } catch (e) {
                   console.warn('Error fetching Account details:', e);
-                }
-              } else if (sfData.opportunityId) {
-                try {
-                  const oppUrl = `${auth.instance_url}/services/data/v58.0/sobjects/Opportunity/${sfData.opportunityId}?fields=Name,AccountId,Account.Name,Account.Website`;
-                  const oppResponse = await fetch(oppUrl, {
-                    method: 'GET',
-                    headers: {
-                      'Authorization': `Bearer ${auth.access_token}`,
-                      'Content-Type': 'application/json',
-                    },
-                  });
-                  if (oppResponse.ok) {
-                    const oppData = await oppResponse.json();
-                    companyNameFromSF = oppData.Account?.Name || oppData.Name || companyNameFromSF;
-                    companyWebsiteFromSF = oppData.Account?.Website || '';
-                  }
-                } catch (e) {
-                  console.warn('Error fetching Opportunity details:', e);
-                }
-              } else if (sfData.projectId) {
-                try {
-                  const projectUrl = `${auth.instance_url}/services/data/v58.0/sobjects/SFDC_Project__c/${sfData.projectId}?fields=Name,Account__c,Account__r.Name,Account__r.Website`;
-                  const projectResponse = await fetch(projectUrl, {
-                    method: 'GET',
-                    headers: {
-                      'Authorization': `Bearer ${auth.access_token}`,
-                      'Content-Type': 'application/json',
-                    },
-                  });
-                  if (projectResponse.ok) {
-                    const projectData = await projectResponse.json();
-                    companyNameFromSF = projectData.Account__r?.Name || projectData.Name || companyNameFromSF;
-                    companyWebsiteFromSF = projectData.Account__r?.Website || '';
-                  }
-                } catch (e) {
-                  console.warn('Error fetching Project details:', e);
                 }
               }
               
@@ -179,6 +189,21 @@ const ProjectTeamView: React.FC = () => {
               if (companyWebsiteFromSF) {
                 setCompanyWebsite(companyWebsiteFromSF);
               }
+              
+              // Fetch company logo immediately if we have website
+              if (companyWebsiteFromSF && !data.companyLogo) {
+                setLogoLoading(true);
+                try {
+                  const logoResult = await fetchCompanyLogo(companyWebsiteFromSF);
+                  if (logoResult.logoUrl) {
+                    setCompanyLogo(logoResult.logoUrl);
+                  }
+                } catch (error) {
+                  console.error('Error fetching logo:', error);
+                } finally {
+                  setLogoLoading(false);
+                }
+              }
             }
           }
         } else {
@@ -194,32 +219,34 @@ const ProjectTeamView: React.FC = () => {
           setProjectScope(data.projectScope || '');
           setDeliverables(data.deliverables || '');
           
-          // Fetch company logo if we have website or company name
-          if (companyWebsite && !data.companyLogo) {
-            setLogoLoading(true);
-            try {
-              const logoResult = await fetchCompanyLogo(companyWebsite);
-              if (logoResult.logoUrl) {
-                setCompanyLogo(logoResult.logoUrl);
+          // Fetch company logo if we have website or company name (for non-teamBuildId flows)
+          if (!teamBuildIdParam) {
+            if (companyWebsite && !data.companyLogo) {
+              setLogoLoading(true);
+              try {
+                const logoResult = await fetchCompanyLogo(companyWebsite);
+                if (logoResult.logoUrl) {
+                  setCompanyLogo(logoResult.logoUrl);
+                }
+              } catch (error) {
+                console.error('Error fetching logo:', error);
+              } finally {
+                setLogoLoading(false);
               }
-            } catch (error) {
-              console.error('Error fetching logo:', error);
-            } finally {
-              setLogoLoading(false);
-            }
-          } else if (data.companyName && !data.companyLogo) {
-            // Try to fetch logo using company name as domain hint
-            setLogoLoading(true);
-            try {
-              const domainHint = `https://${data.companyName.toLowerCase().replace(/\s+/g, '')}.com`;
-              const logoResult = await fetchCompanyLogo(domainHint);
-              if (logoResult.logoUrl) {
-                setCompanyLogo(logoResult.logoUrl);
+            } else if (data.companyName && !data.companyLogo) {
+              // Try to fetch logo using company name as domain hint
+              setLogoLoading(true);
+              try {
+                const domainHint = `https://${data.companyName.toLowerCase().replace(/\s+/g, '')}.com`;
+                const logoResult = await fetchCompanyLogo(domainHint);
+                if (logoResult.logoUrl) {
+                  setCompanyLogo(logoResult.logoUrl);
+                }
+              } catch (error) {
+                console.error('Error fetching logo:', error);
+              } finally {
+                setLogoLoading(false);
               }
-            } catch (error) {
-              console.error('Error fetching logo:', error);
-            } finally {
-              setLogoLoading(false);
             }
           }
         } else {
