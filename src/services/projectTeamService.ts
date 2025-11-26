@@ -423,14 +423,20 @@ export async function updateProjectTeam(
 }
 
 /**
- * List all project teams (password protected)
+ * List all project teams from Salesforce
  */
 export async function listProjectTeams(password: string): Promise<ProjectTeamListResponse> {
   try {
-    const params = new URLSearchParams();
-    params.append('password', password);
+    const auth = getSalesforceAuth();
+    if (!auth) {
+      throw new Error('Salesforce authentication required. Please refresh the page.');
+    }
 
-    const response = await fetch(`/.netlify/functions/listProjectTeams?${params.toString()}`, {
+    const params = new URLSearchParams();
+    params.append('access_token', auth.access_token);
+    params.append('instance_url', auth.instance_url);
+
+    const response = await fetch(`/.netlify/functions/listTeamBuilds?${params.toString()}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -438,8 +444,14 @@ export async function listProjectTeams(password: string): Promise<ProjectTeamLis
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to list project teams');
+      let errorData: any;
+      try {
+        errorData = await response.json();
+      } catch (e) {
+        errorData = { error: `HTTP ${response.status}: ${response.statusText}` };
+      }
+      const errorMessage = formatSalesforceError(errorData);
+      throw new Error(errorMessage);
     }
 
     return await response.json();

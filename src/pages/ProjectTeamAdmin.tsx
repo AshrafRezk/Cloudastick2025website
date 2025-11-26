@@ -13,6 +13,7 @@ import {
   ProjectTeamListItem,
   ProjectTeamData
 } from '../services/projectTeamService';
+import { teamMembers } from '../data/teamMembers';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../components/ui/dialog';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -452,10 +453,34 @@ const ProjectTeamAdmin: React.FC = () => {
                 <p className="text-white font-mono text-sm mt-1">{selectedProject.projectId}</p>
               </div>
               <div>
-                <Label className="text-gray-300">Team Members</Label>
-                <p className="text-white mt-1">
-                  {selectedProject.selectedTeam?.length || 0} member{selectedProject.selectedTeam?.length !== 1 ? 's' : ''}
-                </p>
+                <Label className="text-gray-300">Team Members ({selectedProject.selectedTeam?.length || 0})</Label>
+                {selectedProject.selectedTeam && selectedProject.selectedTeam.length > 0 ? (
+                  <div className="mt-2 space-y-2">
+                    {selectedProject.selectedTeam.map((memberId) => {
+                      const member = teamMembers.find((m) => m.id === memberId);
+                      return member ? (
+                        <div key={memberId} className="flex items-center gap-3 p-2 bg-gray-700/50 rounded-lg">
+                          <img
+                            src={member.image}
+                            alt={member.name}
+                            className="w-10 h-10 rounded-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.src = '/placeholder.svg';
+                            }}
+                          />
+                          <div>
+                            <p className="text-white font-medium">{member.name}</p>
+                            <p className="text-gray-400 text-sm">{member.role}</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div key={memberId} className="text-gray-400 text-sm">Unknown member (ID: {memberId})</div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-gray-400 mt-1">No team members selected</p>
+                )}
               </div>
               {selectedProject.projectScope && (
                 <div>

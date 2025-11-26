@@ -37,6 +37,7 @@ import Blogs from "./pages/Blogs";
 import Merchandise from "./pages/Merchandise";
 import ProjectTeam from "./pages/ProjectTeam";
 import ProjectTeamAdmin from "./pages/ProjectTeamAdmin";
+import ProjectTeamView from "./pages/ProjectTeamView";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { SalesforceProvider } from "./contexts/SalesforceContext";
 
@@ -109,6 +110,9 @@ const App = () => {
             
             {/* Special route for Project Team Admin - no standard startup or layout */}
             <Route path="/project-team-admin" element={<ProjectTeamAdmin />} />
+            
+            {/* Special route for Project Team View (shareable customer page) - no standard startup or layout */}
+            <Route path="/project-team-view" element={<ProjectTeamView />} />
             
             {/* Standard routes with startup sequence and layout */}
             <Route path="/*" element={

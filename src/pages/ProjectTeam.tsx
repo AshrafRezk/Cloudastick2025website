@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { 
   Users, CheckCircle2, X, Save, Edit, Lock, 
   Building2, FileText, Target, Loader2,
-  Eye, EyeOff, Upload, GraduationCap
+  Eye, EyeOff, Upload, GraduationCap, Share2, Check
 } from 'lucide-react';
 import { teamMembers, getTeamMemberById } from '../data/teamMembers';
 import { getTeamMemberProfile } from '../data/teamProfiles';
@@ -45,6 +45,8 @@ const ProjectTeam: React.FC = () => {
   const [logoLoading, setLogoLoading] = useState(false);
   const [teamProfiles, setTeamProfiles] = useState<Record<string, any>>({});
   const [expandedMember, setExpandedMember] = useState<string | null>(null);
+  const [shareLinkCopied, setShareLinkCopied] = useState(false);
+  const [teamBuildId, setTeamBuildId] = useState<string | null>(null);
   
   // Salesforce lookup state
   const [lookupObjectType, setLookupObjectType] = useState<'Opportunity' | 'SFDC_Project__c' | 'Account'>('SFDC_Project__c');
@@ -80,6 +82,7 @@ const ProjectTeam: React.FC = () => {
           setSelectedTeam(data.selectedTeam || []);
           setProjectScope(data.projectScope || '');
           setDeliverables(data.deliverables || '');
+          setTeamBuildId(data.teamBuildId || null);
           
           // Set lookup object type based on which field is populated
           if (data.accountId) {
@@ -243,12 +246,21 @@ const ProjectTeam: React.FC = () => {
           title: 'Project updated',
           description: 'Project team data has been updated successfully in Salesforce.',
         });
+        // Reload to get updated teamBuildId
+        const updated = await getProjectTeam(recordIdToSave, undefined, recordType);
+        if (updated) {
+          setTeamBuildId(updated.teamBuildId || null);
+        }
       } else {
-        await saveProjectTeam(data);
+        const result = await saveProjectTeam(data);
         toast({
           title: 'Project saved',
           description: 'Project team data has been saved successfully to Salesforce.',
         });
+        // Store teamBuildId from result
+        if (result.data?.teamBuildId) {
+          setTeamBuildId(result.data.teamBuildId);
+        }
       }
     } catch (error: any) {
       console.error('Error saving project team:', error);
@@ -288,6 +300,55 @@ const ProjectTeam: React.FC = () => {
         title: 'Logo updated',
         description: 'Company logo has been updated.',
       });
+    }
+  };
+
+  // Handle share link
+  const handleShareLink = async () => {
+    if (!projectId && !teamBuildId) {
+      toast({
+        title: 'No project selected',
+        description: 'Please select or create a project first.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Prefer teamBuildId for direct sharing, fallback to projectId
+    let shareUrl: string;
+    if (teamBuildId) {
+      shareUrl = `${window.location.origin}/project-team-view?teamBuildId=${encodeURIComponent(teamBuildId)}`;
+    } else {
+      shareUrl = `${window.location.origin}/project-team-view?projectId=${encodeURIComponent(projectId)}${companyName ? `&company=${encodeURIComponent(companyName)}` : ''}`;
+    }
+    
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setShareLinkCopied(true);
+      toast({
+        title: 'Link copied!',
+        description: 'Share this link with your customers to view the team.',
+      });
+      setTimeout(() => setShareLinkCopied(false), 2000);
+    } catch (error) {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = shareUrl;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      document.execCommand('copy');
+      textArea.remove();
+      
+      setShareLinkCopied(true);
+      toast({
+        title: 'Link copied!',
+        description: 'Share this link with your customers to view the team.',
+      });
+      setTimeout(() => setShareLinkCopied(false), 2000);
     }
   };
 
@@ -740,8 +801,28 @@ const ProjectTeam: React.FC = () => {
           </div>
         </div>
 
-        {/* Save Button */}
-        <div className="flex justify-end">
+        {/* Save and Share Buttons */}
+        <div className="flex justify-end gap-3">
+          {projectId && selectedTeam.length > 0 && (
+            <Button
+              onClick={handleShareLink}
+              variant="outline"
+              className="border-cyan-400 text-cyan-400 hover:bg-cyan-400/10 px-6"
+              size="lg"
+            >
+              {shareLinkCopied ? (
+                <>
+                  <Check className="h-4 w-4 mr-2" />
+                  Link Copied!
+                </>
+              ) : (
+                <>
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Share Team View
+                </>
+              )}
+            </Button>
+          )}
           <Button
             onClick={handleSave}
             disabled={isSaving || !projectId}
