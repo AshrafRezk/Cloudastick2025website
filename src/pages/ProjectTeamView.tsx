@@ -290,22 +290,22 @@ const ProjectTeamView: React.FC = () => {
                     // Store Opportunity Name
                     if (oppName) {
                       setOpportunityName(oppName);
-                    }
+                  }
                     
                     // Step 3: Fetch Account by ID (including Name and Logo fields)
                     if (accountId) {
                       try {
-                        const accountUrl = `${auth.instance_url}/services/data/v58.0/sobjects/Account/${accountId}?fields=Name,Website,Image,Image__c,Logo__c,Company_Logo__c`;
-                        const accountResponse = await fetch(accountUrl, {
-                          method: 'GET',
-                          headers: {
-                            'Authorization': `Bearer ${auth.access_token}`,
-                            'Content-Type': 'application/json',
-                          },
-                        });
+                        const accountUrl = `${auth.instance_url}/services/data/v58.0/sobjects/Account/${accountId}?fields=Name,Website,Automated_Logo__c`;
+                  const accountResponse = await fetch(accountUrl, {
+                    method: 'GET',
+                    headers: {
+                      'Authorization': `Bearer ${auth.access_token}`,
+                      'Content-Type': 'application/json',
+                    },
+                  });
                         
-                        if (accountResponse.ok) {
-                          const accountData = await accountResponse.json();
+                  if (accountResponse.ok) {
+                    const accountData = await accountResponse.json();
                           
                           // Extract Account Name
                           const accountName = accountData.Name || '';
@@ -321,8 +321,8 @@ const ProjectTeamView: React.FC = () => {
                           }
                           
                           // Step 4: Fetch and display Account Logo
-                          // Try multiple possible logo field names
-                          const accountLogo = accountData.Image__c || accountData.Logo__c || accountData.Company_Logo__c || accountData.Image || null;
+                          // Use Automated_Logo__c field as specified
+                          const accountLogo = accountData.Automated_Logo__c || null;
                           
                           if (accountLogo) {
                             setLogoLoading(true);
@@ -346,17 +346,17 @@ const ProjectTeamView: React.FC = () => {
                             }
                           } else if (accountWebsite) {
                             // Fallback: Try to fetch logo from website if no Account logo found
-                            setLogoLoading(true);
-                            try {
+                setLogoLoading(true);
+                try {
                               const logoResult = await fetchCompanyLogo(accountWebsite);
-                              if (logoResult.logoUrl) {
-                                setCompanyLogo(logoResult.logoUrl);
+                  if (logoResult.logoUrl) {
+                    setCompanyLogo(logoResult.logoUrl);
                                 data.companyLogo = logoResult.logoUrl;
-                              }
-                            } catch (error) {
+                  }
+                } catch (error) {
                               console.error('Error fetching logo from website:', error);
-                            } finally {
-                              setLogoLoading(false);
+                } finally {
+                  setLogoLoading(false);
                             }
                           }
                         }
@@ -381,12 +381,12 @@ const ProjectTeamView: React.FC = () => {
           // Company name will be set from Account if Opportunity/Account fetch succeeded
           // Otherwise, use the value from data (which might be from companyParam or other source)
           if (data.companyName) {
-            setCompanyName(data.companyName);
+          setCompanyName(data.companyName);
           }
           // Logo will be set during Account fetch if successful
           // Only set from data if we haven't already set it
           if (data.companyLogo && !companyLogo) {
-            setCompanyLogo(data.companyLogo);
+          setCompanyLogo(data.companyLogo);
           }
           setSelectedTeam(data.selectedTeam || []);
           setProjectScope(data.projectScope || '');
@@ -542,8 +542,8 @@ const ProjectTeamView: React.FC = () => {
         {/* Project Info Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Project Team</h1>
-          {opportunityName && (
-            <p className="text-xl text-cyan-400 font-semibold mb-2">{opportunityName}</p>
+          {companyName && (
+            <p className="text-xl text-cyan-400 font-semibold mb-2">{companyName}</p>
           )}
           <p className="text-gray-400">Your dedicated team of Salesforce experts</p>
         </div>
