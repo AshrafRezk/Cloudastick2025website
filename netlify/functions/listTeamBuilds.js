@@ -205,6 +205,7 @@ exports.handler = async (event, context) => {
         return {
           projectId: primaryId || teamBuild.Id,
           teamBuildId: teamBuild.Id,
+          teamBuildName: teamBuild.Name || '',
           companyName: companyName || 'N/A',
           teamMemberCount: members.length,
           hasScope: !!teamBuild.Scope__c,

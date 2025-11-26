@@ -13,6 +13,7 @@ import {
 import { teamMembers, getTeamMemberById } from '../data/teamMembers';
 import { getTeamMemberProfile } from '../data/teamProfiles';
 import { getProjectTeam } from '../services/projectTeamService';
+import { fetchCompanyLogo } from '../services/logoService';
 import { Label } from '../components/ui/label';
 
 // Helper to get Salesforce auth (same as in projectTeamService)
@@ -51,6 +52,7 @@ const ProjectTeamView: React.FC = () => {
   const [projectId, setProjectId] = useState(projectIdParam || '');
   const [companyName, setCompanyName] = useState(companyParam || '');
   const [companyLogo, setCompanyLogo] = useState<string>('');
+  const [companyWebsite, setCompanyWebsite] = useState<string>('');
   const [selectedTeam, setSelectedTeam] = useState<string[]>([]);
   const [projectScope, setProjectScope] = useState('');
   const [deliverables, setDeliverables] = useState('');
@@ -58,6 +60,7 @@ const ProjectTeamView: React.FC = () => {
   const [teamProfiles, setTeamProfiles] = useState<Record<string, any>>({});
   const [expandedMember, setExpandedMember] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [logoLoading, setLogoLoading] = useState(false);
 
   // Load project data
   useEffect(() => {
@@ -103,14 +106,79 @@ const ProjectTeamView: React.FC = () => {
                 })
                 .filter((id: string | undefined): id is string => !!id);
               
+              // Fetch account/opportunity/project details to get company name and website
+              let companyNameFromSF = companyParam || '';
+              let companyWebsiteFromSF = '';
+              
+              if (sfData.accountId) {
+                try {
+                  const accountUrl = `${auth.instance_url}/services/data/v58.0/sobjects/Account/${sfData.accountId}?fields=Name,Website`;
+                  const accountResponse = await fetch(accountUrl, {
+                    method: 'GET',
+                    headers: {
+                      'Authorization': `Bearer ${auth.access_token}`,
+                      'Content-Type': 'application/json',
+                    },
+                  });
+                  if (accountResponse.ok) {
+                    const accountData = await accountResponse.json();
+                    companyNameFromSF = accountData.Name || companyNameFromSF;
+                    companyWebsiteFromSF = accountData.Website || '';
+                  }
+                } catch (e) {
+                  console.warn('Error fetching Account details:', e);
+                }
+              } else if (sfData.opportunityId) {
+                try {
+                  const oppUrl = `${auth.instance_url}/services/data/v58.0/sobjects/Opportunity/${sfData.opportunityId}?fields=Name,AccountId,Account.Name,Account.Website`;
+                  const oppResponse = await fetch(oppUrl, {
+                    method: 'GET',
+                    headers: {
+                      'Authorization': `Bearer ${auth.access_token}`,
+                      'Content-Type': 'application/json',
+                    },
+                  });
+                  if (oppResponse.ok) {
+                    const oppData = await oppResponse.json();
+                    companyNameFromSF = oppData.Account?.Name || oppData.Name || companyNameFromSF;
+                    companyWebsiteFromSF = oppData.Account?.Website || '';
+                  }
+                } catch (e) {
+                  console.warn('Error fetching Opportunity details:', e);
+                }
+              } else if (sfData.projectId) {
+                try {
+                  const projectUrl = `${auth.instance_url}/services/data/v58.0/sobjects/SFDC_Project__c/${sfData.projectId}?fields=Name,Account__c,Account__r.Name,Account__r.Website`;
+                  const projectResponse = await fetch(projectUrl, {
+                    method: 'GET',
+                    headers: {
+                      'Authorization': `Bearer ${auth.access_token}`,
+                      'Content-Type': 'application/json',
+                    },
+                  });
+                  if (projectResponse.ok) {
+                    const projectData = await projectResponse.json();
+                    companyNameFromSF = projectData.Account__r?.Name || projectData.Name || companyNameFromSF;
+                    companyWebsiteFromSF = projectData.Account__r?.Website || '';
+                  }
+                } catch (e) {
+                  console.warn('Error fetching Project details:', e);
+                }
+              }
+              
               data = {
                 projectId: sfData.accountId || sfData.opportunityId || sfData.projectId || teamBuildIdParam,
-                companyName: companyParam || '',
+                companyName: companyNameFromSF,
                 companyLogo: '',
                 selectedTeam,
                 projectScope: sfData.scope || '',
                 deliverables: sfData.deliverables || '',
               };
+              
+              // Set website for logo fetching
+              if (companyWebsiteFromSF) {
+                setCompanyWebsite(companyWebsiteFromSF);
+              }
             }
           }
         } else {
@@ -125,6 +193,35 @@ const ProjectTeamView: React.FC = () => {
           setSelectedTeam(data.selectedTeam || []);
           setProjectScope(data.projectScope || '');
           setDeliverables(data.deliverables || '');
+          
+          // Fetch company logo if we have website or company name
+          if (companyWebsite && !data.companyLogo) {
+            setLogoLoading(true);
+            try {
+              const logoResult = await fetchCompanyLogo(companyWebsite);
+              if (logoResult.logoUrl) {
+                setCompanyLogo(logoResult.logoUrl);
+              }
+            } catch (error) {
+              console.error('Error fetching logo:', error);
+            } finally {
+              setLogoLoading(false);
+            }
+          } else if (data.companyName && !data.companyLogo) {
+            // Try to fetch logo using company name as domain hint
+            setLogoLoading(true);
+            try {
+              const domainHint = `https://${data.companyName.toLowerCase().replace(/\s+/g, '')}.com`;
+              const logoResult = await fetchCompanyLogo(domainHint);
+              if (logoResult.logoUrl) {
+                setCompanyLogo(logoResult.logoUrl);
+              }
+            } catch (error) {
+              console.error('Error fetching logo:', error);
+            } finally {
+              setLogoLoading(false);
+            }
+          }
         } else {
           setError('Project team not found');
         }
@@ -214,19 +311,23 @@ const ProjectTeamView: React.FC = () => {
             {companyName && (
               <div className="flex items-center gap-3">
                 <div className="h-px w-8 bg-gray-600" />
-                {companyLogo ? (
+                {logoLoading ? (
+                  <div className="h-10 w-32 bg-gray-700 rounded flex items-center justify-center">
+                    <Loader2 className="h-5 w-5 text-gray-500 animate-spin" />
+                  </div>
+                ) : companyLogo ? (
                   <img 
                     src={companyLogo} 
                     alt={companyName} 
-                    className="h-10 w-auto max-w-32 object-contain"
+                    className="h-12 w-auto max-w-40 object-contain bg-white/10 p-2 rounded"
                     onError={() => setCompanyLogo('')}
                   />
                 ) : (
-                  <div className="h-10 w-32 bg-gray-700 rounded flex items-center justify-center">
+                  <div className="h-12 w-40 bg-gray-700 rounded flex items-center justify-center">
                     <Building2 className="h-6 w-6 text-gray-500" />
                   </div>
                 )}
-                <span className="text-lg font-semibold">{companyName}</span>
+                <span className="text-xl font-semibold">{companyName}</span>
               </div>
             )}
           </div>
@@ -279,11 +380,17 @@ const ProjectTeamView: React.FC = () => {
                         )}
                       </div>
                       <h3 className="font-semibold text-lg mb-1">{member.name}</h3>
-                      <p className="text-sm text-gray-400 mb-2">{member.role}</p>
+                      <p className="text-sm text-gray-400 mb-3">{member.role}</p>
                       {profile && (
-                        <div className="text-xs text-gray-500 space-y-1">
-                          <p>{profile.yearsOfExperience} years experience</p>
-                          <p>{profile.numberOfCertificates} certificates</p>
+                        <div className="bg-gray-700/50 rounded-lg p-3 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-gray-400">Experience</span>
+                            <span className="text-sm font-semibold text-cyan-400">{profile.yearsOfExperience} years</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-gray-400">Certificates</span>
+                            <span className="text-sm font-semibold text-cyan-400">{profile.numberOfCertificates}</span>
+                          </div>
                         </div>
                       )}
                       <button
@@ -346,24 +453,37 @@ const ProjectTeamView: React.FC = () => {
 
         {/* Project Scope and Deliverables */}
         {(projectScope || deliverables) && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             {projectScope && (
-              <div className="bg-gray-800/50 rounded-lg border border-gray-700 p-6">
-                <Label className="text-gray-300 mb-4 flex items-center gap-2 text-lg">
-                  <FileText className="h-5 w-5" />
-                  Project Scope
-                </Label>
-                <div className="text-gray-300 whitespace-pre-wrap">{projectScope}</div>
-              </div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-gray-800/50 rounded-lg border border-gray-700 p-6 shadow-lg"
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="bg-green-500/20 p-2 rounded-lg">
+                    <FileText className="h-6 w-6 text-green-400" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-white">Project Scope</h3>
+                </div>
+                <div className="text-gray-300 whitespace-pre-wrap leading-relaxed">{projectScope}</div>
+              </motion.div>
             )}
             {deliverables && (
-              <div className="bg-gray-800/50 rounded-lg border border-gray-700 p-6">
-                <Label className="text-gray-300 mb-4 flex items-center gap-2 text-lg">
-                  <Target className="h-5 w-5" />
-                  Deliverables
-                </Label>
-                <div className="text-gray-300 whitespace-pre-wrap">{deliverables}</div>
-              </div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="bg-gray-800/50 rounded-lg border border-gray-700 p-6 shadow-lg"
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="bg-blue-500/20 p-2 rounded-lg">
+                    <Target className="h-6 w-6 text-blue-400" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-white">Deliverables</h3>
+                </div>
+                <div className="text-gray-300 whitespace-pre-wrap leading-relaxed">{deliverables}</div>
+              </motion.div>
             )}
           </div>
         )}

@@ -19,6 +19,8 @@ export interface ProjectTeamData {
 
 export interface ProjectTeamListItem {
   projectId: string;
+  teamBuildId?: string;
+  teamBuildName?: string;
   companyName: string;
   updatedAt: string;
   createdAt?: string;

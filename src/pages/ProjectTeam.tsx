@@ -280,11 +280,11 @@ const ProjectTeam: React.FC = () => {
           variant: 'destructive',
         });
       } else {
-        toast({
-          title: 'Error saving',
+      toast({
+        title: 'Error saving',
           description: errorMessage,
-          variant: 'destructive',
-        });
+        variant: 'destructive',
+      });
       }
     } finally {
       setIsSaving(false);

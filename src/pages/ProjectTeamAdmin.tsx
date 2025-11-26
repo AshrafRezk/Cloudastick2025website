@@ -344,7 +344,7 @@ const ProjectTeamAdmin: React.FC = () => {
                 <TableHeader>
                   <TableRow className="border-gray-700 hover:bg-gray-800/50">
                     <TableHead className="text-gray-300">Company</TableHead>
-                    <TableHead className="text-gray-300">Project ID</TableHead>
+                    <TableHead className="text-gray-300">Team Build Name</TableHead>
                     <TableHead className="text-gray-300">Team Members</TableHead>
                     <TableHead className="text-gray-300">Last Updated</TableHead>
                     <TableHead className="text-gray-300">Status</TableHead>
@@ -355,13 +355,18 @@ const ProjectTeamAdmin: React.FC = () => {
                   {filteredProjects.map((project) => (
                     <TableRow
                       key={project.projectId}
-                      className="border-gray-700 hover:bg-gray-800/50"
+                      className="border-gray-700 hover:bg-gray-800/50 cursor-pointer"
+                      onClick={() => {
+                        if (project.teamBuildId) {
+                          window.open(`/project-team-view?teamBuildId=${project.teamBuildId}`, '_blank');
+                        }
+                      }}
                     >
                       <TableCell className="font-medium text-white">
                         {project.companyName || 'N/A'}
                       </TableCell>
-                      <TableCell className="text-gray-400 font-mono text-sm">
-                        {project.projectId.substring(0, 15)}...
+                      <TableCell className="text-gray-300 font-medium">
+                        {project.teamBuildName || project.teamBuildId || 'N/A'}
                       </TableCell>
                       <TableCell className="text-gray-300">
                         <div className="flex items-center gap-2">
@@ -389,7 +394,7 @@ const ProjectTeamAdmin: React.FC = () => {
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
+                        <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
                           <Button
                             onClick={() => handleViewProject(project.projectId)}
                             variant="ghost"
