@@ -295,7 +295,7 @@ const ProjectTeamView: React.FC = () => {
                     // Step 3: Fetch Account by ID (including Name and Logo fields)
                     if (accountId) {
                       try {
-                        const accountUrl = `${auth.instance_url}/services/data/v58.0/sobjects/Account/${accountId}?fields=Name,Website,Automated_Logo__c`;
+                        const accountUrl = `${auth.instance_url}/services/data/v58.0/sobjects/Account/${accountId}?fields=Name,Website,Automated_Logo_URL__c`;
                   const accountResponse = await fetch(accountUrl, {
                     method: 'GET',
                     headers: {
@@ -321,8 +321,8 @@ const ProjectTeamView: React.FC = () => {
                           }
                           
                           // Step 4: Fetch and display Account Logo
-                          // Use Automated_Logo__c field as specified
-                          const accountLogo = accountData.Automated_Logo__c || null;
+                          // Use Automated_Logo_URL__c field as specified
+                          const accountLogo = accountData.Automated_Logo_URL__c || null;
                           
                           if (accountLogo) {
                             setLogoLoading(true);
