@@ -105,14 +105,6 @@ const Home = () => {
       description: "Driving innovation through collaborative Salesforce solutions, Maheen works with cross-functional teams to deliver transformative customer experiences."
     },
     { 
-      id: 1, name: "Fady Maged", role: t('team.salesforceConsultant'), 
-      image: "/Assets/Company Members/Fady_Maged_Salesforce_Consultant.png",
-      icons: [Code, BarChart3],
-      hoverElements: [t('team.hoverElements.development'), t('team.hoverElements.analytics')],
-      color: "from-violet-400 to-purple-500",
-      description: "Combining development expertise with analytics insights, Fady creates powerful Salesforce solutions that provide actionable business intelligence and reporting."
-    },
-    { 
       id: 4, name: "Andrew Osama", role: t('team.salesforceConsultant'), 
       image: "/Assets/Company Members/Andrew_Osama_Salesforce_Consultant.png",
       icons: [Settings, Wrench],

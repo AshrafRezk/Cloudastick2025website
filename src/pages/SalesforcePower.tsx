@@ -1849,17 +1849,16 @@ const SalesforcePower = () => {
                   { name: 'Farida Esam', role: 'Marketing Cloud Consultant', image: 'Farida_Esam_Marketing_Cloud_Consultant.png', isAcademy: false },
                   { name: 'Mireille Rafik', role: 'Marketing Cloud Consultant', image: 'Mireille_Rafik_Marketing_Cloud_Consultant.png', isAcademy: false },
                   { name: 'Andrew Osama', role: 'Salesforce Consultant', image: 'Andrew_Osama_Salesforce_Consultant.png', isAcademy: false },
-                  { name: 'Fady Maged', role: 'Salesforce Consultant', image: 'Fady_Maged_Salesforce_Consultant.png', isAcademy: false },
                   { name: 'Maheen Imran', role: 'Salesforce Consultant', image: 'Maheen_Imran_Salesforce_Consultant.png', isAcademy: false },
                   { name: 'Carine Felix', role: 'Brand and People Experience Specialist', image: 'Carine_Felix_Brand_and_People_Experience_Specialist.png', isAcademy: false },
                   { name: 'Marina Danial', role: 'CFO Cloudastick and COO of Techsa', image: 'Marina_Danial_CFO_Cloudastick_and_COO_of_Techsa.png', isAcademy: false },
                   { name: 'Jenny Maged', role: 'Salesforce Consultant', image: 'Jenny_Maged_Salesforce_Consultant.png', isAcademy: false },
                   { name: 'John Shedoudy', role: 'Salesforce Consultant', image: 'John_Shedoudy_Salesforce_Consultant.png', isAcademy: false },
-                  { name: 'Mariam Mahmoud', role: 'Salesforce Consultant', image: 'Mariam_Mahmoud_Salesforce_Consultant.png', isAcademy: true },
+                  { name: 'Mariam Mahmoud', role: 'Salesforce Consultant', image: 'Mariam_Mahmoud_Salesforce_Consultant.png', isAcademy: false },
                   { name: 'Omar Bazid', role: 'Salesforce Consultant', image: 'Omar_Bazid_Salesforce_Consultant.png', isAcademy: true },
                   { name: 'Sakshi Dokarimare', role: 'Salesforce Consultant', image: 'Sakshi_Dokarimare_Salesforce_Consultant.png', isAcademy: false },
-                  { name: 'Alyaa Hafez', role: 'Salesforce Consultant', image: 'Alyaa_Hafez_Salesforce_Consultant.png', isAcademy: false },
-                  { name: 'Khaled El-Nabawy', role: 'Salesforce Consultant', image: 'Khaled_El-Nabawy_Salesforce_Consultant.png', isAcademy: false }
+                  { name: 'Alyaa Hafez', role: 'Salesforce Consultant', image: 'Alyaa_Hafez_Salesforce_Consultant.png', isAcademy: true },
+                  { name: 'Khaled El-Nabawy', role: 'Salesforce Consultant', image: 'Khaled_El-Nabawy_Salesforce_Consultant.png', isAcademy: true }
                 ];
 
                 return [...teamMembers, ...teamMembers].map((member, index) => (

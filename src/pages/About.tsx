@@ -96,14 +96,6 @@ const About = () => {
       color: "from-cyan-400 to-blue-500"
     },
     { 
-      name: "Fady Maged", 
-      role: t('team.salesforceConsultant'), 
-      image: "/Assets/Company Members/Fady_Maged_Salesforce_Consultant.png",
-      icons: [Code, BarChart3],
-      hoverElements: [t('team.hoverElements.development'), t('team.hoverElements.analytics')],
-      color: "from-violet-400 to-purple-500"
-    },
-    { 
       name: "Andrew Osama", 
       role: t('team.salesforceConsultant'), 
       image: "/Assets/Company Members/Andrew_Osama_Salesforce_Consultant.png",
@@ -173,8 +165,7 @@ const About = () => {
       image: "/Assets/Company Members/Mariam_Mahmoud_Salesforce_Consultant.png?v=2",
       icons: [Users, UserCheck],
       hoverElements: [t('team.hoverElements.userAdoption'), t('team.hoverElements.training')],
-      color: "from-purple-400 to-pink-500",
-      isAcademy: true
+      color: "from-purple-400 to-pink-500"
     },
     { 
       id: 21, name: "Omar Bazid", 
@@ -199,7 +190,8 @@ const About = () => {
       image: "/Assets/Company Members/Alyaa_Hafez_Salesforce_Consultant.png",
       icons: [GraduationCap, Code],
       hoverElements: [t('team.hoverElements.development'), t('team.hoverElements.innovation')],
-      color: "from-cyan-400 to-blue-500"
+      color: "from-cyan-400 to-blue-500",
+      isAcademy: true
     },
     { 
       id: 24, name: "Khaled El-Nabawy", 
@@ -207,7 +199,8 @@ const About = () => {
       image: "/Assets/Company Members/Khaled_El-Nabawy_Salesforce_Consultant.png",
       icons: [Globe, TrendingUp],
       hoverElements: [t('team.hoverElements.integration'), t('team.hoverElements.strategy')],
-      color: "from-sky-400 to-cyan-500"
+      color: "from-sky-400 to-cyan-500",
+      isAcademy: true
     }
   ];
 

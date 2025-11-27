@@ -97,14 +97,6 @@ export const teamMembers: TeamMember[] = [
     description: "Driving innovation through collaborative Salesforce solutions, Maheen works with cross-functional teams to deliver transformative customer experiences."
   },
   {
-    id: "fady-maged",
-    name: "Fady Maged",
-    role: "Salesforce Consultant",
-    image: "/Assets/Company Members/Fady_Maged_Salesforce_Consultant.png",
-    profileSlug: "fady-maged",
-    description: "Combining development expertise with analytics insights, Fady creates powerful Salesforce solutions that provide actionable business intelligence and reporting."
-  },
-  {
     id: "andrew-osama",
     name: "Andrew Osama",
     role: "Salesforce Consultant",
@@ -174,8 +166,7 @@ export const teamMembers: TeamMember[] = [
     role: "Salesforce Consultant",
     image: "/Assets/Company Members/Mariam_Mahmoud_Salesforce_Consultant.png?v=2",
     profileSlug: "mariam-mahmoud",
-    description: "Specializing in Salesforce configuration and user adoption, Mariam ensures seamless platform integration and empowers teams to maximize CRM value.",
-    isAcademy: true
+    description: "Specializing in Salesforce configuration and user adoption, Mariam ensures seamless platform integration and empowers teams to maximize CRM value."
   },
   {
     id: "omar-bazid",
@@ -200,7 +191,8 @@ export const teamMembers: TeamMember[] = [
     role: "Salesforce Consultant",
     image: "/Assets/Company Members/Alyaa_Hafez_Salesforce_Consultant.png",
     profileSlug: "alyaa-hafez",
-    description: "GUC Graduate and Salesforce Consultant bringing fresh expertise to deliver innovative solutions and drive business transformation in the Salesforce ecosystem."
+    description: "GUC Graduate and Salesforce Consultant bringing fresh expertise to deliver innovative solutions and drive business transformation in the Salesforce ecosystem.",
+    isAcademy: true
   },
   {
     id: "khaled-el-nabawy",
@@ -208,7 +200,8 @@ export const teamMembers: TeamMember[] = [
     role: "Salesforce Consultant",
     image: "/Assets/Company Members/Khaled_El-Nabawy_Salesforce_Consultant.png",
     profileSlug: "khaled-el-nabawy",
-    description: "MIU Graduate with extensive enterprise experience, Khaled brings deep technical expertise from leading organizations to deliver innovative Salesforce solutions and drive digital transformation."
+    description: "MIU Graduate with extensive enterprise experience, Khaled brings deep technical expertise from leading organizations to deliver innovative Salesforce solutions and drive digital transformation.",
+    isAcademy: true
   }
 ];
 
