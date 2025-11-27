@@ -192,6 +192,14 @@ const About = () => {
       icons: [Code, Target],
       hoverElements: [t('team.hoverElements.development'), t('team.hoverElements.strategy')],
       color: "from-indigo-400 to-blue-500"
+    },
+    { 
+      id: 23, name: "Alyaa Hafez", 
+      role: t('team.salesforceConsultant'), 
+      image: "/Assets/Company Members/Alyaa_Hafez_Salesforce_Consultant.png",
+      icons: [GraduationCap, Code],
+      hoverElements: [t('team.hoverElements.development'), t('team.hoverElements.innovation')],
+      color: "from-cyan-400 to-blue-500"
     }
   ];
 

@@ -193,6 +193,14 @@ export const teamMembers: TeamMember[] = [
     image: "/Assets/Company Members/Sakshi_Dokarimare_Salesforce_Consultant.png",
     profileSlug: "sakshi-dokarimare",
     description: "Expert Salesforce consultant delivering innovative solutions and driving business transformation through strategic CRM implementations."
+  },
+  {
+    id: "alyaa-hafez",
+    name: "Alyaa Hafez",
+    role: "Salesforce Consultant",
+    image: "/Assets/Company Members/Alyaa_Hafez_Salesforce_Consultant.png",
+    profileSlug: "alyaa-hafez",
+    description: "GUC Graduate and Salesforce Consultant bringing fresh expertise to deliver innovative solutions and drive business transformation in the Salesforce ecosystem."
   }
 ];
 
