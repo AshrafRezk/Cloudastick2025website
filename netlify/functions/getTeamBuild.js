@@ -36,7 +36,8 @@ exports.handler = async (event, context) => {
       teamBuildId,
       accountId,
       opportunityId,
-      projectId 
+      projectId,
+      guid
     } = event.queryStringParameters || {};
 
     // Validate required fields
@@ -52,19 +53,19 @@ exports.handler = async (event, context) => {
     }
 
     // At least one identifier must be provided
-    if (!teamBuildId && !accountId && !opportunityId && !projectId) {
+    if (!teamBuildId && !accountId && !opportunityId && !projectId && !guid) {
       return {
         statusCode: 400,
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ error: 'At least one identifier (teamBuildId, accountId, opportunityId, or projectId) is required' }),
+        body: JSON.stringify({ error: 'At least one identifier (teamBuildId, accountId, opportunityId, projectId, or guid) is required' }),
       };
     }
 
     console.log('📖 Retrieving Team build from Salesforce...');
-    console.log('Query params:', { teamBuildId, accountId, opportunityId, projectId });
+    console.log('Query params:', { teamBuildId, accountId, opportunityId, projectId, guid });
 
     let teamBuildIdToUse = teamBuildId;
 
@@ -81,9 +82,12 @@ exports.handler = async (event, context) => {
       if (projectId) {
         conditions.push(`Project__c = '${projectId.replace(/'/g, "\\'")}'`);
       }
+      if (guid) {
+        conditions.push(`GUID__c = '${guid.replace(/'/g, "\\'")}'`);
+      }
 
       const whereClause = conditions.join(' OR ');
-      const soqlQuery = `SELECT Id, Name, Scope__c, Deliverables__c, Account__c, Opportunity__c, Project__c, CreatedDate, LastModifiedDate FROM Team_build__c WHERE ${whereClause} ORDER BY CreatedDate DESC LIMIT 1`;
+      const soqlQuery = `SELECT Id, Name, Scope__c, Deliverables__c, Account__c, Opportunity__c, Project__c, GUID__c, CreatedDate, LastModifiedDate FROM Team_build__c WHERE ${whereClause} ORDER BY CreatedDate DESC LIMIT 1`;
 
       const encodedQuery = encodeURIComponent(soqlQuery);
       const queryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedQuery}`;
@@ -266,6 +270,7 @@ exports.handler = async (event, context) => {
           accountId: teamBuild.Account__c,
           opportunityId: teamBuild.Opportunity__c,
           projectId: teamBuild.Project__c,
+          guid: teamBuild.GUID__c,
           createdAt: teamBuild.CreatedDate,
           updatedAt: teamBuild.LastModifiedDate,
           teamMembers: members.map(m => m.Name),

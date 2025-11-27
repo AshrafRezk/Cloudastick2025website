@@ -18,14 +18,18 @@ import { Textarea } from '../components/ui/textarea';
 import { useToast } from '../hooks/use-toast';
 import SalesforceLookup, { SalesforceRecord } from '../components/SalesforceLookup';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { useSalesforce } from '../contexts/SalesforceContext';
 
 const ProjectTeam: React.FC = () => {
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
+  const { authData } = useSalesforce();
   
   // URL parameters
   const projectIdParam = searchParams.get('projectId');
   const companyParam = searchParams.get('company');
+  const opportunityIdParam = searchParams.get('opportunityID');
+  const accountIdParam = searchParams.get('AccountId');
   
   // State
   const [projectId, setProjectId] = useState(projectIdParam || '');
@@ -133,6 +137,137 @@ const ProjectTeam: React.FC = () => {
 
     loadProjectData();
   }, [projectIdParam, companyParam, lookupObjectType]);
+
+  // Pre-fill Salesforce lookup when opportunityID, AccountId, or projectId query params are present
+  useEffect(() => {
+    const prefetchRecord = async () => {
+      // Only pre-fill if we don't already have a selected record and we have auth
+      if (selectedSalesforceRecord || !authData?.access_token || !authData?.instance_url) {
+        return;
+      }
+
+      let recordId: string | null = null;
+      let objectType: 'Opportunity' | 'SFDC_Project__c' | 'Account' | null = null;
+
+      if (opportunityIdParam) {
+        recordId = opportunityIdParam;
+        objectType = 'Opportunity';
+      } else if (accountIdParam) {
+        recordId = accountIdParam;
+        objectType = 'Account';
+      } else if (projectIdParam && !companyParam) {
+        // Only use projectIdParam if it's not being used for company lookup
+        recordId = projectIdParam;
+        objectType = 'SFDC_Project__c';
+      }
+
+      if (!recordId || !objectType) {
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        setLookupObjectType(objectType);
+
+        // Determine the Salesforce object API name
+        let sobjectName: string;
+        let fields: string;
+        
+        if (objectType === 'Opportunity') {
+          sobjectName = 'Opportunity';
+          fields = 'Id,Name,AccountId,Account.Name,Account.Website,Account.Industry';
+        } else if (objectType === 'Account') {
+          sobjectName = 'Account';
+          fields = 'Id,Name,Website,Industry';
+        } else {
+          sobjectName = 'SFDC_Project__c';
+          fields = 'Id,Name';
+        }
+
+        const recordUrl = `${authData.instance_url}/services/data/v58.0/sobjects/${sobjectName}/${recordId}?fields=${fields}`;
+        const response = await fetch(recordUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${authData.access_token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          const recordData = await response.json();
+          
+          // Build SalesforceRecord object
+          const record: SalesforceRecord = {
+            id: recordData.Id,
+            name: recordData.Name || '',
+            type: objectType === 'SFDC_Project__c' ? 'Project' : objectType,
+          };
+
+          // Add account info for Opportunity
+          if (objectType === 'Opportunity' && recordData.AccountId) {
+            record.accountId = recordData.AccountId;
+            record.accountName = recordData.Account?.Name;
+            record.accountWebsite = recordData.Account?.Website;
+            record.accountIndustry = recordData.Account?.Industry;
+            record.opportunityId = recordData.Id;
+            record.opportunityName = recordData.Name;
+          }
+
+          // Add account info for Account
+          if (objectType === 'Account') {
+            record.accountId = recordData.Id;
+            record.accountName = recordData.Name;
+            record.accountWebsite = recordData.Website;
+            record.accountIndustry = recordData.Industry;
+          }
+
+          // Use the helper function to handle record selection (same as onChange)
+          await handleSalesforceRecordChange(record);
+        } else {
+          console.warn(`Failed to fetch ${objectType} record:`, response.status);
+        }
+      } catch (error) {
+        console.error(`Error fetching ${objectType} record:`, error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    prefetchRecord();
+  }, [opportunityIdParam, accountIdParam, projectIdParam, companyParam, authData, selectedSalesforceRecord]);
+
+  // Helper function to handle Salesforce record selection (used by both onChange and pre-fill)
+  const handleSalesforceRecordChange = async (record: SalesforceRecord | null) => {
+    setSelectedSalesforceRecord(record);
+    if (record) {
+      setProjectId(record.id);
+      // Auto-populate company name from Account
+      if (record.accountName) {
+        setCompanyName(record.accountName);
+      }
+      // Auto-populate website from Account
+      if (record.accountWebsite) {
+        setCompanyWebsite(record.accountWebsite);
+        // Fetch logo using the website
+        setLogoLoading(true);
+        try {
+          const logoResult = await fetchCompanyLogo(record.accountWebsite);
+          if (logoResult.logoUrl) {
+            setCompanyLogo(logoResult.logoUrl);
+          }
+        } catch (error) {
+          console.error('Error fetching logo:', error);
+        } finally {
+          setLogoLoading(false);
+        }
+      }
+    } else {
+      setProjectId('');
+      setCompanyName('');
+      setCompanyWebsite('');
+      setCompanyLogo('');
+    }
+  };
 
   // Fetch logo for company
   const fetchLogoForCompany = async (company: string) => {
@@ -507,37 +642,7 @@ const ProjectTeam: React.FC = () => {
                     <div className="md:col-span-3">
                       <SalesforceLookup
                         objectType={lookupObjectType}
-                        onChange={async (record) => {
-                          setSelectedSalesforceRecord(record);
-                          if (record) {
-                            setProjectId(record.id);
-                            // Auto-populate company name from Account
-                            if (record.accountName) {
-                              setCompanyName(record.accountName);
-                            }
-                            // Auto-populate website from Account
-                            if (record.accountWebsite) {
-                              setCompanyWebsite(record.accountWebsite);
-                              // Fetch logo using the website
-                              setLogoLoading(true);
-                              try {
-                                const result = await fetchCompanyLogo(record.accountWebsite);
-                                if (result.logoUrl) {
-                                  setCompanyLogo(result.logoUrl);
-                                }
-                              } catch (error) {
-                                console.error('Error fetching logo:', error);
-                              } finally {
-                                setLogoLoading(false);
-                              }
-                            }
-                          } else {
-                            setProjectId('');
-                            setCompanyName('');
-                            setCompanyWebsite('');
-                            setCompanyLogo('');
-                          }
-                        }}
+                        onChange={handleSalesforceRecordChange}
                         placeholder={`Search ${lookupObjectType === 'SFDC_Project__c' ? 'Project' : lookupObjectType}...`}
                         label=""
                       />

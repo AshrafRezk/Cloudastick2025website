@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { 
   Users, Building2, FileText, Target, Loader2,
   GraduationCap, CheckCircle2
@@ -16,6 +16,9 @@ import { getProjectTeam } from '../services/projectTeamService';
 import { fetchCompanyLogo } from '../services/logoService';
 import { Label } from '../components/ui/label';
 import { useSalesforce } from '../contexts/SalesforceContext';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../components/ui/dialog';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
 
 // Helper to get Salesforce auth from context
 function getSalesforceAuth(authData: any): { access_token: string; instance_url: string } | null {
@@ -164,9 +167,16 @@ async function fetchSalesforceImage(
 
 const ProjectTeamView: React.FC = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const projectIdParam = searchParams.get('projectId');
   const companyParam = searchParams.get('company');
   const teamBuildIdParam = searchParams.get('teamBuildId');
+  const opportunityIdParam = searchParams.get('opportunityID');
+  const accountIdParam = searchParams.get('AccountId');
+  const guidParam = searchParams.get('GUID');
+  
+  // Check if any query params are provided
+  const hasQueryParams = !!(projectIdParam || companyParam || teamBuildIdParam || opportunityIdParam || accountIdParam || guidParam);
   
   // Salesforce authentication
   const { authData, isLoading: isAuthLoading, error: authError, refreshAuth } = useSalesforce();
@@ -185,6 +195,11 @@ const ProjectTeamView: React.FC = () => {
   const [expandedMember, setExpandedMember] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [logoLoading, setLogoLoading] = useState(false);
+  
+  // Password dialog state (only shown when no query params)
+  const [showPasswordDialog, setShowPasswordDialog] = useState(!hasQueryParams);
+  const [password, setPassword] = useState('');
+  const EDIT_PASSWORD = 'Cloudastick@Team$';
 
   // Load project data - wait for authentication first
   useEffect(() => {
@@ -214,8 +229,8 @@ const ProjectTeamView: React.FC = () => {
         }
       }
       
-      if (!projectIdParam && !companyParam && !teamBuildIdParam) {
-        setError('No project ID, company name, or team build ID provided');
+      // If no query params, don't try to load data (will show password dialog instead)
+      if (!hasQueryParams) {
         setIsLoading(false);
         return;
       }
@@ -226,8 +241,8 @@ const ProjectTeamView: React.FC = () => {
       try {
         let data: any = null;
         
-        // If teamBuildId is provided, fetch directly by ID
-        if (teamBuildIdParam) {
+        // If any Salesforce identifier is provided, fetch via getTeamBuild function
+        if (teamBuildIdParam || opportunityIdParam || accountIdParam || projectIdParam || guidParam) {
           const auth = getSalesforceAuth(authData);
           if (!auth) {
             throw new Error('Salesforce authentication required. Please refresh the page.');
@@ -236,12 +251,44 @@ const ProjectTeamView: React.FC = () => {
           const params = new URLSearchParams();
           params.append('access_token', auth.access_token);
           params.append('instance_url', auth.instance_url);
-          params.append('teamBuildId', teamBuildIdParam);
+          
+          // Add the appropriate parameter based on what's provided
+          if (teamBuildIdParam) {
+            params.append('teamBuildId', teamBuildIdParam);
+          }
+          if (opportunityIdParam) {
+            params.append('opportunityId', opportunityIdParam);
+          }
+          if (accountIdParam) {
+            params.append('accountId', accountIdParam);
+          }
+          if (projectIdParam) {
+            params.append('projectId', projectIdParam);
+          }
+          if (guidParam) {
+            params.append('guid', guidParam);
+          }
           
           const response = await fetch(`/.netlify/functions/getTeamBuild?${params.toString()}`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
           });
+          
+          // If 404 (not found), redirect to team creation page with pre-filled params
+          if (response.status === 404) {
+            const redirectParams = new URLSearchParams();
+            if (opportunityIdParam) {
+              redirectParams.append('opportunityID', opportunityIdParam);
+            }
+            if (accountIdParam) {
+              redirectParams.append('AccountId', accountIdParam);
+            }
+            if (projectIdParam) {
+              redirectParams.append('projectId', projectIdParam);
+            }
+            navigate(`/project-team?${redirectParams.toString()}`);
+            return;
+          }
           
           if (response.ok) {
             const result = await response.json();
@@ -433,9 +480,23 @@ const ProjectTeamView: React.FC = () => {
       }
     };
 
-    loadProjectData();
+    // Only load data if we have query params
+    if (hasQueryParams) {
+      loadProjectData();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [projectIdParam, companyParam, teamBuildIdParam, isAuthLoading, authData, authError]);
+  }, [projectIdParam, companyParam, teamBuildIdParam, opportunityIdParam, accountIdParam, guidParam, hasQueryParams, isAuthLoading, authData, authError]);
+  
+  // Handle password authentication and redirect
+  const handlePasswordSubmit = () => {
+    if (password === EDIT_PASSWORD) {
+      // Redirect to team creation page
+      navigate('/project-team');
+    } else {
+      setError('Invalid password. Please enter the correct password.');
+      setPassword('');
+    }
+  };
 
   // Load team member profiles
   useEffect(() => {
@@ -466,8 +527,8 @@ const ProjectTeamView: React.FC = () => {
     .map(id => getTeamMemberById(id))
     .filter(Boolean);
 
-  // Show loading while authenticating or loading project data
-  if (isAuthLoading || isLoading) {
+  // Show loading while authenticating or loading project data (only if we have query params)
+  if (hasQueryParams && (isAuthLoading || isLoading)) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
         <div className="text-center">
@@ -480,7 +541,8 @@ const ProjectTeamView: React.FC = () => {
     );
   }
 
-  if (error) {
+  // Show error only if we have query params (not when showing password dialog)
+  if (hasQueryParams && error) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
         <div className="text-center max-w-md">
@@ -492,6 +554,76 @@ const ProjectTeamView: React.FC = () => {
             Please check the URL or contact your project manager for assistance.
           </p>
         </div>
+      </div>
+    );
+  }
+  
+  // If no query params, show a simple page with password dialog
+  if (!hasQueryParams) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white flex items-center justify-center">
+        <div className="text-center max-w-md px-4">
+          <img 
+            src="/Assets/Company Logos/white-logo-dark.webp" 
+            alt="Cloudastick" 
+            className="h-16 w-auto object-contain mx-auto mb-6"
+          />
+          <h1 className="text-2xl font-bold mb-2">Project Team Management</h1>
+          <p className="text-gray-400 mb-6">Enter password to create or manage project teams</p>
+        </div>
+
+        {/* Password Dialog */}
+        <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
+          <DialogContent className="bg-gray-800 border-gray-700 text-white">
+            <DialogHeader>
+              <DialogTitle>Enter Password</DialogTitle>
+              <DialogDescription className="text-gray-400">
+                Enter the password to access the team creation page.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 mt-4">
+              {error && (
+                <div className="bg-red-500/20 p-3 rounded-lg">
+                  <p className="text-red-400 text-sm">{error}</p>
+                </div>
+              )}
+              <Input
+                type="password"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setError(null);
+                }}
+                placeholder="Password"
+                className="bg-gray-700 border-gray-600 text-white"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handlePasswordSubmit();
+                  }
+                }}
+              />
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowPasswordDialog(false);
+                    setPassword('');
+                    setError(null);
+                  }}
+                  className="border-gray-600"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handlePasswordSubmit}
+                  className="bg-cyan-600 hover:bg-cyan-700"
+                >
+                  Submit
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
