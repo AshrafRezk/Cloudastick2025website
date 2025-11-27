@@ -200,6 +200,14 @@ const About = () => {
       icons: [GraduationCap, Code],
       hoverElements: [t('team.hoverElements.development'), t('team.hoverElements.innovation')],
       color: "from-cyan-400 to-blue-500"
+    },
+    { 
+      id: 24, name: "Khaled El-Nabawy", 
+      role: t('team.salesforceConsultant'), 
+      image: "/Assets/Company Members/Khaled_El-Nabawy_Salesforce_Consultant.png",
+      icons: [Globe, TrendingUp],
+      hoverElements: [t('team.hoverElements.integration'), t('team.hoverElements.strategy')],
+      color: "from-sky-400 to-cyan-500"
     }
   ];
 

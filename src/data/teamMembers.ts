@@ -201,6 +201,14 @@ export const teamMembers: TeamMember[] = [
     image: "/Assets/Company Members/Alyaa_Hafez_Salesforce_Consultant.png",
     profileSlug: "alyaa-hafez",
     description: "GUC Graduate and Salesforce Consultant bringing fresh expertise to deliver innovative solutions and drive business transformation in the Salesforce ecosystem."
+  },
+  {
+    id: "khaled-el-nabawy",
+    name: "Khaled El-Nabawy",
+    role: "Salesforce Consultant",
+    image: "/Assets/Company Members/Khaled_El-Nabawy_Salesforce_Consultant.png",
+    profileSlug: "khaled-el-nabawy",
+    description: "MIU Graduate with extensive enterprise experience, Khaled brings deep technical expertise from leading organizations to deliver innovative Salesforce solutions and drive digital transformation."
   }
 ];
 
