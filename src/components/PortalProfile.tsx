@@ -1,13 +1,34 @@
 import { motion } from 'framer-motion';
-import { User, Mail, Linkedin, Award, ExternalLink, LogOut } from 'lucide-react';
+import { Mail, Linkedin, Award, ExternalLink, LogOut } from 'lucide-react';
+import { 
+  Person, 
+  BusinessCenter, 
+  Work, 
+  Computer, 
+  School, 
+  Engineering,
+  AccountCircle,
+  Face,
+  Badge
+} from '@mui/icons-material';
 import { usePortalUser } from '../contexts/PortalUserContext';
 import Button from './Button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 
-// Random Salesforce character avatars (using emoji/unicode as placeholder)
-const avatarOptions = ['👤', '👨‍💼', '👩‍💼', '🧑‍💻', '👨‍💻', '👩‍💻', '🧑‍🎓', '👨‍🎓', '👩‍🎓'];
+// Material 3 icon components for avatars
+const avatarOptions = [
+  Person,
+  BusinessCenter,
+  Work,
+  Computer,
+  Engineering,
+  School,
+  AccountCircle,
+  Face,
+  Badge
+];
 
-const getRandomAvatar = (userId: string): string => {
+const getRandomAvatar = (userId: string): React.ComponentType<any> => {
   // Use userId to consistently assign same avatar to same user
   const index = userId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % avatarOptions.length;
   return avatarOptions[index];
@@ -20,7 +41,7 @@ const PortalProfile = () => {
     return null;
   }
 
-  const avatar = getRandomAvatar(user.id);
+  const AvatarIcon = getRandomAvatar(user.id);
   const badgeCount = completed.length;
 
   return (
@@ -28,8 +49,8 @@ const PortalProfile = () => {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-brand-primary to-brand-secondary flex items-center justify-center text-4xl shadow-lg">
-              {avatar}
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-brand-primary to-brand-secondary flex items-center justify-center shadow-lg">
+              <AvatarIcon className="w-12 h-12 text-white" />
             </div>
             <div>
               <CardTitle className="text-2xl mb-1">{user.name}</CardTitle>
