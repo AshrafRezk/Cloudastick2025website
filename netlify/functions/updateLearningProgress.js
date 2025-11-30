@@ -63,7 +63,7 @@ exports.handler = async (event, context) => {
       console.log('📝 Creating new Learning Material Instance...');
       
       const newInstanceData = {
-        Contact__c: contactId,
+        Learner__c: contactId, // Try Learner__c first, adjust if different in your org
         Learning_Material__c: learningMaterialId,
         Progress__c: progress || 0,
         Status__c: status || 'Not Started',

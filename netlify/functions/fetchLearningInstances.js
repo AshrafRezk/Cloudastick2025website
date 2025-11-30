@@ -48,55 +48,94 @@ exports.handler = async (event, context) => {
     }
 
     // Query Learning_Material_Instance__c for the contact
-    // Include related Learning_Material__c fields
+    // Note: The lookup field to Contact might be named differently
+    // Try common field names: Learner__c, Contact__c, Portal_User__c
     const escapedContactId = contactId.replace(/'/g, "\\'");
-    const soqlQuery = `SELECT Id, Name, Contact__c, Learning_Material__c, Progress__c, Status__c, Score__c, Started_On__c, Completed_On__c, CreatedDate, Learning_Material__r.Id, Learning_Material__r.Title__c, Learning_Material__r.Description__c, Learning_Material__r.Material_Type__c, Learning_Material__r.Material_URL__c, Learning_Material__r.Duration__c, Learning_Material__r.Category__c, Learning_Material__r.Is_Active__c FROM Learning_Material_Instance__c WHERE Contact__c = '${escapedContactId}' AND Learning_Material__r.Is_Active__c = true ORDER BY CreatedDate ASC`;
     
-    const encodedQuery = encodeURIComponent(soqlQuery);
-    const queryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedQuery}`;
+    // Try different field names - start with most common
+    const fieldNames = ['Learner__c', 'Contact__c', 'Portal_User__c'];
+    let queryResponse;
+    let queryData;
+    let records = [];
+    
+    for (const fieldName of fieldNames) {
+      const soqlQuery = `SELECT Id, Name, ${fieldName}, Learning_Material__c, Progress__c, Status__c, Score__c, Started_On__c, Completed_On__c, CreatedDate, Learning_Material__r.Id, Learning_Material__r.Title__c, Learning_Material__r.Description__c, Learning_Material__r.Material_Type__c, Learning_Material__r.Material_URL__c, Learning_Material__r.Duration__c, Learning_Material__r.Category__c, Learning_Material__r.Is_Active__c, Learning_Material__r.Parent_Material__c, Learning_Material__r.Parent_Material__r.Id, Learning_Material__r.Parent_Material__r.Title__c FROM Learning_Material_Instance__c WHERE ${fieldName} = '${escapedContactId}' AND Learning_Material__r.Is_Active__c = true ORDER BY CreatedDate ASC`;
+      
+      const encodedQuery = encodeURIComponent(soqlQuery);
+      const queryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedQuery}`;
 
-    console.log('📤 Querying Learning Material Instances...');
+      console.log(`📤 Querying Learning Material Instances with field: ${fieldName}...`);
 
-    const queryResponse = await fetch(queryUrl, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${access_token}`,
-        'Content-Type': 'application/json',
-      },
-    });
+      queryResponse = await fetch(queryUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
 
-    if (!queryResponse.ok) {
-      const errorText = await queryResponse.text();
-      console.error('❌ Salesforce query error:', errorText);
-      throw new Error(`Salesforce query failed: ${queryResponse.status} - ${errorText}`);
+      if (queryResponse.ok) {
+        queryData = await queryResponse.json();
+        records = queryData.records || [];
+        console.log(`✅ Successfully queried with field: ${fieldName}`);
+        break; // Success, exit loop
+      } else {
+        const errorText = await queryResponse.text();
+        console.log(`⚠️ Field ${fieldName} failed, trying next...`);
+        // Continue to next field name
+      }
     }
 
-    const queryData = await queryResponse.json();
-    const records = queryData.records || [];
+    if (!queryResponse || !queryResponse.ok) {
+      const errorText = await queryResponse?.text() || 'Unknown error';
+      console.error('❌ Salesforce query error with all field names:', errorText);
+      throw new Error(`Salesforce query failed: ${queryResponse?.status || 400} - ${errorText}`);
+    }
 
     // Transform records to a cleaner format
-    const instances = records.map((record) => ({
-      id: record.Id,
-      name: record.Name,
-      contactId: record.Contact__c,
-      learningMaterialId: record.Learning_Material__c,
-      progress: record.Progress__c || 0,
-      status: record.Status__c || 'Not Started',
-      score: record.Score__c || null,
-      startedOn: record.Started_On__c || null,
-      completedOn: record.Completed_On__c || null,
-      createdDate: record.CreatedDate,
-      material: record.Learning_Material__r ? {
-        id: record.Learning_Material__r.Id,
-        title: record.Learning_Material__r.Title__c,
-        description: record.Learning_Material__r.Description__c,
-        materialType: record.Learning_Material__r.Material_Type__c,
-        materialUrl: record.Learning_Material__r.Material_URL__c,
-        duration: record.Learning_Material__r.Duration__c || 0,
-        category: record.Learning_Material__r.Category__c,
-        isActive: record.Learning_Material__r.Is_Active__c,
-      } : null,
-    }));
+    // Handle parent-child material relationships - instances tie to parent materials
+    const instances = records.map((record) => {
+      const material = record.Learning_Material__r;
+      // If this material has a parent, use the parent material info instead
+      // Instances are tied to parent materials (courses), not child materials (lessons)
+      const displayMaterial = material?.Parent_Material__r ? {
+        id: material.Parent_Material__r.Id,
+        title: material.Parent_Material__r.Title__c,
+        description: material.Description__c, // Keep child description if available
+        materialType: material.Material_Type__c,
+        materialUrl: material.Material_URL__c,
+        duration: material.Duration__c || 0,
+        category: material.Category__c,
+        isActive: material.Is_Active__c,
+        parentId: material.Parent_Material__c,
+        isChild: true,
+      } : (material ? {
+        id: material.Id,
+        title: material.Title__c,
+        description: material.Description__c,
+        materialType: material.Material_Type__c,
+        materialUrl: material.Material_URL__c,
+        duration: material.Duration__c || 0,
+        category: material.Category__c,
+        isActive: material.Is_Active__c,
+        parentId: material.Parent_Material__c,
+        isChild: false,
+      } : null);
+
+      return {
+        id: record.Id,
+        name: record.Name,
+        contactId: record.Learner__c || record.Contact__c || record.Portal_User__c, // Support multiple field names
+        learningMaterialId: record.Learning_Material__c,
+        progress: record.Progress__c || 0,
+        status: record.Status__c || 'Not Started',
+        score: record.Score__c || null,
+        startedOn: record.Started_On__c || null,
+        completedOn: record.Completed_On__c || null,
+        createdDate: record.CreatedDate,
+        material: displayMaterial,
+      };
+    });
 
     console.log(`✅ Fetched ${instances.length} learning material instances`);
 
