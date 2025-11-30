@@ -55,59 +55,37 @@ exports.handler = async (event, context) => {
     }
 
     // Query Learning_Material_Instance__c for the contact
-    // Note: The lookup field to Contact might be named differently
-    // Try common field names: Learner__c, Contact__c, Portal_User__c
+    // Field name is Learner__c based on Salesforce UI
     const escapedContactId = contactId.replace(/'/g, "\\'");
     
-    // Try different field names - start with most common
-    const fieldNames = ['Learner__c', 'Contact__c', 'Portal_User__c'];
-    let queryResponse;
-    let queryData;
-    let records = [];
+    // Query instances - instances are tied to parent materials (courses)
+    // We'll also need to fetch child materials separately
+    const soqlQuery = `SELECT Id, Name, Learner__c, Learning_Material__c, Progress__c, Status__c, Score__c, Started_On__c, Completed_On__c, CreatedDate, Learning_Material__r.Id, Learning_Material__r.Title__c, Learning_Material__r.Description__c, Learning_Material__r.Material_Type__c, Learning_Material__r.Material_URL__c, Learning_Material__r.Duration__c, Learning_Material__r.Category__c, Learning_Material__r.Is_Active__c, Learning_Material__r.Parent_Material__c FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' ORDER BY CreatedDate ASC`;
     
-    for (const fieldName of fieldNames) {
-      // Try query without Is_Active filter first, then with filter
-      const queries = [
-        `SELECT Id, Name, ${fieldName}, Learning_Material__c, Progress__c, Status__c, Score__c, Started_On__c, Completed_On__c, CreatedDate, Learning_Material__r.Id, Learning_Material__r.Title__c, Learning_Material__r.Description__c, Learning_Material__r.Material_Type__c, Learning_Material__r.Material_URL__c, Learning_Material__r.Duration__c, Learning_Material__r.Category__c, Learning_Material__r.Is_Active__c, Learning_Material__r.Parent_Material__c, Learning_Material__r.Parent_Material__r.Id, Learning_Material__r.Parent_Material__r.Title__c FROM Learning_Material_Instance__c WHERE ${fieldName} = '${escapedContactId}' ORDER BY CreatedDate ASC`,
-        `SELECT Id, Name, ${fieldName}, Learning_Material__c, Progress__c, Status__c, Score__c, Started_On__c, Completed_On__c, CreatedDate, Learning_Material__r.Id, Learning_Material__r.Title__c, Learning_Material__r.Description__c, Learning_Material__r.Material_Type__c, Learning_Material__r.Material_URL__c, Learning_Material__r.Duration__c, Learning_Material__r.Category__c, Learning_Material__r.Is_Active__c, Learning_Material__r.Parent_Material__c, Learning_Material__r.Parent_Material__r.Id, Learning_Material__r.Parent_Material__r.Title__c FROM Learning_Material_Instance__c WHERE ${fieldName} = '${escapedContactId}' AND Learning_Material__r.Is_Active__c = true ORDER BY CreatedDate ASC`
-      ];
-      
-      for (const soqlQuery of queries) {
-        const encodedQuery = encodeURIComponent(soqlQuery);
-        const queryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedQuery}`;
+    const encodedQuery = encodeURIComponent(soqlQuery);
+    const queryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedQuery}`;
 
-        console.log(`📤 Querying Learning Material Instances with field: ${fieldName}...`);
-        console.log(`📝 SOQL Query: ${soqlQuery}`);
+    console.log('📤 Querying Learning Material Instances...');
+    console.log('📝 SOQL Query:', soqlQuery);
+    console.log('📋 Contact ID:', contactId);
 
-        queryResponse = await fetch(queryUrl, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${access_token}`,
-            'Content-Type': 'application/json',
-          },
-        });
+    const queryResponse = await fetch(queryUrl, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${access_token}`,
+        'Content-Type': 'application/json',
+      },
+    });
 
-        if (queryResponse.ok) {
-          queryData = await queryResponse.json();
-          records = queryData.records || [];
-          console.log(`✅ Successfully queried with field: ${fieldName}, found ${records.length} records`);
-          break; // Success, exit inner loop
-        } else {
-          let errorText = '';
-          try {
-            errorText = await queryResponse.text();
-            console.log(`⚠️ Query failed with field ${fieldName}:`, errorText.substring(0, 200));
-          } catch (e) {
-            console.log(`⚠️ Query failed with field ${fieldName}, status: ${queryResponse.status}`);
-          }
-          // Continue to next query variant
-        }
-      }
-      
-      if (queryResponse && queryResponse.ok) {
-        break; // Success, exit outer loop
-      }
+    if (!queryResponse.ok) {
+      const errorText = await queryResponse.text();
+      console.error('❌ Salesforce query error:', errorText);
+      throw new Error(`Salesforce query failed: ${queryResponse.status} - ${errorText}`);
     }
+
+    const queryData = await queryResponse.json();
+    let records = queryData.records || [];
+    console.log(`✅ Found ${records.length} Learning Material Instances`);
 
     if (!queryResponse || !queryResponse.ok) {
       let errorText = 'Unknown error';
@@ -168,41 +146,99 @@ exports.handler = async (event, context) => {
 
     console.log(`📊 Filtered ${records.length} records to ${activeRecords.length} active records`);
 
-    // Transform records to a cleaner format
-    // Handle parent-child material relationships - instances tie to parent materials
-    const instances = activeRecords.map((record) => {
-      const material = record.Learning_Material__r;
-      
-      // If this material has a parent, we still show the material itself
-      // but we can use parent info for grouping/display if needed
-      // Instances are tied to the material specified, which could be parent or child
-      const displayMaterial = material ? {
-        id: material.Id,
-        title: material.Title__c,
-        description: material.Description__c,
-        materialType: material.Material_Type__c,
-        materialUrl: material.Material_URL__c,
-        duration: material.Duration__c || 0,
-        category: material.Category__c,
-        isActive: material.Is_Active__c !== false,
-        parentId: material.Parent_Material__c || null,
-        parentTitle: material.Parent_Material__r?.Title__c || null,
-        isChild: !!material.Parent_Material__c,
-      } : null;
+    // For each instance, if the material is a parent (Course), fetch its child materials
+    const instancesWithChildren = await Promise.all(
+      activeRecords.map(async (record) => {
+        const material = record.Learning_Material__r;
+        
+        // If this is a parent material (Course), fetch child materials
+        let childMaterials = [];
+        if (material && !material.Parent_Material__c && material.Material_Type__c === 'Course') {
+          try {
+            const childQuery = `SELECT Id, Title__c, Description__c, Material_Type__c, Material_URL__c, Duration__c, Category__c, Is_Active__c FROM Learning_Material__c WHERE Parent_Material__c = '${material.Id}' AND Is_Active__c = true ORDER BY CreatedDate ASC`;
+            const encodedChildQuery = encodeURIComponent(childQuery);
+            const childQueryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedChildQuery}`;
+            
+            const childResponse = await fetch(childQueryUrl, {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${access_token}`,
+                'Content-Type': 'application/json',
+              },
+            });
+            
+            if (childResponse.ok) {
+              const childData = await childResponse.json();
+              childMaterials = (childData.records || []).map((child: any) => ({
+                id: child.Id,
+                title: child.Title__c,
+                description: child.Description__c,
+                materialType: child.Material_Type__c,
+                materialUrl: child.Material_URL__c,
+                duration: child.Duration__c || 0,
+                category: child.Category__c,
+                isActive: child.Is_Active__c !== false,
+                parentId: material.Id,
+                isChild: true,
+              }));
+              console.log(`📚 Found ${childMaterials.length} child materials for ${material.Title__c}`);
+            }
+          } catch (e) {
+            console.log('⚠️ Could not fetch child materials:', e);
+          }
+        }
+        
+        // Display the parent material info, with child materials attached
+        const displayMaterial = material ? {
+          id: material.Id,
+          title: material.Title__c,
+          description: material.Description__c,
+          materialType: material.Material_Type__c,
+          materialUrl: material.Material_URL__c,
+          duration: material.Duration__c || 0,
+          category: material.Category__c,
+          isActive: material.Is_Active__c !== false,
+          parentId: material.Parent_Material__c || null,
+          isChild: !!material.Parent_Material__c,
+          childMaterials: childMaterials, // Add child materials if this is a parent
+        } : null;
 
-      return {
-        id: record.Id,
-        name: record.Name,
-        contactId: record.Learner__c || record.Contact__c || record.Portal_User__c, // Support multiple field names
-        learningMaterialId: record.Learning_Material__c,
-        progress: record.Progress__c || 0,
-        status: record.Status__c || 'Not Started',
-        score: record.Score__c || null,
-        startedOn: record.Started_On__c || null,
-        completedOn: record.Completed_On__c || null,
-        createdDate: record.CreatedDate,
-        material: displayMaterial,
-      };
+        return {
+          id: record.Id,
+          name: record.Name,
+          contactId: record.Learner__c,
+          learningMaterialId: record.Learning_Material__c,
+          progress: record.Progress__c || 0,
+          status: record.Status__c || 'Not Started',
+          score: record.Score__c || null,
+          startedOn: record.Started_On__c || null,
+          completedOn: record.Completed_On__c || null,
+          createdDate: record.CreatedDate,
+          material: displayMaterial,
+        };
+      })
+    );
+    
+    // Flatten instances: if a parent material has children, create separate instances for each child
+    // but keep the parent instance too for the course overview
+    const instances = [];
+    instancesWithChildren.forEach((instance) => {
+      // Add the parent instance
+      instances.push(instance);
+      
+      // If parent has child materials, add instances for each child
+      if (instance.material?.childMaterials && instance.material.childMaterials.length > 0) {
+        instance.material.childMaterials.forEach((child) => {
+          instances.push({
+            ...instance,
+            id: `${instance.id}-${child.id}`, // Unique ID for child instance
+            learningMaterialId: child.id,
+            material: child,
+            isChildInstance: true,
+            parentInstanceId: instance.id,
+          });
+        });
+      }
     });
 
     console.log(`✅ Fetched ${instances.length} learning material instances`);
