@@ -60,7 +60,8 @@ exports.handler = async (event, context) => {
     
     // Query instances - instances are tied to parent materials (courses)
     // We'll also need to fetch child materials separately
-    const soqlQuery = `SELECT Id, Name, Learner__c, Learning_Material__c, Progress__c, Status__c, Score__c, Started_On__c, Completed_On__c, CreatedDate, Learning_Material__r.Id, Learning_Material__r.Title__c, Learning_Material__r.Description__c, Learning_Material__r.Material_Type__c, Learning_Material__r.Material_URL__c, Learning_Material__r.Duration__c, Learning_Material__r.Category__c, Learning_Material__r.Is_Active__c, Learning_Material__r.Parent_Material__c FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' ORDER BY CreatedDate ASC`;
+    // Note: The field on Learning_Material_Instance__c is Material__c, not Learning_Material__c
+    const soqlQuery = `SELECT Id, Name, Learner__c, Material__c, Progress__c, Status__c, Score__c, Started_On__c, Completed_On__c, CreatedDate, Material__r.Id, Material__r.Title__c, Material__r.Description__c, Material__r.Material_Type__c, Material__r.Material_URL__c, Material__r.Duration__c, Material__r.Category__c, Material__r.Is_Active__c, Material__r.Parent_Material__c FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' ORDER BY CreatedDate ASC`;
     
     const encodedQuery = encodeURIComponent(soqlQuery);
     const queryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedQuery}`;
@@ -89,7 +90,7 @@ exports.handler = async (event, context) => {
 
     // Filter out records where material is not active (if Is_Active__c field exists)
     const activeRecords = records.filter(record => {
-      const material = record.Learning_Material__r;
+      const material = record.Material__r;
       // If Is_Active__c field exists and is false, filter it out
       // If field doesn't exist or is true/null, include it
       return !material || material.Is_Active__c !== false;
@@ -100,7 +101,7 @@ exports.handler = async (event, context) => {
     // For each instance, if the material is a parent (Course), fetch its child materials
     const instancesWithChildren = await Promise.all(
       activeRecords.map(async (record) => {
-        const material = record.Learning_Material__r;
+        const material = record.Material__r;
         
         // If this is a parent material (Course), fetch child materials
         let childMaterials = [];
@@ -158,7 +159,7 @@ exports.handler = async (event, context) => {
           id: record.Id,
           name: record.Name,
           contactId: record.Learner__c,
-          learningMaterialId: record.Learning_Material__c,
+          learningMaterialId: record.Material__c,
           progress: record.Progress__c || 0,
           status: record.Status__c || 'Not Started',
           score: record.Score__c || null,
