@@ -12,6 +12,7 @@ import {
   type Contact,
   type LearningMaterialInstance,
   type FetchInstancesResponse,
+  type UpdateProgressResponse,
 } from '../services/learningService';
 
 interface PortalUserContextType {
@@ -34,7 +35,7 @@ interface PortalUserContextType {
     score?: number | null;
     startedOn?: string;
     completedOn?: string;
-  }) => Promise<void>;
+  }) => Promise<UpdateProgressResponse>;
 }
 
 const PortalUserContext = createContext<PortalUserContextType | undefined>(undefined);
@@ -190,19 +191,21 @@ export const PortalUserProvider = ({ children }: PortalUserProviderProps) => {
     score?: number | null;
     startedOn?: string;
     completedOn?: string;
-  }): Promise<void> => {
+  }): Promise<UpdateProgressResponse> => {
     if (!authData) {
       throw new Error('Salesforce authentication required');
     }
 
     try {
-      await updateLearningProgress(params, {
+      const result = await updateLearningProgress(params, {
         access_token: authData.access_token,
         instance_url: authData.instance_url,
       });
 
       // Refresh instances after update
       await refreshInstances();
+      
+      return result;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to update progress';
       setError(errorMessage);
