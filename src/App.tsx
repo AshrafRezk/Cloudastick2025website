@@ -40,6 +40,7 @@ import ProjectTeamAdmin from "./pages/ProjectTeamAdmin";
 import ProjectTeamView from "./pages/ProjectTeamView";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { SalesforceProvider } from "./contexts/SalesforceContext";
+import { PortalUserProvider } from "./contexts/PortalUserContext";
 
 const queryClient = new QueryClient();
 
@@ -78,9 +79,10 @@ const App = () => {
         <TooltipProvider>
           <LanguageProvider>
             <SalesforceProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
+              <PortalUserProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
             <ScrollToTop />
             <Routes>
             {/* Special routes for Tarwtl - no standard startup or layout */}
@@ -145,6 +147,7 @@ const App = () => {
             } />
           </Routes>
             </BrowserRouter>
+              </PortalUserProvider>
             </SalesforceProvider>
             </LanguageProvider>
             </TooltipProvider>
