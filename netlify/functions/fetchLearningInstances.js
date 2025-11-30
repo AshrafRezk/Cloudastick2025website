@@ -114,11 +114,15 @@ exports.handler = async (event, context) => {
       activeRecords.map(async (record) => {
         const material = record.Material__r;
         
-        // If this is a parent material (Module/Course), fetch child materials
+        // If this is a parent material (Module/Course), fetch child materials and their instances
         // The instance is tied to the parent, and child materials are nested underneath
         let childMaterials = [];
+        let calculatedParentProgress = record.Progress__c || 0;
+        let allChildrenCompleted = false;
+        
         if (material && !material.Parent_Material__c) {
           try {
+            // Fetch child materials
             const childQuery = `SELECT Id, Title__c, Description__c, Material_Type__c, Material_URL__c, Duration__c, Category__c, Active__c FROM Learning_Material__c WHERE Parent_Material__c = '${material.Id}' AND Active__c = true ORDER BY CreatedDate ASC`;
             const encodedChildQuery = encodeURIComponent(childQuery);
             const childQueryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedChildQuery}`;
@@ -133,19 +137,83 @@ exports.handler = async (event, context) => {
             
             if (childResponse.ok) {
               const childData = await childResponse.json();
-              childMaterials = (childData.records || []).map((child) => ({
-                id: child.Id,
-                title: child.Title__c,
-                description: child.Description__c,
-                materialType: child.Material_Type__c,
-                materialUrl: child.Material_URL__c,
-                duration: child.Duration__c || 0,
-                category: child.Category__c,
-                isActive: child.Active__c !== false,
-                parentId: material.Id,
-                isChild: true,
-              }));
-              console.log(`📚 Found ${childMaterials.length} child materials for ${material.Title__c}`);
+              const childMaterialRecords = childData.records || [];
+              
+              // If we have child materials, fetch their instances
+              if (childMaterialRecords.length > 0) {
+                const childIds = childMaterialRecords.map(c => c.Id).map(id => `'${id.replace(/'/g, "\\'")}'`).join(',');
+                const childInstanceQuery = `SELECT Id, Material__c, Progress__c, Status__c, Started_On__c, Completed_On__c FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' AND Material__c IN (${childIds})`;
+                const encodedChildInstanceQuery = encodeURIComponent(childInstanceQuery);
+                const childInstanceQueryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedChildInstanceQuery}`;
+                
+                const childInstanceResponse = await fetch(childInstanceQueryUrl, {
+                  method: 'GET',
+                  headers: {
+                    'Authorization': `Bearer ${access_token}`,
+                    'Content-Type': 'application/json',
+                  },
+                });
+                
+                let childInstancesMap = {};
+                if (childInstanceResponse.ok) {
+                  const childInstanceData = await childInstanceResponse.json();
+                  (childInstanceData.records || []).forEach(inst => {
+                    childInstancesMap[inst.Material__c] = {
+                      id: inst.Id,
+                      progress: inst.Progress__c || 0,
+                      status: inst.Status__c || 'Not Started',
+                      startedOn: inst.Started_On__c || null,
+                      completedOn: inst.Completed_On__c || null,
+                    };
+                  });
+                  console.log(`📊 Found ${Object.keys(childInstancesMap).length} child instances for ${material.Title__c}`);
+                }
+                
+                // Calculate duration-weighted parent progress
+                let totalWeightedProgress = 0;
+                let totalDuration = 0;
+                let completedChildrenCount = 0;
+                
+                childMaterials = childMaterialRecords.map((child) => {
+                  const childInstance = childInstancesMap[child.Id] || null;
+                  const childDuration = child.Duration__c || 0;
+                  const childProgress = childInstance ? childInstance.progress : 0;
+                  
+                  // Calculate weighted contribution
+                  totalWeightedProgress += childProgress * childDuration;
+                  totalDuration += childDuration;
+                  
+                  // Check if child is completed
+                  if (childInstance && childInstance.progress === 100 && childInstance.status === 'Completed') {
+                    completedChildrenCount++;
+                  }
+                  
+                  return {
+                    id: child.Id,
+                    title: child.Title__c,
+                    description: child.Description__c,
+                    materialType: child.Material_Type__c,
+                    materialUrl: child.Material_URL__c,
+                    duration: childDuration,
+                    category: child.Category__c,
+                    isActive: child.Active__c !== false,
+                    parentId: material.Id,
+                    isChild: true,
+                    instance: childInstance, // Attach instance data to child material
+                  };
+                });
+                
+                // Calculate parent progress as duration-weighted average
+                if (totalDuration > 0) {
+                  calculatedParentProgress = Math.round(totalWeightedProgress / totalDuration);
+                  console.log(`📈 Calculated parent progress: ${calculatedParentProgress}% (weighted by duration)`);
+                }
+                
+                // Check if all children are completed
+                allChildrenCompleted = completedChildrenCount === childMaterials.length && childMaterials.length > 0;
+                
+                console.log(`📚 Found ${childMaterials.length} child materials for ${material.Title__c}, ${completedChildrenCount} completed`);
+              }
             }
           } catch (e) {
             console.log('⚠️ Could not fetch child materials:', e);
@@ -167,18 +235,29 @@ exports.handler = async (event, context) => {
           childMaterials: childMaterials, // Add child materials if this is a parent
         } : null;
 
+        // Use calculated progress if we have children, otherwise use the record's progress
+        const finalProgress = childMaterials.length > 0 ? calculatedParentProgress : (record.Progress__c || 0);
+        
+        // Auto-complete parent if all children are completed
+        let finalStatus = record.Status__c || 'Not Started';
+        if (allChildrenCompleted && childMaterials.length > 0) {
+          finalStatus = 'Completed';
+          console.log(`✅ Auto-completing parent ${material?.Title__c} - all children completed`);
+        }
+        
         return {
           id: record.Id,
           name: record.Name,
           contactId: record.Learner__c,
           learningMaterialId: record.Material__c,
-          progress: record.Progress__c || 0,
-          status: record.Status__c || 'Not Started',
+          progress: finalProgress,
+          status: finalStatus,
           score: record.Score__c || null,
           startedOn: record.Started_On__c || null,
-          completedOn: record.Completed_On__c || null,
+          completedOn: allChildrenCompleted && childMaterials.length > 0 ? new Date().toISOString() : (record.Completed_On__c || null),
           createdDate: record.CreatedDate,
           material: displayMaterial,
+          isParent: !material?.Parent_Material__c && childMaterials.length > 0, // Flag to identify parent instances
         };
       })
     );

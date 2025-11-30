@@ -27,6 +27,13 @@ export interface LearningMaterial {
   parentId: string | null;
   isChild: boolean;
   childMaterials?: LearningMaterial[]; // Child materials nested under parent modules
+  instance?: {
+    id: string;
+    progress: number;
+    status: string;
+    startedOn?: string | null;
+    completedOn?: string | null;
+  }; // Instance data for child materials
 }
 
 export interface LearningMaterialInstance {
@@ -41,6 +48,7 @@ export interface LearningMaterialInstance {
   completedOn: string | null;
   createdDate: string;
   material: LearningMaterial | null;
+  isParent?: boolean; // Flag to identify parent instances (modules with children)
 }
 
 export interface LoginResponse {

@@ -86,6 +86,10 @@ const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) 
 
   const renderChildMaterial = (child: LearningMaterial, parentInstance: LearningMaterialInstance, childIndex: number) => {
     const ChildIcon = getMaterialIcon(child.materialType);
+    const childInstance = child.instance;
+    const childProgress = childInstance?.progress || 0;
+    const childStatus = childInstance?.status || 'Not Started';
+    const childStatusColor = getStatusColor(childStatus);
     
     return (
       <motion.div
@@ -99,13 +103,17 @@ const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) 
           className="bg-card/60 backdrop-blur-sm border border-border/50 cursor-pointer hover:border-brand-primary/50 transition-all"
           onClick={() => {
             // Create a temporary instance for the child material
-            const childInstance: LearningMaterialInstance = {
+            const childInstanceData: LearningMaterialInstance = {
               ...parentInstance,
-              id: `${parentInstance.id}-${child.id}`,
+              id: childInstance?.id || `${parentInstance.id}-${child.id}`,
               learningMaterialId: child.id,
               material: child,
+              progress: childProgress,
+              status: childStatus as 'Not Started' | 'In Progress' | 'Completed',
+              startedOn: childInstance?.startedOn || null,
+              completedOn: childInstance?.completedOn || null,
             };
-            onMaterialClick(childInstance);
+            onMaterialClick(childInstanceData);
           }}
         >
           <CardHeader className="pb-3">
@@ -122,14 +130,28 @@ const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) 
                     {child.description}
                   </p>
                 )}
-                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                <div className="flex items-center gap-3 text-xs text-muted-foreground mb-2">
                   {child.duration > 0 && (
                     <span className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
                       {child.duration} min
                     </span>
                   )}
+                  <span className={`flex items-center gap-1 font-medium ${childStatusColor}`}>
+                    {childStatus === 'Completed' && <CheckCircle2 className="w-3 h-3" />}
+                    {childStatus === 'In Progress' && <Play className="w-3 h-3" />}
+                    {childStatus}
+                  </span>
                 </div>
+                {childInstance && (
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground">Progress</span>
+                      <span className="font-medium">{childProgress}%</span>
+                    </div>
+                    <Progress value={childProgress} className="h-1.5" />
+                  </div>
+                )}
               </div>
             </div>
           </CardHeader>
@@ -272,12 +294,12 @@ const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) 
         </div>
       )}
 
-      {/* Completed Section */}
+      {/* Completed Section - Shows completed parent modules (not child badges) */}
       {completed.length > 0 && (
         <div>
           <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
             <CheckCircle2 className="w-6 h-6 text-green-500" />
-            Completed ({completed.length})
+            Completed Modules ({completed.length})
           </h2>
           <div className="grid gap-4">
             {completed.map((instance, index) => renderMaterialCard(instance, index))}

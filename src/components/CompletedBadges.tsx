@@ -6,7 +6,12 @@ import { Card, CardContent } from './ui/card';
 const CompletedBadges = () => {
   const { completed } = usePortalUser();
 
-  if (completed.length === 0) {
+  // Filter to show only completed child materials (not parent modules)
+  const completedChildren = completed.filter(instance => 
+    instance.material?.isChild === true
+  );
+
+  if (completedChildren.length === 0) {
     return null;
   }
 
@@ -14,10 +19,10 @@ const CompletedBadges = () => {
     <div>
       <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
         <Award className="w-6 h-6 text-yellow-500" />
-        Completed Badges ({completed.length})
+        Completed Badges ({completedChildren.length})
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {completed.map((instance, index) => (
+        {completedChildren.map((instance, index) => (
           <motion.div
             key={instance.id}
             initial={{ opacity: 0, scale: 0.9 }}

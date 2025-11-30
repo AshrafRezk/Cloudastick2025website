@@ -58,44 +58,333 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // If no instanceId but we have contactId and learningMaterialId, create new instance
+    // Helper function to check if material is a child (has a parent)
+    const checkIfChildMaterial = async (materialId) => {
+      try {
+        const materialQuery = `SELECT Id, Parent_Material__c FROM Learning_Material__c WHERE Id = '${materialId.replace(/'/g, "\\'")}' LIMIT 1`;
+        const encodedQuery = encodeURIComponent(materialQuery);
+        const queryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedQuery}`;
+        
+        const response = await fetch(queryUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${access_token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          const material = data.records?.[0];
+          return material?.Parent_Material__c || null;
+        }
+        return null;
+      } catch (e) {
+        console.log('⚠️ Could not check if material is child:', e);
+        return null;
+      }
+    };
+
+    // Helper function to recalculate parent progress
+    const recalculateParentProgress = async (parentMaterialId, contactId) => {
+      try {
+        // Fetch all child materials for the parent
+        const childQuery = `SELECT Id, Duration__c FROM Learning_Material__c WHERE Parent_Material__c = '${parentMaterialId.replace(/'/g, "\\'")}' AND Active__c = true`;
+        const encodedChildQuery = encodeURIComponent(childQuery);
+        const childQueryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedChildQuery}`;
+        
+        const childResponse = await fetch(childQueryUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${access_token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (!childResponse.ok) {
+          console.log('⚠️ Could not fetch child materials for parent recalculation');
+          return;
+        }
+        
+        const childData = await childResponse.json();
+        const childMaterials = childData.records || [];
+        
+        if (childMaterials.length === 0) {
+          return;
+        }
+        
+        const childIds = childMaterials.map(c => c.Id).map(id => `'${id.replace(/'/g, "\\'")}'`).join(',');
+        const escapedContactId = contactId.replace(/'/g, "\\'");
+        
+        // Fetch all child instances
+        const childInstanceQuery = `SELECT Id, Material__c, Progress__c, Status__c FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' AND Material__c IN (${childIds})`;
+        const encodedChildInstanceQuery = encodeURIComponent(childInstanceQuery);
+        const childInstanceQueryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedChildInstanceQuery}`;
+        
+        const childInstanceResponse = await fetch(childInstanceQueryUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${access_token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (!childInstanceResponse.ok) {
+          console.log('⚠️ Could not fetch child instances for parent recalculation');
+          return;
+        }
+        
+        const childInstanceData = await childInstanceResponse.json();
+        const childInstances = childInstanceData.records || [];
+        
+        // Create a map of material ID to instance
+        const instanceMap = {};
+        childInstances.forEach(inst => {
+          instanceMap[inst.Material__c] = inst;
+        });
+        
+        // Calculate duration-weighted progress
+        let totalWeightedProgress = 0;
+        let totalDuration = 0;
+        let completedChildrenCount = 0;
+        
+        childMaterials.forEach(child => {
+          const childDuration = child.Duration__c || 0;
+          const childInstance = instanceMap[child.Id];
+          const childProgress = childInstance ? (childInstance.Progress__c || 0) : 0;
+          
+          totalWeightedProgress += childProgress * childDuration;
+          totalDuration += childDuration;
+          
+          if (childInstance && childInstance.Progress__c === 100 && childInstance.Status__c === 'Completed') {
+            completedChildrenCount++;
+          }
+        });
+        
+        // Find parent instance
+        const parentInstanceQuery = `SELECT Id FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' AND Material__c = '${parentMaterialId.replace(/'/g, "\\'")}' LIMIT 1`;
+        const encodedParentInstanceQuery = encodeURIComponent(parentInstanceQuery);
+        const parentInstanceQueryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedParentInstanceQuery}`;
+        
+        const parentInstanceResponse = await fetch(parentInstanceQueryUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${access_token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (!parentInstanceResponse.ok || !parentInstanceResponse) {
+          console.log('⚠️ Could not find parent instance for recalculation');
+          return;
+        }
+        
+        const parentInstanceData = await parentInstanceResponse.json();
+        const parentInstance = parentInstanceData.records?.[0];
+        
+        if (!parentInstance) {
+          console.log('⚠️ Parent instance not found');
+          return;
+        }
+        
+        // Calculate parent progress
+        const calculatedProgress = totalDuration > 0 ? Math.round(totalWeightedProgress / totalDuration) : 0;
+        const allChildrenCompleted = completedChildrenCount === childMaterials.length && childMaterials.length > 0;
+        
+        // Update parent instance
+        const parentUpdateData = {
+          Progress__c: calculatedProgress,
+        };
+        
+        if (allChildrenCompleted) {
+          parentUpdateData.Status__c = 'Completed';
+          parentUpdateData.Progress__c = 100;
+          parentUpdateData.Completed_On__c = new Date().toISOString();
+        } else if (calculatedProgress > 0) {
+          parentUpdateData.Status__c = 'In Progress';
+        }
+        
+        const parentUpdateUrl = `${instance_url}/services/data/v58.0/sobjects/Learning_Material_Instance__c/${parentInstance.Id}`;
+        const parentUpdateResponse = await fetch(parentUpdateUrl, {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bearer ${access_token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(parentUpdateData),
+        });
+        
+        if (parentUpdateResponse.ok) {
+          console.log(`✅ Recalculated parent progress: ${calculatedProgress}%${allChildrenCompleted ? ' (auto-completed)' : ''}`);
+        } else {
+          const errorText = await parentUpdateResponse.text();
+          console.log('⚠️ Failed to update parent progress:', errorText);
+        }
+      } catch (e) {
+        console.log('⚠️ Error recalculating parent progress:', e);
+      }
+    };
+
+    // If no instanceId but we have contactId and learningMaterialId, upsert (check if exists first)
     if (!instanceId && contactId && learningMaterialId) {
-      console.log('📝 Creating new Learning Material Instance...');
+      console.log('📝 Upserting Learning Material Instance...');
       
-      const newInstanceData = {
-        Learner__c: contactId,
-        Material__c: learningMaterialId, // Field name on Learning_Material_Instance__c is Material__c
-        Progress__c: progress || 0,
-        Status__c: status || 'Not Started',
-        Started_On__c: startedOn || new Date().toISOString(),
-      };
-
-      if (score !== undefined && score !== null) {
-        newInstanceData.Score__c = score;
-      }
-
-      if (completedOn) {
-        newInstanceData.Completed_On__c = completedOn;
-      }
-
-      const createUrl = `${instance_url}/services/data/v58.0/sobjects/Learning_Material_Instance__c`;
+      // Check if instance already exists
+      const escapedContactId = contactId.replace(/'/g, "\\'");
+      const escapedMaterialId = learningMaterialId.replace(/'/g, "\\'");
+      const existingQuery = `SELECT Id FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' AND Material__c = '${escapedMaterialId}' LIMIT 1`;
+      const encodedExistingQuery = encodeURIComponent(existingQuery);
+      const existingQueryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedExistingQuery}`;
       
-      const createResponse = await fetch(createUrl, {
-        method: 'POST',
+      const existingResponse = await fetch(existingQueryUrl, {
+        method: 'GET',
         headers: {
           'Authorization': `Bearer ${access_token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(newInstanceData),
       });
+      
+      let finalInstanceId;
+      let wasCreated = false;
+      
+      if (existingResponse.ok) {
+        const existingData = await existingResponse.json();
+        const existingInstance = existingData.records?.[0];
+        
+        if (existingInstance) {
+          // Update existing instance
+          console.log('📝 Updating existing Learning Material Instance:', existingInstance.Id);
+          finalInstanceId = existingInstance.Id;
+          
+          const updateData = {};
+          if (progress !== undefined && progress !== null) {
+            updateData.Progress__c = Math.min(100, Math.max(0, progress));
+          }
+          if (status) {
+            updateData.Status__c = status;
+          }
+          if (score !== undefined && score !== null) {
+            updateData.Score__c = score;
+          }
+          if (startedOn) {
+            updateData.Started_On__c = startedOn;
+          }
+          if (completedOn) {
+            updateData.Completed_On__c = completedOn;
+          }
+          
+          // Auto-complete logic
+          if (status === 'Completed' && (!updateData.Progress__c || updateData.Progress__c < 100)) {
+            updateData.Progress__c = 100;
+          }
+          if (updateData.Progress__c === 100 && status !== 'Completed') {
+            updateData.Status__c = 'Completed';
+            if (!updateData.Completed_On__c) {
+              updateData.Completed_On__c = new Date().toISOString();
+            }
+          }
+          
+          const updateUrl = `${instance_url}/services/data/v58.0/sobjects/Learning_Material_Instance__c/${finalInstanceId}`;
+          const updateResponse = await fetch(updateUrl, {
+            method: 'PATCH',
+            headers: {
+              'Authorization': `Bearer ${access_token}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updateData),
+          });
+          
+          if (!updateResponse.ok) {
+            const errorText = await updateResponse.text();
+            throw new Error(`Failed to update instance: ${updateResponse.status} - ${errorText}`);
+          }
+        } else {
+          // Create new instance
+          console.log('📝 Creating new Learning Material Instance...');
+          wasCreated = true;
+          
+          const newInstanceData = {
+            Learner__c: contactId,
+            Material__c: learningMaterialId,
+            Progress__c: progress || 0,
+            Status__c: status || 'Not Started',
+            Started_On__c: startedOn || new Date().toISOString(),
+          };
 
-      if (!createResponse.ok) {
-        const errorText = await createResponse.text();
-        throw new Error(`Failed to create instance: ${createResponse.status} - ${errorText}`);
+          if (score !== undefined && score !== null) {
+            newInstanceData.Score__c = score;
+          }
+
+          if (completedOn) {
+            newInstanceData.Completed_On__c = completedOn;
+          }
+
+          const createUrl = `${instance_url}/services/data/v58.0/sobjects/Learning_Material_Instance__c`;
+          const createResponse = await fetch(createUrl, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${access_token}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newInstanceData),
+          });
+
+          if (!createResponse.ok) {
+            const errorText = await createResponse.text();
+            throw new Error(`Failed to create instance: ${createResponse.status} - ${errorText}`);
+          }
+
+          const createData = await createResponse.json();
+          finalInstanceId = createData.id;
+          console.log('✅ Created new Learning Material Instance:', finalInstanceId);
+        }
+      } else {
+        // Query failed, try to create
+        console.log('📝 Creating new Learning Material Instance (query failed, assuming new)...');
+        wasCreated = true;
+        
+        const newInstanceData = {
+          Learner__c: contactId,
+          Material__c: learningMaterialId,
+          Progress__c: progress || 0,
+          Status__c: status || 'Not Started',
+          Started_On__c: startedOn || new Date().toISOString(),
+        };
+
+        if (score !== undefined && score !== null) {
+          newInstanceData.Score__c = score;
+        }
+
+        if (completedOn) {
+          newInstanceData.Completed_On__c = completedOn;
+        }
+
+        const createUrl = `${instance_url}/services/data/v58.0/sobjects/Learning_Material_Instance__c`;
+        const createResponse = await fetch(createUrl, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${access_token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(newInstanceData),
+        });
+
+        if (!createResponse.ok) {
+          const errorText = await createResponse.text();
+          throw new Error(`Failed to create instance: ${createResponse.status} - ${errorText}`);
+        }
+
+        const createData = await createResponse.json();
+        finalInstanceId = createData.id;
+        console.log('✅ Created new Learning Material Instance:', finalInstanceId);
       }
-
-      const createData = await createResponse.json();
-      console.log('✅ Created new Learning Material Instance:', createData.id);
+      
+      // Check if this is a child material and recalculate parent progress
+      const parentMaterialId = await checkIfChildMaterial(learningMaterialId);
+      if (parentMaterialId) {
+        console.log('🔄 Child material detected, recalculating parent progress...');
+        await recalculateParentProgress(parentMaterialId, contactId);
+      }
 
       return {
         statusCode: 200,
@@ -105,8 +394,9 @@ exports.handler = async (event, context) => {
         },
         body: JSON.stringify({ 
           success: true,
-          instanceId: createData.id,
-          created: true
+          instanceId: finalInstanceId,
+          created: wasCreated,
+          updated: !wasCreated
         }),
       };
     }
@@ -182,6 +472,37 @@ exports.handler = async (event, context) => {
     }
 
     console.log('✅ Updated Learning Material Instance successfully');
+    
+    // Check if this is a child material and recalculate parent progress
+    // First, get the material ID from the instance
+    try {
+      const instanceQuery = `SELECT Material__c FROM Learning_Material_Instance__c WHERE Id = '${instanceId.replace(/'/g, "\\'")}' LIMIT 1`;
+      const encodedInstanceQuery = encodeURIComponent(instanceQuery);
+      const instanceQueryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedInstanceQuery}`;
+      
+      const instanceQueryResponse = await fetch(instanceQueryUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (instanceQueryResponse.ok) {
+        const instanceData = await instanceQueryResponse.json();
+        const materialId = instanceData.records?.[0]?.Material__c;
+        
+        if (materialId) {
+          const parentMaterialId = await checkIfChildMaterial(materialId);
+          if (parentMaterialId && contactId) {
+            console.log('🔄 Child material detected, recalculating parent progress...');
+            await recalculateParentProgress(parentMaterialId, contactId);
+          }
+        }
+      }
+    } catch (e) {
+      console.log('⚠️ Could not check for parent recalculation:', e);
+    }
 
     return {
       statusCode: 200,
