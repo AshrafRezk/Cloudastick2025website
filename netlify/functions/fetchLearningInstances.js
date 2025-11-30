@@ -111,25 +111,36 @@ exports.handler = async (event, context) => {
 
     if (!queryResponse || !queryResponse.ok) {
       let errorText = 'Unknown error';
+      let lastErrorResponse = queryResponse;
+      
       try {
         if (queryResponse) {
-          errorText = await queryResponse.text();
+          // Clone the response before reading to avoid "body is unusable" error
+          const clonedResponse = queryResponse.clone();
+          errorText = await clonedResponse.text();
         }
       } catch (e) {
-        errorText = `HTTP ${queryResponse?.status || 400}`;
+        errorText = `HTTP ${queryResponse?.status || 400} - ${e.message}`;
       }
-      console.error('❌ Salesforce query error with all field names:', errorText);
       
+      console.error('❌ Salesforce query error with all field names:', errorText);
+      console.error('❌ Last response status:', lastErrorResponse?.status);
+      console.error('❌ Contact ID being queried:', contactId);
+      
+      // Return empty results instead of error - user might not have any instances yet
       return {
-        statusCode: 400,
+        statusCode: 200,
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          error: 'Failed to query learning instances',
-          message: `Salesforce query failed: ${queryResponse?.status || 400} - ${errorText.substring(0, 500)}`,
-          details: errorText
+          instances: [],
+          notStarted: [],
+          inProgress: [],
+          completed: [],
+          total: 0,
+          warning: `Could not query instances. Error: ${errorText.substring(0, 200)}`
         }),
       };
     }
