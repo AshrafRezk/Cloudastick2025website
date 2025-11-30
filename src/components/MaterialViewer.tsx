@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, Clock, Play, Pause, FileText, Video as VideoIcon } from 'lucide-react';
+import { CheckCircle2, Clock, Play, Pause, FileText, Video as VideoIcon, Save } from 'lucide-react';
 import { usePortalUser } from '../contexts/PortalUserContext';
 import { LearningMaterialInstance } from '../services/learningService';
 import Button from './Button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Progress } from './ui/progress';
+import { Slider } from './ui/slider';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 
 interface MaterialViewerProps {
@@ -17,6 +18,7 @@ interface MaterialViewerProps {
 const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
   const { updateProgress, user } = usePortalUser();
   const [progress, setProgress] = useState(0);
+  const [manualProgress, setManualProgress] = useState([0]);
   const [isTracking, setIsTracking] = useState(false);
   const [viewingTime, setViewingTime] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
@@ -30,6 +32,7 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
   useEffect(() => {
     if (instance) {
       setProgress(instance.progress);
+      setManualProgress([instance.progress]);
       setIsCompleted(instance.status === 'Completed');
       setViewingTime(0);
     }
@@ -98,25 +101,40 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
     }
   };
 
-  const handleMarkComplete = async () => {
-    if (!instance || !instance.id || isCompleted) return;
+  const handleUpdateProgress = async (newProgress: number) => {
+    if (!instance || !instance.id || isUpdating) return;
+
+    const progressValue = Math.min(100, Math.max(0, newProgress));
+    const newStatus = progressValue === 100 ? 'Completed' : progressValue > 0 ? 'In Progress' : 'Not Started';
 
     try {
       setIsUpdating(true);
       stopTracking();
       await updateProgress({
         instanceId: instance.id,
-        progress: 100,
-        status: 'Completed',
-        completedOn: new Date().toISOString(),
+        progress: progressValue,
+        status: newStatus,
+        startedOn: instance.startedOn || new Date().toISOString(),
+        completedOn: progressValue === 100 ? new Date().toISOString() : undefined,
       });
-      setProgress(100);
-      setIsCompleted(true);
+      setProgress(progressValue);
+      setManualProgress([progressValue]);
+      if (progressValue === 100) {
+        setIsCompleted(true);
+      }
     } catch (error) {
-      console.error('Failed to mark as complete:', error);
+      console.error('Failed to update progress:', error);
     } finally {
       setIsUpdating(false);
     }
+  };
+
+  const handleMarkComplete = async () => {
+    await handleUpdateProgress(100);
+  };
+
+  const handleSaveManualProgress = async () => {
+    await handleUpdateProgress(manualProgress[0]);
   };
 
   const handleStartMaterial = async () => {
@@ -184,12 +202,47 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
 
         <div className="flex-1 overflow-auto px-6 py-4">
           {/* Progress Bar */}
-          <div className="mb-4 space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Progress</span>
-              <span className="font-medium">{progress}%</span>
+          <div className="mb-4 space-y-4">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Progress</span>
+                <span className="font-medium">{progress}%</span>
+              </div>
+              <Progress value={progress} className="h-2" />
             </div>
-            <Progress value={progress} className="h-2" />
+
+            {/* Manual Progress Control */}
+            {instance.id && instance.status !== 'Not Started' && !isCompleted && (
+              <div className="space-y-3 p-4 bg-muted/30 rounded-lg border border-border">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-foreground font-medium">Update Progress Manually</span>
+                  <span className="text-muted-foreground">{manualProgress[0]}%</span>
+                </div>
+                <Slider
+                  value={manualProgress}
+                  onValueChange={setManualProgress}
+                  max={100}
+                  min={0}
+                  step={1}
+                  className="w-full"
+                />
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleSaveManualProgress}
+                    disabled={isUpdating || manualProgress[0] === progress}
+                    className="flex items-center gap-2"
+                  >
+                    <Save className="w-4 h-4" />
+                    {isUpdating ? 'Saving...' : 'Save Progress'}
+                  </Button>
+                  <span className="text-xs text-muted-foreground">
+                    Set your progress from 0% to 100%
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Material Content */}
