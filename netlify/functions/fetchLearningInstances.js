@@ -87,55 +87,6 @@ exports.handler = async (event, context) => {
     let records = queryData.records || [];
     console.log(`✅ Found ${records.length} Learning Material Instances`);
 
-    if (!queryResponse || !queryResponse.ok) {
-      let errorText = 'Unknown error';
-      let lastErrorResponse = queryResponse;
-      let lastStatus = queryResponse?.status || 400;
-      
-      try {
-        if (queryResponse) {
-          // Clone the response before reading to avoid "body is unusable" error
-          try {
-            const clonedResponse = queryResponse.clone();
-            errorText = await clonedResponse.text();
-          } catch (cloneError) {
-            // If clone fails, try reading directly
-            errorText = await queryResponse.text();
-          }
-        }
-      } catch (e) {
-        errorText = `HTTP ${lastStatus} - ${e.message || 'Could not read error response'}`;
-      }
-      
-      console.error('❌ Salesforce query error with all field names:', errorText);
-      console.error('❌ Last response status:', lastStatus);
-      console.error('❌ Contact ID being queried:', contactId);
-      console.error('❌ Contact ID length:', contactId?.length);
-      console.error('❌ Contact ID first 20 chars:', contactId?.substring(0, 20));
-      
-      // Return empty results instead of error - user might not have any instances yet
-      // This prevents the UI from breaking and allows us to debug the actual issue
-      return {
-        statusCode: 200,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          instances: [],
-          notStarted: [],
-          inProgress: [],
-          completed: [],
-          total: 0,
-          warning: `Query failed. Check logs for details. Status: ${lastStatus}`,
-          debug: {
-            contactId: contactId?.substring(0, 20) + '...',
-            errorPreview: errorText.substring(0, 300)
-          }
-        }),
-      };
-    }
-
     // Filter out records where material is not active (if Is_Active__c field exists)
     const activeRecords = records.filter(record => {
       const material = record.Learning_Material__r;
