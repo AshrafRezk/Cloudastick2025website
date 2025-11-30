@@ -59,30 +59,41 @@ exports.handler = async (event, context) => {
     let records = [];
     
     for (const fieldName of fieldNames) {
-      const soqlQuery = `SELECT Id, Name, ${fieldName}, Learning_Material__c, Progress__c, Status__c, Score__c, Started_On__c, Completed_On__c, CreatedDate, Learning_Material__r.Id, Learning_Material__r.Title__c, Learning_Material__r.Description__c, Learning_Material__r.Material_Type__c, Learning_Material__r.Material_URL__c, Learning_Material__r.Duration__c, Learning_Material__r.Category__c, Learning_Material__r.Is_Active__c, Learning_Material__r.Parent_Material__c, Learning_Material__r.Parent_Material__r.Id, Learning_Material__r.Parent_Material__r.Title__c FROM Learning_Material_Instance__c WHERE ${fieldName} = '${escapedContactId}' AND Learning_Material__r.Is_Active__c = true ORDER BY CreatedDate ASC`;
+      // Try query without Is_Active filter first, then with filter
+      const queries = [
+        `SELECT Id, Name, ${fieldName}, Learning_Material__c, Progress__c, Status__c, Score__c, Started_On__c, Completed_On__c, CreatedDate, Learning_Material__r.Id, Learning_Material__r.Title__c, Learning_Material__r.Description__c, Learning_Material__r.Material_Type__c, Learning_Material__r.Material_URL__c, Learning_Material__r.Duration__c, Learning_Material__r.Category__c, Learning_Material__r.Is_Active__c, Learning_Material__r.Parent_Material__c, Learning_Material__r.Parent_Material__r.Id, Learning_Material__r.Parent_Material__r.Title__c FROM Learning_Material_Instance__c WHERE ${fieldName} = '${escapedContactId}' ORDER BY CreatedDate ASC`,
+        `SELECT Id, Name, ${fieldName}, Learning_Material__c, Progress__c, Status__c, Score__c, Started_On__c, Completed_On__c, CreatedDate, Learning_Material__r.Id, Learning_Material__r.Title__c, Learning_Material__r.Description__c, Learning_Material__r.Material_Type__c, Learning_Material__r.Material_URL__c, Learning_Material__r.Duration__c, Learning_Material__r.Category__c, Learning_Material__r.Is_Active__c, Learning_Material__r.Parent_Material__c, Learning_Material__r.Parent_Material__r.Id, Learning_Material__r.Parent_Material__r.Title__c FROM Learning_Material_Instance__c WHERE ${fieldName} = '${escapedContactId}' AND Learning_Material__r.Is_Active__c = true ORDER BY CreatedDate ASC`
+      ];
       
-      const encodedQuery = encodeURIComponent(soqlQuery);
-      const queryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedQuery}`;
+      for (const soqlQuery of queries) {
+        const encodedQuery = encodeURIComponent(soqlQuery);
+        const queryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedQuery}`;
 
-      console.log(`📤 Querying Learning Material Instances with field: ${fieldName}...`);
+        console.log(`📤 Querying Learning Material Instances with field: ${fieldName}...`);
+        console.log(`📝 SOQL Query: ${soqlQuery}`);
 
-      queryResponse = await fetch(queryUrl, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${access_token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+        queryResponse = await fetch(queryUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${access_token}`,
+            'Content-Type': 'application/json',
+          },
+        });
 
-      if (queryResponse.ok) {
-        queryData = await queryResponse.json();
-        records = queryData.records || [];
-        console.log(`✅ Successfully queried with field: ${fieldName}`);
-        break; // Success, exit loop
-      } else {
-        const errorText = await queryResponse.text();
-        console.log(`⚠️ Field ${fieldName} failed, trying next...`);
-        // Continue to next field name
+        if (queryResponse.ok) {
+          queryData = await queryResponse.json();
+          records = queryData.records || [];
+          console.log(`✅ Successfully queried with field: ${fieldName}, found ${records.length} records`);
+          break; // Success, exit inner loop
+        } else {
+          const errorText = await queryResponse.text();
+          console.log(`⚠️ Query failed with field ${fieldName}:`, errorText.substring(0, 200));
+          // Continue to next query variant
+        }
+      }
+      
+      if (queryResponse && queryResponse.ok) {
+        break; // Success, exit outer loop
       }
     }
 
@@ -92,24 +103,25 @@ exports.handler = async (event, context) => {
       throw new Error(`Salesforce query failed: ${queryResponse?.status || 400} - ${errorText}`);
     }
 
+    // Filter out records where material is not active (if Is_Active__c field exists)
+    const activeRecords = records.filter(record => {
+      const material = record.Learning_Material__r;
+      // If Is_Active__c field exists and is false, filter it out
+      // If field doesn't exist or is true/null, include it
+      return !material || material.Is_Active__c !== false;
+    });
+
+    console.log(`📊 Filtered ${records.length} records to ${activeRecords.length} active records`);
+
     // Transform records to a cleaner format
     // Handle parent-child material relationships - instances tie to parent materials
-    const instances = records.map((record) => {
+    const instances = activeRecords.map((record) => {
       const material = record.Learning_Material__r;
-      // If this material has a parent, use the parent material info instead
-      // Instances are tied to parent materials (courses), not child materials (lessons)
-      const displayMaterial = material?.Parent_Material__r ? {
-        id: material.Parent_Material__r.Id,
-        title: material.Parent_Material__r.Title__c,
-        description: material.Description__c, // Keep child description if available
-        materialType: material.Material_Type__c,
-        materialUrl: material.Material_URL__c,
-        duration: material.Duration__c || 0,
-        category: material.Category__c,
-        isActive: material.Is_Active__c,
-        parentId: material.Parent_Material__c,
-        isChild: true,
-      } : (material ? {
+      
+      // If this material has a parent, we still show the material itself
+      // but we can use parent info for grouping/display if needed
+      // Instances are tied to the material specified, which could be parent or child
+      const displayMaterial = material ? {
         id: material.Id,
         title: material.Title__c,
         description: material.Description__c,
@@ -117,10 +129,11 @@ exports.handler = async (event, context) => {
         materialUrl: material.Material_URL__c,
         duration: material.Duration__c || 0,
         category: material.Category__c,
-        isActive: material.Is_Active__c,
-        parentId: material.Parent_Material__c,
-        isChild: false,
-      } : null);
+        isActive: material.Is_Active__c !== false,
+        parentId: material.Parent_Material__c || null,
+        parentTitle: material.Parent_Material__r?.Title__c || null,
+        isChild: !!material.Parent_Material__c,
+      } : null;
 
       return {
         id: record.Id,
