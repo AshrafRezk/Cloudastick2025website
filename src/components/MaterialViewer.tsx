@@ -212,7 +212,7 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
             </div>
 
             {/* Manual Progress Control */}
-            {instance.id && instance.status !== 'Not Started' && !isCompleted && (
+            {instance.id && !isCompleted && (
               <div className="space-y-3 p-4 bg-muted/30 rounded-lg border border-border">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-foreground font-medium">Update Progress Manually</span>
