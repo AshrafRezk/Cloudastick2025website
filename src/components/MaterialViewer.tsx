@@ -134,7 +134,32 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
   };
 
   const handleSaveManualProgress = async () => {
-    await handleUpdateProgress(manualProgress[0]);
+    // If no instance exists yet, create one first
+    if (!instance.id && material && user) {
+      try {
+        setIsUpdating(true);
+        await updateProgress({
+          contactId: user.id,
+          learningMaterialId: material.id,
+          progress: manualProgress[0],
+          status: manualProgress[0] === 100 ? 'Completed' : manualProgress[0] > 0 ? 'In Progress' : 'Not Started',
+          startedOn: new Date().toISOString(),
+          completedOn: manualProgress[0] === 100 ? new Date().toISOString() : undefined,
+        });
+        setProgress(manualProgress[0]);
+        if (manualProgress[0] === 100) {
+          setIsCompleted(true);
+        }
+        // Close viewer to allow refresh - user can reopen to see updated instance
+        onClose();
+      } catch (error) {
+        console.error('Failed to save progress:', error);
+      } finally {
+        setIsUpdating(false);
+      }
+    } else {
+      await handleUpdateProgress(manualProgress[0]);
+    }
   };
 
   const handleStartMaterial = async () => {
@@ -212,7 +237,7 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
             </div>
 
             {/* Manual Progress Control */}
-            {instance.id && !isCompleted && (
+            {!isCompleted && (
               <div className="space-y-3 p-4 bg-muted/30 rounded-lg border border-border">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-foreground font-medium">Update Progress Manually</span>
@@ -231,11 +256,11 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
                     variant="outline"
                     size="sm"
                     onClick={handleSaveManualProgress}
-                    disabled={isUpdating || manualProgress[0] === progress}
+                    disabled={isUpdating || manualProgress[0] === progress || !instance.id}
                     className="flex items-center gap-2"
                   >
                     <Save className="w-4 h-4" />
-                    {isUpdating ? 'Saving...' : 'Save Progress'}
+                    {isUpdating ? 'Saving...' : instance.id ? 'Save Progress' : 'Start & Save Progress'}
                   </Button>
                   <span className="text-xs text-muted-foreground">
                     Set your progress from 0% to 100%
