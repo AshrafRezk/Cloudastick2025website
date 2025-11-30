@@ -169,7 +169,7 @@ exports.handler = async (event, context) => {
             
             if (childResponse.ok) {
               const childData = await childResponse.json();
-              childMaterials = (childData.records || []).map((child: any) => ({
+              childMaterials = (childData.records || []).map((child) => ({
                 id: child.Id,
                 title: child.Title__c,
                 description: child.Description__c,
