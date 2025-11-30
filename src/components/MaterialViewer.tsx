@@ -222,16 +222,33 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
   const getEmbeddableUrl = (url: string | null): string | null => {
     if (!url) return null;
     
-    // Check if it's a Google Drive link
-    const driveMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
-    if (driveMatch) {
-      const fileId = driveMatch[1];
-      return `https://drive.google.com/file/d/${fileId}/preview`;
-    }
-    
     // Check if it's already a preview link
     if (url.includes('drive.google.com/file/d/') && url.includes('/preview')) {
       return url;
+    }
+    
+    // Extract file ID from various Google Drive URL formats
+    // Format 1: https://drive.google.com/file/d/FILE_ID/view?usp=sharing
+    // Format 2: https://drive.google.com/file/d/FILE_ID/view
+    // Format 3: https://drive.google.com/file/d/FILE_ID
+    // Format 4: https://drive.google.com/open?id=FILE_ID
+    let fileId: string | null = null;
+    
+    // Try format 1-3: /file/d/FILE_ID
+    const driveMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if (driveMatch) {
+      fileId = driveMatch[1];
+    } else {
+      // Try format 4: /open?id=FILE_ID
+      const openMatch = url.match(/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/);
+      if (openMatch) {
+        fileId = openMatch[1];
+      }
+    }
+    
+    // If we found a file ID, convert to preview format
+    if (fileId) {
+      return `https://drive.google.com/file/d/${fileId}/preview`;
     }
     
     return url;
