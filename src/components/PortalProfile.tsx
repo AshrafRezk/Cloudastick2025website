@@ -9,7 +9,7 @@ import {
   Engineering,
   AccountCircle,
   Face,
-  Badge
+  Badge as BadgeIcon
 } from '@mui/icons-material';
 import { usePortalUser } from '../contexts/PortalUserContext';
 import Button from './Button';
@@ -25,7 +25,7 @@ const avatarOptions = [
   School,
   AccountCircle,
   Face,
-  Badge
+  BadgeIcon
 ];
 
 const getRandomAvatar = (userId: string): React.ComponentType<any> => {
@@ -144,9 +144,36 @@ const PortalProfile = () => {
 
         {/* Certifications List */}
         {user.certificationsList && (
-          <div className="mt-6 p-4 bg-muted/30 rounded-lg border border-border">
-            <div className="text-sm font-medium text-foreground mb-2">Certifications:</div>
-            <div className="text-sm text-muted-foreground">{user.certificationsList}</div>
+          <div className="mt-6">
+            <div className="text-sm font-medium text-foreground mb-4 flex items-center gap-2">
+              <Award className="w-5 h-5 text-yellow-500" />
+              Salesforce Certifications
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {user.certificationsList
+                .split(';')
+                .map(cert => cert.trim())
+                .filter(cert => cert.length > 0)
+                .map((certification, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: index * 0.05 }}
+                  >
+                    <div className="flex items-center gap-3 p-3 bg-gradient-to-br from-yellow-500/10 to-yellow-600/10 border border-yellow-500/20 rounded-lg hover:border-yellow-500/40 transition-colors">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-500 to-yellow-600 flex items-center justify-center flex-shrink-0">
+                        <BadgeIcon style={{ fontSize: '1.5rem', color: 'white' }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium text-foreground line-clamp-2">
+                          {certification}
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+            </div>
           </div>
         )}
       </CardContent>
