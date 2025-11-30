@@ -96,7 +96,7 @@ exports.handler = async (event, context) => {
 
     // Query Contact by Portal_Username__c
     const escapedUsername = username.replace(/'/g, "\\'");
-    const soqlQuery = `SELECT Id, Name, Email, Portal_Username__c, Portal_Password__c, Portal_Is_Portal_Active__c, Portal_LMS_Access__c, LinkedInURL__c, TrailheadProfileURL__c, NumberofCertifications__c, Certifications_List__c FROM Contact WHERE Portal_Username__c = '${escapedUsername}' LIMIT 1`;
+    const soqlQuery = `SELECT Id, Name, Email, Portal_Username__c, Portal_Password__c, Portal_Access__c, Portal_LMS_Access__c, LinkedInURL__c, TrailheadProfileURL__c, NumberofCertifications__c, Certifications_List__c FROM Contact WHERE Portal_Username__c = '${escapedUsername}' LIMIT 1`;
     
     const encodedQuery = encodeURIComponent(soqlQuery);
     const queryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedQuery}`;
@@ -136,7 +136,7 @@ exports.handler = async (event, context) => {
     const contact = records[0];
 
     // Check if portal is active
-    if (!contact.Portal_Is_Portal_Active__c) {
+    if (!contact.Portal_Access__c) {
       return {
         statusCode: 403,
         headers: {
