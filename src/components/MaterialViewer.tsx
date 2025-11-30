@@ -102,48 +102,18 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
   };
 
   const handleUpdateProgress = async (newProgress: number) => {
-    if (!instance || isUpdating) return;
+    if (!instance || !instance.id || isUpdating) return;
 
     // Check if instance.id is a composite ID (contains hyphen and looks like two IDs)
-    // If so, we need to create a new instance or use the parent instance
-    const isCompositeId = instance.id && instance.id.includes('-') && instance.id.length > 18;
+    // Composite IDs are not valid Salesforce IDs, so we can't update them
+    const isCompositeId = instance.id.includes('-') && instance.id.length > 18;
     
-    // If it's a composite ID or no instance ID, create/update using material and contact
-    if (isCompositeId || !instance.id) {
-      if (!material || !user) return;
-      
-      try {
-        setIsUpdating(true);
-        stopTracking();
-        const progressValue = Math.min(100, Math.max(0, newProgress));
-        const newStatus = progressValue === 100 ? 'Completed' : progressValue > 0 ? 'In Progress' : 'Not Started';
-        
-        await updateProgress({
-          contactId: user.id,
-          learningMaterialId: material.id,
-          progress: progressValue,
-          status: newStatus,
-          startedOn: instance.startedOn || new Date().toISOString(),
-          completedOn: progressValue === 100 ? new Date().toISOString() : undefined,
-        });
-        setProgress(progressValue);
-        setManualProgress([progressValue]);
-        if (progressValue === 100) {
-          setIsCompleted(true);
-        }
-        // Close viewer to allow refresh - user can reopen to see updated instance
-        onClose();
-      } catch (error) {
-        console.error('Failed to update progress:', error);
-      } finally {
-        setIsUpdating(false);
-      }
+    if (isCompositeId) {
+      console.warn('Cannot update progress for composite ID. Instance must exist in Salesforce first.');
       return;
     }
 
-    // Normal update for existing instance with valid Salesforce ID
-    if (!instance.id) return;
-
+    // Only update existing instances with valid Salesforce IDs
     const progressValue = Math.min(100, Math.max(0, newProgress));
     const newStatus = progressValue === 100 ? 'Completed' : progressValue > 0 ? 'In Progress' : 'Not Started';
 
@@ -174,32 +144,13 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
   };
 
   const handleSaveManualProgress = async () => {
-    // If no instance exists yet, create one first
-    if (!instance.id && material && user) {
-      try {
-        setIsUpdating(true);
-        await updateProgress({
-          contactId: user.id,
-          learningMaterialId: material.id,
-          progress: manualProgress[0],
-          status: manualProgress[0] === 100 ? 'Completed' : manualProgress[0] > 0 ? 'In Progress' : 'Not Started',
-          startedOn: new Date().toISOString(),
-          completedOn: manualProgress[0] === 100 ? new Date().toISOString() : undefined,
-        });
-        setProgress(manualProgress[0]);
-        if (manualProgress[0] === 100) {
-          setIsCompleted(true);
-        }
-        // Close viewer to allow refresh - user can reopen to see updated instance
-        onClose();
-      } catch (error) {
-        console.error('Failed to save progress:', error);
-      } finally {
-        setIsUpdating(false);
-      }
-    } else {
-      await handleUpdateProgress(manualProgress[0]);
+    // Only update existing instances - never create new ones
+    if (!instance.id) {
+      console.warn('Cannot save progress: No instance exists. Instance must be created in Salesforce first.');
+      return;
     }
+    
+    await handleUpdateProgress(manualProgress[0]);
   };
 
   const handleStartMaterial = async () => {
@@ -276,8 +227,8 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
               <Progress value={progress} className="h-2" />
             </div>
 
-            {/* Manual Progress Control */}
-            {!isCompleted && (
+            {/* Manual Progress Control - Only show for existing instances */}
+            {!isCompleted && instance.id && (
               <div className="space-y-3 p-4 bg-muted/30 rounded-lg border border-border">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-foreground font-medium">Update Progress Manually</span>
@@ -296,11 +247,11 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
                     variant="outline"
                     size="sm"
                     onClick={handleSaveManualProgress}
-                    disabled={isUpdating || manualProgress[0] === progress || !instance.id}
+                    disabled={isUpdating || manualProgress[0] === progress}
                     className="flex items-center gap-2"
                   >
                     <Save className="w-4 h-4" />
-                    {isUpdating ? 'Saving...' : instance.id ? 'Save Progress' : 'Start & Save Progress'}
+                    {isUpdating ? 'Saving...' : 'Save Progress'}
                   </Button>
                   <span className="text-xs text-muted-foreground">
                     Set your progress from 0% to 100%
