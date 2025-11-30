@@ -2,7 +2,7 @@
 
 ## Experience
 - Years: 3
-- Certificates: 0
+- Certificates: 3
 
 ## Career Track
 - Cloudastick Systems (2025-Present)
