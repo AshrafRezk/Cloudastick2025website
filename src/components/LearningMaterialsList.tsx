@@ -1,7 +1,8 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { BookOpen, Play, CheckCircle2, Clock, FileText, Video, GraduationCap } from 'lucide-react';
+import { BookOpen, Play, CheckCircle2, Clock, FileText, Video, GraduationCap, ChevronDown, ChevronRight } from 'lucide-react';
 import { usePortalUser } from '../contexts/PortalUserContext';
-import { LearningMaterialInstance } from '../services/learningService';
+import { LearningMaterialInstance, LearningMaterial } from '../services/learningService';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Progress } from './ui/progress';
 
@@ -69,12 +70,82 @@ const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) 
     );
   }
 
+  const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
+
+  const toggleModule = (instanceId: string) => {
+    setExpandedModules(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(instanceId)) {
+        newSet.delete(instanceId);
+      } else {
+        newSet.add(instanceId);
+      }
+      return newSet;
+    });
+  };
+
+  const renderChildMaterial = (child: LearningMaterial, parentInstance: LearningMaterialInstance, childIndex: number) => {
+    const ChildIcon = getMaterialIcon(child.materialType);
+    
+    return (
+      <motion.div
+        key={child.id}
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: childIndex * 0.03 }}
+        className="ml-8 mt-2"
+      >
+        <Card
+          className="bg-card/60 backdrop-blur-sm border border-border/50 cursor-pointer hover:border-brand-primary/50 transition-all"
+          onClick={() => {
+            // Create a temporary instance for the child material
+            const childInstance: LearningMaterialInstance = {
+              ...parentInstance,
+              id: `${parentInstance.id}-${child.id}`,
+              learningMaterialId: child.id,
+              material: child,
+            };
+            onMaterialClick(childInstance);
+          }}
+        >
+          <CardHeader className="pb-3">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-primary/80 to-brand-secondary/80 flex items-center justify-center flex-shrink-0">
+                <ChildIcon className="w-4 h-4 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <CardTitle className="text-base mb-1 line-clamp-2">
+                  {child.title}
+                </CardTitle>
+                {child.description && (
+                  <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
+                    {child.description}
+                  </p>
+                )}
+                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                  {child.duration > 0 && (
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {child.duration} min
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </CardHeader>
+        </Card>
+      </motion.div>
+    );
+  };
+
   const renderMaterialCard = (instance: LearningMaterialInstance, index: number) => {
     if (!instance.material) return null;
 
     const MaterialIcon = getMaterialIcon(instance.material.materialType);
     const statusColor = getStatusColor(instance.status);
     const statusBgColor = getStatusBgColor(instance.status);
+    const hasChildren = instance.material.childMaterials && instance.material.childMaterials.length > 0;
+    const isExpanded = expandedModules.has(instance.id);
 
     return (
       <motion.div
@@ -85,18 +156,32 @@ const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) 
       >
         <Card
           className={`bg-card/80 backdrop-blur-sm border cursor-pointer hover:border-brand-primary/50 transition-all ${statusBgColor}`}
-          onClick={() => onMaterialClick(instance)}
         >
-          <CardHeader>
+          <CardHeader
+            onClick={() => {
+              if (hasChildren) {
+                toggleModule(instance.id);
+              } else {
+                onMaterialClick(instance);
+              }
+            }}
+          >
             <div className="flex items-start justify-between">
               <div className="flex items-start gap-4 flex-1">
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-brand-primary to-brand-secondary flex items-center justify-center flex-shrink-0">
                   <MaterialIcon className="w-6 h-6 text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <CardTitle className="text-lg mb-1 line-clamp-2">
-                    {instance.material.title}
-                  </CardTitle>
+                  <div className="flex items-center gap-2">
+                    <CardTitle className="text-lg mb-1 line-clamp-2">
+                      {instance.material.title}
+                    </CardTitle>
+                    {hasChildren && (
+                      <span className="text-xs text-muted-foreground">
+                        ({instance.material.childMaterials?.length} materials)
+                      </span>
+                    )}
+                  </div>
                   {instance.material.description && (
                     <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
                       {instance.material.description}
@@ -120,6 +205,15 @@ const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) 
                   </div>
                 </div>
               </div>
+              {hasChildren && (
+                <div className="flex-shrink-0">
+                  {isExpanded ? (
+                    <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                  ) : (
+                    <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                  )}
+                </div>
+              )}
             </div>
           </CardHeader>
           <CardContent>
@@ -136,6 +230,15 @@ const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) 
               </div>
             )}
           </CardContent>
+          {hasChildren && isExpanded && (
+            <CardContent className="pt-0 border-t border-border/50">
+              <div className="space-y-2">
+                {instance.material.childMaterials?.map((child, childIndex) =>
+                  renderChildMaterial(child, instance, childIndex)
+                )}
+              </div>
+            </CardContent>
+          )}
         </Card>
       </motion.div>
     );

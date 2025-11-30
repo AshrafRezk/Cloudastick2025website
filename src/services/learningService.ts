@@ -24,6 +24,9 @@ export interface LearningMaterial {
   duration: number;
   category: string | null;
   isActive: boolean;
+  parentId: string | null;
+  isChild: boolean;
+  childMaterials?: LearningMaterial[]; // Child materials nested under parent modules
 }
 
 export interface LearningMaterialInstance {

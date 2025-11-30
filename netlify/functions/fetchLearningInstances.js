@@ -103,9 +103,10 @@ exports.handler = async (event, context) => {
       activeRecords.map(async (record) => {
         const material = record.Material__r;
         
-        // If this is a parent material (Course), fetch child materials
+        // If this is a parent material (Module/Course), fetch child materials
+        // The instance is tied to the parent, and child materials are nested underneath
         let childMaterials = [];
-        if (material && !material.Parent_Material__c && material.Material_Type__c === 'Course') {
+        if (material && !material.Parent_Material__c) {
           try {
             const childQuery = `SELECT Id, Title__c, Description__c, Material_Type__c, Material_URL__c, Duration__c, Category__c, Active__c FROM Learning_Material__c WHERE Parent_Material__c = '${material.Id}' AND Active__c = true ORDER BY CreatedDate ASC`;
             const encodedChildQuery = encodeURIComponent(childQuery);
@@ -171,27 +172,9 @@ exports.handler = async (event, context) => {
       })
     );
     
-    // Flatten instances: if a parent material has children, create separate instances for each child
-    // but keep the parent instance too for the course overview
-    const instances = [];
-    instancesWithChildren.forEach((instance) => {
-      // Add the parent instance
-      instances.push(instance);
-      
-      // If parent has child materials, add instances for each child
-      if (instance.material?.childMaterials && instance.material.childMaterials.length > 0) {
-        instance.material.childMaterials.forEach((child) => {
-          instances.push({
-            ...instance,
-            id: `${instance.id}-${child.id}`, // Unique ID for child instance
-            learningMaterialId: child.id,
-            material: child,
-            isChildInstance: true,
-            parentInstanceId: instance.id,
-          });
-        });
-      }
-    });
+    // Keep instances as-is: parent instances contain child materials nested within them
+    // The frontend will handle displaying the hierarchy (module with materials underneath)
+    const instances = instancesWithChildren;
 
     console.log(`✅ Fetched ${instances.length} learning material instances`);
     console.log('📊 Instance details:', JSON.stringify(instances.map(i => ({
