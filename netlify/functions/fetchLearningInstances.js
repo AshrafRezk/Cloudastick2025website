@@ -89,11 +89,22 @@ exports.handler = async (event, context) => {
     console.log(`✅ Found ${records.length} Learning Material Instances`);
 
     // Filter out records where material is not active (if Active__c field exists)
+    // Also filter out instances tied to child materials - they should only appear nested under parents
     const activeRecords = records.filter(record => {
       const material = record.Material__r;
       // If Active__c field exists and is false, filter it out
       // If field doesn't exist or is true/null, include it
-      return !material || material.Active__c !== false;
+      if (!material || material.Active__c === false) {
+        return false;
+      }
+      // Filter out instances tied to child materials (materials with a parent)
+      // Child material instances should not appear as separate items in the list
+      // They will be shown nested under their parent material
+      if (material.Parent_Material__c) {
+        console.log(`⚠️ Filtering out child material instance: ${record.Id} (Material: ${material.Title__c})`);
+        return false;
+      }
+      return true;
     });
 
     console.log(`📊 Filtered ${records.length} records to ${activeRecords.length} active records`);
