@@ -337,7 +337,7 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
               </div>
             ) : isPDF ? (
               <iframe
-                src={materialUrl}
+                src={embeddableUrl || materialUrl || ''}
                 className="w-full h-[600px] border-0"
                 title={material.title}
               />
