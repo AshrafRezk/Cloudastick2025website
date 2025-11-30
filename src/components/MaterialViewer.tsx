@@ -218,6 +218,27 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
   const isVideo = material.materialType === 'Video';
   const materialUrl = material.materialUrl;
 
+  // Convert Google Drive sharing link to embeddable preview link
+  const getEmbeddableUrl = (url: string | null): string | null => {
+    if (!url) return null;
+    
+    // Check if it's a Google Drive link
+    const driveMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if (driveMatch) {
+      const fileId = driveMatch[1];
+      return `https://drive.google.com/file/d/${fileId}/preview`;
+    }
+    
+    // Check if it's already a preview link
+    if (url.includes('drive.google.com/file/d/') && url.includes('/preview')) {
+      return url;
+    }
+    
+    return url;
+  };
+
+  const embeddableUrl = getEmbeddableUrl(materialUrl);
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden flex flex-col p-0">
@@ -305,7 +326,7 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
               />
             ) : isVideo ? (
               <div className="w-full">
-                {materialUrl.includes('youtube.com') || materialUrl.includes('youtu.be') ? (
+                {materialUrl && (materialUrl.includes('youtube.com') || materialUrl.includes('youtu.be')) ? (
                   <div className="aspect-video">
                     <iframe
                       src={materialUrl.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
@@ -315,9 +336,19 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
                       title={material.title}
                     />
                   </div>
+                ) : embeddableUrl && embeddableUrl.includes('drive.google.com') ? (
+                  <div className="aspect-video">
+                    <iframe
+                      src={embeddableUrl}
+                      className="w-full h-full border-0"
+                      allow="autoplay"
+                      allowFullScreen
+                      title={material.title}
+                    />
+                  </div>
                 ) : (
                   <video
-                    src={materialUrl}
+                    src={materialUrl || ''}
                     controls
                     className="w-full"
                     onPlay={() => !isTracking && startTracking()}
