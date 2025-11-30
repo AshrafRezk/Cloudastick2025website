@@ -112,22 +112,31 @@ exports.handler = async (event, context) => {
     if (!queryResponse || !queryResponse.ok) {
       let errorText = 'Unknown error';
       let lastErrorResponse = queryResponse;
+      let lastStatus = queryResponse?.status || 400;
       
       try {
         if (queryResponse) {
           // Clone the response before reading to avoid "body is unusable" error
-          const clonedResponse = queryResponse.clone();
-          errorText = await clonedResponse.text();
+          try {
+            const clonedResponse = queryResponse.clone();
+            errorText = await clonedResponse.text();
+          } catch (cloneError) {
+            // If clone fails, try reading directly
+            errorText = await queryResponse.text();
+          }
         }
       } catch (e) {
-        errorText = `HTTP ${queryResponse?.status || 400} - ${e.message}`;
+        errorText = `HTTP ${lastStatus} - ${e.message || 'Could not read error response'}`;
       }
       
       console.error('❌ Salesforce query error with all field names:', errorText);
-      console.error('❌ Last response status:', lastErrorResponse?.status);
+      console.error('❌ Last response status:', lastStatus);
       console.error('❌ Contact ID being queried:', contactId);
+      console.error('❌ Contact ID length:', contactId?.length);
+      console.error('❌ Contact ID first 20 chars:', contactId?.substring(0, 20));
       
       // Return empty results instead of error - user might not have any instances yet
+      // This prevents the UI from breaking and allows us to debug the actual issue
       return {
         statusCode: 200,
         headers: {
@@ -140,7 +149,11 @@ exports.handler = async (event, context) => {
           inProgress: [],
           completed: [],
           total: 0,
-          warning: `Could not query instances. Error: ${errorText.substring(0, 200)}`
+          warning: `Query failed. Check logs for details. Status: ${lastStatus}`,
+          debug: {
+            contactId: contactId?.substring(0, 20) + '...',
+            errorPreview: errorText.substring(0, 300)
+          }
         }),
       };
     }
