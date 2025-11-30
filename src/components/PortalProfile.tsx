@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Linkedin, Award, ExternalLink, LogOut, ChevronDown, ChevronUp } from 'lucide-react';
+import { Mail, Linkedin, Award, ExternalLink, LogOut, ChevronDown, ChevronUp, Link2 } from 'lucide-react';
 import { 
   Person, 
   BusinessCenter, 
@@ -16,6 +16,8 @@ import { usePortalUser } from '../contexts/PortalUserContext';
 import Button from './Button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
+import { Input } from './ui/input';
 
 // Material 3 icon components for avatars
 const avatarOptions = [
@@ -37,8 +39,12 @@ const getRandomAvatar = (userId: string): React.ComponentType<any> => {
 };
 
 const PortalProfile = () => {
-  const { user, logout, completed } = usePortalUser();
+  const { user, logout, completed, updateTrailheadUrl } = usePortalUser();
   const [isCertificationsOpen, setIsCertificationsOpen] = useState(false);
+  const [isTrailheadModalOpen, setIsTrailheadModalOpen] = useState(false);
+  const [trailheadUrlInput, setTrailheadUrlInput] = useState('');
+  const [isUpdatingTrailhead, setIsUpdatingTrailhead] = useState(false);
+  const [trailheadError, setTrailheadError] = useState<string | null>(null);
 
   if (!user) {
     return null;
@@ -53,6 +59,45 @@ const PortalProfile = () => {
         .map(cert => cert.trim())
         .filter(cert => cert.length > 0)
     : [];
+
+  const handleOpenTrailheadModal = () => {
+    setTrailheadUrlInput(user.trailheadUrl || '');
+    setTrailheadError(null);
+    setIsTrailheadModalOpen(true);
+  };
+
+  const handleCloseTrailheadModal = () => {
+    setIsTrailheadModalOpen(false);
+    setTrailheadUrlInput('');
+    setTrailheadError(null);
+  };
+
+  const handleSaveTrailheadUrl = async () => {
+    if (!trailheadUrlInput.trim()) {
+      setTrailheadError('Please enter a Trailhead profile URL');
+      return;
+    }
+
+    // Basic URL validation
+    try {
+      new URL(trailheadUrlInput.trim());
+    } catch {
+      setTrailheadError('Please enter a valid URL');
+      return;
+    }
+
+    try {
+      setIsUpdatingTrailhead(true);
+      setTrailheadError(null);
+      await updateTrailheadUrl(trailheadUrlInput.trim());
+      setIsTrailheadModalOpen(false);
+      setTrailheadUrlInput('');
+    } catch (error) {
+      setTrailheadError(error instanceof Error ? error.message : 'Failed to update Trailhead URL');
+    } finally {
+      setIsUpdatingTrailhead(false);
+    }
+  };
 
   return (
     <Card className="bg-card/80 backdrop-blur-sm border-border">
@@ -105,26 +150,51 @@ const PortalProfile = () => {
             </motion.a>
           )}
 
-          {/* Trailhead Link */}
-          {user.trailheadUrl && (
-            <motion.a
-              href={user.trailheadUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              whileHover={{ scale: 1.02 }}
-              className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border border-border hover:border-brand-primary/30 transition-colors"
-            >
+          {/* Trailhead Link or Link Button */}
+          {user.trailheadUrl ? (
+            <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border border-border">
               <div className="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center">
                 <Award className="w-5 h-5 text-white" />
               </div>
               <div className="flex-1">
                 <div className="text-sm text-muted-foreground">Trailhead</div>
-                <div className="text-sm font-medium text-foreground flex items-center gap-1">
+                <a
+                  href={user.trailheadUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-medium text-foreground flex items-center gap-1 hover:underline"
+                >
                   View Profile
                   <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleOpenTrailheadModal}
+                className="flex items-center gap-1"
+              >
+                <Link2 className="w-3 h-3" />
+                Update
+              </Button>
+            </div>
+          ) : (
+            <motion.button
+              onClick={handleOpenTrailheadModal}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border border-border hover:border-brand-primary/30 transition-colors text-left w-full"
+            >
+              <div className="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center">
+                <Link2 className="w-5 h-5 text-white" />
+              </div>
+              <div className="flex-1">
+                <div className="text-sm text-muted-foreground">Trailhead</div>
+                <div className="text-sm font-medium text-foreground">
+                  Link your Trailhead profile
                 </div>
               </div>
-            </motion.a>
+            </motion.button>
           )}
 
           {/* Certifications Count */}
@@ -214,6 +284,60 @@ const PortalProfile = () => {
           </Collapsible>
         )}
       </CardContent>
+
+      {/* Trailhead URL Modal */}
+      <Dialog open={isTrailheadModalOpen} onOpenChange={setIsTrailheadModalOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Link Your Trailhead Profile</DialogTitle>
+            <DialogDescription>
+              Paste your Trailhead profile URL to link it to your account.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label htmlFor="trailhead-url" className="text-sm font-medium text-foreground">
+                Trailhead Profile URL
+              </label>
+              <Input
+                id="trailhead-url"
+                type="url"
+                placeholder="https://trailblazer.me/id/..."
+                value={trailheadUrlInput}
+                onChange={(e) => {
+                  setTrailheadUrlInput(e.target.value);
+                  setTrailheadError(null);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleSaveTrailheadUrl();
+                  }
+                }}
+                className={trailheadError ? 'border-red-500' : ''}
+              />
+              {trailheadError && (
+                <p className="text-sm text-red-500">{trailheadError}</p>
+              )}
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={handleCloseTrailheadModal}
+                disabled={isUpdatingTrailhead}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleSaveTrailheadUrl}
+                disabled={isUpdatingTrailhead || !trailheadUrlInput.trim()}
+              >
+                {isUpdatingTrailhead ? 'Saving...' : 'Save'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };

@@ -71,6 +71,13 @@ export interface UpdateProgressResponse {
   updated?: boolean;
 }
 
+export interface UpdateTrailheadResponse {
+  success: boolean;
+  message: string;
+  contactId: string;
+  trailheadUrl: string;
+}
+
 /**
  * Login with portal credentials
  */
@@ -181,6 +188,41 @@ export const updateLearningProgress = async (
     return data;
   } catch (error) {
     console.error('Update progress error:', error);
+    throw error;
+  }
+};
+
+/**
+ * Update Contact's Trailhead Profile URL
+ */
+export const updateTrailheadUrl = async (
+  contactId: string,
+  trailheadUrl: string,
+  authData: { access_token: string; instance_url: string }
+): Promise<UpdateTrailheadResponse> => {
+  try {
+    const response = await fetch('/.netlify/functions/updateContactTrailhead', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        access_token: authData.access_token,
+        instance_url: authData.instance_url,
+        contactId,
+        trailheadUrl,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `Failed to update Trailhead URL: ${response.status}`);
+    }
+
+    const data: UpdateTrailheadResponse = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Update Trailhead URL error:', error);
     throw error;
   }
 };

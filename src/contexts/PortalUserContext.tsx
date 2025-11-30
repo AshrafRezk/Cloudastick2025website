@@ -9,10 +9,12 @@ import {
   loginContact,
   fetchLearningInstances,
   updateLearningProgress,
+  updateTrailheadUrl,
   type Contact,
   type LearningMaterialInstance,
   type FetchInstancesResponse,
   type UpdateProgressResponse,
+  type UpdateTrailheadResponse,
 } from '../services/learningService';
 
 interface PortalUserContextType {
@@ -36,6 +38,7 @@ interface PortalUserContextType {
     startedOn?: string;
     completedOn?: string;
   }) => Promise<UpdateProgressResponse>;
+  updateTrailheadUrl: (trailheadUrl: string) => Promise<UpdateTrailheadResponse>;
 }
 
 const PortalUserContext = createContext<PortalUserContextType | undefined>(undefined);
@@ -213,6 +216,37 @@ export const PortalUserProvider = ({ children }: PortalUserProviderProps) => {
     }
   };
 
+  /**
+   * Update Trailhead Profile URL
+   */
+  const updateTrailheadUrlHandler = async (trailheadUrl: string): Promise<UpdateTrailheadResponse> => {
+    if (!authData || !user) {
+      throw new Error('Salesforce authentication and user required');
+    }
+
+    try {
+      const result = await updateTrailheadUrl(
+        user.id,
+        trailheadUrl,
+        {
+          access_token: authData.access_token,
+          instance_url: authData.instance_url,
+        }
+      );
+
+      // Update user in state and localStorage
+      const updatedUser = { ...user, trailheadUrl };
+      setUser(updatedUser);
+      saveStoredUser(updatedUser);
+      
+      return result;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update Trailhead URL';
+      setError(errorMessage);
+      throw err;
+    }
+  };
+
   return (
     <PortalUserContext.Provider
       value={{
@@ -227,6 +261,7 @@ export const PortalUserProvider = ({ children }: PortalUserProviderProps) => {
         logout,
         refreshInstances,
         updateProgress,
+        updateTrailheadUrl: updateTrailheadUrlHandler,
       }}
     >
       {children}
