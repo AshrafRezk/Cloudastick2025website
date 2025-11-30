@@ -61,7 +61,7 @@ exports.handler = async (event, context) => {
     // Query instances - instances are tied to parent materials (courses)
     // We'll also need to fetch child materials separately
     // Note: The field on Learning_Material_Instance__c is Material__c, not Learning_Material__c
-    const soqlQuery = `SELECT Id, Name, Learner__c, Material__c, Progress__c, Status__c, Score__c, Started_On__c, Completed_On__c, CreatedDate, Material__r.Id, Material__r.Title__c, Material__r.Description__c, Material__r.Material_Type__c, Material__r.Material_URL__c, Material__r.Duration__c, Material__r.Category__c, Material__r.Is_Active__c, Material__r.Parent_Material__c FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' ORDER BY CreatedDate ASC`;
+    const soqlQuery = `SELECT Id, Name, Learner__c, Material__c, Progress__c, Status__c, Score__c, Started_On__c, Completed_On__c, CreatedDate, Material__r.Id, Material__r.Title__c, Material__r.Description__c, Material__r.Material_Type__c, Material__r.Material_URL__c, Material__r.Duration__c, Material__r.Category__c, Material__r.Active__c, Material__r.Parent_Material__c FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' ORDER BY CreatedDate ASC`;
     
     const encodedQuery = encodeURIComponent(soqlQuery);
     const queryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedQuery}`;
@@ -88,12 +88,12 @@ exports.handler = async (event, context) => {
     let records = queryData.records || [];
     console.log(`✅ Found ${records.length} Learning Material Instances`);
 
-    // Filter out records where material is not active (if Is_Active__c field exists)
+    // Filter out records where material is not active (if Active__c field exists)
     const activeRecords = records.filter(record => {
       const material = record.Material__r;
-      // If Is_Active__c field exists and is false, filter it out
+      // If Active__c field exists and is false, filter it out
       // If field doesn't exist or is true/null, include it
-      return !material || material.Is_Active__c !== false;
+      return !material || material.Active__c !== false;
     });
 
     console.log(`📊 Filtered ${records.length} records to ${activeRecords.length} active records`);
@@ -107,7 +107,7 @@ exports.handler = async (event, context) => {
         let childMaterials = [];
         if (material && !material.Parent_Material__c && material.Material_Type__c === 'Course') {
           try {
-            const childQuery = `SELECT Id, Title__c, Description__c, Material_Type__c, Material_URL__c, Duration__c, Category__c, Is_Active__c FROM Learning_Material__c WHERE Parent_Material__c = '${material.Id}' AND Is_Active__c = true ORDER BY CreatedDate ASC`;
+            const childQuery = `SELECT Id, Title__c, Description__c, Material_Type__c, Material_URL__c, Duration__c, Category__c, Active__c FROM Learning_Material__c WHERE Parent_Material__c = '${material.Id}' AND Active__c = true ORDER BY CreatedDate ASC`;
             const encodedChildQuery = encodeURIComponent(childQuery);
             const childQueryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedChildQuery}`;
             
@@ -129,7 +129,7 @@ exports.handler = async (event, context) => {
                 materialUrl: child.Material_URL__c,
                 duration: child.Duration__c || 0,
                 category: child.Category__c,
-                isActive: child.Is_Active__c !== false,
+                isActive: child.Active__c !== false,
                 parentId: material.Id,
                 isChild: true,
               }));
@@ -149,7 +149,7 @@ exports.handler = async (event, context) => {
           materialUrl: material.Material_URL__c,
           duration: material.Duration__c || 0,
           category: material.Category__c,
-          isActive: material.Is_Active__c !== false,
+          isActive: material.Active__c !== false,
           parentId: material.Parent_Material__c || null,
           isChild: !!material.Parent_Material__c,
           childMaterials: childMaterials, // Add child materials if this is a parent
