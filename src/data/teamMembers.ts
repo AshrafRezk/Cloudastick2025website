@@ -54,7 +54,7 @@ export const teamMembers: TeamMember[] = [
     role: "Salesforce Consultant",
     image: "/Assets/Company Members/Luay_Aladin_Salesforce_Consultant.png",
     profileSlug: "luay-aladin",
-    description: "Expert in Salesforce development and configuration, Luay delivers custom solutions that extend the platform's capabilities to meet unique business requirements."
+    description: "MIU Graduate and expert in Salesforce development and configuration, Luay delivers custom solutions that extend the platform's capabilities to meet unique business requirements."
   },
   {
     id: "shady-thomas",
@@ -62,7 +62,7 @@ export const teamMembers: TeamMember[] = [
     role: "Salesforce Consultant",
     image: "/Assets/Company Members/Shady_Thomas_Salesforce_Consultant.png",
     profileSlug: "shady-thomas",
-    description: "Specializing in Salesforce integrations and data management, Shady connects disparate systems and ensures seamless data flow across the entire business ecosystem."
+    description: "Higher Technological Institute of Robotics Graduate specializing in Salesforce integrations and data management, Shady connects disparate systems and ensures seamless data flow across the entire business ecosystem."
   },
   {
     id: "ashraf-rezk",
@@ -86,7 +86,7 @@ export const teamMembers: TeamMember[] = [
     role: "Salesforce Consultant",
     image: "/Assets/Company Members/Ahmed_Salah_Salesforce_Consultant.png",
     profileSlug: "ahmed-salah",
-    description: "Delivering excellence in Salesforce consulting, Ahmed ensures every implementation meets the highest standards of quality and delivers measurable business value."
+    description: "Ain Shams University Graduate delivering excellence in Salesforce consulting, Ahmed ensures every implementation meets the highest standards of quality and delivers measurable business value."
   },
   {
     id: "maheen-imran",
@@ -150,7 +150,7 @@ export const teamMembers: TeamMember[] = [
     role: "Salesforce Consultant",
     image: "/Assets/Company Members/Jenny_Maged_Salesforce_Consultant.png?v=2",
     profileSlug: "jenny-maged",
-    description: "Delivering expert Salesforce consulting services, Jenny helps businesses optimize their CRM processes and achieve their digital transformation goals."
+    description: "Arab Academy for Science Graduate delivering expert Salesforce consulting services, Jenny helps businesses optimize their CRM processes and achieve their digital transformation goals."
   },
   {
     id: "john-shedoudy",

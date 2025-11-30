@@ -1,14 +1,15 @@
 # Shady Thomas
 
 ## Experience
-- Years: 11
-- Certificates: 16
+- Years: 8
+- Certificates: 0
 
 ## Career Track
-- Cloudastick Systems (2018-Present)
-- Previous Company (2014-2018)
-- Earlier Company (2010-2014)
+- Cloudastick Systems (2025-Present)
+- Digital Test (2021-2024)
+- Fresh (2020-2021)
+- Schlumberger (2019-2020)
+- LG electronics (2018-2019)
 
 ## Bio
-Specializing in Salesforce integrations and data management, Shady connects disparate systems and ensures seamless data flow across the entire business ecosystem.
-
+Higher Technological Institute of Robotics Graduate specializing in Salesforce integrations and data management, Shady connects disparate systems and ensures seamless data flow across the entire business ecosystem.
