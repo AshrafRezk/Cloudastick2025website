@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, CheckCircle2, Clock, Play, Pause, FileText, Video as VideoIcon } from 'lucide-react';
+import { CheckCircle2, Clock, Play, Pause, FileText, Video as VideoIcon } from 'lucide-react';
 import { usePortalUser } from '../contexts/PortalUserContext';
 import { LearningMaterialInstance } from '../services/learningService';
 import Button from './Button';
@@ -15,7 +15,7 @@ interface MaterialViewerProps {
 }
 
 const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
-  const { updateProgress } = usePortalUser();
+  const { updateProgress, user } = usePortalUser();
   const [progress, setProgress] = useState(0);
   const [isTracking, setIsTracking] = useState(false);
   const [viewingTime, setViewingTime] = useState(0);
@@ -159,33 +159,26 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden flex flex-col p-0">
         <DialogHeader className="px-6 pt-6 pb-4 border-b">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <DialogTitle className="text-2xl mb-2">{material.title}</DialogTitle>
-              {material.description && (
-                <p className="text-sm text-muted-foreground mb-3">{material.description}</p>
-              )}
-              <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                {material.category && (
-                  <span className="px-2 py-1 bg-muted rounded">{material.category}</span>
-                )}
-                {material.duration > 0 && (
-                  <span className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    {material.duration} min
-                  </span>
-                )}
-                {viewingTime > 0 && (
-                  <span className="flex items-center gap-1">
-                    <Play className="w-3 h-3" />
-                    {Math.round(viewingTime)} min viewed
-                  </span>
-                )}
-              </div>
-            </div>
-            <Button variant="outline" size="sm" onClick={onClose}>
-              <X className="w-4 h-4" />
-            </Button>
+          <DialogTitle className="text-2xl mb-2">{material.title}</DialogTitle>
+          {material.description && (
+            <p className="text-sm text-muted-foreground mb-3">{material.description}</p>
+          )}
+          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            {material.category && (
+              <span className="px-2 py-1 bg-muted rounded">{material.category}</span>
+            )}
+            {material.duration > 0 && (
+              <span className="flex items-center gap-1">
+                <Clock className="w-3 h-3" />
+                {material.duration} min
+              </span>
+            )}
+            {viewingTime > 0 && (
+              <span className="flex items-center gap-1">
+                <Play className="w-3 h-3" />
+                {Math.round(viewingTime)} min viewed
+              </span>
+            )}
           </div>
         </DialogHeader>
 
