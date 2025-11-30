@@ -110,8 +110,18 @@ export const fetchLearningInstances = async (
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || `Failed to fetch instances: ${response.status}`);
+      let errorData;
+      try {
+        const text = await response.text();
+        try {
+          errorData = JSON.parse(text);
+        } catch {
+          errorData = { message: text || `Failed to fetch instances: ${response.status}` };
+        }
+      } catch (e) {
+        errorData = { message: `Failed to fetch instances: ${response.status}` };
+      }
+      throw new Error(errorData.message || errorData.error || `Failed to fetch instances: ${response.status}`);
     }
 
     const data: FetchInstancesResponse = await response.json();

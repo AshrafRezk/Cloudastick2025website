@@ -93,8 +93,13 @@ exports.handler = async (event, context) => {
           console.log(`✅ Successfully queried with field: ${fieldName}, found ${records.length} records`);
           break; // Success, exit inner loop
         } else {
-          const errorText = await queryResponse.text();
-          console.log(`⚠️ Query failed with field ${fieldName}:`, errorText.substring(0, 200));
+          let errorText = '';
+          try {
+            errorText = await queryResponse.text();
+            console.log(`⚠️ Query failed with field ${fieldName}:`, errorText.substring(0, 200));
+          } catch (e) {
+            console.log(`⚠️ Query failed with field ${fieldName}, status: ${queryResponse.status}`);
+          }
           // Continue to next query variant
         }
       }
@@ -105,9 +110,28 @@ exports.handler = async (event, context) => {
     }
 
     if (!queryResponse || !queryResponse.ok) {
-      const errorText = await queryResponse?.text() || 'Unknown error';
+      let errorText = 'Unknown error';
+      try {
+        if (queryResponse) {
+          errorText = await queryResponse.text();
+        }
+      } catch (e) {
+        errorText = `HTTP ${queryResponse?.status || 400}`;
+      }
       console.error('❌ Salesforce query error with all field names:', errorText);
-      throw new Error(`Salesforce query failed: ${queryResponse?.status || 400} - ${errorText}`);
+      
+      return {
+        statusCode: 400,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          error: 'Failed to query learning instances',
+          message: `Salesforce query failed: ${queryResponse?.status || 400} - ${errorText.substring(0, 500)}`,
+          details: errorText
+        }),
+      };
     }
 
     // Filter out records where material is not active (if Is_Active__c field exists)
