@@ -36,6 +36,13 @@ exports.handler = async (event, context) => {
 
     const { access_token, instance_url, contactId } = JSON.parse(event.body || '{}');
 
+    console.log('📋 Request details:', {
+      hasAccessToken: !!access_token,
+      hasInstanceUrl: !!instance_url,
+      contactId: contactId,
+      contactIdLength: contactId?.length || 0
+    });
+
     if (!access_token || !instance_url || !contactId) {
       return {
         statusCode: 400,
@@ -151,11 +158,21 @@ exports.handler = async (event, context) => {
     });
 
     console.log(`✅ Fetched ${instances.length} learning material instances`);
+    console.log('📊 Instance details:', JSON.stringify(instances.map(i => ({
+      id: i.id,
+      name: i.name,
+      status: i.status,
+      progress: i.progress,
+      materialTitle: i.material?.title || 'No material',
+      materialId: i.material?.id || 'No material ID'
+    })), null, 2));
 
     // Separate by status
     const notStarted = instances.filter(i => i.status === 'Not Started');
     const inProgress = instances.filter(i => i.status === 'In Progress');
     const completed = instances.filter(i => i.status === 'Completed');
+    
+    console.log(`📈 Status breakdown: ${notStarted.length} not started, ${inProgress.length} in progress, ${completed.length} completed`);
 
     return {
       statusCode: 200,
