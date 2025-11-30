@@ -105,12 +105,15 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
     if (!instance || isUpdating) return;
 
     // Check if instance.id is a composite ID (contains hyphen and looks like two IDs)
-    // Composite IDs indicate child materials - we can create instances for these
+    // Composite IDs indicate child materials - we need to create instances for these
     const isCompositeId = instance.id && instance.id.includes('-') && instance.id.length > 18;
     
-    // If it's a composite ID or no instance ID, create a new instance for child material
+    // If it's a composite ID or no instance ID, create a new instance
     if (isCompositeId || !instance.id) {
-      if (!material || !user) return;
+      if (!material || !user) {
+        console.error('Cannot create instance: missing material or user');
+        return;
+      }
       
       try {
         setIsUpdating(true);
@@ -118,7 +121,8 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
         const progressValue = Math.min(100, Math.max(0, newProgress));
         const newStatus = progressValue === 100 ? 'Completed' : progressValue > 0 ? 'In Progress' : 'Not Started';
         
-        await updateProgress({
+        console.log('Creating new Learning Material Instance for material:', material.id);
+        const result = await updateProgress({
           contactId: user.id,
           learningMaterialId: material.id,
           progress: progressValue,
@@ -126,6 +130,8 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
           startedOn: instance.startedOn || new Date().toISOString(),
           completedOn: progressValue === 100 ? new Date().toISOString() : undefined,
         });
+        
+        console.log('Instance created successfully:', result);
         setProgress(progressValue);
         setManualProgress([progressValue]);
         if (progressValue === 100) {
@@ -134,7 +140,7 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
         // Close viewer to allow refresh - user can reopen to see updated instance
         onClose();
       } catch (error) {
-        console.error('Failed to update progress:', error);
+        console.error('Failed to create/update progress:', error);
       } finally {
         setIsUpdating(false);
       }
