@@ -102,7 +102,47 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
   };
 
   const handleUpdateProgress = async (newProgress: number) => {
-    if (!instance || !instance.id || isUpdating) return;
+    if (!instance || isUpdating) return;
+
+    // Check if instance.id is a composite ID (contains hyphen and looks like two IDs)
+    // If so, we need to create a new instance or use the parent instance
+    const isCompositeId = instance.id && instance.id.includes('-') && instance.id.length > 18;
+    
+    // If it's a composite ID or no instance ID, create/update using material and contact
+    if (isCompositeId || !instance.id) {
+      if (!material || !user) return;
+      
+      try {
+        setIsUpdating(true);
+        stopTracking();
+        const progressValue = Math.min(100, Math.max(0, newProgress));
+        const newStatus = progressValue === 100 ? 'Completed' : progressValue > 0 ? 'In Progress' : 'Not Started';
+        
+        await updateProgress({
+          contactId: user.id,
+          learningMaterialId: material.id,
+          progress: progressValue,
+          status: newStatus,
+          startedOn: instance.startedOn || new Date().toISOString(),
+          completedOn: progressValue === 100 ? new Date().toISOString() : undefined,
+        });
+        setProgress(progressValue);
+        setManualProgress([progressValue]);
+        if (progressValue === 100) {
+          setIsCompleted(true);
+        }
+        // Close viewer to allow refresh - user can reopen to see updated instance
+        onClose();
+      } catch (error) {
+        console.error('Failed to update progress:', error);
+      } finally {
+        setIsUpdating(false);
+      }
+      return;
+    }
+
+    // Normal update for existing instance with valid Salesforce ID
+    if (!instance.id) return;
 
     const progressValue = Math.min(100, Math.max(0, newProgress));
     const newStatus = progressValue === 100 ? 'Completed' : progressValue > 0 ? 'In Progress' : 'Not Started';
