@@ -96,7 +96,7 @@ exports.handler = async (event, context) => {
 
     // Query Contact by Portal_Username__c - include all access fields
     const escapedUsername = username.replace(/'/g, "\\'");
-    const soqlQuery = `SELECT Id, Name, Email, Portal_Username__c, Portal_Password__c, Portal_Access__c, Portal_LMS_Access__c, Portal_Sales_Access__c, Portal_CMS_Access__c, LinkedInURL__c, TrailheadProfileURL__c, NumberofCertifications__c, Certifications_List__c FROM Contact WHERE Portal_Username__c = '${escapedUsername}' LIMIT 1`;
+    const soqlQuery = `SELECT Id, Name, Email, Portal_Username__c, Portal_Password__c, Portal_Access__c, Portal_LMS_Access__c, Portal_Sales_Access__c, Portal_CMS_Access__c, Portal_CPM_Access__c, LinkedInURL__c, TrailheadProfileURL__c, NumberofCertifications__c, Certifications_List__c FROM Contact WHERE Portal_Username__c = '${escapedUsername}' LIMIT 1`;
     
     const encodedQuery = encodeURIComponent(soqlQuery);
     const queryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedQuery}`;
@@ -192,6 +192,7 @@ exports.handler = async (event, context) => {
       portalLMSAccess: contact.Portal_LMS_Access__c || false,
       portalSalesAccess: contact.Portal_Sales_Access__c || false,
       portalCMSAccess: contact.Portal_CMS_Access__c || false,
+      portalCPMAccess: contact.Portal_CPM_Access__c || false,
     };
 
     console.log('✅ Contact login successful:', contactData.name);

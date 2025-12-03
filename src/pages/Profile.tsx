@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   BookOpen, Briefcase, Presentation, 
   ArrowRight, Award, Mail, User, 
-  CheckCircle2, XCircle, Loader2
+  CheckCircle2, XCircle, Loader2, Users
 } from 'lucide-react';
 import { usePortalUser } from '../contexts/PortalUserContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
@@ -96,6 +96,17 @@ const Profile = () => {
       color: 'purple',
       gradient: 'from-purple-500 to-purple-600',
     },
+    {
+      id: 'cpm',
+      name: 'Cloudastick Project Management',
+      acronym: 'CPM',
+      description: 'Manage project teams, track deliverables, and coordinate team assignments',
+      icon: <Users className="h-8 w-8" />,
+      path: '/project-team',
+      hasAccess: user.portalCPMAccess || false,
+      color: 'orange',
+      gradient: 'from-orange-500 to-orange-600',
+    },
   ];
 
   // Color class mappings
@@ -117,6 +128,12 @@ const Profile = () => {
       icon: 'text-purple-500',
       border: 'hover:border-purple-500/50',
       arrow: 'text-purple-500',
+    },
+    orange: {
+      badge: 'bg-orange-500/10 text-orange-600 border-orange-500/20',
+      icon: 'text-orange-500',
+      border: 'hover:border-orange-500/50',
+      arrow: 'text-orange-500',
     },
   };
 

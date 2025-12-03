@@ -188,7 +188,7 @@ const SalesVerticals = () => {
             </div>
           </div>
           <h1 className="text-2xl font-bold text-white text-center mb-2">
-            Sales Portal Access
+            Cloudastick Sales Support Access
           </h1>
           <p className="text-gray-400 text-center mb-6">
             Please enter your portal credentials to access vertical presentations.
@@ -293,7 +293,7 @@ const SalesVerticals = () => {
                 <Presentation className="h-6 w-6 text-cyan-400" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">Sales Portal</h1>
+                <h1 className="text-2xl font-bold text-white">Cloudastick Sales Support</h1>
                 <p className="text-sm text-gray-400">Vertical Presentations</p>
               </div>
             </div>
@@ -360,15 +360,19 @@ const SalesVerticals = () => {
                       <div className="bg-cyan-500/20 p-2 rounded-lg">
                         <Building2 className="h-5 w-5 text-cyan-400" />
                       </div>
-                      {vertical.type && (
-                        <Badge variant="outline" className="border-gray-600 text-gray-300">
-                          {vertical.type}
-                        </Badge>
-                      )}
                     </div>
-                    <CardTitle className="text-white text-xl mb-2">
-                      {vertical.name}
-                    </CardTitle>
+                    {vertical.type ? (
+                      <>
+                        <CardTitle className="text-white text-xl mb-2">
+                          {vertical.type}
+                        </CardTitle>
+                        <p className="text-sm text-gray-500 mb-2">{vertical.name}</p>
+                      </>
+                    ) : (
+                      <CardTitle className="text-white text-xl mb-2">
+                        {vertical.name}
+                      </CardTitle>
+                    )}
                     {vertical.demoScriptSummary && (
                       <CardDescription className="text-gray-400 line-clamp-2">
                         {vertical.demoScriptSummary}

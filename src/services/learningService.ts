@@ -16,6 +16,7 @@ export interface Contact {
   portalLMSAccess?: boolean;
   portalSalesAccess?: boolean;
   portalCMSAccess?: boolean;
+  portalCPMAccess?: boolean;
 }
 
 export interface LearningMaterial {

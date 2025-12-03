@@ -4,29 +4,37 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Loader2, ArrowLeft, Building2, FileText, 
   Sparkles, CheckCircle2, Presentation, 
-  AlertCircle, LogOut, Layers
+  AlertCircle, LogOut, Layers, Edit, Save, X
 } from 'lucide-react';
 import { useSalesforce } from '../contexts/SalesforceContext';
+import { usePortalUser } from '../contexts/PortalUserContext';
 import { fetchVerticalById, type Vertical, type VerticalModule } from '../services/verticalService';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { useToast } from '../hooks/use-toast';
+import { Textarea } from '../components/ui/textarea';
 
 const SalesVerticalDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { authData, isLoading: authLoading } = useSalesforce();
+  const { user: portalUser } = usePortalUser();
   
   const [vertical, setVertical] = useState<Vertical | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [salesUser, setSalesUser] = useState<{ id: string; name: string; email: string } | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingModule, setEditingModule] = useState<string | null>(null);
+  const [editValues, setEditValues] = useState<{ [key: string]: string }>({});
+  const [isSaving, setIsSaving] = useState(false);
 
   // Check if user is authenticated
   // Note: Portal_Sales_Access__c is verified during login on /sales page
   // Users must authenticate through /sales first, which enforces the Portal_Sales_Access__c check
+  // Also check if user is logged in via portal (for already logged in contacts)
   useEffect(() => {
     const storedUser = sessionStorage.getItem('sales-portal-user');
     if (storedUser) {
@@ -35,13 +43,29 @@ const SalesVerticalDetail = () => {
         setSalesUser(user);
       } catch (error) {
         console.error('Error loading stored user:', error);
-        navigate('/sales');
+        // Check if portal user is logged in
+        if (portalUser?.portalSalesAccess) {
+          setSalesUser({
+            id: portalUser.id,
+            name: portalUser.name,
+            email: portalUser.email || '',
+          });
+        } else {
+          navigate('/sales');
+        }
       }
+    } else if (portalUser?.portalSalesAccess) {
+      // Already logged in contact - allow access
+      setSalesUser({
+        id: portalUser.id,
+        name: portalUser.name,
+        email: portalUser.email || '',
+      });
     } else {
       // Redirect to login if not authenticated
       navigate('/sales');
     }
-  }, [navigate]);
+  }, [navigate, portalUser]);
 
   // Load vertical data
   useEffect(() => {
@@ -153,10 +177,13 @@ const SalesVerticalDetail = () => {
                   <Presentation className="h-6 w-6 text-cyan-400" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-white">{vertical.name}</h1>
                   {vertical.type && (
-                    <p className="text-sm text-gray-400">{vertical.type}</p>
+                    <h1 className="text-2xl font-bold text-white">{vertical.type}</h1>
                   )}
+                  {!vertical.type && (
+                    <h1 className="text-2xl font-bold text-white">{vertical.name}</h1>
+                  )}
+                  <p className="text-sm text-gray-400">{vertical.name}</p>
                 </div>
               </div>
             </div>
@@ -198,9 +225,10 @@ const SalesVerticalDetail = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-gray-300 whitespace-pre-wrap leading-relaxed">
-                      {vertical.demoScriptSummary}
-                    </p>
+                    <div 
+                      className="text-gray-300 prose prose-invert max-w-none"
+                      dangerouslySetInnerHTML={{ __html: vertical.demoScriptSummary || '' }}
+                    />
                   </CardContent>
                 </Card>
               </motion.div>
@@ -221,9 +249,10 @@ const SalesVerticalDetail = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-gray-300 whitespace-pre-wrap leading-relaxed">
-                      {vertical.companyProfile}
-                    </p>
+                    <div 
+                      className="text-gray-300 prose prose-invert max-w-none"
+                      dangerouslySetInnerHTML={{ __html: vertical.companyProfile || '' }}
+                    />
                   </CardContent>
                 </Card>
               </motion.div>
@@ -275,29 +304,151 @@ const SalesVerticalDetail = () => {
                                         Priority {module.priority}
                                       </Badge>
                                     )}
+                                    {salesUser && (
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => {
+                                          if (editingModule === module.id) {
+                                            setEditingModule(null);
+                                            setEditValues({});
+                                          } else {
+                                            setEditingModule(module.id);
+                                            setEditValues({
+                                              featureList: module.featureList || '',
+                                              cloudastickEdge: module.cloudastickEdge || '',
+                                            });
+                                          }
+                                        }}
+                                        className="ml-auto text-gray-400 hover:text-white"
+                                      >
+                                        {editingModule === module.id ? (
+                                          <X className="h-4 w-4" />
+                                        ) : (
+                                          <Edit className="h-4 w-4" />
+                                        )}
+                                      </Button>
+                                    )}
                                   </div>
-                                  {module.featureList && (
-                                    <CardDescription className="text-gray-400 mb-3">
-                                      {module.featureList}
-                                    </CardDescription>
+                                  {editingModule === module.id ? (
+                                    <Textarea
+                                      value={editValues.featureList || ''}
+                                      onChange={(e) => setEditValues({ ...editValues, featureList: e.target.value })}
+                                      className="bg-gray-800 border-gray-600 text-white mb-3 min-h-[100px]"
+                                      placeholder="Feature list (HTML supported)"
+                                    />
+                                  ) : module.featureList && (
+                                    <div 
+                                      className="text-gray-400 mb-3 prose prose-invert max-w-none"
+                                      dangerouslySetInnerHTML={{ __html: module.featureList || '' }}
+                                    />
                                   )}
                                 </div>
                               </div>
                             </CardHeader>
-                            {module.cloudastickEdge && (
+                            {(editingModule === module.id || module.cloudastickEdge) && (
                               <CardContent>
                                 <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-4">
                                   <div className="flex items-start gap-2 mb-2">
                                     <Sparkles className="h-4 w-4 text-cyan-400 mt-0.5 flex-shrink-0" />
-                                    <div>
+                                    <div className="flex-1">
                                       <p className="text-sm font-semibold text-cyan-400 mb-1">
                                         Cloudastick Edge
                                       </p>
-                                      <p className="text-sm text-gray-300 whitespace-pre-wrap leading-relaxed">
-                                        {module.cloudastickEdge}
-                                      </p>
+                                      {editingModule === module.id ? (
+                                        <Textarea
+                                          value={editValues.cloudastickEdge || ''}
+                                          onChange={(e) => setEditValues({ ...editValues, cloudastickEdge: e.target.value })}
+                                          className="bg-gray-800 border-gray-600 text-white mb-3 min-h-[100px]"
+                                          placeholder="Cloudastick Edge (HTML supported)"
+                                        />
+                                      ) : (
+                                        <div 
+                                          className="text-sm text-gray-300 prose prose-invert max-w-none"
+                                          dangerouslySetInnerHTML={{ __html: module.cloudastickEdge || '' }}
+                                        />
+                                      )}
                                     </div>
                                   </div>
+                                  {editingModule === module.id && (
+                                    <div className="flex justify-end gap-2 mt-4">
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => {
+                                          setEditingModule(null);
+                                          setEditValues({});
+                                        }}
+                                        className="border-gray-600 text-gray-300"
+                                      >
+                                        Cancel
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        onClick={async () => {
+                                          if (!authData?.access_token || !authData?.instance_url) {
+                                            toast({
+                                              title: 'Error',
+                                              description: 'Salesforce authentication required',
+                                              variant: 'destructive',
+                                            });
+                                            return;
+                                          }
+                                          setIsSaving(true);
+                                          try {
+                                            const response = await fetch('/.netlify/functions/updateVerticalModule', {
+                                              method: 'POST',
+                                              headers: {
+                                                'Content-Type': 'application/json',
+                                              },
+                                              body: JSON.stringify({
+                                                access_token: authData.access_token,
+                                                instance_url: authData.instance_url,
+                                                moduleId: module.id,
+                                                featureList: editValues.featureList || '',
+                                                cloudastickEdge: editValues.cloudastickEdge || '',
+                                              }),
+                                            });
+                                            if (!response.ok) {
+                                              const errorData = await response.json();
+                                              throw new Error(errorData.message || 'Failed to update module');
+                                            }
+                                            // Reload vertical data
+                                            const updated = await fetchVerticalById(authData.access_token, authData.instance_url, id!);
+                                            setVertical(updated);
+                                            setEditingModule(null);
+                                            setEditValues({});
+                                            toast({
+                                              title: 'Success',
+                                              description: 'Module updated successfully',
+                                            });
+                                          } catch (error: any) {
+                                            toast({
+                                              title: 'Error',
+                                              description: error.message || 'Failed to update module',
+                                              variant: 'destructive',
+                                            });
+                                          } finally {
+                                            setIsSaving(false);
+                                          }
+                                        }}
+                                        disabled={isSaving}
+                                        className="bg-cyan-500 hover:bg-cyan-600 text-white"
+                                      >
+                                        {isSaving ? (
+                                          <>
+                                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                            Saving...
+                                          </>
+                                        ) : (
+                                          <>
+                                            <Save className="h-4 w-4 mr-2" />
+                                            Save
+                                          </>
+                                        )}
+                                      </Button>
+                                    </div>
+                                  )}
                                 </div>
                               </CardContent>
                             )}
