@@ -254,28 +254,60 @@ const SalesVerticalDetail = () => {
             )}
 
             {/* Company Profile */}
-            {vertical.companyProfile && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-              >
-                <Card className="bg-gray-800/50 backdrop-blur-sm border-gray-700">
-                  <CardHeader>
-                    <div className="flex items-center gap-2 mb-2">
-                      <Building2 className="h-5 w-5 text-cyan-400" />
-                      <CardTitle className="text-white">Company Profile</CardTitle>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div 
-                      className="text-gray-300 prose prose-invert max-w-none"
-                      dangerouslySetInnerHTML={{ __html: vertical.companyProfile || '' }}
-                    />
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
+            {vertical.companyProfile && (() => {
+              // Check if companyProfile is a URL
+              const isUrl = vertical.companyProfile.trim().startsWith('http://') || 
+                          vertical.companyProfile.trim().startsWith('https://');
+              const profileUrl = isUrl ? vertical.companyProfile.trim() : null;
+              
+              return (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  <Card className="bg-gray-800/50 backdrop-blur-sm border-gray-700">
+                    <CardHeader>
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <Building2 className="h-5 w-5 text-cyan-400" />
+                          <CardTitle className="text-white">Company Profile</CardTitle>
+                        </div>
+                        {profileUrl && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => window.open(profileUrl, '_blank', 'noopener,noreferrer')}
+                            className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10"
+                          >
+                            <ExternalLink className="h-4 w-4 mr-2" />
+                            Open in New Tab
+                          </Button>
+                        )}
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      {profileUrl ? (
+                        <div className="w-full">
+                          <iframe
+                            src={profileUrl}
+                            className="w-full h-[600px] border border-gray-600 rounded-lg"
+                            title="Company Profile"
+                            allow="fullscreen"
+                            sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+                          />
+                        </div>
+                      ) : (
+                        <div 
+                          className="text-gray-300 prose prose-invert max-w-none"
+                          dangerouslySetInnerHTML={{ __html: vertical.companyProfile || '' }}
+                        />
+                      )}
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })()}
 
             {/* Vertical Modules */}
             <motion.div
