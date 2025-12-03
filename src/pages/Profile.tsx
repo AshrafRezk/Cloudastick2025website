@@ -102,7 +102,7 @@ const Profile = () => {
       acronym: 'CPM',
       description: 'Manage project teams, track deliverables, and coordinate team assignments',
       icon: <Users className="h-8 w-8" />,
-      path: '/project-team',
+      path: '/project-team-admin',
       hasAccess: user.portalCPMAccess || false,
       color: 'orange',
       gradient: 'from-orange-500 to-orange-600',
