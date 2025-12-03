@@ -30,7 +30,11 @@ const SalesVerticalDetail = () => {
   const [salesUser, setSalesUser] = useState<{ id: string; name: string; email: string } | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingModule, setEditingModule] = useState<string | null>(null);
-  const [editValues, setEditValues] = useState<{ [key: string]: string }>({});
+  const [editValues, setEditValues] = useState<{ 
+    featureList?: string; 
+    cloudastickEdge?: string; 
+    priority?: number | null;
+  }>({});
   const [isSaving, setIsSaving] = useState(false);
   const [isCreatingModule, setIsCreatingModule] = useState(false);
   const [newModule, setNewModule] = useState({
@@ -532,6 +536,7 @@ const SalesVerticalDetail = () => {
                                               setEditValues({
                                                 featureList: module.featureList || '',
                                                 cloudastickEdge: module.cloudastickEdge || '',
+                                                priority: module.priority,
                                               });
                                             }
                                           }}
@@ -546,6 +551,22 @@ const SalesVerticalDetail = () => {
                                       </div>
                                     )}
                                   </div>
+                                  {editingModule === module.id && (
+                                    <div className="mb-3">
+                                      <Label className="text-gray-300 text-sm mb-1 block">Priority (for ordering)</Label>
+                                      <Input
+                                        type="number"
+                                        value={editValues.priority ?? ''}
+                                        onChange={(e) => setEditValues({ 
+                                          ...editValues, 
+                                          priority: e.target.value ? parseInt(e.target.value) : null 
+                                        })}
+                                        className="bg-gray-800 border-gray-600 text-white w-24"
+                                        placeholder="Priority"
+                                      />
+                                      <p className="text-xs text-gray-500 mt-1">Lower numbers appear first. Leave empty for no priority.</p>
+                                    </div>
+                                  )}
                                   {editingModule === module.id ? (
                                     <RichTextEditor
                                       value={editValues.featureList || ''}
@@ -623,6 +644,7 @@ const SalesVerticalDetail = () => {
                                                 moduleId: module.id,
                                                 featureList: editValues.featureList || '',
                                                 cloudastickEdge: editValues.cloudastickEdge || '',
+                                                priority: editValues.priority,
                                               }),
                                             });
                                             if (!response.ok) {

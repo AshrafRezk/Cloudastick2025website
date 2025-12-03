@@ -1,6 +1,6 @@
 /**
  * Netlify Function to update Vertical Module fields
- * Updates Feature_list__c and Cloudastick_Edge__c fields
+ * Updates Feature_list__c, Cloudastick_Edge__c, and Priority__c fields
  */
 
 exports.handler = async (event, context) => {
@@ -38,7 +38,8 @@ exports.handler = async (event, context) => {
       instance_url, 
       moduleId,
       featureList,
-      cloudastickEdge
+      cloudastickEdge,
+      priority
     } = JSON.parse(event.body || '{}');
 
     if (!access_token || !instance_url) {
@@ -77,6 +78,9 @@ exports.handler = async (event, context) => {
     if (cloudastickEdge !== undefined) {
       updatePayload.Cloudastick_Edge__c = cloudastickEdge;
     }
+    if (priority !== undefined) {
+      updatePayload.Priority__c = priority;
+    }
 
     if (Object.keys(updatePayload).length === 0) {
       return {
@@ -87,7 +91,7 @@ exports.handler = async (event, context) => {
         },
         body: JSON.stringify({ 
           error: 'No fields to update',
-          message: 'At least one field (featureList or cloudastickEdge) must be provided'
+          message: 'At least one field must be provided'
         }),
       };
     }
