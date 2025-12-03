@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Loader2, ArrowLeft, Building2, FileText, 
   Sparkles, CheckCircle2, Presentation, 
-  AlertCircle, LogOut, Layers, Edit, Save, X, Plus, Trash2
+  AlertCircle, LogOut, Layers, Edit, Save, X, Plus, Trash2, ExternalLink
 } from 'lucide-react';
 import { useSalesforce } from '../contexts/SalesforceContext';
 import { usePortalUser } from '../contexts/PortalUserContext';
@@ -695,6 +695,41 @@ const SalesVerticalDetail = () => {
                     <div>
                       <p className="text-xs text-gray-500 mb-1">Type</p>
                       <p className="text-sm text-gray-300">{vertical.type}</p>
+                    </div>
+                  )}
+                  {vertical.orgUsername && vertical.orgPassword && (
+                    <div>
+                      <p className="text-xs text-gray-500 mb-2">Quick Login</p>
+                      <Button
+                        onClick={() => {
+                          // Create a form to submit to Salesforce login
+                          const form = document.createElement('form');
+                          form.method = 'POST';
+                          form.action = 'https://login.salesforce.com';
+                          form.target = '_blank';
+                          
+                          const usernameField = document.createElement('input');
+                          usernameField.type = 'hidden';
+                          usernameField.name = 'username';
+                          usernameField.value = vertical.orgUsername;
+                          
+                          const passwordField = document.createElement('input');
+                          passwordField.type = 'hidden';
+                          passwordField.name = 'pw';
+                          passwordField.value = vertical.orgPassword;
+                          
+                          form.appendChild(usernameField);
+                          form.appendChild(passwordField);
+                          document.body.appendChild(form);
+                          form.submit();
+                          document.body.removeChild(form);
+                        }}
+                        className="w-full bg-cyan-500 hover:bg-cyan-600 text-white"
+                        size="sm"
+                      >
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        Login to Salesforce Org
+                      </Button>
                     </div>
                   )}
                   {vertical.orgUsername && (
