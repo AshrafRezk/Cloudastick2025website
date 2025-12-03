@@ -456,14 +456,14 @@ const SalesVerticalDetail = () => {
                               <div className="flex items-start justify-between gap-4">
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2 mb-2">
+                                    {module.priority !== null && (
+                                      <span className="text-cyan-400 font-semibold text-lg">
+                                        {module.priority}.
+                                      </span>
+                                    )}
                                     <CardTitle className="text-white text-lg">
                                       {module.name}
                                     </CardTitle>
-                                    {module.priority !== null && (
-                                      <Badge variant="outline" className="border-cyan-500/50 text-cyan-400">
-                                        Priority {module.priority}
-                                      </Badge>
-                                    )}
                                     {salesUser && (
                                       <div className="flex items-center gap-2 ml-auto">
                                         <Button
