@@ -5,6 +5,7 @@ import { Menu, X, Home, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import Mira from "./Mira";
 import LanguageSwitcher from "./LanguageSwitcher";
+import GlobalLogin from "./GlobalLogin";
 import { useLanguage } from "../contexts/LanguageContext";
 import {
   DropdownMenu,
@@ -136,11 +137,13 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 </DropdownMenuContent>
               </DropdownMenu>
               
+              <GlobalLogin />
               <LanguageSwitcher />
             </div>
 
             {/* Mobile menu button and language switcher */}
             <div className="md:hidden flex items-center space-x-2">
+              <GlobalLogin />
               <LanguageSwitcher />
               <button
                 className="p-2 rounded-md text-muted-foreground hover:text-foreground"
