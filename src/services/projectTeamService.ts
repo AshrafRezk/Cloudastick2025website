@@ -433,7 +433,7 @@ export async function updateProjectTeam(
 /**
  * List all project teams from Salesforce
  */
-export async function listProjectTeams(password: string): Promise<ProjectTeamListResponse> {
+export async function listProjectTeams(): Promise<ProjectTeamListResponse> {
   try {
     const auth = getSalesforceAuth();
     if (!auth) {
@@ -470,9 +470,9 @@ export async function listProjectTeams(password: string): Promise<ProjectTeamLis
 }
 
 /**
- * Delete project team data from Salesforce (password protected)
+ * Delete project team data from Salesforce
  */
-export async function deleteProjectTeam(projectId: string, password: string): Promise<ProjectTeamResponse> {
+export async function deleteProjectTeam(projectId: string): Promise<ProjectTeamResponse> {
   try {
     const auth = getSalesforceAuth();
     if (!auth) {

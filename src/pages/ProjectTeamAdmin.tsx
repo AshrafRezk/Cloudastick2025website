@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Lock, Loader2, Search, Eye, Edit, Trash2, 
-  Building2, Users, Calendar, FileText, X,
-  AlertTriangle, RefreshCw, Target, Plus
+  Loader2, Search, Eye, Edit, Trash2, 
+  Building2, Users, FileText,
+  AlertTriangle, RefreshCw, Target, Plus, LogOut
 } from 'lucide-react';
+import { usePortalUser } from '../contexts/PortalUserContext';
 import { 
   listProjectTeams, 
   deleteProjectTeam, 
@@ -31,13 +32,7 @@ import {
 const ProjectTeamAdmin: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  
-  const EDIT_PASSWORD = 'Cloudastick@Team$';
-  
-  // Authentication state
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [password, setPassword] = useState('');
-  const [showPasswordDialog, setShowPasswordDialog] = useState(true);
+  const { user, logout } = usePortalUser();
   
   // Data state
   const [projects, setProjects] = useState<ProjectTeamListItem[]>([]);
@@ -52,15 +47,26 @@ const ProjectTeamAdmin: React.FC = () => {
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Check if already authenticated
+  // Check if user is authenticated and has CPM access
   useEffect(() => {
-    const authStatus = sessionStorage.getItem('project-team-admin-auth');
-    if (authStatus === 'true') {
-      setIsAuthenticated(true);
-      setShowPasswordDialog(false);
-      loadProjects();
+    if (!user) {
+      navigate('/');
+      return;
     }
-  }, []);
+    
+    if (!user.portalCPMAccess) {
+      toast({
+        title: 'Access Denied',
+        description: 'You do not have access to the Project Team Admin panel. Please contact your administrator.',
+        variant: 'destructive',
+      });
+      navigate('/profile');
+      return;
+    }
+    
+    // User has access, load projects
+    loadProjects();
+  }, [user, navigate, toast]);
 
   // Filter projects based on search term
   useEffect(() => {
@@ -77,33 +83,15 @@ const ProjectTeamAdmin: React.FC = () => {
     setFilteredProjects(filtered);
   }, [searchTerm, projects]);
 
-  // Handle password authentication
-  const handlePasswordSubmit = () => {
-    if (password === EDIT_PASSWORD) {
-      setIsAuthenticated(true);
-      sessionStorage.setItem('project-team-admin-auth', 'true');
-      setShowPasswordDialog(false);
-      setPassword('');
-      loadProjects();
-      toast({
-        title: 'Authentication successful',
-        description: 'You can now manage project teams.',
-      });
-    } else {
-      toast({
-        title: 'Invalid password',
-        description: 'Please enter the correct password.',
-        variant: 'destructive',
-      });
-      setPassword('');
-    }
-  };
-
   // Load projects list
   const loadProjects = async () => {
+    if (!user?.portalCPMAccess) {
+      return;
+    }
+    
     setIsLoading(true);
     try {
-      const response = await listProjectTeams(EDIT_PASSWORD);
+      const response = await listProjectTeams();
       setProjects(response.projects);
       setFilteredProjects(response.projects);
     } catch (error: any) {
@@ -163,7 +151,7 @@ const ProjectTeamAdmin: React.FC = () => {
 
     setIsDeleting(true);
     try {
-      await deleteProjectTeam(projectToDelete, EDIT_PASSWORD);
+      await deleteProjectTeam(projectToDelete);
       toast({
         title: 'Project deleted',
         description: 'The project team configuration has been deleted.',
@@ -193,55 +181,18 @@ const ProjectTeamAdmin: React.FC = () => {
     }
   };
 
-  if (!isAuthenticated) {
+  // Show loading or redirect if no user
+  if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-gray-800/90 backdrop-blur-sm rounded-2xl border border-gray-700 p-8 max-w-md w-full shadow-2xl"
-        >
-          <div className="flex items-center justify-center mb-6">
-            <div className="bg-cyan-500/20 p-3 rounded-full">
-              <Lock className="h-8 w-8 text-cyan-400" />
-            </div>
-          </div>
-          <h1 className="text-2xl font-bold text-white text-center mb-2">
-            Admin Access Required
-          </h1>
-          <p className="text-gray-400 text-center mb-6">
-            Please enter the password to access the project team admin panel.
-          </p>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="password" className="text-gray-300">
-                Password
-              </Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    handlePasswordSubmit();
-                  }
-                }}
-                placeholder="Enter admin password"
-                className="mt-2 bg-gray-700/50 border-gray-600 text-white"
-                autoFocus
-              />
-            </div>
-            <Button
-              onClick={handlePasswordSubmit}
-              className="w-full bg-cyan-500 hover:bg-cyan-600 text-white"
-            >
-              Authenticate
-            </Button>
-          </div>
-        </motion.div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-cyan-400" />
       </div>
     );
+  }
+
+  // Check access
+  if (!user.portalCPMAccess) {
+    return null; // useEffect will handle redirect
   }
 
   return (
@@ -257,6 +208,9 @@ const ProjectTeamAdmin: React.FC = () => {
             <div>
               <h1 className="text-3xl font-bold text-white mb-2">Project Team Admin</h1>
               <p className="text-gray-400">Manage all project team configurations</p>
+              {user && (
+                <p className="text-sm text-gray-500 mt-1">Logged in as: {user.name}</p>
+              )}
             </div>
             <div className="flex gap-2">
               <Button
@@ -277,15 +231,14 @@ const ProjectTeamAdmin: React.FC = () => {
               </Button>
               <Button
                 onClick={() => {
-                  sessionStorage.removeItem('project-team-admin-auth');
-                  setIsAuthenticated(false);
-                  setShowPasswordDialog(true);
+                  logout();
+                  navigate('/');
                 }}
                 variant="outline"
                 className="border-gray-600 text-gray-300 hover:bg-gray-700"
               >
-                <Lock className="h-4 w-4 mr-2" />
-                Lock
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
               </Button>
             </div>
           </div>
