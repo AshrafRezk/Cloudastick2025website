@@ -54,7 +54,6 @@ const SalesVerticalDetail = () => {
   const [companyProfileValue, setCompanyProfileValue] = useState('');
   const [iframeError, setIframeError] = useState(false);
   const [iframeLoaded, setIframeLoaded] = useState(false);
-  const iframeLoadTimeoutRef = useState<NodeJS.Timeout | null>(null)[0];
 
   // Check if user is authenticated
   // Note: Portal_Sales_Access__c is verified during login on /sales page
