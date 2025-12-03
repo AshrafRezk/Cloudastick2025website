@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Loader2, ArrowLeft, Building2, FileText, 
   Sparkles, CheckCircle2, Presentation, 
-  AlertCircle, LogOut, Layers, Edit, Save, X
+  AlertCircle, LogOut, Layers, Edit, Save, X, Plus, Trash2
 } from 'lucide-react';
 import { useSalesforce } from '../contexts/SalesforceContext';
 import { usePortalUser } from '../contexts/PortalUserContext';
@@ -13,7 +13,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { useToast } from '../hooks/use-toast';
-import { Textarea } from '../components/ui/textarea';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import RichTextEditor from '../components/RichTextEditor';
 
 const SalesVerticalDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -30,6 +32,14 @@ const SalesVerticalDetail = () => {
   const [editingModule, setEditingModule] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<{ [key: string]: string }>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [isCreatingModule, setIsCreatingModule] = useState(false);
+  const [newModule, setNewModule] = useState({
+    name: '',
+    featureList: '',
+    cloudastickEdge: '',
+    priority: null as number | null,
+  });
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
   // Check if user is authenticated
   // Note: Portal_Sales_Access__c is verified during login on /sales page
@@ -266,18 +276,164 @@ const SalesVerticalDetail = () => {
             >
               <Card className="bg-gray-800/50 backdrop-blur-sm border-gray-700">
                 <CardHeader>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Layers className="h-5 w-5 text-cyan-400" />
-                    <CardTitle className="text-white">
-                      Modules {sortedModules.length > 0 && `(${sortedModules.length})`}
-                    </CardTitle>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <Layers className="h-5 w-5 text-cyan-400" />
+                      <CardTitle className="text-white">
+                        Modules {sortedModules.length > 0 && `(${sortedModules.length})`}
+                      </CardTitle>
+                    </div>
+                    {salesUser && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setIsCreatingModule(true)}
+                        className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Module
+                      </Button>
+                    )}
                   </div>
                   <CardDescription className="text-gray-400">
                     Features and capabilities for this vertical
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {sortedModules.length === 0 ? (
+                  {isCreatingModule && (
+                    <Card className="bg-cyan-500/10 border-cyan-500/30 mb-4">
+                      <CardHeader>
+                        <CardTitle className="text-white text-lg">Create New Module</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div>
+                          <Label className="text-gray-300">Module Name</Label>
+                          <Input
+                            value={newModule.name}
+                            onChange={(e) => setNewModule({ ...newModule, name: e.target.value })}
+                            className="bg-gray-800 border-gray-600 text-white mt-1"
+                            placeholder="Enter module name"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-gray-300">Priority (optional)</Label>
+                          <Input
+                            type="number"
+                            value={newModule.priority || ''}
+                            onChange={(e) => setNewModule({ ...newModule, priority: e.target.value ? parseInt(e.target.value) : null })}
+                            className="bg-gray-800 border-gray-600 text-white mt-1"
+                            placeholder="Enter priority number"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-gray-300">Feature List</Label>
+                          <RichTextEditor
+                            value={newModule.featureList}
+                            onChange={(value) => setNewModule({ ...newModule, featureList: value })}
+                            placeholder="Enter feature list (HTML supported)"
+                            className="mt-1"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-gray-300">Cloudastick Edge</Label>
+                          <RichTextEditor
+                            value={newModule.cloudastickEdge}
+                            onChange={(value) => setNewModule({ ...newModule, cloudastickEdge: value })}
+                            placeholder="Enter Cloudastick Edge content (HTML supported)"
+                            className="mt-1"
+                          />
+                        </div>
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setIsCreatingModule(false);
+                              setNewModule({ name: '', featureList: '', cloudastickEdge: '', priority: null });
+                            }}
+                            className="border-gray-600 text-gray-300"
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={async () => {
+                              if (!newModule.name.trim()) {
+                                toast({
+                                  title: 'Error',
+                                  description: 'Module name is required',
+                                  variant: 'destructive',
+                                });
+                                return;
+                              }
+                              if (!authData?.access_token || !authData?.instance_url || !id) {
+                                toast({
+                                  title: 'Error',
+                                  description: 'Salesforce authentication required',
+                                  variant: 'destructive',
+                                });
+                                return;
+                              }
+                              setIsSaving(true);
+                              try {
+                                const response = await fetch('/.netlify/functions/createVerticalModule', {
+                                  method: 'POST',
+                                  headers: {
+                                    'Content-Type': 'application/json',
+                                  },
+                                  body: JSON.stringify({
+                                    access_token: authData.access_token,
+                                    instance_url: authData.instance_url,
+                                    verticalId: id,
+                                    name: newModule.name,
+                                    featureList: newModule.featureList,
+                                    cloudastickEdge: newModule.cloudastickEdge,
+                                    priority: newModule.priority,
+                                  }),
+                                });
+                                if (!response.ok) {
+                                  const errorData = await response.json();
+                                  throw new Error(errorData.message || 'Failed to create module');
+                                }
+                                // Reload vertical data
+                                const updated = await fetchVerticalById(authData.access_token, authData.instance_url, id);
+                                setVertical(updated);
+                                setIsCreatingModule(false);
+                                setNewModule({ name: '', featureList: '', cloudastickEdge: '', priority: null });
+                                toast({
+                                  title: 'Success',
+                                  description: 'Module created successfully',
+                                });
+                              } catch (error: any) {
+                                toast({
+                                  title: 'Error',
+                                  description: error.message || 'Failed to create module',
+                                  variant: 'destructive',
+                                });
+                              } finally {
+                                setIsSaving(false);
+                              }
+                            }}
+                            disabled={isSaving}
+                            className="bg-cyan-500 hover:bg-cyan-600 text-white"
+                          >
+                            {isSaving ? (
+                              <>
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                Creating...
+                              </>
+                            ) : (
+                              <>
+                                <Save className="h-4 w-4 mr-2" />
+                                Create Module
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                  {sortedModules.length === 0 && !isCreatingModule ? (
                     <div className="text-center py-8">
                       <Layers className="h-12 w-12 text-gray-600 mx-auto mb-4" />
                       <p className="text-gray-400">No modules available for this vertical</p>
@@ -305,37 +461,97 @@ const SalesVerticalDetail = () => {
                                       </Badge>
                                     )}
                                     {salesUser && (
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => {
-                                          if (editingModule === module.id) {
-                                            setEditingModule(null);
-                                            setEditValues({});
-                                          } else {
-                                            setEditingModule(module.id);
-                                            setEditValues({
-                                              featureList: module.featureList || '',
-                                              cloudastickEdge: module.cloudastickEdge || '',
-                                            });
-                                          }
-                                        }}
-                                        className="ml-auto text-gray-400 hover:text-white"
-                                      >
-                                        {editingModule === module.id ? (
-                                          <X className="h-4 w-4" />
-                                        ) : (
-                                          <Edit className="h-4 w-4" />
-                                        )}
-                                      </Button>
+                                      <div className="flex items-center gap-2 ml-auto">
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={async () => {
+                                            if (!authData?.access_token || !authData?.instance_url) {
+                                              toast({
+                                                title: 'Error',
+                                                description: 'Salesforce authentication required',
+                                                variant: 'destructive',
+                                              });
+                                              return;
+                                            }
+                                            if (!confirm(`Are you sure you want to delete "${module.name}"? This action cannot be undone.`)) {
+                                              return;
+                                            }
+                                            setIsDeleting(module.id);
+                                            try {
+                                              const response = await fetch('/.netlify/functions/deleteVerticalModule', {
+                                                method: 'DELETE',
+                                                headers: {
+                                                  'Content-Type': 'application/json',
+                                                },
+                                                body: JSON.stringify({
+                                                  access_token: authData.access_token,
+                                                  instance_url: authData.instance_url,
+                                                  moduleId: module.id,
+                                                }),
+                                              });
+                                              if (!response.ok) {
+                                                const errorData = await response.json();
+                                                throw new Error(errorData.message || 'Failed to delete module');
+                                              }
+                                              // Reload vertical data
+                                              const updated = await fetchVerticalById(authData.access_token, authData.instance_url, id!);
+                                              setVertical(updated);
+                                              toast({
+                                                title: 'Success',
+                                                description: 'Module deleted successfully',
+                                              });
+                                            } catch (error: any) {
+                                              toast({
+                                                title: 'Error',
+                                                description: error.message || 'Failed to delete module',
+                                                variant: 'destructive',
+                                              });
+                                            } finally {
+                                              setIsDeleting(null);
+                                            }
+                                          }}
+                                          disabled={isDeleting === module.id}
+                                          className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                                        >
+                                          {isDeleting === module.id ? (
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                          ) : (
+                                            <Trash2 className="h-4 w-4" />
+                                          )}
+                                        </Button>
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => {
+                                            if (editingModule === module.id) {
+                                              setEditingModule(null);
+                                              setEditValues({});
+                                            } else {
+                                              setEditingModule(module.id);
+                                              setEditValues({
+                                                featureList: module.featureList || '',
+                                                cloudastickEdge: module.cloudastickEdge || '',
+                                              });
+                                            }
+                                          }}
+                                          className="text-gray-400 hover:text-white"
+                                        >
+                                          {editingModule === module.id ? (
+                                            <X className="h-4 w-4" />
+                                          ) : (
+                                            <Edit className="h-4 w-4" />
+                                          )}
+                                        </Button>
+                                      </div>
                                     )}
                                   </div>
                                   {editingModule === module.id ? (
-                                    <Textarea
+                                    <RichTextEditor
                                       value={editValues.featureList || ''}
-                                      onChange={(e) => setEditValues({ ...editValues, featureList: e.target.value })}
-                                      className="bg-gray-800 border-gray-600 text-white mb-3 min-h-[100px]"
+                                      onChange={(value) => setEditValues({ ...editValues, featureList: value })}
                                       placeholder="Feature list (HTML supported)"
+                                      className="mb-3"
                                     />
                                   ) : module.featureList && (
                                     <div 
@@ -356,11 +572,11 @@ const SalesVerticalDetail = () => {
                                         Cloudastick Edge
                                       </p>
                                       {editingModule === module.id ? (
-                                        <Textarea
+                                        <RichTextEditor
                                           value={editValues.cloudastickEdge || ''}
-                                          onChange={(e) => setEditValues({ ...editValues, cloudastickEdge: e.target.value })}
-                                          className="bg-gray-800 border-gray-600 text-white mb-3 min-h-[100px]"
+                                          onChange={(value) => setEditValues({ ...editValues, cloudastickEdge: value })}
                                           placeholder="Cloudastick Edge (HTML supported)"
+                                          className="mb-3"
                                         />
                                       ) : (
                                         <div 
