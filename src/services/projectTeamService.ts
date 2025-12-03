@@ -319,8 +319,7 @@ export async function getProjectTeam(
  */
 export async function updateProjectTeam(
   projectId: string,
-  updates: Partial<SaveProjectTeamRequest>,
-  password: string
+  updates: Partial<SaveProjectTeamRequest>
 ): Promise<ProjectTeamResponse> {
   try {
     const auth = getSalesforceAuth();
