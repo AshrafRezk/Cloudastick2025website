@@ -374,9 +374,10 @@ const SalesVerticals = () => {
                       </CardTitle>
                     )}
                     {vertical.demoScriptSummary && (
-                      <CardDescription className="text-gray-400 line-clamp-2">
-                        {vertical.demoScriptSummary}
-                      </CardDescription>
+                      <div 
+                        className="text-gray-400 line-clamp-2 prose prose-invert prose-sm max-w-none"
+                        dangerouslySetInnerHTML={{ __html: vertical.demoScriptSummary }}
+                      />
                     )}
                   </CardHeader>
                   <CardContent className="flex-1 flex flex-col justify-end">
