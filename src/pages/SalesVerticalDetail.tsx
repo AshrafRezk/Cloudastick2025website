@@ -44,6 +44,11 @@ const SalesVerticalDetail = () => {
     priority: null as number | null,
   });
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [editingCredentials, setEditingCredentials] = useState(false);
+  const [credentialValues, setCredentialValues] = useState({
+    orgUsername: '',
+    orgPassword: '',
+  });
 
   // Check if user is authenticated
   // Note: Portal_Sales_Access__c is verified during login on /sales page
@@ -463,7 +468,7 @@ const SalesVerticalDetail = () => {
                                     )}
                                     <CardTitle className="text-white text-lg">
                                       {module.name}
-                                    </CardTitle>
+                                    </CardTitle>about:blank#blocked
                                     {salesUser && (
                                       <div className="flex items-center gap-2 ml-auto">
                                         <Button
@@ -754,17 +759,154 @@ const SalesVerticalDetail = () => {
                       </Button>
                     </div>
                   )}
-                  {vertical.orgUsername && (
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">Org Username</p>
-                      <p className="text-sm text-gray-300 font-mono">{vertical.orgUsername}</p>
+                  {salesUser && (
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-xs text-gray-500">Org Credentials</p>
+                      {!editingCredentials ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setEditingCredentials(true);
+                            setCredentialValues({
+                              orgUsername: vertical.orgUsername || '',
+                              orgPassword: vertical.orgPassword || '',
+                            });
+                          }}
+                          className="text-cyan-400 hover:text-cyan-300 h-6 px-2"
+                        >
+                          <Edit className="h-3 w-3 mr-1" />
+                          Edit
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setEditingCredentials(false);
+                            setCredentialValues({ orgUsername: '', orgPassword: '' });
+                          }}
+                          className="text-gray-400 hover:text-gray-300 h-6 px-2"
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      )}
                     </div>
                   )}
-                  {vertical.orgPassword && (
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">Org Password</p>
-                      <p className="text-sm text-gray-300 font-mono">{vertical.orgPassword}</p>
+                  {editingCredentials ? (
+                    <div className="space-y-3">
+                      <div>
+                        <Label className="text-xs text-gray-500 mb-1 block">Org Username</Label>
+                        <Input
+                          value={credentialValues.orgUsername}
+                          onChange={(e) => setCredentialValues({ ...credentialValues, orgUsername: e.target.value })}
+                          className="bg-gray-800 border-gray-600 text-white text-sm font-mono"
+                          placeholder="Enter org username"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs text-gray-500 mb-1 block">Org Password</Label>
+                        <Input
+                          type="password"
+                          value={credentialValues.orgPassword}
+                          onChange={(e) => setCredentialValues({ ...credentialValues, orgPassword: e.target.value })}
+                          className="bg-gray-800 border-gray-600 text-white text-sm font-mono"
+                          placeholder="Enter org password"
+                        />
+                      </div>
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setEditingCredentials(false);
+                            setCredentialValues({ orgUsername: '', orgPassword: '' });
+                          }}
+                          className="border-gray-600 text-gray-300"
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={async () => {
+                            if (!authData?.access_token || !authData?.instance_url || !id) {
+                              toast({
+                                title: 'Error',
+                                description: 'Salesforce authentication required',
+                                variant: 'destructive',
+                              });
+                              return;
+                            }
+                            setIsSaving(true);
+                            try {
+                              const response = await fetch('/.netlify/functions/updateVertical', {
+                                method: 'POST',
+                                headers: {
+                                  'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                  access_token: authData.access_token,
+                                  instance_url: authData.instance_url,
+                                  verticalId: id,
+                                  orgUsername: credentialValues.orgUsername,
+                                  orgPassword: credentialValues.orgPassword,
+                                }),
+                              });
+                              if (!response.ok) {
+                                const errorData = await response.json();
+                                throw new Error(errorData.message || 'Failed to update credentials');
+                              }
+                              // Reload vertical data
+                              const updated = await fetchVerticalById(authData.access_token, authData.instance_url, id);
+                              setVertical(updated);
+                              setEditingCredentials(false);
+                              setCredentialValues({ orgUsername: '', orgPassword: '' });
+                              toast({
+                                title: 'Success',
+                                description: 'Org credentials updated successfully',
+                              });
+                            } catch (error: any) {
+                              toast({
+                                title: 'Error',
+                                description: error.message || 'Failed to update credentials',
+                                variant: 'destructive',
+                              });
+                            } finally {
+                              setIsSaving(false);
+                            }
+                          }}
+                          disabled={isSaving}
+                          className="bg-cyan-500 hover:bg-cyan-600 text-white"
+                        >
+                          {isSaving ? (
+                            <>
+                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              Saving...
+                            </>
+                          ) : (
+                            <>
+                              <Save className="h-4 w-4 mr-2" />
+                              Save
+                            </>
+                          )}
+                        </Button>
+                      </div>
                     </div>
+                  ) : (
+                    <>
+                      {vertical.orgUsername && (
+                        <div>
+                          <p className="text-xs text-gray-500 mb-1">Org Username</p>
+                          <p className="text-sm text-gray-300 font-mono">{vertical.orgUsername}</p>
+                        </div>
+                      )}
+                      {vertical.orgPassword && (
+                        <div>
+                          <p className="text-xs text-gray-500 mb-1">Org Password</p>
+                          <p className="text-sm text-gray-300 font-mono">{vertical.orgPassword}</p>
+                        </div>
+                      )}
+                    </>
                   )}
                   {vertical.document && (
                     <div>
