@@ -40,6 +40,7 @@ import ProjectTeamAdmin from "./pages/ProjectTeamAdmin";
 import ProjectTeamView from "./pages/ProjectTeamView";
 import SalesVerticals from "./pages/SalesVerticals";
 import SalesVerticalDetail from "./pages/SalesVerticalDetail";
+import Profile from "./pages/Profile";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { SalesforceProvider } from "./contexts/SalesforceContext";
 import { PortalUserProvider } from "./contexts/PortalUserContext";
@@ -136,6 +137,7 @@ const App = () => {
                       <Route path="/feedback" element={<Feedback />} />
                       <Route path="/contact" element={<Contact />} />
                       <Route path="/learn" element={<Learn />} />
+                      <Route path="/profile" element={<Profile />} />
                       <Route path="/merchandise" element={<Merchandise />} />
                       <Route path="/salesforce-apps" element={<SalesforceApps />} />
                           <Route path="/salesforce-power" element={<SalesforcePower />} />

@@ -13,6 +13,9 @@ export interface Contact {
   trailheadUrl: string | null;
   numberOfCertifications: number;
   certificationsList: string | null;
+  portalLMSAccess?: boolean;
+  portalSalesAccess?: boolean;
+  portalCMSAccess?: boolean;
 }
 
 export interface LearningMaterial {
