@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
 import { 
-  Users, CheckCircle2, X, Save, Edit, Lock, 
+  Users, CheckCircle2, X, Save, Edit, 
   Building2, FileText, Target, Loader2,
   Eye, EyeOff, Upload, GraduationCap, Share2, Check
 } from 'lucide-react';
@@ -19,11 +19,13 @@ import { useToast } from '../hooks/use-toast';
 import SalesforceLookup, { SalesforceRecord } from '../components/SalesforceLookup';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { useSalesforce } from '../contexts/SalesforceContext';
+import { usePortalUser } from '../contexts/PortalUserContext';
 
 const ProjectTeam: React.FC = () => {
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const { authData } = useSalesforce();
+  const { user: portalUser } = usePortalUser();
   
   // URL parameters
   const projectIdParam = searchParams.get('projectId');
@@ -42,8 +44,6 @@ const ProjectTeam: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
-  const [password, setPassword] = useState('');
   const [showLogoOverride, setShowLogoOverride] = useState(false);
   const [manualLogoUrl, setManualLogoUrl] = useState('');
   const [logoLoading, setLogoLoading] = useState(false);
@@ -61,14 +61,15 @@ const ProjectTeam: React.FC = () => {
   const saveInProgressRef = useRef(false);
   const lastSaveTimeRef = useRef<number>(0);
   const DEBOUNCE_MS = 2000; // 2 seconds debounce
-  
-  const EDIT_PASSWORD = 'Cloudastick@Team$';
 
-  // Check if user is authenticated (from sessionStorage)
+  // Check if user has CPM access and enable edit mode
   useEffect(() => {
-    const isAuthenticated = sessionStorage.getItem('project-team-edit-auth') === 'true';
-    setIsEditMode(isAuthenticated);
-  }, []);
+    if (portalUser?.portalCPMAccess) {
+      setIsEditMode(true);
+    } else {
+      setIsEditMode(false);
+    }
+  }, [portalUser]);
 
   // Load existing project data
   useEffect(() => {
@@ -319,26 +320,6 @@ const ProjectTeam: React.FC = () => {
     });
   };
 
-  // Handle password authentication
-  const handlePasswordSubmit = () => {
-    if (password === EDIT_PASSWORD) {
-      setIsEditMode(true);
-      sessionStorage.setItem('project-team-edit-auth', 'true');
-      setShowPasswordDialog(false);
-      setPassword('');
-      toast({
-        title: 'Edit mode enabled',
-        description: 'You can now edit the project team.',
-      });
-    } else {
-      toast({
-        title: 'Invalid password',
-        description: 'Please enter the correct password.',
-        variant: 'destructive',
-      });
-      setPassword('');
-    }
-  };
 
   // Handle save with double-call protection
   const handleSave = async () => {
@@ -410,7 +391,7 @@ const ProjectTeam: React.FC = () => {
       };
 
       if (isEditMode) {
-        await updateProjectTeam(recordIdToSave, data, EDIT_PASSWORD);
+        await updateProjectTeam(recordIdToSave, data);
         toast({
           title: 'Project updated',
           description: 'Project team data has been updated successfully in Salesforce.',
@@ -576,14 +557,24 @@ const ProjectTeam: React.FC = () => {
             </div>
 
             {/* Edit Button */}
-            {!isEditMode && (
+            {portalUser?.portalCPMAccess && !isEditMode && (
               <Button
-                onClick={() => setShowPasswordDialog(true)}
+                onClick={() => setIsEditMode(true)}
                 variant="outline"
                 className="border-gray-600 text-gray-300 hover:bg-gray-700"
               >
-                <Lock className="h-4 w-4 mr-2" />
+                <Edit className="h-4 w-4 mr-2" />
                 Edit
+              </Button>
+            )}
+            {portalUser?.portalCPMAccess && isEditMode && (
+              <Button
+                onClick={() => setIsEditMode(false)}
+                variant="outline"
+                className="border-gray-600 text-gray-300 hover:bg-gray-700"
+              >
+                <X className="h-4 w-4 mr-2" />
+                Cancel Edit
               </Button>
             )}
           </div>
@@ -986,49 +977,6 @@ const ProjectTeam: React.FC = () => {
         </div>
       </div>
 
-      {/* Password Dialog */}
-      <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
-        <DialogContent className="bg-gray-800 border-gray-700 text-white">
-          <DialogHeader>
-            <DialogTitle>Enter Password</DialogTitle>
-            <DialogDescription className="text-gray-400">
-              Enter the password to enable edit mode for Cloudastick Project Managers.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 mt-4">
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
-              className="bg-gray-700 border-gray-600 text-white"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  handlePasswordSubmit();
-                }
-              }}
-            />
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowPasswordDialog(false);
-                  setPassword('');
-                }}
-                className="border-gray-600"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handlePasswordSubmit}
-                className="bg-cyan-600 hover:bg-cyan-700"
-              >
-                Submit
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
