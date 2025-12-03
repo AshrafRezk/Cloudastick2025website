@@ -15,6 +15,7 @@ import { Badge } from '../components/ui/badge';
 import { useToast } from '../hooks/use-toast';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
+import { Textarea } from '../components/ui/textarea';
 import RichTextEditor from '../components/RichTextEditor';
 
 const SalesVerticalDetail = () => {
@@ -49,6 +50,10 @@ const SalesVerticalDetail = () => {
     orgUsername: '',
     orgPassword: '',
   });
+  const [editingCompanyProfile, setEditingCompanyProfile] = useState(false);
+  const [companyProfileValue, setCompanyProfileValue] = useState('');
+  const [iframeError, setIframeError] = useState(false);
+  const [iframeLoaded, setIframeLoaded] = useState(false);
 
   // Check if user is authenticated
   // Note: Portal_Sales_Access__c is verified during login on /sales page
@@ -255,10 +260,54 @@ const SalesVerticalDetail = () => {
 
             {/* Company Profile */}
             {vertical.companyProfile && (() => {
+              // Helper function to convert URLs to embeddable format
+              const getEmbeddableUrl = (url: string): string => {
+                // Google Drive PDF conversion
+                if (url.includes('drive.google.com/file/d/')) {
+                  // Extract file ID from various Google Drive URL formats
+                  let fileId = '';
+                  
+                  // Format: https://drive.google.com/file/d/FILE_ID/view?usp=sharing
+                  // Format: https://drive.google.com/file/d/FILE_ID/view
+                  // Format: https://drive.google.com/file/d/FILE_ID
+                  const fileIdMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+                  if (fileIdMatch) {
+                    fileId = fileIdMatch[1];
+                  } else {
+                    // Format: https://drive.google.com/open?id=FILE_ID
+                    const openIdMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+                    if (openIdMatch) {
+                      fileId = openIdMatch[1];
+                    }
+                  }
+                  
+                  if (fileId) {
+                    return `https://drive.google.com/file/d/${fileId}/preview`;
+                  }
+                }
+                
+                // Canva links - check if it's already an embed URL or convert it
+                if (url.includes('canva.com/design/')) {
+                  // If it's already a share/embed link, use it
+                  if (url.includes('/view') || url.includes('sharebutton')) {
+                    // Try to convert to embed format if possible
+                    // Canva embed URLs typically use: https://www.canva.com/design/DESIGN_ID/view?embed
+                    const designMatch = url.match(/\/design\/([a-zA-Z0-9_-]+)/);
+                    if (designMatch) {
+                      return `https://www.canva.com/design/${designMatch[1]}/view?embed`;
+                    }
+                  }
+                }
+                
+                // Return original URL if no conversion needed
+                return url;
+              };
+
               // Check if companyProfile is a URL
               const isUrl = vertical.companyProfile.trim().startsWith('http://') || 
                           vertical.companyProfile.trim().startsWith('https://');
               const profileUrl = isUrl ? vertical.companyProfile.trim() : null;
+              const embeddableUrl = profileUrl ? getEmbeddableUrl(profileUrl) : null;
               
               return (
                 <motion.div
@@ -273,29 +322,180 @@ const SalesVerticalDetail = () => {
                           <Building2 className="h-5 w-5 text-cyan-400" />
                           <CardTitle className="text-white">Company Profile</CardTitle>
                         </div>
-                        {profileUrl && (
+                        <div className="flex items-center gap-2">
+                          {profileUrl && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => window.open(profileUrl, '_blank', 'noopener,noreferrer')}
+                              className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10"
+                            >
+                              <ExternalLink className="h-4 w-4 mr-2" />
+                              Open in New Tab
+                            </Button>
+                          )}
+                          {salesUser && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                if (editingCompanyProfile) {
+                                  setEditingCompanyProfile(false);
+                                  setCompanyProfileValue('');
+                                  setIframeError(false);
+                                  setIframeLoaded(false);
+                                } else {
+                                  setEditingCompanyProfile(true);
+                                  setCompanyProfileValue(vertical.companyProfile || '');
+                                  setIframeError(false);
+                                  setIframeLoaded(false);
+                                }
+                              }}
+                              className="text-gray-400 hover:text-white"
+                            >
+                              {editingCompanyProfile ? (
+                                <X className="h-4 w-4" />
+                              ) : (
+                                <Edit className="h-4 w-4" />
+                              )}
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      {editingCompanyProfile ? (
+                        <div className="space-y-3">
+                          <div>
+                            <Label className="text-xs text-gray-500 mb-1 block">Company Profile URL or HTML</Label>
+                            <Textarea
+                              value={companyProfileValue}
+                              onChange={(e) => setCompanyProfileValue(e.target.value)}
+                              className="bg-gray-800 border-gray-600 text-white text-sm font-mono min-h-[100px]"
+                              placeholder="Enter URL (e.g., https://drive.google.com/...) or HTML content"
+                            />
+                          </div>
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setEditingCompanyProfile(false);
+                                setCompanyProfileValue('');
+                                setIframeError(false);
+                                setIframeLoaded(false);
+                              }}
+                              className="border-gray-600 text-gray-300"
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={async () => {
+                                if (!authData?.access_token || !authData?.instance_url || !id) {
+                                  toast({
+                                    title: 'Error',
+                                    description: 'Salesforce authentication required',
+                                    variant: 'destructive',
+                                  });
+                                  return;
+                                }
+                                setIsSaving(true);
+                                try {
+                                  const response = await fetch('/.netlify/functions/updateVertical', {
+                                    method: 'POST',
+                                    headers: {
+                                      'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({
+                                      access_token: authData.access_token,
+                                      instance_url: authData.instance_url,
+                                      verticalId: id,
+                                      companyProfile: companyProfileValue,
+                                    }),
+                                  });
+                                  if (!response.ok) {
+                                    const errorData = await response.json();
+                                    throw new Error(errorData.message || 'Failed to update company profile');
+                                  }
+                                  // Reload vertical data
+                                  const updated = await fetchVerticalById(authData.access_token, authData.instance_url, id);
+                                  setVertical(updated);
+                                  setEditingCompanyProfile(false);
+                                  setCompanyProfileValue('');
+                                  setIframeError(false);
+                                  setIframeLoaded(false);
+                                  toast({
+                                    title: 'Success',
+                                    description: 'Company profile updated successfully',
+                                  });
+                                } catch (error: any) {
+                                  toast({
+                                    title: 'Error',
+                                    description: error.message || 'Failed to update company profile',
+                                    variant: 'destructive',
+                                  });
+                                } finally {
+                                  setIsSaving(false);
+                                }
+                              }}
+                              disabled={isSaving}
+                              className="bg-cyan-500 hover:bg-cyan-600 text-white"
+                            >
+                              {isSaving ? (
+                                <>
+                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                  Saving...
+                                </>
+                              ) : (
+                                <>
+                                  <Save className="h-4 w-4 mr-2" />
+                                  Save
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                      ) : profileUrl && !iframeError ? (
+                        <div className="w-full relative">
+                          <iframe
+                            src={embeddableUrl || profileUrl}
+                            className="w-full h-[600px] border border-gray-600 rounded-lg"
+                            title="Company Profile"
+                            allow="fullscreen"
+                            sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+                            onLoad={() => {
+                              setIframeLoaded(true);
+                              // Set timeout to hide iframe if it doesn't load properly
+                              setTimeout(() => {
+                                if (!iframeLoaded) {
+                                  setIframeError(true);
+                                }
+                              }, 5000);
+                            }}
+                            onError={() => {
+                              setIframeError(true);
+                            }}
+                            style={{ display: iframeError ? 'none' : 'block' }}
+                          />
+                          {!iframeLoaded && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-gray-900/50">
+                              <Loader2 className="h-8 w-8 animate-spin text-cyan-400" />
+                            </div>
+                          )}
+                        </div>
+                      ) : profileUrl && iframeError ? (
+                        <div className="text-center py-8">
+                          <AlertCircle className="h-12 w-12 text-gray-600 mx-auto mb-4" />
+                          <p className="text-gray-400 mb-4">Unable to display in iframe</p>
                           <Button
                             variant="outline"
-                            size="sm"
                             onClick={() => window.open(profileUrl, '_blank', 'noopener,noreferrer')}
                             className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10"
                           >
                             <ExternalLink className="h-4 w-4 mr-2" />
                             Open in New Tab
                           </Button>
-                        )}
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      {profileUrl ? (
-                        <div className="w-full">
-                          <iframe
-                            src={profileUrl}
-                            className="w-full h-[600px] border border-gray-600 rounded-lg"
-                            title="Company Profile"
-                            allow="fullscreen"
-                            sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-                          />
                         </div>
                       ) : (
                         <div 

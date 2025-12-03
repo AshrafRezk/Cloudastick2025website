@@ -38,7 +38,8 @@ exports.handler = async (event, context) => {
       instance_url, 
       verticalId,
       orgUsername,
-      orgPassword
+      orgPassword,
+      companyProfile
     } = JSON.parse(event.body || '{}');
 
     if (!access_token || !instance_url) {
@@ -77,6 +78,9 @@ exports.handler = async (event, context) => {
     if (orgPassword !== undefined) {
       updatePayload.Org_Password__c = orgPassword;
     }
+    if (companyProfile !== undefined) {
+      updatePayload.Company_Profile__c = companyProfile;
+    }
 
     if (Object.keys(updatePayload).length === 0) {
       return {
@@ -87,7 +91,7 @@ exports.handler = async (event, context) => {
         },
         body: JSON.stringify({ 
           error: 'No fields to update',
-          message: 'At least one field (orgUsername or orgPassword) must be provided'
+          message: 'At least one field must be provided'
         }),
       };
     }
