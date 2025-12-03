@@ -54,6 +54,7 @@ const SalesVerticalDetail = () => {
   const [companyProfileValue, setCompanyProfileValue] = useState('');
   const [iframeError, setIframeError] = useState(false);
   const [iframeLoaded, setIframeLoaded] = useState(false);
+  const iframeLoadTimeoutRef = useState<NodeJS.Timeout | null>(null)[0];
 
   // Check if user is authenticated
   // Note: Portal_Sales_Access__c is verified during login on /sales page
@@ -103,6 +104,9 @@ const SalesVerticalDetail = () => {
         setError(null);
         const data = await fetchVerticalById(authData.access_token, authData.instance_url, id);
         setVertical(data);
+        // Reset iframe state when vertical changes
+        setIframeError(false);
+        setIframeLoaded(false);
       } catch (err) {
         console.error('Error loading vertical:', err);
         const errorMessage = err instanceof Error ? err.message : 'Failed to load vertical details.';
@@ -466,20 +470,15 @@ const SalesVerticalDetail = () => {
                             sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
                             onLoad={() => {
                               setIframeLoaded(true);
-                              // Set timeout to hide iframe if it doesn't load properly
-                              setTimeout(() => {
-                                if (!iframeLoaded) {
-                                  setIframeError(true);
-                                }
-                              }, 5000);
                             }}
                             onError={() => {
                               setIframeError(true);
+                              setIframeLoaded(false);
                             }}
                             style={{ display: iframeError ? 'none' : 'block' }}
                           />
-                          {!iframeLoaded && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-gray-900/50">
+                          {!iframeLoaded && !iframeError && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-gray-900/50 rounded-lg">
                               <Loader2 className="h-8 w-8 animate-spin text-cyan-400" />
                             </div>
                           )}
