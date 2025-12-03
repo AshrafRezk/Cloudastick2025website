@@ -38,6 +38,8 @@ import Merchandise from "./pages/Merchandise";
 import ProjectTeam from "./pages/ProjectTeam";
 import ProjectTeamAdmin from "./pages/ProjectTeamAdmin";
 import ProjectTeamView from "./pages/ProjectTeamView";
+import SalesVerticals from "./pages/SalesVerticals";
+import SalesVerticalDetail from "./pages/SalesVerticalDetail";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { SalesforceProvider } from "./contexts/SalesforceContext";
 import { PortalUserProvider } from "./contexts/PortalUserContext";
@@ -115,6 +117,10 @@ const App = () => {
             
             {/* Special route for Project Team View (shareable customer page) - no standard startup or layout */}
             <Route path="/project-team-view" element={<ProjectTeamView />} />
+            
+            {/* Special routes for Sales Portal - no standard startup or layout */}
+            <Route path="/sales" element={<SalesVerticals />} />
+            <Route path="/sales/vertical/:id" element={<SalesVerticalDetail />} />
             
             {/* Standard routes with startup sequence and layout */}
             <Route path="/*" element={

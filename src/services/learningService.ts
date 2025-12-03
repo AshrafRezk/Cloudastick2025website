@@ -108,6 +108,35 @@ export const loginContact = async (
 };
 
 /**
+ * Login with sales portal credentials (checks Portal_Sales_Access__c)
+ */
+export const loginSalesContact = async (
+  username: string,
+  password: string
+): Promise<LoginResponse> => {
+  try {
+    const response = await fetch('/.netlify/functions/salesLogin', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, password }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `Login failed: ${response.status}`);
+    }
+
+    const data: LoginResponse = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Sales login error:', error);
+    throw error;
+  }
+};
+
+/**
  * Fetch learning material instances for a contact
  */
 export const fetchLearningInstances = async (
