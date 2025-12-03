@@ -68,6 +68,37 @@ exports.handler = async (event, context) => {
     console.log('Query params:', { teamBuildId, accountId, opportunityId, projectId, guid });
 
     let teamBuildIdToUse = teamBuildId;
+    let resolvedOpportunityId = opportunityId;
+
+    // If projectId is provided but opportunityId is not, fetch the Project to get its Opportunity__c
+    if (projectId && !opportunityId && !teamBuildIdToUse) {
+      try {
+        const projectUrl = `${instance_url}/services/data/v58.0/sobjects/SFDC_Project__c/${projectId}?fields=Id,Opportunity__c`;
+        const projectOptions = {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${access_token}`,
+            'Content-Type': 'application/json',
+          },
+        };
+
+        const projectResponse = await fetch(projectUrl, projectOptions);
+        if (projectResponse.ok) {
+          const projectData = await projectResponse.json();
+          if (projectData.Opportunity__c) {
+            resolvedOpportunityId = projectData.Opportunity__c;
+            console.log('✅ Resolved Project Opportunity__c:', resolvedOpportunityId);
+          } else {
+            console.log('⚠️ Project does not have an Opportunity__c lookup set');
+          }
+        } else {
+          console.warn('⚠️ Could not fetch Project record to resolve Opportunity__c');
+        }
+      } catch (projectError) {
+        console.warn('⚠️ Error fetching Project to resolve Opportunity__c:', projectError);
+        // Continue with just projectId lookup
+      }
+    }
 
     // If no direct ID provided, query by lookup fields
     if (!teamBuildIdToUse) {
@@ -76,8 +107,8 @@ exports.handler = async (event, context) => {
       if (accountId) {
         conditions.push(`Account__c = '${accountId.replace(/'/g, "\\'")}'`);
       }
-      if (opportunityId) {
-        conditions.push(`Opportunity__c = '${opportunityId.replace(/'/g, "\\'")}'`);
+      if (resolvedOpportunityId) {
+        conditions.push(`Opportunity__c = '${resolvedOpportunityId.replace(/'/g, "\\'")}'`);
       }
       if (projectId) {
         conditions.push(`Project__c = '${projectId.replace(/'/g, "\\'")}'`);

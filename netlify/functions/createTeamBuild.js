@@ -99,6 +99,37 @@ exports.handler = async (event, context) => {
     console.log(`📋 [${requestId}] Lookups:`, { accountId, opportunityId, projectId });
     console.log(`👥 [${requestId}] Team members: ${teamMembers.length}`);
 
+    // If projectId is provided but opportunityId is not, fetch the Project to get its Opportunity__c
+    let resolvedOpportunityId = opportunityId;
+    if (projectId && !opportunityId) {
+      try {
+        const projectUrl = `${instance_url}/services/data/v58.0/sobjects/SFDC_Project__c/${projectId}?fields=Id,Opportunity__c`;
+        const projectOptions = {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${access_token}`,
+            'Content-Type': 'application/json',
+          },
+        };
+
+        const projectResponse = await fetch(projectUrl, projectOptions);
+        if (projectResponse.ok) {
+          const projectData = await projectResponse.json();
+          if (projectData.Opportunity__c) {
+            resolvedOpportunityId = projectData.Opportunity__c;
+            console.log(`✅ [${requestId}] Resolved Project Opportunity__c:`, resolvedOpportunityId);
+          } else {
+            console.log(`⚠️ [${requestId}] Project does not have an Opportunity__c lookup set`);
+          }
+        } else {
+          console.warn(`⚠️ [${requestId}] Could not fetch Project record to resolve Opportunity__c`);
+        }
+      } catch (projectError) {
+        console.warn(`⚠️ [${requestId}] Error fetching Project to resolve Opportunity__c:`, projectError);
+        // Continue without opportunityId
+      }
+    }
+
     // Prepare Team build record
     const teamBuildRecord = {
       Scope__c: scope || '',
@@ -109,8 +140,8 @@ exports.handler = async (event, context) => {
     if (accountId) {
       teamBuildRecord.Account__c = accountId;
     }
-    if (opportunityId) {
-      teamBuildRecord.Opportunity__c = opportunityId;
+    if (resolvedOpportunityId) {
+      teamBuildRecord.Opportunity__c = resolvedOpportunityId;
     }
     if (projectId) {
       teamBuildRecord.Project__c = projectId;
