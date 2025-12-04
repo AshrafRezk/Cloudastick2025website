@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { 
   Users, Building2, FileText, Target, Loader2,
-  GraduationCap, CheckCircle2
+  GraduationCap, CheckCircle2, Edit, ArrowLeft
 } from 'lucide-react';
 import { teamMembers, getTeamMemberById } from '../data/teamMembers';
 import { getTeamMemberProfile } from '../data/teamProfiles';
@@ -16,6 +16,7 @@ import { getProjectTeam } from '../services/projectTeamService';
 import { fetchCompanyLogo } from '../services/logoService';
 import { Label } from '../components/ui/label';
 import { useSalesforce } from '../contexts/SalesforceContext';
+import { usePortalUser } from '../contexts/PortalUserContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../components/ui/dialog';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -180,6 +181,9 @@ const ProjectTeamView: React.FC = () => {
   
   // Salesforce authentication
   const { authData, isLoading: isAuthLoading, error: authError, refreshAuth } = useSalesforce();
+  
+  // Portal user context for checking CPM access
+  const { user: portalUser } = usePortalUser();
   
   // State
   const [projectId, setProjectId] = useState(projectIdParam || '');
@@ -527,6 +531,26 @@ const ProjectTeamView: React.FC = () => {
     .map(id => getTeamMemberById(id))
     .filter(Boolean);
 
+  // Check if user has project management access
+  const hasCPMAccess = portalUser?.portalCPMAccess || false;
+
+  // Handle edit button click - navigate to project-team page with current params
+  const handleEdit = () => {
+    const params = new URLSearchParams();
+    if (projectIdParam) params.append('projectId', projectIdParam);
+    if (companyParam) params.append('company', companyParam);
+    if (teamBuildIdParam) params.append('teamBuildId', teamBuildIdParam);
+    if (opportunityIdParam) params.append('opportunityID', opportunityIdParam);
+    if (accountIdParam) params.append('AccountId', accountIdParam);
+    if (guidParam) params.append('GUID', guidParam);
+    navigate(`/project-team?${params.toString()}`);
+  };
+
+  // Handle back button click - navigate to project-team-admin
+  const handleBack = () => {
+    navigate('/project-team-admin');
+  };
+
   // Show loading while authenticating or loading project data (only if we have query params)
   if (hasQueryParams && (isAuthLoading || isLoading)) {
     return (
@@ -633,37 +657,60 @@ const ProjectTeamView: React.FC = () => {
       {/* Header */}
       <div className="border-b border-gray-700 bg-gray-800/50 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center gap-6">
-            {/* Cloudastick Logo */}
-            <div className="flex items-center gap-2">
-              <img 
-                src="/Assets/Company Logos/white-logo-dark.webp" 
-                alt="Cloudastick" 
-                className="h-12 w-auto object-contain"
-              />
+          <div className="flex items-center justify-between gap-6">
+            <div className="flex items-center gap-6 flex-1">
+              {/* Cloudastick Logo */}
+              <div className="flex items-center gap-2">
+                <img 
+                  src="/Assets/Company Logos/white-logo-dark.webp" 
+                  alt="Cloudastick" 
+                  className="h-12 w-auto object-contain"
+                />
+              </div>
+              
+              {/* Company Logo */}
+              {companyName && (
+                <div className="flex items-center gap-3">
+                  <div className="h-px w-8 bg-gray-600" />
+                  {logoLoading ? (
+                    <div className="h-10 w-32 bg-gray-700 rounded flex items-center justify-center">
+                      <Loader2 className="h-5 w-5 text-gray-500 animate-spin" />
+                    </div>
+                  ) : companyLogo ? (
+                    <img 
+                      src={companyLogo} 
+                      alt={companyName} 
+                      className="h-12 w-auto max-w-40 object-contain bg-white/10 p-2 rounded"
+                      onError={() => setCompanyLogo('')}
+                    />
+                  ) : (
+                    <div className="h-12 w-40 bg-gray-700 rounded flex items-center justify-center">
+                      <Building2 className="h-6 w-6 text-gray-500" />
+                    </div>
+                  )}
+                  <span className="text-xl font-semibold">{companyName}</span>
+                </div>
+              )}
             </div>
-            
-            {/* Company Logo */}
-            {companyName && (
+
+            {/* Action Buttons - Only show if user has CPM access */}
+            {hasCPMAccess && (
               <div className="flex items-center gap-3">
-                <div className="h-px w-8 bg-gray-600" />
-                {logoLoading ? (
-                  <div className="h-10 w-32 bg-gray-700 rounded flex items-center justify-center">
-                    <Loader2 className="h-5 w-5 text-gray-500 animate-spin" />
-                  </div>
-                ) : companyLogo ? (
-                  <img 
-                    src={companyLogo} 
-                    alt={companyName} 
-                    className="h-12 w-auto max-w-40 object-contain bg-white/10 p-2 rounded"
-                    onError={() => setCompanyLogo('')}
-                  />
-                ) : (
-                  <div className="h-12 w-40 bg-gray-700 rounded flex items-center justify-center">
-                    <Building2 className="h-6 w-6 text-gray-500" />
-                  </div>
-                )}
-                <span className="text-xl font-semibold">{companyName}</span>
+                <Button
+                  onClick={handleBack}
+                  variant="outline"
+                  className="border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back
+                </Button>
+                <Button
+                  onClick={handleEdit}
+                  className="bg-cyan-600 hover:bg-cyan-700 text-white"
+                >
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit
+                </Button>
               </div>
             )}
           </div>
