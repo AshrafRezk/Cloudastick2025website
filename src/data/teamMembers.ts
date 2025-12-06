@@ -202,6 +202,14 @@ export const teamMembers: TeamMember[] = [
     profileSlug: "khaled-el-nabawy",
     description: "MIU Graduate with extensive enterprise experience, Khaled brings deep technical expertise from leading organizations to deliver innovative Salesforce solutions and drive digital transformation.",
     isAcademy: true
+  },
+  {
+    id: "muhammed-hesham",
+    name: "Muhammed Hesham",
+    role: "Senior UX/UI Designer",
+    image: "/Assets/Company Members/Muhammed_Hesham_Senior_UX_UI_Designer.png",
+    profileSlug: "muhammed-hesham",
+    description: "Senior UX/UI Designer with extensive experience in creating intuitive and engaging user experiences across multiple industries and platforms."
   }
 ];
 

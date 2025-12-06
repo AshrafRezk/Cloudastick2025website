@@ -698,7 +698,7 @@ const SalesVerticalDetail = () => {
                                     )}
                                     <CardTitle className="text-white text-lg">
                                       {module.name}
-                                    </CardTitle>about:blank#blocked
+                                    </CardTitle>
                                     {salesUser && (
                                       <div className="flex items-center gap-2 ml-auto">
                                         <Button

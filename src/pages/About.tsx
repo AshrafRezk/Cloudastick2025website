@@ -201,6 +201,14 @@ const About = () => {
       hoverElements: [t('team.hoverElements.integration'), t('team.hoverElements.strategy')],
       color: "from-sky-400 to-cyan-500",
       isAcademy: true
+    },
+    { 
+      id: 25, name: "Muhammed Hesham", 
+      role: "Senior UX/UI Designer", 
+      image: "/Assets/Company Members/Muhammed_Hesham_Senior_UX_UI_Designer.png",
+      icons: [Palette, Eye],
+      hoverElements: [t('team.hoverElements.innovation'), t('team.hoverElements.userAdoption')],
+      color: "from-violet-400 to-purple-500"
     }
   ];
 

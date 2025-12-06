@@ -1858,7 +1858,8 @@ const SalesforcePower = () => {
                   { name: 'Omar Bazid', role: 'Salesforce Consultant', image: 'Omar_Bazid_Salesforce_Consultant.png', isAcademy: true },
                   { name: 'Sakshi Dokarimare', role: 'Salesforce Consultant', image: 'Sakshi_Dokarimare_Salesforce_Consultant.png', isAcademy: false },
                   { name: 'Alyaa Hafez', role: 'Salesforce Consultant', image: 'Alyaa_Hafez_Salesforce_Consultant.png', isAcademy: true },
-                  { name: 'Khaled El-Nabawy', role: 'Salesforce Consultant', image: 'Khaled_El-Nabawy_Salesforce_Consultant.png', isAcademy: true }
+                  { name: 'Khaled El-Nabawy', role: 'Salesforce Consultant', image: 'Khaled_El-Nabawy_Salesforce_Consultant.png', isAcademy: true },
+                  { name: 'Muhammed Hesham', role: 'Senior UX/UI Designer', image: 'Muhammed_Hesham_Senior_UX_UI_Designer.png', isAcademy: false }
                 ];
 
                 return [...teamMembers, ...teamMembers].map((member, index) => (
