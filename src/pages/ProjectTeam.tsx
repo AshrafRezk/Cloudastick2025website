@@ -808,7 +808,9 @@ const ProjectTeam: React.FC = () => {
                     {profile && (
                       <div className="text-xs text-gray-500 space-y-1">
                         <p>{profile.yearsOfExperience} years experience</p>
-                        <p>{profile.numberOfCertificates} certificates</p>
+                        {profile.numberOfCertificates > 0 && (
+                          <p>{profile.numberOfCertificates} certificates</p>
+                        )}
                       </div>
                     )}
                     <button
@@ -836,9 +838,11 @@ const ProjectTeam: React.FC = () => {
                             <div>
                               <strong>Experience:</strong> {profile.yearsOfExperience} years
                             </div>
-                            <div>
-                              <strong>Certificates:</strong> {profile.numberOfCertificates}
-                            </div>
+                            {profile.numberOfCertificates > 0 && (
+                              <div>
+                                <strong>Certificates:</strong> {profile.numberOfCertificates}
+                              </div>
+                            )}
                             {profile.careerTrack.length > 0 && (
                               <div>
                                 <strong>Career Track:</strong>

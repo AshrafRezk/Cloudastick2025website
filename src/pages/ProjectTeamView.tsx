@@ -773,10 +773,12 @@ const ProjectTeamView: React.FC = () => {
                             <span className="text-xs text-gray-400">Experience</span>
                             <span className="text-sm font-semibold text-cyan-400">{profile.yearsOfExperience} years</span>
                           </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs text-gray-400">Certificates</span>
-                            <span className="text-sm font-semibold text-cyan-400">{profile.numberOfCertificates}</span>
-                          </div>
+                          {profile.numberOfCertificates > 0 && (
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs text-gray-400">Certificates</span>
+                              <span className="text-sm font-semibold text-cyan-400">{profile.numberOfCertificates}</span>
+                            </div>
+                          )}
                         </div>
                       )}
                       <button
@@ -800,9 +802,11 @@ const ProjectTeamView: React.FC = () => {
                             <div>
                               <strong>Experience:</strong> {profile.yearsOfExperience} years
                             </div>
-                            <div>
-                              <strong>Certificates:</strong> {profile.numberOfCertificates}
-                            </div>
+                            {profile.numberOfCertificates > 0 && (
+                              <div>
+                                <strong>Certificates:</strong> {profile.numberOfCertificates}
+                              </div>
+                            )}
                             {profile.careerTrack && profile.careerTrack.length > 0 && (
                               <div>
                                 <strong>Career Track:</strong>
