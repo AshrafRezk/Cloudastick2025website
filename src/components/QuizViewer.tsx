@@ -177,7 +177,7 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
       return;
     }
 
-    // Create new instance for this attempt
+    // Start quiz - update latest instance or create if none exists
     try {
       setIsSubmitting(true);
       setLocalError(null);
@@ -186,6 +186,8 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
       setIsStarted(true);
       setStartTime(Date.now());
       
+      // For quiz start, find latest instance or create new one
+      // Backend will handle finding the latest instance and updating it
       const result = await updateProgress({
         contactId: user.id,
         learningMaterialId: material.id,
@@ -275,8 +277,7 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
       clearInterval(timeTrackingRef.current);
     }
 
-    // Update instance with results - use instanceId if available, otherwise use contactId/materialId
-    // For quizzes, always create a new instance for each submission to track attempts
+    // Update instance with results - update the latest instance instead of creating new
     try {
       const updateParams: any = {
         progress: 100,
@@ -287,23 +288,16 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
         attemptNumber: currentAttemptNumber, // Include attempt number
       };
 
-      // For quiz submissions, always create a NEW instance for each attempt
-      // This ensures each submission is tracked separately with its own score
-      if (material.materialType === 'Quiz') {
-        // Always create a new instance for quiz submissions
-        // Don't pass instanceId - backend will create new instance with attempt number
-        updateParams.contactId = user.id;
-        updateParams.learningMaterialId = material.id;
-        // Explicitly ensure we're creating new, not updating
-        // The backend handles quiz attempt counting
-      } else if (currentInstanceId) {
-        // For non-quiz materials, update existing instance
+      // For quiz submissions, update the latest instance (backend will find and update it)
+      // For non-quiz materials, use instanceId if available
+      if (currentInstanceId) {
+        // Use the instance ID from when quiz was started
         updateParams.instanceId = currentInstanceId;
       } else if (instance?.id) {
         // Use instance ID from props if available
         updateParams.instanceId = instance.id;
       } else {
-        // Fallback to creating/updating by contact and material
+        // Fallback: backend will find latest instance for this contact/material
         updateParams.contactId = user.id;
         updateParams.learningMaterialId = material.id;
       }
