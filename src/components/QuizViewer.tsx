@@ -530,17 +530,15 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
               />
             </div>
             
-            {/* Question Navigator - Shows 5 at a time */}
+            {/* Question Navigator - Shows 5 at a time, smart navigation to unanswered */}
             <div className="flex items-center justify-between gap-2">
               <button
                 onClick={() => {
-                  const newPage = Math.max(0, questionPage - 1);
-                  setQuestionPage(newPage);
-                  // Optionally jump to first question of new page
-                  const firstIndex = newPage * 5;
-                  if (firstIndex < questions.length) {
-                    setCurrentQuestionIndex(firstIndex);
-                  }
+                  // Find previous set of questions (answered or unanswered)
+                  const currentStart = questionPage * 5;
+                  const newStart = Math.max(0, currentStart - 5);
+                  setQuestionPage(Math.floor(newStart / 5));
+                  setCurrentQuestionIndex(newStart);
                 }}
                 disabled={questionPage === 0}
                 className="px-3 py-2 rounded-lg border border-border bg-muted/50 hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
@@ -561,7 +559,14 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
                   return (
                     <button
                       key={questionIndex}
-                      onClick={() => setCurrentQuestionIndex(questionIndex)}
+                      onClick={() => {
+                        setCurrentQuestionIndex(questionIndex);
+                        // Update page if needed
+                        const newPage = Math.floor(questionIndex / 5);
+                        if (newPage !== questionPage) {
+                          setQuestionPage(newPage);
+                        }
+                      }}
                       className={`flex-shrink-0 w-10 h-10 rounded-lg border-2 flex items-center justify-center text-sm font-medium transition-all duration-200 ${
                         isCurrent
                           ? 'bg-brand-primary text-white border-brand-primary scale-110 shadow-lg shadow-brand-primary/50'
@@ -569,7 +574,7 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
                           ? 'bg-green-500/20 border-green-500/50 text-green-500 hover:scale-105'
                           : 'bg-muted/50 border-border/50 text-muted-foreground hover:bg-muted hover:border-border hover:scale-105'
                       }`}
-                      title={`Question ${questionIndex + 1}${isAnswered ? ' (Answered)' : ''}`}
+                      title={`Question ${questionIndex + 1}${isAnswered ? ' (Answered)' : ' (Unanswered)'}`}
                     >
                       {questionIndex + 1}
                     </button>
@@ -579,19 +584,49 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
               
               <button
                 onClick={() => {
-                  const maxPage = Math.floor((questions.length - 1) / 5);
-                  const newPage = Math.min(maxPage, questionPage + 1);
-                  setQuestionPage(newPage);
-                  // Optionally jump to first question of new page
-                  const firstIndex = newPage * 5;
-                  if (firstIndex < questions.length) {
-                    setCurrentQuestionIndex(firstIndex);
+                  // Find next set of unanswered questions
+                  const unansweredIndices = questions
+                    .map((q, idx) => ({ q, idx }))
+                    .filter(({ q }) => !isQuestionAnswered(q.id))
+                    .map(({ idx }) => idx);
+                  
+                  if (unansweredIndices.length === 0) {
+                    // All answered, just go to next page
+                    const maxPage = Math.floor((questions.length - 1) / 5);
+                    const newPage = Math.min(maxPage, questionPage + 1);
+                    setQuestionPage(newPage);
+                    const firstIndex = newPage * 5;
+                    if (firstIndex < questions.length) {
+                      setCurrentQuestionIndex(firstIndex);
+                    }
+                    return;
+                  }
+                  
+                  // Find the first unanswered question after current position
+                  const nextUnanswered = unansweredIndices.find(idx => idx > currentQuestionIndex);
+                  
+                  if (nextUnanswered !== undefined) {
+                    // Jump to next unanswered question
+                    setCurrentQuestionIndex(nextUnanswered);
+                    // Update page to show the question
+                    const newPage = Math.floor(nextUnanswered / 5);
+                    setQuestionPage(newPage);
+                  } else {
+                    // No more unanswered after current, go to next page
+                    const maxPage = Math.floor((questions.length - 1) / 5);
+                    const newPage = Math.min(maxPage, questionPage + 1);
+                    setQuestionPage(newPage);
+                    const firstIndex = newPage * 5;
+                    if (firstIndex < questions.length) {
+                      setCurrentQuestionIndex(firstIndex);
+                    }
                   }
                 }}
-                disabled={questionPage >= Math.floor((questions.length - 1) / 5)}
+                disabled={questionPage >= Math.floor((questions.length - 1) / 5) && answeredCount === questions.length}
                 className="px-3 py-2 rounded-lg border border-border bg-muted/50 hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
+                title="Jump to next unanswered question"
               >
-                <span className="text-sm hidden sm:inline">Next</span>
+                <span className="text-sm hidden sm:inline">Next Unanswered</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
@@ -599,6 +634,11 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
             {/* Page indicator */}
             <div className="text-center text-xs text-muted-foreground">
               Showing {questionPage * 5 + 1}-{Math.min((questionPage + 1) * 5, questions.length)} of {questions.length} questions
+              {answeredCount < questions.length && (
+                <span className="ml-2 text-green-500">
+                  • {questions.length - answeredCount} unanswered
+                </span>
+              )}
             </div>
           </div>
         </div>
