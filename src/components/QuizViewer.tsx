@@ -382,12 +382,18 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
             <Button
               variant="primary"
               onClick={handleStartQuiz}
-              disabled={isSubmitting || !quizData}
+              disabled={isSubmitting || !quizData || (material.maxAttempts && currentAttemptNumber > material.maxAttempts)}
               className="flex items-center gap-2"
             >
               <Play className="w-4 h-4" />
-              {isSubmitting ? 'Starting...' : 'Start Quiz'}
+              {isSubmitting ? 'Starting...' : 
+               (material.maxAttempts && currentAttemptNumber > material.maxAttempts) 
+                 ? 'Max Attempts Reached' 
+                 : 'Start Quiz'}
             </Button>
+            {localError && (
+              <div className="mt-2 text-sm text-destructive text-center">{localError}</div>
+            )}
           </div>
         </DialogContent>
       </Dialog>
