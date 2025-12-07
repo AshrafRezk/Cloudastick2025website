@@ -259,16 +259,17 @@ exports.handler = async (event, context) => {
       
       const isQuiz = materialType === 'Quiz';
       
-      // For quizzes, count existing attempts to determine attempt number
-      // NOTE: Attempt_Number_c field needs to be created in Salesforce first
-      // For now, we'll count instances instead of using Attempt_Number_c
+      // For quizzes, count existing completed attempts to determine next attempt number
+      // Attempt numbers are set when quizzes are submitted (Completed status)
       let nextAttemptNumber = 1;
+      let currentMaxAttempt = 0;
       if (isQuiz) {
         try {
           const escapedContactId = contactId.replace(/'/g, "\\'");
           const escapedMaterialId = learningMaterialId.replace(/'/g, "\\'");
-          // Query for existing attempts using Attempt_Number__c field
-          const attemptsQuery = `SELECT Attempt_Number__c FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' AND Material__c = '${escapedMaterialId}' AND Attempt_Number__c != null ORDER BY Attempt_Number__c DESC LIMIT 1`;
+          // Query for completed attempts using Attempt_Number__c field
+          // Only count completed attempts since attempt number is set on submission
+          const attemptsQuery = `SELECT Attempt_Number__c FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' AND Material__c = '${escapedMaterialId}' AND Attempt_Number__c != null AND Status__c = 'Completed' ORDER BY Attempt_Number__c DESC LIMIT 1`;
           const encodedAttemptsQuery = encodeURIComponent(attemptsQuery);
           const attemptsQueryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedAttemptsQuery}`;
           const attemptsResponse = await fetch(attemptsQueryUrl, {
@@ -282,10 +283,11 @@ exports.handler = async (event, context) => {
             const attemptsData = await attemptsResponse.json();
             const lastAttempt = attemptsData.records?.[0];
             if (lastAttempt && lastAttempt.Attempt_Number__c) {
-              nextAttemptNumber = lastAttempt.Attempt_Number__c + 1;
-              console.log(`📊 Calculated next attempt number: ${lastAttempt.Attempt_Number__c} + 1 = ${nextAttemptNumber}`);
+              currentMaxAttempt = lastAttempt.Attempt_Number__c;
+              nextAttemptNumber = currentMaxAttempt + 1;
+              console.log(`📊 Current max attempt: ${currentMaxAttempt}, Next attempt number: ${nextAttemptNumber}`);
             } else {
-              console.log(`📊 No previous attempts found, starting with attempt 1`);
+              console.log(`📊 No previous completed attempts found, next attempt will be 1`);
             }
           }
           
@@ -372,32 +374,22 @@ exports.handler = async (event, context) => {
             if (attemptNumber !== undefined && attemptNumber !== null) {
               updateData.Attempt_Number__c = attemptNumber;
               console.log(`🔄 Using provided attempt number: ${attemptNumber}`);
-            } else if (status === 'In Progress') {
-              // Starting a new quiz attempt - always increment by +1
-              if (existingInstance.Attempt_Number__c !== null && existingInstance.Attempt_Number__c !== undefined) {
-                // If previous attempt was completed, increment
-                if (existingInstance.Status__c === 'Completed') {
-                  updateData.Attempt_Number__c = existingInstance.Attempt_Number__c + 1;
-                  console.log(`🔄 Starting new quiz attempt: ${existingInstance.Attempt_Number__c} + 1 = ${updateData.Attempt_Number__c}`);
-                } else {
-                  // Previous attempt is still in progress, keep same number
-                  updateData.Attempt_Number__c = existingInstance.Attempt_Number__c;
-                  console.log(`🔄 Continuing current quiz attempt: ${updateData.Attempt_Number__c}`);
-                }
-              } else {
-                // No attempt number on existing instance, use calculated nextAttemptNumber
-                updateData.Attempt_Number__c = nextAttemptNumber;
-                console.log(`🔄 Setting attempt number to calculated value: ${nextAttemptNumber}`);
-              }
             } else if (status === 'Completed') {
-              // Submitting quiz - keep the current attempt number
+              // Submitting quiz - set attempt number based on completed attempts
+              // First submission = 1, second = 2, etc.
+              updateData.Attempt_Number__c = nextAttemptNumber;
+              console.log(`🔄 Quiz submitted: setting attempt number to ${nextAttemptNumber} (based on ${currentMaxAttempt} completed attempts)`);
+            } else if (status === 'In Progress') {
+              // Starting a quiz - don't set attempt number yet, it will be set on submission
+              // Keep existing attempt number if present (for continuing), otherwise don't set it
               if (existingInstance.Attempt_Number__c !== null && existingInstance.Attempt_Number__c !== undefined) {
+                // Use existing attempt number (for continuing an in-progress quiz)
                 updateData.Attempt_Number__c = existingInstance.Attempt_Number__c;
-                console.log(`🔄 Submitting quiz attempt: keeping attempt number ${updateData.Attempt_Number__c}`);
+                console.log(`🔄 Starting quiz: using existing attempt number ${updateData.Attempt_Number__c}`);
               } else {
-                // No attempt number set, use calculated value
-                updateData.Attempt_Number__c = nextAttemptNumber;
-                console.log(`🔄 Setting attempt number to calculated value: ${nextAttemptNumber}`);
+                // Don't set attempt number yet - it will be set when quiz is submitted
+                // The attempt number is only set on completion
+                console.log(`🔄 Starting quiz: attempt number will be set to ${nextAttemptNumber} on submission`);
               }
             } else {
               // Other statuses - use existing or calculated
@@ -468,14 +460,21 @@ exports.handler = async (event, context) => {
         
         // Quiz-specific fields
         if (isQuiz) {
-          // For quizzes, always use the calculated nextAttemptNumber (which is max + 1)
-          // unless explicitly provided
-          if (attemptNumber !== undefined && attemptNumber !== null) {
-            newInstanceData.Attempt_Number__c = attemptNumber;
-            console.log(`🔄 Creating new quiz instance with provided attempt number: ${attemptNumber}`);
+          // For quizzes, attempt number is only set when quiz is completed (submitted)
+          // When starting (In Progress), don't set attempt number yet
+          if (status === 'Completed') {
+            // Quiz is being submitted - set attempt number
+            if (attemptNumber !== undefined && attemptNumber !== null) {
+              newInstanceData.Attempt_Number__c = attemptNumber;
+              console.log(`🔄 Creating new quiz instance (completed) with provided attempt number: ${attemptNumber}`);
+            } else {
+              newInstanceData.Attempt_Number__c = nextAttemptNumber;
+              console.log(`🔄 Creating new quiz instance (completed) with calculated attempt number: ${nextAttemptNumber}`);
+            }
           } else {
-            newInstanceData.Attempt_Number__c = nextAttemptNumber;
-            console.log(`🔄 Creating new quiz instance with calculated attempt number: ${nextAttemptNumber} (max + 1)`);
+            // Starting quiz (In Progress) - don't set attempt number yet
+            // It will be set when the quiz is submitted
+            console.log(`🔄 Creating new quiz instance (in progress) - attempt number will be set on submission`);
           }
         } else if (attemptNumber !== undefined) {
           newInstanceData.Attempt_Number__c = attemptNumber;

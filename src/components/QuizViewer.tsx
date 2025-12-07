@@ -59,12 +59,11 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
     }
   }, [material]);
 
-  // Count existing attempts for this quiz material (only when not started)
+  // Fetch current attempt number for this quiz material (only when not started)
   useEffect(() => {
     if (!isStarted && material && material.materialType === 'Quiz' && user) {
       setIsLoadingAttempts(true);
-      // Count ALL instances for this material (both completed and in progress)
-      // This gives us the total number of attempts
+      // Get all instances for this quiz material
       const quizInstances = instances.filter(
         inst => inst.learningMaterialId === material.id
       );
@@ -78,23 +77,34 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
         }))
       );
       
-      // Get the highest attempt number from all instances
-      let attemptCount = 0;
+      // Get the current attempt number from completed instances
+      // The attempt number is set when a quiz is submitted (Completed status)
+      let currentAttemptNumber = 0;
+      
       if (quizInstances.length > 0) {
-        // First, try to get max attempt number from instances that have it set
-        const instancesWithAttempts = quizInstances.filter(inst => inst.attemptNumber !== null && inst.attemptNumber !== undefined);
+        // Get instances with attempt numbers set (these are completed quizzes)
+        const instancesWithAttempts = quizInstances.filter(
+          inst => inst.attemptNumber !== null && inst.attemptNumber !== undefined && inst.status === 'Completed'
+        );
         
         if (instancesWithAttempts.length > 0) {
-          // Use the highest attempt number
-          attemptCount = Math.max(...instancesWithAttempts.map(inst => inst.attemptNumber!));
+          // Use the highest attempt number from completed instances
+          // This represents the last completed attempt
+          currentAttemptNumber = Math.max(...instancesWithAttempts.map(inst => inst.attemptNumber!));
+          console.log(`📊 Current attempt number from completed instances: ${currentAttemptNumber}`);
         } else {
-          // Fallback: count all instances (each instance = one attempt)
-          attemptCount = quizInstances.length;
+          // No completed instances with attempt numbers, check if there are any instances at all
+          // If there are instances but no attempt numbers, this might be the first attempt
+          const hasAnyInstances = quizInstances.length > 0;
+          currentAttemptNumber = hasAnyInstances ? 0 : 0; // Will be set to 1 on first submission
+          console.log(`📊 No completed attempts found, starting fresh`);
         }
       }
       
-      const nextAttempt = attemptCount + 1;
-      console.log(`Current attempt count: ${attemptCount}, next attempt: ${nextAttempt}`);
+      // The next attempt number is current + 1
+      // If current is 0, next will be 1 (first attempt)
+      const nextAttempt = currentAttemptNumber + 1;
+      console.log(`📊 Current attempt: ${currentAttemptNumber}, Next attempt: ${nextAttempt}`);
       setCurrentAttemptNumber(nextAttempt);
       setIsLoadingAttempts(false);
     } else if (!material || material.materialType !== 'Quiz') {
