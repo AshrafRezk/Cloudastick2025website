@@ -93,22 +93,42 @@ export const calculateScore = (
 /**
  * Check if score meets passing requirement
  * Handles both percentage (70) and decimal (0.70) formats from Salesforce
+ * Salesforce can store as: 75 (percentage) or 0.75 (decimal percentage)
  */
 export const checkPassingScore = (score: number, passingScore: number | null | undefined): boolean => {
   if (passingScore === null || passingScore === undefined) return true; // No passing score requirement
   
   // Convert to percentage if it's a decimal (0.70 -> 70)
-  const passingScorePercent = passingScore < 1 ? passingScore * 100 : passingScore;
+  // Check if it's between 0 and 1 (exclusive) to determine if it's a decimal
+  let passingScorePercent: number;
+  if (passingScore > 0 && passingScore <= 1) {
+    // It's a decimal (0.75 means 75%)
+    passingScorePercent = passingScore * 100;
+  } else {
+    // It's already a percentage (75 means 75%)
+    passingScorePercent = passingScore;
+  }
+  
+  console.log(`Passing score check: score=${score}%, passingScore=${passingScore}, normalized=${passingScorePercent}%, passed=${score >= passingScorePercent}`);
   
   return score >= passingScorePercent;
 };
 
 /**
  * Normalize passing score to percentage format for display
+ * Handles both percentage (70) and decimal (0.70) formats from Salesforce
  */
 export const normalizePassingScore = (passingScore: number | null | undefined): number | null => {
   if (passingScore === null || passingScore === undefined) return null;
+  
   // Convert to percentage if it's a decimal (0.70 -> 70)
-  return passingScore < 1 ? passingScore * 100 : passingScore;
+  // Check if it's between 0 and 1 (exclusive) to determine if it's a decimal
+  if (passingScore > 0 && passingScore <= 1) {
+    // It's a decimal (0.75 means 75%)
+    return passingScore * 100;
+  } else {
+    // It's already a percentage (75 means 75%)
+    return passingScore;
+  }
 };
 

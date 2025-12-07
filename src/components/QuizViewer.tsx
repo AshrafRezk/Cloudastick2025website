@@ -63,22 +63,39 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
   useEffect(() => {
     if (!isStarted && material && material.materialType === 'Quiz' && user) {
       setIsLoadingAttempts(true);
-      // Count completed instances for this material
+      // Count ALL instances for this material (both completed and in progress)
+      // This gives us the total number of attempts
       const quizInstances = instances.filter(
-        inst => inst.learningMaterialId === material.id && inst.status === 'Completed'
+        inst => inst.learningMaterialId === material.id
       );
       
-      // Get the highest attempt number or count instances
+      console.log(`Found ${quizInstances.length} instances for quiz ${material.id}:`, 
+        quizInstances.map(inst => ({
+          id: inst.id,
+          status: inst.status,
+          attemptNumber: inst.attemptNumber,
+          score: inst.score
+        }))
+      );
+      
+      // Get the highest attempt number from all instances
       let attemptCount = 0;
       if (quizInstances.length > 0) {
-        const maxAttempt = Math.max(
-          ...quizInstances.map(inst => inst.attemptNumber || 0),
-          quizInstances.length // Fallback to count if attempt numbers not set
-        );
-        attemptCount = maxAttempt;
+        // First, try to get max attempt number from instances that have it set
+        const instancesWithAttempts = quizInstances.filter(inst => inst.attemptNumber !== null && inst.attemptNumber !== undefined);
+        
+        if (instancesWithAttempts.length > 0) {
+          // Use the highest attempt number
+          attemptCount = Math.max(...instancesWithAttempts.map(inst => inst.attemptNumber!));
+        } else {
+          // Fallback: count all instances (each instance = one attempt)
+          attemptCount = quizInstances.length;
+        }
       }
       
-      setCurrentAttemptNumber(attemptCount + 1);
+      const nextAttempt = attemptCount + 1;
+      console.log(`Current attempt count: ${attemptCount}, next attempt: ${nextAttempt}`);
+      setCurrentAttemptNumber(nextAttempt);
       setIsLoadingAttempts(false);
     } else if (!material || material.materialType !== 'Quiz') {
       setCurrentAttemptNumber(1);
