@@ -61,8 +61,7 @@ exports.handler = async (event, context) => {
     // Query instances - instances are tied to parent materials (courses)
     // We'll also need to fetch child materials separately
     // Note: The field on Learning_Material_Instance__c is Material__c, not Learning_Material__c
-    // Note: Attempt_Number_c and Time_Taken_Minutes_c are optional fields that may not exist yet in Salesforce
-    const soqlQuery = `SELECT Id, Name, Learner__c, Material__c, Progress__c, Status__c, Score__c, Started_On__c, Completed_On__c, CreatedDate, Material__r.Id, Material__r.Title__c, Material__r.Description__c, Material__r.Material_Type__c, Material__r.Material_URL__c, Material__r.Duration__c, Material__r.Category__c, Material__r.Active__c, Material__r.Parent_Material__c, Material__r.Quiz_Questions_c, Material__r.Passing_Score_c, Material__r.Quiz_Time_Limit_Minutes_c, Material__r.Max_Attempts_c, Material__r.Show_Results_c, Material__r.Randomize_Questions_c FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' ORDER BY CreatedDate ASC`;
+    const soqlQuery = `SELECT Id, Name, Learner__c, Material__c, Progress__c, Status__c, Score__c, Started_On__c, Completed_On__c, CreatedDate, Attempt_Number__c, Time_Taken_Minutes__c, Material__r.Id, Material__r.Title__c, Material__r.Description__c, Material__r.Material_Type__c, Material__r.Material_URL__c, Material__r.Duration__c, Material__r.Category__c, Material__r.Active__c, Material__r.Parent_Material__c, Material__r.Quiz_Questions__c, Material__r.Passing_score__c, Material__r.Quiz_Time_limit_Minutes__c, Material__r.Max_Attempts__c, Material__r.Show_Results__c, Material__r.Randomize_Questions__c FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' ORDER BY CreatedDate ASC`;
     
     const encodedQuery = encodeURIComponent(soqlQuery);
     const queryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedQuery}`;
@@ -124,7 +123,7 @@ exports.handler = async (event, context) => {
         if (material && !material.Parent_Material__c) {
           try {
             // Fetch child materials
-            const childQuery = `SELECT Id, Title__c, Description__c, Material_Type__c, Material_URL__c, Duration__c, Category__c, Active__c, Quiz_Questions_c, Passing_Score_c, Quiz_Time_Limit_Minutes_c, Max_Attempts_c, Show_Results_c, Randomize_Questions_c FROM Learning_Material__c WHERE Parent_Material__c = '${material.Id}' AND Active__c = true ORDER BY CreatedDate ASC`;
+            const childQuery = `SELECT Id, Title__c, Description__c, Material_Type__c, Material_URL__c, Duration__c, Category__c, Active__c, Quiz_Questions__c, Passing_score__c, Quiz_Time_limit_Minutes__c, Max_Attempts__c, Show_Results__c, Randomize_Questions__c FROM Learning_Material__c WHERE Parent_Material__c = '${material.Id}' AND Active__c = true ORDER BY CreatedDate ASC`;
             const encodedChildQuery = encodeURIComponent(childQuery);
             const childQueryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedChildQuery}`;
             
@@ -201,12 +200,12 @@ exports.handler = async (event, context) => {
                     parentId: material.Id,
                     isChild: true,
                     instance: childInstance, // Attach instance data to child material
-                    quizQuestions: child.Quiz_Questions_c || null,
-                    passingScore: child.Passing_Score_c || null,
-                    quizTimeLimitMinutes: child.Quiz_Time_Limit_Minutes_c || null,
-                    maxAttempts: child.Max_Attempts_c || null,
-                    showResults: child.Show_Results_c || null,
-                    randomizeQuestions: child.Randomize_Questions_c || null,
+                    quizQuestions: child.Quiz_Questions__c || null,
+                    passingScore: child.Passing_score__c || null,
+                    quizTimeLimitMinutes: child.Quiz_Time_limit_Minutes__c || null,
+                    maxAttempts: child.Max_Attempts__c || null,
+                    showResults: child.Show_Results__c || null,
+                    randomizeQuestions: child.Randomize_Questions__c || null,
                   };
                 });
                 
@@ -240,12 +239,12 @@ exports.handler = async (event, context) => {
           parentId: material.Parent_Material__c || null,
           isChild: !!material.Parent_Material__c,
           childMaterials: childMaterials, // Add child materials if this is a parent
-          quizQuestions: material.Quiz_Questions_c || null,
-          passingScore: material.Passing_Score_c || null,
-          quizTimeLimitMinutes: material.Quiz_Time_Limit_Minutes_c || null,
-          maxAttempts: material.Max_Attempts_c || null,
-          showResults: material.Show_Results_c || null,
-          randomizeQuestions: material.Randomize_Questions_c || null,
+          quizQuestions: material.Quiz_Questions__c || null,
+          passingScore: material.Passing_score__c || null,
+          quizTimeLimitMinutes: material.Quiz_Time_limit_Minutes__c || null,
+          maxAttempts: material.Max_Attempts__c || null,
+          showResults: material.Show_Results__c || null,
+          randomizeQuestions: material.Randomize_Questions__c || null,
         } : null;
 
         // Use calculated progress if we have children, otherwise use the record's progress
@@ -271,9 +270,8 @@ exports.handler = async (event, context) => {
           createdDate: record.CreatedDate,
           material: displayMaterial,
           isParent: !material?.Parent_Material__c && childMaterials.length > 0, // Flag to identify parent instances
-          // Quiz fields - optional, may not exist in Salesforce yet
-          attemptNumber: record.Attempt_Number_c || null,
-          timeTakenMinutes: record.Time_Taken_Minutes_c || null,
+          attemptNumber: record.Attempt_Number__c || null,
+          timeTakenMinutes: record.Time_Taken_Minutes__c || null,
         };
       })
     );
