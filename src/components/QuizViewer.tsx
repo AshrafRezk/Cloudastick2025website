@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, Clock, AlertCircle, XCircle, ChevronLeft, ChevronRight, Play, RotateCcw, Loader2 } from 'lucide-react';
 import { usePortalUser } from '../contexts/PortalUserContext';
-import { LearningMaterialInstance } from '../services/learningService';
+import { useSalesforce } from '../contexts/SalesforceContext';
+import { LearningMaterialInstance, fetchQuizAttemptNumber } from '../services/learningService';
 import { parseQuizQuestions, randomizeQuestions, calculateScore, checkPassingScore, normalizePassingScore } from '../utils/quizUtils';
 import { QuizQuestion, QuizAnswer } from '../services/learningService';
 import Button from './Button';
@@ -20,6 +21,7 @@ interface QuizViewerProps {
 
 const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
   const { updateProgress, user, instances } = usePortalUser();
+  const { authData } = useSalesforce();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<QuizAnswer[]>([]);
   const [quizData, setQuizData] = useState<ReturnType<typeof parseQuizQuestions> | null>(null);
@@ -59,58 +61,46 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
     }
   }, [material]);
 
-  // Fetch current attempt number for this quiz material (only when not started)
+  // Fetch current attempt number from Salesforce for this quiz material (only when not started)
   useEffect(() => {
-    if (!isStarted && material && material.materialType === 'Quiz' && user) {
+    if (!isStarted && material && material.materialType === 'Quiz' && user && authData) {
       setIsLoadingAttempts(true);
-      // Get all instances for this quiz material
-      const quizInstances = instances.filter(
-        inst => inst.learningMaterialId === material.id
-      );
       
-      console.log(`Found ${quizInstances.length} instances for quiz ${material.id}:`, 
-        quizInstances.map(inst => ({
-          id: inst.id,
-          status: inst.status,
-          attemptNumber: inst.attemptNumber,
-          score: inst.score
-        }))
-      );
-      
-      // Get the current attempt number from completed instances
-      // The attempt number is set when a quiz is submitted (Completed status)
-      let currentAttemptNumber = 0;
-      
-      if (quizInstances.length > 0) {
-        // Get instances with attempt numbers set (these are completed quizzes)
-        const instancesWithAttempts = quizInstances.filter(
-          inst => inst.attemptNumber !== null && inst.attemptNumber !== undefined && inst.status === 'Completed'
-        );
-        
-        if (instancesWithAttempts.length > 0) {
-          // Use the highest attempt number from completed instances
-          // This represents the last completed attempt
-          currentAttemptNumber = Math.max(...instancesWithAttempts.map(inst => inst.attemptNumber!));
-          console.log(`📊 Current attempt number from completed instances: ${currentAttemptNumber}`);
-        } else {
-          // No completed instances with attempt numbers, check if there are any instances at all
-          // If there are instances but no attempt numbers, this might be the first attempt
-          const hasAnyInstances = quizInstances.length > 0;
-          currentAttemptNumber = hasAnyInstances ? 0 : 0; // Will be set to 1 on first submission
-          console.log(`📊 No completed attempts found, starting fresh`);
-        }
-      }
-      
-      // The next attempt number is current + 1
-      // If current is 0, next will be 1 (first attempt)
-      const nextAttempt = currentAttemptNumber + 1;
-      console.log(`📊 Current attempt: ${currentAttemptNumber}, Next attempt: ${nextAttempt}`);
-      setCurrentAttemptNumber(nextAttempt);
-      setIsLoadingAttempts(false);
+      // Fetch attempt number directly from Salesforce
+      fetchQuizAttemptNumber(user.id, material.id, {
+        access_token: authData.access_token,
+        instance_url: authData.instance_url,
+      })
+        .then((maxAttemptNumber) => {
+          // The next attempt number is maxAttemptNumber + 1
+          // If maxAttemptNumber is 0, next will be 1 (first attempt)
+          const nextAttempt = maxAttemptNumber + 1;
+          console.log(`📊 Fetched max attempt number from Salesforce: ${maxAttemptNumber}, Next attempt: ${nextAttempt}`);
+          setCurrentAttemptNumber(nextAttempt);
+          setIsLoadingAttempts(false);
+        })
+        .catch((error) => {
+          console.error('Failed to fetch attempt number from Salesforce:', error);
+          // Fallback: use instances array if available
+          const quizInstances = instances.filter(
+            inst => inst.learningMaterialId === material.id && inst.status === 'Completed'
+          );
+          const instancesWithAttempts = quizInstances.filter(
+            inst => inst.attemptNumber !== null && inst.attemptNumber !== undefined
+          );
+          let maxAttempt = 0;
+          if (instancesWithAttempts.length > 0) {
+            maxAttempt = Math.max(...instancesWithAttempts.map(inst => inst.attemptNumber!));
+          }
+          const nextAttempt = maxAttempt + 1;
+          console.log(`📊 Using fallback attempt number: ${maxAttempt}, Next attempt: ${nextAttempt}`);
+          setCurrentAttemptNumber(nextAttempt);
+          setIsLoadingAttempts(false);
+        });
     } else if (!material || material.materialType !== 'Quiz') {
       setCurrentAttemptNumber(1);
     }
-  }, [material, instances, user, isStarted]);
+  }, [material, user, authData, isStarted, instances]);
 
   // Reset state when material/instance changes (only if quiz not started)
   useEffect(() => {

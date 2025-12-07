@@ -303,3 +303,38 @@ export const updateTrailheadUrl = async (
   }
 };
 
+/**
+ * Fetch current quiz attempt number for a learner and material
+ */
+export const fetchQuizAttemptNumber = async (
+  contactId: string,
+  learningMaterialId: string,
+  authData: { access_token: string; instance_url: string }
+): Promise<number> => {
+  try {
+    const response = await fetch('/.netlify/functions/fetchQuizAttemptNumber', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        access_token: authData.access_token,
+        instance_url: authData.instance_url,
+        contactId,
+        learningMaterialId,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `Failed to fetch attempt number: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.maxAttemptNumber || 0;
+  } catch (error) {
+    console.error('Fetch quiz attempt number error:', error);
+    throw error;
+  }
+};
+
