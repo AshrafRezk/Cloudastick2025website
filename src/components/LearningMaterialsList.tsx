@@ -307,7 +307,7 @@ const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) 
             <Play className="w-6 h-6 text-blue-500" />
             In Progress ({inProgress.length})
           </h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div className="flex flex-col gap-4">
             {inProgress.map((instance, index) => renderMaterialCard(instance, index))}
           </div>
         </div>
@@ -320,7 +320,7 @@ const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) 
             <BookOpen className="w-6 h-6 text-muted-foreground" />
             Not Started ({notStarted.length})
           </h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div className="flex flex-col gap-4">
             {notStarted.map((instance, index) => renderMaterialCard(instance, index))}
           </div>
         </div>
@@ -333,7 +333,7 @@ const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) 
             <CheckCircle2 className="w-6 h-6 text-green-500" />
             Completed Modules ({completed.length})
           </h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div className="flex flex-col gap-4">
             {completed.map((instance, index) => renderMaterialCard(instance, index))}
           </div>
         </div>
