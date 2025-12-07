@@ -41,7 +41,7 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
 
   const material = instance?.material;
 
-  // Initialize quiz data and count attempts
+  // Initialize quiz data
   useEffect(() => {
     if (material && material.quizQuestions) {
       const parsed = parseQuizQuestions(material.quizQuestions);
@@ -57,9 +57,11 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
         setQuestions(questionsToUse);
       }
     }
-    
-    // Count existing attempts for this quiz material
-    if (material && material.materialType === 'Quiz' && user) {
+  }, [material]);
+
+  // Count existing attempts for this quiz material (only when not started)
+  useEffect(() => {
+    if (!isStarted && material && material.materialType === 'Quiz' && user) {
       setIsLoadingAttempts(true);
       // Count completed instances for this material
       const quizInstances = instances.filter(
@@ -78,20 +80,26 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
       
       setCurrentAttemptNumber(attemptCount + 1);
       setIsLoadingAttempts(false);
-    } else {
+    } else if (!material || material.materialType !== 'Quiz') {
       setCurrentAttemptNumber(1);
     }
+  }, [material, instances, user, isStarted]);
+
+  // Reset state when material/instance changes (only if quiz not started)
+  useEffect(() => {
+    if (isStarted) return; // Don't reset if quiz is in progress
     
-    // Reset state when material changes
     if (instance?.id) {
       setCurrentInstanceId(instance.id);
+    } else {
+      setCurrentInstanceId(null);
     }
-    setIsStarted(false);
     setIsCompleted(false);
     setCurrentQuestionIndex(0);
     setAnswers([]);
     setQuestionPage(0);
-  }, [material, instance, instances, user]);
+    setLocalError(null);
+  }, [material?.id, instance?.id, isStarted]);
 
   // Timer logic
   useEffect(() => {
