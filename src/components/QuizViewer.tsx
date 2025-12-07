@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, Clock, AlertCircle, XCircle, ChevronLeft, ChevronRight, Play, RotateCcw } from 'lucide-react';
+import { CheckCircle2, Clock, AlertCircle, XCircle, ChevronLeft, ChevronRight, Play, RotateCcw, Loader2 } from 'lucide-react';
 import { usePortalUser } from '../contexts/PortalUserContext';
 import { LearningMaterialInstance } from '../services/learningService';
 import { parseQuizQuestions, randomizeQuestions, calculateScore, checkPassingScore } from '../utils/quizUtils';
