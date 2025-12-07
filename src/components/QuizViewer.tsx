@@ -31,6 +31,9 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
   const [quizResult, setQuizResult] = useState<{ score: number; correctAnswers: number; totalQuestions: number; passed: boolean } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [startTime, setStartTime] = useState<number | null>(null);
+  const [currentInstanceId, setCurrentInstanceId] = useState<string | null>(null);
+  const [questionPage, setQuestionPage] = useState(0);
+  const [localError, setLocalError] = useState<string | null>(null);
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const timeTrackingRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -52,7 +55,17 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
         setQuestions(questionsToUse);
       }
     }
-  }, [material]);
+    
+    // Reset state when material changes
+    if (instance?.id) {
+      setCurrentInstanceId(instance.id);
+    }
+    setIsStarted(false);
+    setIsCompleted(false);
+    setCurrentQuestionIndex(0);
+    setAnswers([]);
+    setQuestionPage(0);
+  }, [material, instance]);
 
   // Timer logic
   useEffect(() => {
@@ -107,26 +120,25 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
   const handleStartQuiz = async () => {
     if (!material || !user) return;
 
-    // Check max attempts
-    if (material.maxAttempts) {
-      // Query existing instances to count attempts
-      // For now, we'll create the instance and let the backend handle attempt counting
-    }
-
     // Create new instance for this attempt
     try {
       setIsSubmitting(true);
-      await updateProgress({
+      const result = await updateProgress({
         contactId: user.id,
         learningMaterialId: material.id,
         progress: 0,
         status: 'In Progress',
         startedOn: new Date().toISOString(),
       });
+      // Store the instance ID for later updates
+      if (result.instanceId) {
+        setCurrentInstanceId(result.instanceId);
+      }
       setIsStarted(true);
       setStartTime(Date.now());
     } catch (error) {
       console.error('Failed to start quiz:', error);
+      setLocalError('Failed to start quiz. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -146,13 +158,25 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
 
   const handleNextQuestion = () => {
     if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      const newIndex = currentQuestionIndex + 1;
+      setCurrentQuestionIndex(newIndex);
+      // Update page if we've moved to a new page
+      const newPage = Math.floor(newIndex / 5);
+      if (newPage !== questionPage) {
+        setQuestionPage(newPage);
+      }
     }
   };
 
   const handlePreviousQuestion = () => {
     if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
+      const newIndex = currentQuestionIndex - 1;
+      setCurrentQuestionIndex(newIndex);
+      // Update page if we've moved to a new page
+      const newPage = Math.floor(newIndex / 5);
+      if (newPage !== questionPage) {
+        setQuestionPage(newPage);
+      }
     }
   };
 
@@ -183,19 +207,27 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
       clearInterval(timeTrackingRef.current);
     }
 
-    // Update instance with results
+    // Update instance with results - use instanceId if available, otherwise use contactId/materialId
     try {
-      await updateProgress({
-        contactId: user.id,
-        learningMaterialId: material.id,
+      const updateParams: any = {
         progress: 100,
-        status: 'Completed',
+        status: 'Completed' as const,
         score: result.score,
         completedOn: new Date().toISOString(),
         timeTakenMinutes: finalTimeTaken,
-      });
+      };
+
+      if (currentInstanceId) {
+        updateParams.instanceId = currentInstanceId;
+      } else {
+        updateParams.contactId = user.id;
+        updateParams.learningMaterialId = material.id;
+      }
+
+      await updateProgress(updateParams);
     } catch (error) {
       console.error('Failed to save quiz results:', error);
+      // Don't prevent showing results even if save fails
     } finally {
       setIsSubmitting(false);
     }
@@ -488,24 +520,85 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
             </CardContent>
           </Card>
 
-          {/* Question Navigation */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex gap-2">
-              {questions.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentQuestionIndex(index)}
-                  className={`w-10 h-10 rounded border flex items-center justify-center text-sm transition-colors ${
-                    index === currentQuestionIndex
-                      ? 'bg-brand-primary text-white border-brand-primary'
-                      : isQuestionAnswered(questions[index].id)
-                      ? 'bg-green-500/20 border-green-500/50 text-green-500'
-                      : 'bg-muted border-border hover:bg-muted/80'
-                  }`}
-                >
-                  {index + 1}
-                </button>
-              ))}
+          {/* Question Navigation - Progress Bar Style */}
+          <div className="mb-4 space-y-3">
+            {/* Progress Bar */}
+            <div className="w-full bg-muted/30 rounded-full h-2 overflow-hidden">
+              <div 
+                className="h-full bg-gradient-to-r from-brand-primary to-brand-secondary transition-all duration-300"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            
+            {/* Question Navigator - Shows 5 at a time */}
+            <div className="flex items-center justify-between gap-2">
+              <button
+                onClick={() => {
+                  const newPage = Math.max(0, questionPage - 1);
+                  setQuestionPage(newPage);
+                  // Optionally jump to first question of new page
+                  const firstIndex = newPage * 5;
+                  if (firstIndex < questions.length) {
+                    setCurrentQuestionIndex(firstIndex);
+                  }
+                }}
+                disabled={questionPage === 0}
+                className="px-3 py-2 rounded-lg border border-border bg-muted/50 hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                <span className="text-sm hidden sm:inline">Prev</span>
+              </button>
+              
+              <div className="flex-1 flex items-center justify-center gap-2 overflow-hidden">
+                {Array.from({ length: Math.min(5, questions.length - questionPage * 5) }).map((_, i) => {
+                  const questionIndex = questionPage * 5 + i;
+                  if (questionIndex >= questions.length) return null;
+                  
+                  const question = questions[questionIndex];
+                  const isAnswered = isQuestionAnswered(question.id);
+                  const isCurrent = questionIndex === currentQuestionIndex;
+                  
+                  return (
+                    <button
+                      key={questionIndex}
+                      onClick={() => setCurrentQuestionIndex(questionIndex)}
+                      className={`flex-shrink-0 w-10 h-10 rounded-lg border-2 flex items-center justify-center text-sm font-medium transition-all duration-200 ${
+                        isCurrent
+                          ? 'bg-brand-primary text-white border-brand-primary scale-110 shadow-lg shadow-brand-primary/50'
+                          : isAnswered
+                          ? 'bg-green-500/20 border-green-500/50 text-green-500 hover:scale-105'
+                          : 'bg-muted/50 border-border/50 text-muted-foreground hover:bg-muted hover:border-border hover:scale-105'
+                      }`}
+                      title={`Question ${questionIndex + 1}${isAnswered ? ' (Answered)' : ''}`}
+                    >
+                      {questionIndex + 1}
+                    </button>
+                  );
+                })}
+              </div>
+              
+              <button
+                onClick={() => {
+                  const maxPage = Math.floor((questions.length - 1) / 5);
+                  const newPage = Math.min(maxPage, questionPage + 1);
+                  setQuestionPage(newPage);
+                  // Optionally jump to first question of new page
+                  const firstIndex = newPage * 5;
+                  if (firstIndex < questions.length) {
+                    setCurrentQuestionIndex(firstIndex);
+                  }
+                }}
+                disabled={questionPage >= Math.floor((questions.length - 1) / 5)}
+                className="px-3 py-2 rounded-lg border border-border bg-muted/50 hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
+              >
+                <span className="text-sm hidden sm:inline">Next</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+            
+            {/* Page indicator */}
+            <div className="text-center text-xs text-muted-foreground">
+              Showing {questionPage * 5 + 1}-{Math.min((questionPage + 1) * 5, questions.length)} of {questions.length} questions
             </div>
           </div>
         </div>
@@ -531,19 +624,28 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
               <ChevronRight className="w-4 h-4" />
             </Button>
           </div>
-          <Button
-            variant="primary"
-            onClick={() => handleSubmitQuiz(false)}
-            disabled={isSubmitting}
-            className="flex items-center gap-2"
-          >
-            {isSubmitting ? 'Submitting...' : 'Submit Quiz'}
-          </Button>
-          {answeredCount < questions.length && (
-            <span className="text-xs text-muted-foreground">
-              {questions.length - answeredCount} unanswered
-            </span>
-          )}
+          <div className="flex items-center gap-4">
+            {answeredCount < questions.length && (
+              <span className="text-sm text-muted-foreground hidden sm:inline">
+                {questions.length - answeredCount} unanswered
+              </span>
+            )}
+            <Button
+              variant="primary"
+              onClick={() => handleSubmitQuiz(false)}
+              disabled={isSubmitting}
+              className="flex items-center gap-2"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                'Submit Quiz'
+              )}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
