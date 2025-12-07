@@ -18,10 +18,8 @@ const Learn = () => {
   // Note: Users can also login via the global login button in the header
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted to-background p-4">
-        <div className="w-full max-w-2xl">
-          <PortalLogin />
-        </div>
+      <div className="min-h-screen w-full overflow-x-hidden">
+        <PortalLogin />
       </div>
     );
   }

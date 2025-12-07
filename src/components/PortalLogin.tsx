@@ -47,22 +47,22 @@ const PortalLogin = () => {
   ];
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted to-background p-4 sm:p-6 lg:p-8 xl:p-12 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted to-background p-4 sm:p-6 lg:p-8 xl:p-12 relative overflow-x-hidden">
       {/* Background decorative elements for desktop */}
       <div className="hidden lg:block absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-brand-primary/5 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-brand-secondary/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
       </div>
       
-      <div className="w-full max-w-[1400px] grid grid-cols-1 lg:grid-cols-[1.1fr,0.9fr] xl:grid-cols-[1.2fr,1fr] 2xl:grid-cols-[1.3fr,1fr] gap-6 lg:gap-12 xl:gap-16 2xl:gap-20 items-center relative z-10">
+      <div className="w-full max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-[1.1fr,0.9fr] xl:grid-cols-[1.2fr,1fr] 2xl:grid-cols-[1.3fr,1fr] gap-6 lg:gap-8 xl:gap-12 2xl:gap-16 items-center relative z-10 px-4 sm:px-6 lg:px-8">
         {/* Login Form */}
         <motion.div
           initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="w-full order-2 lg:order-1"
+          className="w-full order-2 lg:order-1 flex-shrink-0"
         >
-          <div className="bg-card/95 backdrop-blur-xl rounded-3xl p-6 sm:p-8 lg:p-10 xl:p-14 2xl:p-16 border border-border/50 shadow-2xl hover:shadow-brand-primary/20 transition-all duration-500 hover:scale-[1.01] relative overflow-hidden group">
+          <div className="bg-card/95 backdrop-blur-xl rounded-3xl p-6 sm:p-8 lg:p-10 xl:p-12 2xl:p-14 border border-border/50 shadow-2xl hover:shadow-brand-primary/20 transition-all duration-500 hover:scale-[1.01] relative overflow-hidden group w-full">
             {/* Subtle gradient overlay on hover */}
             <div className="absolute inset-0 bg-gradient-to-br from-brand-primary/0 via-brand-primary/0 to-brand-secondary/0 group-hover:from-brand-primary/5 group-hover:via-brand-primary/3 group-hover:to-brand-secondary/5 transition-all duration-500 rounded-3xl pointer-events-none" />
             <div className="relative z-10">
@@ -187,9 +187,9 @@ const PortalLogin = () => {
           initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-          className="w-full order-1 lg:order-2"
+          className="w-full order-1 lg:order-2 flex-shrink-0"
         >
-          <div className="bg-card/95 backdrop-blur-xl rounded-3xl p-6 sm:p-8 lg:p-10 xl:p-14 2xl:p-16 border border-border/50 shadow-2xl hover:shadow-brand-primary/20 transition-all duration-500 hover:scale-[1.01] relative overflow-hidden group h-full flex flex-col">
+          <div className="bg-card/95 backdrop-blur-xl rounded-3xl p-6 sm:p-8 lg:p-10 xl:p-12 2xl:p-14 border border-border/50 shadow-2xl hover:shadow-brand-primary/20 transition-all duration-500 hover:scale-[1.01] relative overflow-hidden group h-full flex flex-col w-full">
             {/* Subtle gradient overlay on hover */}
             <div className="absolute inset-0 bg-gradient-to-bl from-brand-secondary/0 via-brand-secondary/0 to-brand-primary/0 group-hover:from-brand-secondary/5 group-hover:via-brand-secondary/3 group-hover:to-brand-primary/5 transition-all duration-500 rounded-3xl pointer-events-none" />
             <div className="relative z-10 flex flex-col h-full">

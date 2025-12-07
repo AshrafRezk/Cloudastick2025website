@@ -283,6 +283,9 @@ exports.handler = async (event, context) => {
             const lastAttempt = attemptsData.records?.[0];
             if (lastAttempt && lastAttempt.Attempt_Number__c) {
               nextAttemptNumber = lastAttempt.Attempt_Number__c + 1;
+              console.log(`📊 Calculated next attempt number: ${lastAttempt.Attempt_Number__c} + 1 = ${nextAttemptNumber}`);
+            } else {
+              console.log(`📊 No previous attempts found, starting with attempt 1`);
             }
           }
           
@@ -309,12 +312,13 @@ exports.handler = async (event, context) => {
       const escapedContactId = contactId.replace(/'/g, "\\'");
       const escapedMaterialId = learningMaterialId.replace(/'/g, "\\'");
       
-      // For quizzes, find the latest instance (by CreatedDate DESC) to update
+      // For quizzes, find the latest instance (by Attempt_Number__c DESC, then CreatedDate DESC) to update
       // For non-quizzes, find any existing instance
       let existingQuery;
       if (isQuiz && !instanceId) {
         // For quiz materials, find the latest instance to update (not create new)
-        existingQuery = `SELECT Id, Attempt_Number__c, Status__c FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' AND Material__c = '${escapedMaterialId}' ORDER BY CreatedDate DESC LIMIT 1`;
+        // Order by Attempt_Number__c DESC first to get the highest attempt, then by CreatedDate
+        existingQuery = `SELECT Id, Attempt_Number__c, Status__c FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' AND Material__c = '${escapedMaterialId}' ORDER BY Attempt_Number__c DESC, CreatedDate DESC LIMIT 1`;
       } else {
         existingQuery = `SELECT Id FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' AND Material__c = '${escapedMaterialId}' LIMIT 1`;
       }
@@ -368,18 +372,20 @@ exports.handler = async (event, context) => {
             if (attemptNumber !== undefined && attemptNumber !== null) {
               updateData.Attempt_Number__c = attemptNumber;
             } else if (existingInstance.Attempt_Number__c !== null && existingInstance.Attempt_Number__c !== undefined) {
-              // If starting a new attempt (status is In Progress and previous was Completed), increment
-              // Otherwise, keep the current attempt number
+              // Check if we're starting a new attempt (status is In Progress and previous was Completed)
               if (status === 'In Progress' && existingInstance.Status__c === 'Completed') {
-                // Starting a new attempt after completion - increment
+                // Starting a new attempt after completion - increment by +1
                 updateData.Attempt_Number__c = existingInstance.Attempt_Number__c + 1;
+                console.log(`🔄 Starting new quiz attempt: ${existingInstance.Attempt_Number__c} -> ${updateData.Attempt_Number__c}`);
               } else {
-                // Updating current attempt - keep same number
+                // Updating current attempt (submitting or continuing) - keep same number
                 updateData.Attempt_Number__c = existingInstance.Attempt_Number__c;
               }
             } else {
-              // No attempt number set, use the calculated nextAttemptNumber
+              // No attempt number set on existing instance, use the calculated nextAttemptNumber
+              // This ensures we always increment properly
               updateData.Attempt_Number__c = nextAttemptNumber;
+              console.log(`🔄 Setting attempt number to calculated value: ${nextAttemptNumber}`);
             }
           } else if (attemptNumber !== undefined) {
             updateData.Attempt_Number__c = attemptNumber;
