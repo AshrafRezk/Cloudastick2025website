@@ -163,6 +163,12 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
     // Create new instance for this attempt
     try {
       setIsSubmitting(true);
+      setLocalError(null);
+      
+      // Set started state BEFORE the API call to prevent reset from refreshInstances
+      setIsStarted(true);
+      setStartTime(Date.now());
+      
       const result = await updateProgress({
         contactId: user.id,
         learningMaterialId: material.id,
@@ -171,15 +177,19 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
         startedOn: new Date().toISOString(),
         attemptNumber: currentAttemptNumber, // Pass the attempt number
       });
+      
       // Store the instance ID for later updates
       if (result.instanceId) {
         setCurrentInstanceId(result.instanceId);
       }
-      setIsStarted(true);
-      setStartTime(Date.now());
+      
+      console.log('Quiz started successfully:', result);
     } catch (error) {
       console.error('Failed to start quiz:', error);
       setLocalError('Failed to start quiz. Please try again.');
+      // Reset started state on error
+      setIsStarted(false);
+      setStartTime(null);
     } finally {
       setIsSubmitting(false);
     }
