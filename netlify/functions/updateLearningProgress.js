@@ -309,11 +309,12 @@ exports.handler = async (event, context) => {
       const escapedContactId = contactId.replace(/'/g, "\\'");
       const escapedMaterialId = learningMaterialId.replace(/'/g, "\\'");
       
-      // For quizzes, we always create new instances for new attempts
+      // For quizzes, we always create new instances for each attempt (both start and submission)
       // For non-quizzes, check if instance exists
       let existingQuery;
-      if (isQuiz && status === 'In Progress' && !instanceId) {
-        // For quiz start, always create new instance
+      if (isQuiz && !instanceId) {
+        // For quiz materials, always create new instance for each attempt
+        // This allows tracking multiple attempts with separate scores
         existingQuery = null;
       } else {
         existingQuery = `SELECT Id FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' AND Material__c = '${escapedMaterialId}' LIMIT 1`;
