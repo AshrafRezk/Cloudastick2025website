@@ -92,9 +92,23 @@ export const calculateScore = (
 
 /**
  * Check if score meets passing requirement
+ * Handles both percentage (70) and decimal (0.70) formats from Salesforce
  */
 export const checkPassingScore = (score: number, passingScore: number | null | undefined): boolean => {
   if (passingScore === null || passingScore === undefined) return true; // No passing score requirement
-  return score >= passingScore;
+  
+  // Convert to percentage if it's a decimal (0.70 -> 70)
+  const passingScorePercent = passingScore < 1 ? passingScore * 100 : passingScore;
+  
+  return score >= passingScorePercent;
+};
+
+/**
+ * Normalize passing score to percentage format for display
+ */
+export const normalizePassingScore = (passingScore: number | null | undefined): number | null => {
+  if (passingScore === null || passingScore === undefined) return null;
+  // Convert to percentage if it's a decimal (0.70 -> 70)
+  return passingScore < 1 ? passingScore * 100 : passingScore;
 };
 

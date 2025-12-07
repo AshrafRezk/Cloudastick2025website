@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, Clock, AlertCircle, XCircle, ChevronLeft, ChevronRight, Play, RotateCcw, Loader2 } from 'lucide-react';
 import { usePortalUser } from '../contexts/PortalUserContext';
 import { LearningMaterialInstance } from '../services/learningService';
-import { parseQuizQuestions, randomizeQuestions, calculateScore, checkPassingScore } from '../utils/quizUtils';
+import { parseQuizQuestions, randomizeQuestions, calculateScore, checkPassingScore, normalizePassingScore } from '../utils/quizUtils';
 import { QuizQuestion, QuizAnswer } from '../services/learningService';
 import Button from './Button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -219,15 +219,26 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
 
       if (currentInstanceId) {
         updateParams.instanceId = currentInstanceId;
+      } else if (instance?.id) {
+        // Use instance ID from props if available
+        updateParams.instanceId = instance.id;
       } else {
+        // Fallback to creating/updating by contact and material
         updateParams.contactId = user.id;
         updateParams.learningMaterialId = material.id;
       }
 
-      await updateProgress(updateParams);
+      const updateResult = await updateProgress(updateParams);
+      console.log('Quiz results saved to Salesforce:', updateResult);
+      
+      // Update currentInstanceId if we got a new one
+      if (updateResult.instanceId && !currentInstanceId) {
+        setCurrentInstanceId(updateResult.instanceId);
+      }
     } catch (error) {
-      console.error('Failed to save quiz results:', error);
-      // Don't prevent showing results even if save fails
+      console.error('Failed to save quiz results to Salesforce:', error);
+      // Show error but don't prevent showing results
+      setLocalError('Quiz completed but failed to save results. Please contact support.');
     } finally {
       setIsSubmitting(false);
     }
@@ -355,13 +366,20 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
                   <p className="text-muted-foreground mt-2">
                     {quizResult.passed
                       ? `Congratulations! You passed with a score of ${quizResult.score}%`
-                      : `You scored ${quizResult.score}%. Passing score is ${material.passingScore || 0}%`}
+                      : `You scored ${quizResult.score}%. Minimum passing score is ${normalizePassingScore(material.passingScore) || 0}%`}
                   </p>
                 </div>
                 <div className="grid grid-cols-3 gap-4 mt-6">
                   <div className="text-center">
-                    <div className="text-2xl font-bold">{quizResult.score}%</div>
+                    <div className={`text-2xl font-bold ${quizResult.passed ? 'text-green-500' : 'text-red-500'}`}>
+                      {quizResult.score}%
+                    </div>
                     <div className="text-sm text-muted-foreground">Score</div>
+                    {material.passingScore && (
+                      <div className="text-xs text-muted-foreground mt-1">
+                        Min: {normalizePassingScore(material.passingScore)}%
+                      </div>
+                    )}
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold">{quizResult.correctAnswers}/{quizResult.totalQuestions}</div>
