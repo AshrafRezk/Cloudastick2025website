@@ -34,12 +34,15 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
   const [currentInstanceId, setCurrentInstanceId] = useState<string | null>(null);
   const [questionPage, setQuestionPage] = useState(0);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [currentAttemptNumber, setCurrentAttemptNumber] = useState<number>(1);
+  const [isLoadingAttempts, setIsLoadingAttempts] = useState(false);
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const timeTrackingRef = useRef<NodeJS.Timeout | null>(null);
 
   const material = instance?.material;
+  const { instances } = usePortalUser();
 
-  // Initialize quiz data
+  // Initialize quiz data and count attempts
   useEffect(() => {
     if (material && material.quizQuestions) {
       const parsed = parseQuizQuestions(material.quizQuestions);
@@ -56,6 +59,30 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
       }
     }
     
+    // Count existing attempts for this quiz material
+    if (material && material.materialType === 'Quiz' && user) {
+      setIsLoadingAttempts(true);
+      // Count completed instances for this material
+      const quizInstances = instances.filter(
+        inst => inst.learningMaterialId === material.id && inst.status === 'Completed'
+      );
+      
+      // Get the highest attempt number or count instances
+      let attemptCount = 0;
+      if (quizInstances.length > 0) {
+        const maxAttempt = Math.max(
+          ...quizInstances.map(inst => inst.attemptNumber || 0),
+          quizInstances.length // Fallback to count if attempt numbers not set
+        );
+        attemptCount = maxAttempt;
+      }
+      
+      setCurrentAttemptNumber(attemptCount + 1);
+      setIsLoadingAttempts(false);
+    } else {
+      setCurrentAttemptNumber(1);
+    }
+    
     // Reset state when material changes
     if (instance?.id) {
       setCurrentInstanceId(instance.id);
@@ -65,7 +92,7 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
     setCurrentQuestionIndex(0);
     setAnswers([]);
     setQuestionPage(0);
-  }, [material, instance]);
+  }, [material, instance, instances, user]);
 
   // Timer logic
   useEffect(() => {
@@ -120,6 +147,12 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
   const handleStartQuiz = async () => {
     if (!material || !user) return;
 
+    // Check max attempts
+    if (material.maxAttempts && currentAttemptNumber > material.maxAttempts) {
+      setLocalError(`Maximum attempts (${material.maxAttempts}) reached for this quiz.`);
+      return;
+    }
+
     // Create new instance for this attempt
     try {
       setIsSubmitting(true);
@@ -129,6 +162,7 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
         progress: 0,
         status: 'In Progress',
         startedOn: new Date().toISOString(),
+        attemptNumber: currentAttemptNumber, // Pass the attempt number
       });
       // Store the instance ID for later updates
       if (result.instanceId) {
@@ -208,6 +242,7 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
     }
 
     // Update instance with results - use instanceId if available, otherwise use contactId/materialId
+    // For quizzes, always create a new instance for each submission to track attempts
     try {
       const updateParams: any = {
         progress: 100,
@@ -215,9 +250,18 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
         score: result.score,
         completedOn: new Date().toISOString(),
         timeTakenMinutes: finalTimeTaken,
+        attemptNumber: currentAttemptNumber, // Include attempt number
       };
 
-      if (currentInstanceId) {
+      // For quiz submissions, always create a new instance to track the attempt
+      // Don't update existing instance - create new one for this attempt
+      if (material.materialType === 'Quiz') {
+        // Create new instance for this attempt (don't use existing instanceId)
+        updateParams.contactId = user.id;
+        updateParams.learningMaterialId = material.id;
+        // Don't set instanceId so it creates a new one
+      } else if (currentInstanceId) {
+        // For non-quiz materials, update existing instance
         updateParams.instanceId = currentInstanceId;
       } else if (instance?.id) {
         // Use instance ID from props if available
@@ -231,10 +275,13 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
       const updateResult = await updateProgress(updateParams);
       console.log('Quiz results saved to Salesforce:', updateResult);
       
-      // Update currentInstanceId if we got a new one
-      if (updateResult.instanceId && !currentInstanceId) {
+      // Store the new instance ID
+      if (updateResult.instanceId) {
         setCurrentInstanceId(updateResult.instanceId);
       }
+      
+      // Refresh instances to get updated attempt count
+      // The parent component should refresh, but we can trigger it if needed
     } catch (error) {
       console.error('Failed to save quiz results to Salesforce:', error);
       // Show error but don't prevent showing results
@@ -312,6 +359,18 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Max Attempts:</span>
                   <span className="font-medium">{material.maxAttempts}</span>
+                </div>
+              )}
+              {material.materialType === 'Quiz' && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Current Attempt:</span>
+                  <span className={`font-medium ${
+                    material.maxAttempts && currentAttemptNumber > material.maxAttempts
+                      ? 'text-destructive'
+                      : 'text-brand-primary'
+                  }`}>
+                    {isLoadingAttempts ? 'Loading...' : `Attempt ${currentAttemptNumber}${material.maxAttempts ? ` of ${material.maxAttempts}` : ''}`}
+                  </span>
                 </div>
               )}
             </CardContent>
