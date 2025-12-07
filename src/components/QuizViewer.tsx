@@ -252,13 +252,15 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
         attemptNumber: currentAttemptNumber, // Include attempt number
       };
 
-      // For quiz submissions, always create a new instance to track the attempt
-      // Don't update existing instance - create new one for this attempt
+      // For quiz submissions, always create a NEW instance for each attempt
+      // This ensures each submission is tracked separately with its own score
       if (material.materialType === 'Quiz') {
-        // Create new instance for this attempt (don't use existing instanceId)
+        // Always create a new instance for quiz submissions
+        // Don't pass instanceId - backend will create new instance with attempt number
         updateParams.contactId = user.id;
         updateParams.learningMaterialId = material.id;
-        // Don't set instanceId so it creates a new one
+        // Explicitly ensure we're creating new, not updating
+        // The backend handles quiz attempt counting
       } else if (currentInstanceId) {
         // For non-quiz materials, update existing instance
         updateParams.instanceId = currentInstanceId;
