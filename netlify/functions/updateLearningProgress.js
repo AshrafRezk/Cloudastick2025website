@@ -260,12 +260,17 @@ exports.handler = async (event, context) => {
       const isQuiz = materialType === 'Quiz';
       
       // For quizzes, count existing attempts to determine attempt number
+      // NOTE: Attempt_Number_c field needs to be created in Salesforce first
+      // For now, we'll count instances instead of using Attempt_Number_c
       let nextAttemptNumber = 1;
       if (isQuiz) {
         try {
           const escapedContactId = contactId.replace(/'/g, "\\'");
           const escapedMaterialId = learningMaterialId.replace(/'/g, "\\'");
-          const attemptsQuery = `SELECT Attempt_Number_c FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' AND Material__c = '${escapedMaterialId}' AND Attempt_Number_c != null ORDER BY Attempt_Number_c DESC LIMIT 1`;
+          // Count existing instances for this material and contact to determine attempt number
+          // Once Attempt_Number_c field exists, we can use the commented query below
+          const attemptsQuery = `SELECT Id FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' AND Material__c = '${escapedMaterialId}'`;
+          // const attemptsQuery = `SELECT Attempt_Number_c FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' AND Material__c = '${escapedMaterialId}' AND Attempt_Number_c != null ORDER BY Attempt_Number_c DESC LIMIT 1`;
           const encodedAttemptsQuery = encodeURIComponent(attemptsQuery);
           const attemptsQueryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedAttemptsQuery}`;
           const attemptsResponse = await fetch(attemptsQueryUrl, {
@@ -277,10 +282,15 @@ exports.handler = async (event, context) => {
           });
           if (attemptsResponse.ok) {
             const attemptsData = await attemptsResponse.json();
-            const lastAttempt = attemptsData.records?.[0];
-            if (lastAttempt && lastAttempt.Attempt_Number_c) {
-              nextAttemptNumber = lastAttempt.Attempt_Number_c + 1;
-            }
+            const existingInstances = attemptsData.records || [];
+            // Count existing instances to determine next attempt number
+            nextAttemptNumber = existingInstances.length + 1;
+            
+            // Once Attempt_Number_c exists, use this instead:
+            // const lastAttempt = attemptsData.records?.[0];
+            // if (lastAttempt && lastAttempt.Attempt_Number_c) {
+            //   nextAttemptNumber = lastAttempt.Attempt_Number_c + 1;
+            // }
           }
           
           // Check max attempts
@@ -421,13 +431,14 @@ exports.handler = async (event, context) => {
         }
         
         // Quiz-specific fields
-        if (isQuiz) {
-          newInstanceData.Attempt_Number_c = attemptNumber !== undefined ? attemptNumber : nextAttemptNumber;
-        }
-        
-        if (timeTakenMinutes !== undefined && timeTakenMinutes !== null) {
-          newInstanceData.Time_Taken_Minutes_c = timeTakenMinutes;
-        }
+        // NOTE: These fields (Attempt_Number_c, Time_Taken_Minutes_c) need to be created in Salesforce first
+        // Uncomment these lines once the fields are created in Salesforce:
+        // if (isQuiz && attemptNumber !== undefined) {
+        //   newInstanceData.Attempt_Number_c = attemptNumber !== null ? attemptNumber : nextAttemptNumber;
+        // }
+        // if (timeTakenMinutes !== undefined && timeTakenMinutes !== null) {
+        //   newInstanceData.Time_Taken_Minutes_c = timeTakenMinutes;
+        // }
 
         const createUrl = `${instance_url}/services/data/v58.0/sobjects/Learning_Material_Instance__c`;
         const createResponse = await fetch(createUrl, {
@@ -507,13 +518,15 @@ exports.handler = async (event, context) => {
       updateData.Completed_On__c = completedOn;
     }
     
-    if (timeTakenMinutes !== undefined && timeTakenMinutes !== null) {
-      updateData.Time_Taken_Minutes_c = timeTakenMinutes;
-    }
-    
-    if (attemptNumber !== undefined && attemptNumber !== null) {
-      updateData.Attempt_Number_c = attemptNumber;
-    }
+    // Quiz-specific fields
+    // NOTE: These fields (Attempt_Number_c, Time_Taken_Minutes_c) need to be created in Salesforce first
+    // Uncomment these lines once the fields are created in Salesforce:
+    // if (timeTakenMinutes !== undefined && timeTakenMinutes !== null) {
+    //   updateData.Time_Taken_Minutes_c = timeTakenMinutes;
+    // }
+    // if (attemptNumber !== undefined && attemptNumber !== null) {
+    //   updateData.Attempt_Number_c = attemptNumber;
+    // }
 
     // If status is Completed, ensure progress is 100
     if (status === 'Completed' && (!updateData.Progress__c || updateData.Progress__c < 100)) {

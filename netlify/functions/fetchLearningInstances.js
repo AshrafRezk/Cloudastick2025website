@@ -61,7 +61,8 @@ exports.handler = async (event, context) => {
     // Query instances - instances are tied to parent materials (courses)
     // We'll also need to fetch child materials separately
     // Note: The field on Learning_Material_Instance__c is Material__c, not Learning_Material__c
-    const soqlQuery = `SELECT Id, Name, Learner__c, Material__c, Progress__c, Status__c, Score__c, Started_On__c, Completed_On__c, CreatedDate, Attempt_Number_c, Time_Taken_Minutes_c, Material__r.Id, Material__r.Title__c, Material__r.Description__c, Material__r.Material_Type__c, Material__r.Material_URL__c, Material__r.Duration__c, Material__r.Category__c, Material__r.Active__c, Material__r.Parent_Material__c, Material__r.Quiz_Questions_c, Material__r.Passing_Score_c, Material__r.Quiz_Time_Limit_Minutes_c, Material__r.Max_Attempts_c, Material__r.Show_Results_c, Material__r.Randomize_Questions_c FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' ORDER BY CreatedDate ASC`;
+    // Note: Attempt_Number_c and Time_Taken_Minutes_c are optional fields that may not exist yet in Salesforce
+    const soqlQuery = `SELECT Id, Name, Learner__c, Material__c, Progress__c, Status__c, Score__c, Started_On__c, Completed_On__c, CreatedDate, Material__r.Id, Material__r.Title__c, Material__r.Description__c, Material__r.Material_Type__c, Material__r.Material_URL__c, Material__r.Duration__c, Material__r.Category__c, Material__r.Active__c, Material__r.Parent_Material__c, Material__r.Quiz_Questions_c, Material__r.Passing_Score_c, Material__r.Quiz_Time_Limit_Minutes_c, Material__r.Max_Attempts_c, Material__r.Show_Results_c, Material__r.Randomize_Questions_c FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' ORDER BY CreatedDate ASC`;
     
     const encodedQuery = encodeURIComponent(soqlQuery);
     const queryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedQuery}`;
@@ -270,6 +271,7 @@ exports.handler = async (event, context) => {
           createdDate: record.CreatedDate,
           material: displayMaterial,
           isParent: !material?.Parent_Material__c && childMaterials.length > 0, // Flag to identify parent instances
+          // Quiz fields - optional, may not exist in Salesforce yet
           attemptNumber: record.Attempt_Number_c || null,
           timeTakenMinutes: record.Time_Taken_Minutes_c || null,
         };
