@@ -302,10 +302,10 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
                   <span className="font-medium">{material.quizTimeLimitMinutes} minutes</span>
                 </div>
               )}
-              {material.passingScore && (
+              {material.passingScore !== null && material.passingScore !== undefined && (
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Passing Score:</span>
-                  <span className="font-medium">{material.passingScore}%</span>
+                  <span className="font-medium">{normalizePassingScore(material.passingScore)}%</span>
                 </div>
               )}
               {material.maxAttempts && (
