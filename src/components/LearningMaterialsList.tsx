@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { BookOpen, Play, CheckCircle2, Clock, FileText, Video, GraduationCap, ChevronDown, ChevronRight } from 'lucide-react';
+import { BookOpen, Play, CheckCircle2, Clock, FileText, Video, GraduationCap, ChevronDown, ChevronRight, ClipboardList } from 'lucide-react';
 import { usePortalUser } from '../contexts/PortalUserContext';
 import { LearningMaterialInstance, LearningMaterial } from '../services/learningService';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -16,6 +16,8 @@ const getMaterialIcon = (materialType: string) => {
       return Video;
     case 'PDF':
       return FileText;
+    case 'Quiz':
+      return ClipboardList;
     case 'Course':
       return GraduationCap;
     default:
@@ -137,11 +139,16 @@ const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) 
                       {child.duration} min
                     </span>
                   )}
-                  <span className={`flex items-center gap-1 font-medium ${childStatusColor}`}>
-                    {childStatus === 'Completed' && <CheckCircle2 className="w-3 h-3" />}
-                    {childStatus === 'In Progress' && <Play className="w-3 h-3" />}
-                    {childStatus}
-                  </span>
+                    <span className={`flex items-center gap-1 font-medium ${childStatusColor}`}>
+                      {childStatus === 'Completed' && <CheckCircle2 className="w-3 h-3" />}
+                      {childStatus === 'In Progress' && <Play className="w-3 h-3" />}
+                      {childStatus}
+                    </span>
+                    {child.materialType === 'Quiz' && (
+                      <span className="text-xs text-muted-foreground">
+                        {childInstance && (childInstance as any).attemptNumber ? `Attempt ${(childInstance as any).attemptNumber}` : ''}
+                      </span>
+                    )}
                 </div>
                 {childInstance && (
                   <div className="space-y-1">
@@ -224,6 +231,13 @@ const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) 
                       {instance.status === 'In Progress' && <Play className="w-3 h-3" />}
                       {instance.status}
                     </span>
+                    {instance.material?.materialType === 'Quiz' && (
+                      <span className="text-xs text-muted-foreground">
+                        {instance.attemptNumber ? `Attempt ${instance.attemptNumber}` : ''}
+                        {instance.score !== null && ` • Score: ${instance.score}%`}
+                        {instance.material?.maxAttempts && ` • Max: ${instance.material.maxAttempts}`}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -249,6 +263,23 @@ const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) 
             {instance.completedOn && (
               <div className="mt-3 text-xs text-muted-foreground">
                 Completed on {new Date(instance.completedOn).toLocaleDateString()}
+              </div>
+            )}
+            {instance.material?.materialType === 'Quiz' && instance.score !== null && (
+              <div className="mt-2 text-xs">
+                <span className={`font-medium ${
+                  instance.material.passingScore && instance.score >= instance.material.passingScore
+                    ? 'text-green-500'
+                    : instance.material.passingScore
+                    ? 'text-red-500'
+                    : 'text-muted-foreground'
+                }`}>
+                  {instance.material.passingScore && instance.score >= instance.material.passingScore
+                    ? '✓ Passed'
+                    : instance.material.passingScore
+                    ? '✗ Failed'
+                    : `Score: ${instance.score}%`}
+                </span>
               </div>
             )}
           </CardContent>

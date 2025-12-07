@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Progress } from './ui/progress';
 import { Slider } from './ui/slider';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
+import QuizViewer from './QuizViewer';
 
 interface MaterialViewerProps {
   instance: LearningMaterialInstance | null;
@@ -216,7 +217,13 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
 
   const isPDF = material.materialType === 'PDF';
   const isVideo = material.materialType === 'Video';
+  const isQuiz = material.materialType === 'Quiz';
   const materialUrl = material.materialUrl;
+
+  // Route to QuizViewer for quiz materials
+  if (isQuiz) {
+    return <QuizViewer instance={instance} isOpen={isOpen} onClose={onClose} />;
+  }
 
   // Convert Google Drive sharing link to embeddable preview link
   const getEmbeddableUrl = (url: string | null): string | null => {

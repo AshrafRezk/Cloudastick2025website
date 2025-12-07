@@ -44,7 +44,9 @@ exports.handler = async (event, context) => {
       status,
       score,
       startedOn,
-      completedOn
+      completedOn,
+      attemptNumber,
+      timeTakenMinutes
     } = JSON.parse(event.body || '{}');
 
     if (!access_token || !instance_url) {
@@ -229,119 +231,178 @@ exports.handler = async (event, context) => {
     if (!instanceId && contactId && learningMaterialId) {
       console.log('📝 Upserting Learning Material Instance...');
       
-      // Check if instance already exists
+      // Check if material is a quiz and get max attempts
+      let materialMaxAttempts = null;
+      let materialType = null;
+      try {
+        const materialQuery = `SELECT Material_Type__c, Max_Attempts_c FROM Learning_Material__c WHERE Id = '${learningMaterialId.replace(/'/g, "\\'")}' LIMIT 1`;
+        const encodedMaterialQuery = encodeURIComponent(materialQuery);
+        const materialQueryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedMaterialQuery}`;
+        const materialResponse = await fetch(materialQueryUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${access_token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        if (materialResponse.ok) {
+          const materialData = await materialResponse.json();
+          const material = materialData.records?.[0];
+          if (material) {
+            materialType = material.Material_Type__c;
+            materialMaxAttempts = material.Max_Attempts_c;
+          }
+        }
+      } catch (e) {
+        console.log('⚠️ Could not fetch material info:', e);
+      }
+      
+      const isQuiz = materialType === 'Quiz';
+      
+      // For quizzes, count existing attempts to determine attempt number
+      let nextAttemptNumber = 1;
+      if (isQuiz) {
+        try {
+          const escapedContactId = contactId.replace(/'/g, "\\'");
+          const escapedMaterialId = learningMaterialId.replace(/'/g, "\\'");
+          const attemptsQuery = `SELECT Attempt_Number_c FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' AND Material__c = '${escapedMaterialId}' AND Attempt_Number_c != null ORDER BY Attempt_Number_c DESC LIMIT 1`;
+          const encodedAttemptsQuery = encodeURIComponent(attemptsQuery);
+          const attemptsQueryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedAttemptsQuery}`;
+          const attemptsResponse = await fetch(attemptsQueryUrl, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${access_token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+          if (attemptsResponse.ok) {
+            const attemptsData = await attemptsResponse.json();
+            const lastAttempt = attemptsData.records?.[0];
+            if (lastAttempt && lastAttempt.Attempt_Number_c) {
+              nextAttemptNumber = lastAttempt.Attempt_Number_c + 1;
+            }
+          }
+          
+          // Check max attempts
+          if (materialMaxAttempts && nextAttemptNumber > materialMaxAttempts) {
+            return {
+              statusCode: 400,
+              headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ 
+                error: 'Maximum attempts reached',
+                message: `You have reached the maximum number of attempts (${materialMaxAttempts}) for this quiz.`
+              }),
+            };
+          }
+        } catch (e) {
+          console.log('⚠️ Could not check attempts:', e);
+        }
+      }
+      
+      // Check if instance already exists (for non-quiz materials, or if updating existing quiz attempt)
       const escapedContactId = contactId.replace(/'/g, "\\'");
       const escapedMaterialId = learningMaterialId.replace(/'/g, "\\'");
-      const existingQuery = `SELECT Id FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' AND Material__c = '${escapedMaterialId}' LIMIT 1`;
-      const encodedExistingQuery = encodeURIComponent(existingQuery);
-      const existingQueryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedExistingQuery}`;
       
-      const existingResponse = await fetch(existingQueryUrl, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${access_token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      // For quizzes, we always create new instances for new attempts
+      // For non-quizzes, check if instance exists
+      let existingQuery;
+      if (isQuiz && status === 'In Progress' && !instanceId) {
+        // For quiz start, always create new instance
+        existingQuery = null;
+      } else {
+        existingQuery = `SELECT Id FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' AND Material__c = '${escapedMaterialId}' LIMIT 1`;
+      }
       
       let finalInstanceId;
       let wasCreated = false;
       
-      if (existingResponse.ok) {
-        const existingData = await existingResponse.json();
-        const existingInstance = existingData.records?.[0];
+      if (existingQuery) {
+        const encodedExistingQuery = encodeURIComponent(existingQuery);
+        const existingQueryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedExistingQuery}`;
         
-        if (existingInstance) {
-          // Update existing instance
-          console.log('📝 Updating existing Learning Material Instance:', existingInstance.Id);
-          finalInstanceId = existingInstance.Id;
+        const existingResponse = await fetch(existingQueryUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${access_token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (existingResponse.ok) {
+          const existingData = await existingResponse.json();
+          const existingInstance = existingData.records?.[0];
           
-          const updateData = {};
-          if (progress !== undefined && progress !== null) {
-            updateData.Progress__c = Math.min(100, Math.max(0, progress));
-          }
-          if (status) {
-            updateData.Status__c = status;
-          }
-          if (score !== undefined && score !== null) {
-            updateData.Score__c = score;
-          }
-          if (startedOn) {
-            updateData.Started_On__c = startedOn;
-          }
-          if (completedOn) {
-            updateData.Completed_On__c = completedOn;
-          }
-          
-          // Auto-complete logic
-          if (status === 'Completed' && (!updateData.Progress__c || updateData.Progress__c < 100)) {
-            updateData.Progress__c = 100;
-          }
-          if (updateData.Progress__c === 100 && status !== 'Completed') {
-            updateData.Status__c = 'Completed';
-            if (!updateData.Completed_On__c) {
-              updateData.Completed_On__c = new Date().toISOString();
+          if (existingInstance) {
+            // Update existing instance
+            console.log('📝 Updating existing Learning Material Instance:', existingInstance.Id);
+            finalInstanceId = existingInstance.Id;
+            
+            const updateData = {};
+            if (progress !== undefined && progress !== null) {
+              updateData.Progress__c = Math.min(100, Math.max(0, progress));
             }
-          }
-          
-          const updateUrl = `${instance_url}/services/data/v58.0/sobjects/Learning_Material_Instance__c/${finalInstanceId}`;
-          const updateResponse = await fetch(updateUrl, {
-            method: 'PATCH',
-            headers: {
-              'Authorization': `Bearer ${access_token}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(updateData),
-          });
-          
-          if (!updateResponse.ok) {
-            const errorText = await updateResponse.text();
-            throw new Error(`Failed to update instance: ${updateResponse.status} - ${errorText}`);
+            if (status) {
+              updateData.Status__c = status;
+            }
+            if (score !== undefined && score !== null) {
+              updateData.Score__c = score;
+            }
+            if (startedOn) {
+              updateData.Started_On__c = startedOn;
+            }
+            if (completedOn) {
+              updateData.Completed_On__c = completedOn;
+            }
+            if (timeTakenMinutes !== undefined && timeTakenMinutes !== null) {
+              updateData.Time_Taken_Minutes_c = timeTakenMinutes;
+            }
+            
+            // Auto-complete logic
+            if (status === 'Completed' && (!updateData.Progress__c || updateData.Progress__c < 100)) {
+              updateData.Progress__c = 100;
+            }
+            if (updateData.Progress__c === 100 && status !== 'Completed') {
+              updateData.Status__c = 'Completed';
+              if (!updateData.Completed_On__c) {
+                updateData.Completed_On__c = new Date().toISOString();
+              }
+            }
+            
+            const updateUrl = `${instance_url}/services/data/v58.0/sobjects/Learning_Material_Instance__c/${finalInstanceId}`;
+            const updateResponse = await fetch(updateUrl, {
+              method: 'PATCH',
+              headers: {
+                'Authorization': `Bearer ${access_token}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(updateData),
+            });
+            
+            if (!updateResponse.ok) {
+              const errorText = await updateResponse.text();
+              throw new Error(`Failed to update instance: ${updateResponse.status} - ${errorText}`);
+            }
+          } else {
+            // Create new instance
+            wasCreated = true;
+            finalInstanceId = await createNewInstance();
           }
         } else {
-          // Create new instance
-          console.log('📝 Creating new Learning Material Instance...');
+          // Query failed, try to create
           wasCreated = true;
-          
-          const newInstanceData = {
-            Learner__c: contactId,
-            Material__c: learningMaterialId,
-            Progress__c: progress || 0,
-            Status__c: status || 'Not Started',
-            Started_On__c: startedOn || new Date().toISOString(),
-          };
-
-          if (score !== undefined && score !== null) {
-            newInstanceData.Score__c = score;
-          }
-
-          if (completedOn) {
-            newInstanceData.Completed_On__c = completedOn;
-          }
-
-          const createUrl = `${instance_url}/services/data/v58.0/sobjects/Learning_Material_Instance__c`;
-          const createResponse = await fetch(createUrl, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${access_token}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(newInstanceData),
-          });
-
-          if (!createResponse.ok) {
-            const errorText = await createResponse.text();
-            throw new Error(`Failed to create instance: ${createResponse.status} - ${errorText}`);
-          }
-
-          const createData = await createResponse.json();
-          finalInstanceId = createData.id;
-          console.log('✅ Created new Learning Material Instance:', finalInstanceId);
+          finalInstanceId = await createNewInstance();
         }
       } else {
-        // Query failed, try to create
-        console.log('📝 Creating new Learning Material Instance (query failed, assuming new)...');
+        // No existing query (quiz new attempt), create new instance
         wasCreated = true;
+        finalInstanceId = await createNewInstance();
+      }
+      
+      async function createNewInstance() {
+        console.log('📝 Creating new Learning Material Instance...');
         
         const newInstanceData = {
           Learner__c: contactId,
@@ -357,6 +418,15 @@ exports.handler = async (event, context) => {
 
         if (completedOn) {
           newInstanceData.Completed_On__c = completedOn;
+        }
+        
+        // Quiz-specific fields
+        if (isQuiz) {
+          newInstanceData.Attempt_Number_c = attemptNumber !== undefined ? attemptNumber : nextAttemptNumber;
+        }
+        
+        if (timeTakenMinutes !== undefined && timeTakenMinutes !== null) {
+          newInstanceData.Time_Taken_Minutes_c = timeTakenMinutes;
         }
 
         const createUrl = `${instance_url}/services/data/v58.0/sobjects/Learning_Material_Instance__c`;
@@ -375,8 +445,8 @@ exports.handler = async (event, context) => {
         }
 
         const createData = await createResponse.json();
-        finalInstanceId = createData.id;
-        console.log('✅ Created new Learning Material Instance:', finalInstanceId);
+        console.log('✅ Created new Learning Material Instance:', createData.id);
+        return createData.id;
       }
       
       // Check if this is a child material and recalculate parent progress
@@ -435,6 +505,14 @@ exports.handler = async (event, context) => {
 
     if (completedOn) {
       updateData.Completed_On__c = completedOn;
+    }
+    
+    if (timeTakenMinutes !== undefined && timeTakenMinutes !== null) {
+      updateData.Time_Taken_Minutes_c = timeTakenMinutes;
+    }
+    
+    if (attemptNumber !== undefined && attemptNumber !== null) {
+      updateData.Attempt_Number_c = attemptNumber;
     }
 
     // If status is Completed, ensure progress is 100

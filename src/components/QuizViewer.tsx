@@ -1,0 +1,554 @@
+import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { CheckCircle2, Clock, AlertCircle, XCircle, ChevronLeft, ChevronRight, Play, RotateCcw } from 'lucide-react';
+import { usePortalUser } from '../contexts/PortalUserContext';
+import { LearningMaterialInstance } from '../services/learningService';
+import { parseQuizQuestions, randomizeQuestions, calculateScore, checkPassingScore } from '../utils/quizUtils';
+import { QuizQuestion, QuizAnswer } from '../services/learningService';
+import Button from './Button';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Progress } from './ui/progress';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
+import { RadioGroup, RadioGroupItem } from './ui/radio-group';
+import { Label } from './ui/label';
+
+interface QuizViewerProps {
+  instance: LearningMaterialInstance | null;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
+  const { updateProgress, user } = usePortalUser();
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [answers, setAnswers] = useState<QuizAnswer[]>([]);
+  const [quizData, setQuizData] = useState<ReturnType<typeof parseQuizQuestions> | null>(null);
+  const [questions, setQuestions] = useState<QuizQuestion[]>([]);
+  const [isStarted, setIsStarted] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
+  const [timeTaken, setTimeTaken] = useState(0);
+  const [quizResult, setQuizResult] = useState<{ score: number; correctAnswers: number; totalQuestions: number; passed: boolean } | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const timeTrackingRef = useRef<NodeJS.Timeout | null>(null);
+
+  const material = instance?.material;
+
+  // Initialize quiz data
+  useEffect(() => {
+    if (material && material.quizQuestions) {
+      const parsed = parseQuizQuestions(material.quizQuestions);
+      if (parsed) {
+        setQuizData(parsed);
+        let questionsToUse = parsed.questions;
+        
+        // Randomize if needed
+        if (material.randomizeQuestions) {
+          questionsToUse = randomizeQuestions(questionsToUse);
+        }
+        
+        setQuestions(questionsToUse);
+      }
+    }
+  }, [material]);
+
+  // Timer logic
+  useEffect(() => {
+    if (!isStarted || isCompleted || !material?.quizTimeLimitMinutes) return;
+
+    const timeLimitSeconds = material.quizTimeLimitMinutes * 60;
+    setTimeRemaining(timeLimitSeconds);
+
+    timerIntervalRef.current = setInterval(() => {
+      setTimeRemaining((prev) => {
+        if (prev === null || prev <= 1) {
+          handleTimeUp();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+      }
+    };
+  }, [isStarted, isCompleted, material?.quizTimeLimitMinutes]);
+
+  // Time tracking
+  useEffect(() => {
+    if (!isStarted || isCompleted) return;
+
+    setStartTime(Date.now());
+    timeTrackingRef.current = setInterval(() => {
+      if (startTime) {
+        const elapsed = (Date.now() - startTime) / 1000 / 60; // minutes
+        setTimeTaken(elapsed);
+      }
+    }, 1000);
+
+    return () => {
+      if (timeTrackingRef.current) {
+        clearInterval(timeTrackingRef.current);
+      }
+    };
+  }, [isStarted, isCompleted, startTime]);
+
+  const handleTimeUp = () => {
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+    }
+    handleSubmitQuiz(true);
+  };
+
+  const handleStartQuiz = async () => {
+    if (!material || !user) return;
+
+    // Check max attempts
+    if (material.maxAttempts) {
+      // Query existing instances to count attempts
+      // For now, we'll create the instance and let the backend handle attempt counting
+    }
+
+    // Create new instance for this attempt
+    try {
+      setIsSubmitting(true);
+      await updateProgress({
+        contactId: user.id,
+        learningMaterialId: material.id,
+        progress: 0,
+        status: 'In Progress',
+        startedOn: new Date().toISOString(),
+      });
+      setIsStarted(true);
+      setStartTime(Date.now());
+    } catch (error) {
+      console.error('Failed to start quiz:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleAnswerChange = (questionId: string, answer: number) => {
+    setAnswers((prev) => {
+      const existing = prev.findIndex((a) => a.questionId === questionId);
+      if (existing >= 0) {
+        const updated = [...prev];
+        updated[existing] = { questionId, answer };
+        return updated;
+      }
+      return [...prev, { questionId, answer }];
+    });
+  };
+
+  const handleNextQuestion = () => {
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    }
+  };
+
+  const handlePreviousQuestion = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
+    }
+  };
+
+  const handleSubmitQuiz = async (timeUp: boolean = false) => {
+    if (!material || !user || !quizData) return;
+
+    setIsSubmitting(true);
+
+    // Calculate final time taken
+    const finalTimeTaken = startTime ? (Date.now() - startTime) / 1000 / 60 : timeTaken;
+
+    // Calculate score
+    const result = calculateScore(questions, answers);
+    const passed = checkPassingScore(result.score, material.passingScore);
+
+    setQuizResult({
+      ...result,
+      passed,
+    });
+
+    setIsCompleted(true);
+
+    // Stop timers
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+    }
+    if (timeTrackingRef.current) {
+      clearInterval(timeTrackingRef.current);
+    }
+
+    // Update instance with results
+    try {
+      await updateProgress({
+        contactId: user.id,
+        learningMaterialId: material.id,
+        progress: 100,
+        status: 'Completed',
+        score: result.score,
+        completedOn: new Date().toISOString(),
+        timeTakenMinutes: finalTimeTaken,
+      });
+    } catch (error) {
+      console.error('Failed to save quiz results:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const getCurrentAnswer = (questionId: string): number | undefined => {
+    const answer = answers.find((a) => a.questionId === questionId);
+    return answer ? (typeof answer.answer === 'number' ? answer.answer : undefined) : undefined;
+  };
+
+  const isQuestionAnswered = (questionId: string): boolean => {
+    return answers.some((a) => a.questionId === questionId);
+  };
+
+  if (!material || !instance) {
+    return null;
+  }
+
+  const currentQuestion = questions[currentQuestionIndex];
+  const progress = questions.length > 0 ? ((currentQuestionIndex + 1) / questions.length) * 100 : 0;
+  const answeredCount = answers.length;
+
+  // Pre-quiz start screen
+  if (!isStarted && !isCompleted) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl mb-2">{material.title}</DialogTitle>
+            {material.description && (
+              <p className="text-sm text-muted-foreground mb-4">{material.description}</p>
+            )}
+          </DialogHeader>
+
+          <Card className="mb-4">
+            <CardHeader>
+              <CardTitle className="text-lg">Quiz Instructions</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {quizData && (
+                <>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Total Questions:</span>
+                    <span className="font-medium">{quizData.totalQuestions}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Total Points:</span>
+                    <span className="font-medium">{quizData.totalPoints}</span>
+                  </div>
+                </>
+              )}
+              {material.quizTimeLimitMinutes && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Time Limit:</span>
+                  <span className="font-medium">{material.quizTimeLimitMinutes} minutes</span>
+                </div>
+              )}
+              {material.passingScore && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Passing Score:</span>
+                  <span className="font-medium">{material.passingScore}%</span>
+                </div>
+              )}
+              {material.maxAttempts && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Max Attempts:</span>
+                  <span className="font-medium">{material.maxAttempts}</span>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <div className="flex items-center justify-end gap-4">
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleStartQuiz}
+              disabled={isSubmitting || !quizData}
+              className="flex items-center gap-2"
+            >
+              <Play className="w-4 h-4" />
+              {isSubmitting ? 'Starting...' : 'Start Quiz'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  // Quiz results screen
+  if (isCompleted && quizResult) {
+    const showResults = material.showResults !== false; // Default to true if not specified
+
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl mb-2">Quiz Results</DialogTitle>
+          </DialogHeader>
+
+          <Card className="mb-4">
+            <CardContent className="pt-6">
+              <div className="text-center space-y-4">
+                <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto ${
+                  quizResult.passed ? 'bg-green-500/20' : 'bg-red-500/20'
+                }`}>
+                  {quizResult.passed ? (
+                    <CheckCircle2 className="w-10 h-10 text-green-500" />
+                  ) : (
+                    <XCircle className="w-10 h-10 text-red-500" />
+                  )}
+                </div>
+                <div>
+                  <h3 className={`text-2xl font-bold ${quizResult.passed ? 'text-green-500' : 'text-red-500'}`}>
+                    {quizResult.passed ? 'Passed' : 'Failed'}
+                  </h3>
+                  <p className="text-muted-foreground mt-2">
+                    {quizResult.passed
+                      ? `Congratulations! You passed with a score of ${quizResult.score}%`
+                      : `You scored ${quizResult.score}%. Passing score is ${material.passingScore || 0}%`}
+                  </p>
+                </div>
+                <div className="grid grid-cols-3 gap-4 mt-6">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold">{quizResult.score}%</div>
+                    <div className="text-sm text-muted-foreground">Score</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold">{quizResult.correctAnswers}/{quizResult.totalQuestions}</div>
+                    <div className="text-sm text-muted-foreground">Correct</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold">{Math.round(timeTaken)}</div>
+                    <div className="text-sm text-muted-foreground">Minutes</div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {showResults && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Question Review</h3>
+              {questions.map((question, index) => {
+                const answer = answers.find((a) => a.questionId === question.id);
+                const isCorrect = Array.isArray(question.correctAnswer)
+                  ? Array.isArray(answer?.answer) &&
+                    question.correctAnswer.length === answer?.answer.length &&
+                    question.correctAnswer.every((ans) => answer?.answer.includes(ans))
+                  : answer?.answer === question.correctAnswer;
+                const userAnswer = answer ? (typeof answer.answer === 'number' ? answer.answer : -1) : -1;
+
+                return (
+                  <Card key={question.id} className={isCorrect ? 'border-green-500/50' : 'border-red-500/50'}>
+                    <CardHeader>
+                      <div className="flex items-start gap-2">
+                        {isCorrect ? (
+                          <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5" />
+                        ) : (
+                          <XCircle className="w-5 h-5 text-red-500 mt-0.5" />
+                        )}
+                        <CardTitle className="text-base">
+                          Question {index + 1}: {question.question}
+                        </CardTitle>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <div className="space-y-2">
+                        {question.options.map((option, optIndex) => {
+                          const isSelected = userAnswer === optIndex;
+                          const isCorrectAnswer = Array.isArray(question.correctAnswer)
+                            ? question.correctAnswer.includes(optIndex)
+                            : question.correctAnswer === optIndex;
+
+                          return (
+                            <div
+                              key={optIndex}
+                              className={`p-3 rounded border ${
+                                isCorrectAnswer
+                                  ? 'bg-green-500/10 border-green-500/50'
+                                  : isSelected && !isCorrectAnswer
+                                  ? 'bg-red-500/10 border-red-500/50'
+                                  : 'bg-muted/30 border-border'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2">
+                                {isCorrectAnswer && <CheckCircle2 className="w-4 h-4 text-green-500" />}
+                                {isSelected && !isCorrectAnswer && <XCircle className="w-4 h-4 text-red-500" />}
+                                <span className={isCorrectAnswer ? 'font-medium' : ''}>{option}</span>
+                                {isCorrectAnswer && <span className="text-xs text-green-500 ml-auto">Correct</span>}
+                                {isSelected && !isCorrectAnswer && (
+                                  <span className="text-xs text-red-500 ml-auto">Your Answer</span>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      {question.explanation && (
+                        <div className="mt-3 p-3 bg-muted/50 rounded text-sm">
+                          <strong>Explanation:</strong> {question.explanation}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+
+          <div className="flex items-center justify-end gap-4 mt-6">
+            <Button variant="primary" onClick={onClose}>
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  // Active quiz screen
+  if (!currentQuestion) {
+    return null;
+  }
+
+  const currentAnswer = getCurrentAnswer(currentQuestion.id);
+
+  return (
+    <Dialog open={isOpen} onOpenChange={() => {}}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col p-0">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b">
+          <div className="flex items-center justify-between">
+            <DialogTitle className="text-xl">{material.title}</DialogTitle>
+            <div className="flex items-center gap-4">
+              {timeRemaining !== null && (
+                <div className={`flex items-center gap-2 px-3 py-1 rounded ${
+                  timeRemaining < 60 ? 'bg-red-500/20 text-red-500' : 'bg-muted'
+                }`}>
+                  <Clock className="w-4 h-4" />
+                  <span className="font-mono font-medium">{formatTime(timeRemaining)}</span>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="mt-3">
+            <div className="flex items-center justify-between text-sm mb-2">
+              <span className="text-muted-foreground">
+                Question {currentQuestionIndex + 1} of {questions.length}
+              </span>
+              <span className="text-muted-foreground">
+                {answeredCount} of {questions.length} answered
+              </span>
+            </div>
+            <Progress value={progress} className="h-2" />
+          </div>
+        </DialogHeader>
+
+        <div className="flex-1 overflow-auto px-6 py-4">
+          <Card className="mb-4">
+            <CardHeader>
+              <CardTitle className="text-lg">{currentQuestion.question}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <RadioGroup
+                value={currentAnswer !== undefined ? currentAnswer.toString() : undefined}
+                onValueChange={(value) => handleAnswerChange(currentQuestion.id, parseInt(value))}
+              >
+                <div className="space-y-3">
+                  {currentQuestion.options.map((option, index) => (
+                    <div key={index} className="flex items-center space-x-2">
+                      <RadioGroupItem value={index.toString()} id={`option-${index}`} />
+                      <Label
+                        htmlFor={`option-${index}`}
+                        className="flex-1 cursor-pointer p-3 rounded border hover:bg-muted/50 transition-colors"
+                      >
+                        {option}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </RadioGroup>
+            </CardContent>
+          </Card>
+
+          {/* Question Navigation */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex gap-2">
+              {questions.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentQuestionIndex(index)}
+                  className={`w-10 h-10 rounded border flex items-center justify-center text-sm transition-colors ${
+                    index === currentQuestionIndex
+                      ? 'bg-brand-primary text-white border-brand-primary'
+                      : isQuestionAnswered(questions[index].id)
+                      ? 'bg-green-500/20 border-green-500/50 text-green-500'
+                      : 'bg-muted border-border hover:bg-muted/80'
+                  }`}
+                >
+                  {index + 1}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="px-6 py-4 border-t flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={handlePreviousQuestion}
+              disabled={currentQuestionIndex === 0}
+              className="flex items-center gap-2"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleNextQuestion}
+              disabled={currentQuestionIndex === questions.length - 1}
+              className="flex items-center gap-2"
+            >
+              Next
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
+          <Button
+            variant="primary"
+            onClick={() => handleSubmitQuiz(false)}
+            disabled={isSubmitting}
+            className="flex items-center gap-2"
+          >
+            {isSubmitting ? 'Submitting...' : 'Submit Quiz'}
+          </Button>
+          {answeredCount < questions.length && (
+            <span className="text-xs text-muted-foreground">
+              {questions.length - answeredCount} unanswered
+            </span>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default QuizViewer;
+

@@ -38,6 +38,13 @@ export interface LearningMaterial {
     startedOn?: string | null;
     completedOn?: string | null;
   }; // Instance data for child materials
+  // Quiz-related fields
+  quizQuestions?: string | null; // JSON string from Quiz_Questions_c
+  passingScore?: number | null; // from Passing_Score_c
+  quizTimeLimitMinutes?: number | null; // from Quiz_Time_Limit_Minutes_c
+  maxAttempts?: number | null; // from Max_Attempts_c
+  showResults?: boolean | null; // from Show_Results_c
+  randomizeQuestions?: boolean | null; // from Randomize_Questions_c
 }
 
 export interface LearningMaterialInstance {
@@ -53,6 +60,9 @@ export interface LearningMaterialInstance {
   createdDate: string;
   material: LearningMaterial | null;
   isParent?: boolean; // Flag to identify parent instances (modules with children)
+  // Quiz attempt tracking fields
+  attemptNumber?: number | null; // from Attempt_Number_c
+  timeTakenMinutes?: number | null; // from Time_Taken_Minutes_c
 }
 
 export interface LoginResponse {
@@ -80,6 +90,37 @@ export interface UpdateTrailheadResponse {
   message: string;
   contactId: string;
   trailheadUrl: string;
+}
+
+// Quiz-related interfaces
+export interface QuizQuestion {
+  id: string;
+  question: string;
+  type: 'single-choice' | 'multi-choice';
+  options: string[];
+  correctAnswer: number | number[]; // Index or array of indices for correct answers
+  points: number;
+  explanation?: string;
+}
+
+export interface QuizData {
+  version: string;
+  totalQuestions: number;
+  totalPoints: number;
+  questions: QuizQuestion[];
+}
+
+export interface QuizAnswer {
+  questionId: string;
+  answer: number | number[]; // Selected answer index(es)
+}
+
+export interface QuizResult {
+  score: number; // Percentage score
+  totalQuestions: number;
+  correctAnswers: number;
+  passed: boolean;
+  timeTakenMinutes: number;
 }
 
 /**
@@ -196,6 +237,8 @@ export const updateLearningProgress = async (
     score?: number | null;
     startedOn?: string;
     completedOn?: string;
+    attemptNumber?: number | null;
+    timeTakenMinutes?: number | null;
   },
   authData: { access_token: string; instance_url: string }
 ): Promise<UpdateProgressResponse> => {

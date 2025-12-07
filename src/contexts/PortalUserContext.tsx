@@ -37,6 +37,8 @@ interface PortalUserContextType {
     score?: number | null;
     startedOn?: string;
     completedOn?: string;
+    attemptNumber?: number | null;
+    timeTakenMinutes?: number | null;
   }) => Promise<UpdateProgressResponse>;
   updateTrailheadUrl: (trailheadUrl: string) => Promise<UpdateTrailheadResponse>;
 }
@@ -194,6 +196,8 @@ export const PortalUserProvider = ({ children }: PortalUserProviderProps) => {
     score?: number | null;
     startedOn?: string;
     completedOn?: string;
+    attemptNumber?: number | null;
+    timeTakenMinutes?: number | null;
   }): Promise<UpdateProgressResponse> => {
     if (!authData) {
       throw new Error('Salesforce authentication required');
