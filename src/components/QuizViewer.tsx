@@ -19,7 +19,7 @@ interface QuizViewerProps {
 }
 
 const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
-  const { updateProgress, user } = usePortalUser();
+  const { updateProgress, user, instances } = usePortalUser();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<QuizAnswer[]>([]);
   const [quizData, setQuizData] = useState<ReturnType<typeof parseQuizQuestions> | null>(null);
@@ -40,7 +40,6 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
   const timeTrackingRef = useRef<NodeJS.Timeout | null>(null);
 
   const material = instance?.material;
-  const { instances } = usePortalUser();
 
   // Initialize quiz data and count attempts
   useEffect(() => {
