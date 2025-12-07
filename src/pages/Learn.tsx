@@ -38,19 +38,19 @@ const Learn = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted to-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-6 lg:py-8">
         {/* Profile Section */}
-        <div className="mb-8">
+        <div className="mb-6 lg:mb-8">
           <PortalProfile />
         </div>
 
         {/* Completed Badges Section */}
-        <div className="mb-8">
+        <div className="mb-6 lg:mb-8">
           <CompletedBadges />
         </div>
 
         {/* Learning Materials Section */}
-        <div className="mb-8">
+        <div className="mb-6 lg:mb-8">
           <LearningMaterialsList onMaterialClick={handleMaterialClick} />
         </div>
       </div>

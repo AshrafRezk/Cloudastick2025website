@@ -184,7 +184,7 @@ const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) 
         transition={{ delay: index * 0.05 }}
       >
         <Card
-          className={`bg-card/80 backdrop-blur-sm border cursor-pointer hover:border-brand-primary/50 transition-all ${statusBgColor}`}
+          className={`bg-card/80 backdrop-blur-sm border cursor-pointer hover:border-brand-primary/50 transition-all h-full flex flex-col ${statusBgColor}`}
         >
           <CardHeader
             onClick={() => {
@@ -194,48 +194,49 @@ const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) 
                 onMaterialClick(instance);
               }
             }}
+            className="flex-1"
           >
-            <div className="flex items-start justify-between">
-              <div className="flex items-start gap-4 flex-1">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3 lg:gap-4 flex-1 min-w-0">
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-brand-primary to-brand-secondary flex items-center justify-center flex-shrink-0">
                   <MaterialIcon className="w-6 h-6 text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <CardTitle className="text-lg mb-1 line-clamp-2">
+                  <div className="flex items-start gap-2 mb-1">
+                    <CardTitle className="text-base lg:text-lg mb-0 line-clamp-2 flex-1">
                       {instance.material.title}
                     </CardTitle>
                     {hasChildren && (
-                      <span className="text-xs text-muted-foreground">
-                        ({instance.material.childMaterials?.length} materials)
+                      <span className="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0 mt-1">
+                        ({instance.material.childMaterials?.length})
                       </span>
                     )}
                   </div>
                   {instance.material.description && (
-                    <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
+                    <p className="text-xs lg:text-sm text-muted-foreground line-clamp-2 mb-2">
                       {instance.material.description}
                     </p>
                   )}
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                  <div className="flex flex-wrap items-center gap-2 lg:gap-3 text-xs text-muted-foreground">
                     {instance.material.category && (
-                      <span className="px-2 py-1 bg-muted rounded">{instance.material.category}</span>
+                      <span className="px-2 py-1 bg-muted rounded whitespace-nowrap">{instance.material.category}</span>
                     )}
                     {instance.material.duration > 0 && (
-                      <span className="flex items-center gap-1">
+                      <span className="flex items-center gap-1 whitespace-nowrap">
                         <Clock className="w-3 h-3" />
                         {instance.material.duration} min
                       </span>
                     )}
-                    <span className={`flex items-center gap-1 font-medium ${statusColor}`}>
+                    <span className={`flex items-center gap-1 font-medium whitespace-nowrap ${statusColor}`}>
                       {instance.status === 'Completed' && <CheckCircle2 className="w-3 h-3" />}
                       {instance.status === 'In Progress' && <Play className="w-3 h-3" />}
                       {instance.status}
                     </span>
                     {instance.material?.materialType === 'Quiz' && (
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-muted-foreground whitespace-nowrap">
                         {instance.attemptNumber ? `Attempt ${instance.attemptNumber}` : ''}
-                        {instance.score !== null && ` • Score: ${instance.score}%`}
-                        {instance.material?.maxAttempts && ` • Max: ${instance.material.maxAttempts}`}
+                        {instance.score !== null && ` • ${instance.score}%`}
+                        {instance.material?.maxAttempts && ` / ${instance.material.maxAttempts}`}
                       </span>
                     )}
                   </div>
@@ -306,7 +307,7 @@ const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) 
             <Play className="w-6 h-6 text-blue-500" />
             In Progress ({inProgress.length})
           </h2>
-          <div className="grid gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
             {inProgress.map((instance, index) => renderMaterialCard(instance, index))}
           </div>
         </div>
@@ -319,7 +320,7 @@ const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) 
             <BookOpen className="w-6 h-6 text-muted-foreground" />
             Not Started ({notStarted.length})
           </h2>
-          <div className="grid gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
             {notStarted.map((instance, index) => renderMaterialCard(instance, index))}
           </div>
         </div>
@@ -332,7 +333,7 @@ const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) 
             <CheckCircle2 className="w-6 h-6 text-green-500" />
             Completed Modules ({completed.length})
           </h2>
-          <div className="grid gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
             {completed.map((instance, index) => renderMaterialCard(instance, index))}
           </div>
         </div>
