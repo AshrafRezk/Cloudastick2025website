@@ -1,0 +1,88 @@
+/**
+ * Team Service
+ * Handles API calls for team hierarchy and team member data
+ */
+
+export interface RequirementStats {
+  completed: number;
+  inProgress: number;
+  total: number;
+}
+
+export interface ProjectAllocation {
+  id: string;
+  name: string;
+  scope: string;
+  deliverables: string;
+  accountId: string | null;
+  accountName: string;
+  opportunityId: string | null;
+  opportunityName: string;
+  projectId: string | null;
+  projectName: string;
+  allocationPercentage: number;
+  createdDate: string;
+}
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  email: string;
+  reportsToId: string | null;
+  reportsToName?: string | null;
+  associatedUserId: string | null;
+  subordinates: TeamMember[];
+  teamBuilds: ProjectAllocation[];
+  requirementsStats: RequirementStats;
+  totalAllocationPercentage: number;
+  managers?: TeamMember[]; // Only on current user
+}
+
+export interface TeamHierarchy {
+  success: boolean;
+  data: TeamMember;
+}
+
+/**
+ * Fetch team hierarchy for a contact
+ */
+export const fetchTeamHierarchy = async (
+  contactId: string,
+  authData: { access_token: string; instance_url: string }
+): Promise<TeamHierarchy> => {
+  try {
+    const response = await fetch('/.netlify/functions/getTeamHierarchy', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        access_token: authData.access_token,
+        instance_url: authData.instance_url,
+        contactId,
+      }),
+    });
+
+    if (!response.ok) {
+      let errorData;
+      try {
+        const text = await response.text();
+        try {
+          errorData = JSON.parse(text);
+        } catch {
+          errorData = { message: text || `Failed to fetch team hierarchy: ${response.status}` };
+        }
+      } catch (e) {
+        errorData = { message: `Failed to fetch team hierarchy: ${response.status}` };
+      }
+      throw new Error(errorData.message || errorData.error || `Failed to fetch team hierarchy: ${response.status}`);
+    }
+
+    const data: TeamHierarchy = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch team hierarchy error:', error);
+    throw error;
+  }
+};
+

@@ -4,14 +4,19 @@ import { useNavigate } from 'react-router-dom';
 import { 
   BookOpen, Briefcase, Presentation, 
   ArrowRight, Award, Mail, User, 
-  CheckCircle2, XCircle, Loader2, Users
+  CheckCircle2, XCircle, Loader2, Users, Network
 } from 'lucide-react';
 import { usePortalUser } from '../contexts/PortalUserContext';
+import { useSalesforce } from '../contexts/SalesforceContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Avatar, AvatarFallback } from '../components/ui/avatar';
 import { Separator } from '../components/ui/separator';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../components/ui/dialog';
+import { TeamHierarchyView } from '../components/TeamTree';
+import { fetchTeamHierarchy } from '../services/teamService';
+import type { TeamMember } from '../services/teamService';
 
 interface SystemAccess {
   id: string;
@@ -27,8 +32,13 @@ interface SystemAccess {
 
 const Profile = () => {
   const { user, logout } = usePortalUser();
+  const { authData } = useSalesforce();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
+  const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
+  const [teamHierarchy, setTeamHierarchy] = useState<TeamMember | null>(null);
+  const [isLoadingTeam, setIsLoadingTeam] = useState(false);
+  const [teamError, setTeamError] = useState<string | null>(null);
 
   useEffect(() => {
     // Check if user is logged in
@@ -153,6 +163,33 @@ const Profile = () => {
     navigate('/');
   };
 
+  const handleOpenTeamModal = async () => {
+    if (!user || !authData) return;
+    
+    setIsTeamModalOpen(true);
+    setIsLoadingTeam(true);
+    setTeamError(null);
+
+    try {
+      const response = await fetchTeamHierarchy(user.id, authData);
+      if (response.success && response.data) {
+        setTeamHierarchy(response.data);
+      } else {
+        setTeamError('Failed to load team hierarchy');
+      }
+    } catch (error) {
+      console.error('Failed to load team hierarchy:', error);
+      setTeamError(error instanceof Error ? error.message : 'Failed to load team hierarchy');
+    } finally {
+      setIsLoadingTeam(false);
+    }
+  };
+
+  const hasTeamAccess = teamHierarchy && (
+    (teamHierarchy.subordinates && teamHierarchy.subordinates.length > 0) ||
+    (teamHierarchy.managers && teamHierarchy.managers.length > 0)
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted to-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -198,6 +235,79 @@ const Profile = () => {
             </CardHeader>
           </Card>
         </motion.div>
+
+        {/* My Team Tile */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          className="mb-8"
+        >
+          <h2 className="text-2xl font-bold text-foreground mb-4">My Team</h2>
+          <Card
+            className="bg-card/80 backdrop-blur-sm border-border hover:border-primary/50 transition-all cursor-pointer group"
+            onClick={handleOpenTeamModal}
+          >
+            <CardHeader>
+              <div className="flex items-start justify-between mb-4">
+                <div className="p-3 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 text-white">
+                  <Network className="h-8 w-8" />
+                </div>
+                <Badge className="bg-indigo-500/10 text-indigo-600 border-indigo-500/20">
+                  TEAM
+                </Badge>
+              </div>
+              <CardTitle className="text-xl mb-2">My Team</CardTitle>
+              <CardDescription>
+                View your team hierarchy, track subordinate progress, and manage project allocations
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <CheckCircle2 className="h-4 w-4 text-indigo-500" />
+                  <span>View Team Dashboard</span>
+                </div>
+                <ArrowRight className="h-5 w-5 text-indigo-500 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Team Modal */}
+        <Dialog open={isTeamModalOpen} onOpenChange={setIsTeamModalOpen}>
+          <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl">My Team</DialogTitle>
+            </DialogHeader>
+            {isLoadingTeam ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-brand-primary" />
+              </div>
+            ) : teamError ? (
+              <div className="py-12 text-center text-destructive">
+                <p>{teamError}</p>
+                <Button
+                  variant="outline"
+                  className="mt-4"
+                  onClick={handleOpenTeamModal}
+                >
+                  Retry
+                </Button>
+              </div>
+            ) : teamHierarchy ? (
+              <TeamHierarchyView
+                currentUser={teamHierarchy}
+                currentUserId={user?.id || ''}
+              />
+            ) : (
+              <div className="py-12 text-center text-muted-foreground">
+                <Network className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                <p>No team data available</p>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
 
         {/* Available Systems */}
         {availableSystems.length > 0 && (
