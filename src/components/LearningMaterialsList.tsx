@@ -5,6 +5,7 @@ import { usePortalUser } from '../contexts/PortalUserContext';
 import { LearningMaterialInstance, LearningMaterial } from '../services/learningService';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Progress } from './ui/progress';
+import { checkPassingScore } from '../utils/quizUtils';
 
 interface LearningMaterialsListProps {
   onMaterialClick: (instance: LearningMaterialInstance) => void;
@@ -159,6 +160,23 @@ const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) 
                     <Progress value={childProgress} className="h-1.5" />
                   </div>
                 )}
+                {child.materialType === 'Quiz' && childInstance && childInstance.score !== null && childInstance.score !== undefined && (
+                  <div className="mt-2 text-xs">
+                    <span className={`font-medium ${
+                      child.passingScore && checkPassingScore(childInstance.score, child.passingScore)
+                        ? 'text-green-500'
+                        : child.passingScore
+                        ? 'text-red-500'
+                        : 'text-muted-foreground'
+                    }`}>
+                      {child.passingScore && checkPassingScore(childInstance.score, child.passingScore)
+                        ? `✓ Passed (${childInstance.score}%)`
+                        : child.passingScore
+                        ? `✗ Failed (${childInstance.score}%)`
+                        : `Score: ${childInstance.score}%`}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </CardHeader>
@@ -270,16 +288,16 @@ const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) 
             {instance.material?.materialType === 'Quiz' && instance.score !== null && (
               <div className="mt-2 text-xs">
                 <span className={`font-medium ${
-                  instance.material.passingScore && instance.score >= instance.material.passingScore
+                  instance.material.passingScore && checkPassingScore(instance.score, instance.material.passingScore)
                     ? 'text-green-500'
                     : instance.material.passingScore
                     ? 'text-red-500'
                     : 'text-muted-foreground'
                 }`}>
-                  {instance.material.passingScore && instance.score >= instance.material.passingScore
-                    ? '✓ Passed'
+                  {instance.material.passingScore && checkPassingScore(instance.score, instance.material.passingScore)
+                    ? `✓ Passed (${instance.score}%)`
                     : instance.material.passingScore
-                    ? '✗ Failed'
+                    ? `✗ Failed (${instance.score}%)`
                     : `Score: ${instance.score}%`}
                 </span>
               </div>

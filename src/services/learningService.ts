@@ -35,6 +35,7 @@ export interface LearningMaterial {
     id: string;
     progress: number;
     status: string;
+    score?: number | null;
     startedOn?: string | null;
     completedOn?: string | null;
   }; // Instance data for child materials

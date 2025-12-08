@@ -142,7 +142,7 @@ exports.handler = async (event, context) => {
               // If we have child materials, fetch their instances
               if (childMaterialRecords.length > 0) {
                 const childIds = childMaterialRecords.map(c => c.Id).map(id => `'${id.replace(/'/g, "\\'")}'`).join(',');
-                const childInstanceQuery = `SELECT Id, Material__c, Progress__c, Status__c, Started_On__c, Completed_On__c FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' AND Material__c IN (${childIds})`;
+                const childInstanceQuery = `SELECT Id, Material__c, Progress__c, Status__c, Score__c, Started_On__c, Completed_On__c FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' AND Material__c IN (${childIds})`;
                 const encodedChildInstanceQuery = encodeURIComponent(childInstanceQuery);
                 const childInstanceQueryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedChildInstanceQuery}`;
                 
@@ -162,6 +162,7 @@ exports.handler = async (event, context) => {
                       id: inst.Id,
                       progress: inst.Progress__c || 0,
                       status: inst.Status__c || 'Not Started',
+                      score: inst.Score__c !== null && inst.Score__c !== undefined ? inst.Score__c : null,
                       startedOn: inst.Started_On__c || null,
                       completedOn: inst.Completed_On__c || null,
                     };
