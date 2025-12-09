@@ -63,7 +63,38 @@ exports.handler = async (event, context) => {
     });
 
     if (!contactResponse.ok) {
-      throw new Error(`Failed to fetch contact: ${contactResponse.status}`);
+      let errorMessage = `Failed to fetch contact: ${contactResponse.status}`;
+      try {
+        const errorText = await contactResponse.text();
+        if (errorText) {
+          try {
+            const errorData = JSON.parse(errorText);
+            errorMessage = errorData.message || errorData[0]?.message || errorMessage;
+            // Log the full error for debugging
+            console.error('❌ Contact query error details:', JSON.stringify(errorData));
+          } catch (e) {
+            errorMessage = errorText.substring(0, 500) || errorMessage;
+          }
+        }
+      } catch (e) {
+        console.error('❌ Error parsing contact response:', e);
+      }
+      
+      return {
+        statusCode: contactResponse.status === 403 ? 403 : 500,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          error: 'Failed to fetch contact',
+          message: errorMessage,
+          statusCode: contactResponse.status,
+          suggestion: contactResponse.status === 403 
+            ? 'Check if the user has permission to read Contact records and the ReportsTo.Name field'
+            : 'Check the contact ID and try again',
+        }),
+      };
     }
 
     const contactData = await contactResponse.json();
