@@ -132,27 +132,44 @@ exports.handler = async (event, context) => {
       action
     });
 
+    // Invalidate cache for this record
+    let cacheResult = null;
+    try {
+      const { invalidateRelatedCaches } = require('./salesforceCacheManager');
+      await invalidateRelatedCaches(salesforceObjectType, recordId);
+      cacheResult = { success: true, message: 'Cache invalidated' };
+      console.log('✅ Cache invalidated for', salesforceObjectType, recordId);
+    } catch (cacheError) {
+      console.warn('⚠️ Cache invalidation failed:', cacheError.message);
+      cacheResult = { success: false, error: cacheError.message };
+    }
+
     // Call the sendPushNotification function
     // In Netlify, you can call another function or make an HTTP request
     const functionUrl = `${event.headers['x-forwarded-proto'] || 'https'}://${event.headers.host}/.netlify/functions/sendPushNotification`;
     
-    const notificationResponse = await fetch(functionUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        salesforceObjectType,
-        recordId,
-        recordName,
-        action,
-        additionalData
-      })
-    });
+    let notificationResult = null;
+    try {
+      const notificationResponse = await fetch(functionUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          salesforceObjectType,
+          recordId,
+          recordName,
+          action,
+          additionalData
+        })
+      });
 
-    const notificationResult = await notificationResponse.json();
-
-    console.log('📱 Push notification result:', notificationResult);
+      notificationResult = await notificationResponse.json();
+      console.log('📱 Push notification result:', notificationResult);
+    } catch (notificationError) {
+      console.warn('⚠️ Push notification failed:', notificationError.message);
+      notificationResult = { success: false, error: notificationError.message };
+    }
 
     return {
       statusCode: 200,
@@ -163,6 +180,7 @@ exports.handler = async (event, context) => {
       body: JSON.stringify({
         success: true,
         message: 'Webhook processed successfully',
+        cacheResult,
         notificationResult
       }),
     };

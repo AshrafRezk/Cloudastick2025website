@@ -62,3 +62,13 @@
 
 [build.processing.html]
   pretty_urls = true
+
+# Scheduled Functions - Bulk Salesforce Sync
+# Runs every 6 hours to sync all Salesforce data to cache
+[[plugins]]
+  package = "@netlify/plugin-scheduled-functions"
+
+# Note: For scheduled functions to work, you need:
+# 1. Install: npm install @netlify/plugin-scheduled-functions
+# 2. Set environment variables: SALESFORCE_ACCESS_TOKEN and SALESFORCE_INSTANCE_URL
+# 3. Or use an external cron service (easier for now)

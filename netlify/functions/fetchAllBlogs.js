@@ -1,7 +1,17 @@
 /**
  * Netlify Function for fetching all blogs from Salesforce with pagination
  * Queries Blog_Post__c object and returns paginated results
+ * Uses Netlify Blobs cache to reduce API calls
  */
+
+const {
+  getCache,
+  setCache,
+  getCacheKey,
+  getListCacheKey,
+  simpleHash,
+  CACHE_TTLS,
+} = require('./salesforceCacheManager');
 
 exports.handler = async (event, context) => {
   // Handle CORS preflight requests
@@ -48,64 +58,141 @@ exports.handler = async (event, context) => {
 
     const offset = (page - 1) * pageSize;
 
-    // First, get total count
-    const countQuery = encodeURIComponent(
-      "SELECT COUNT() FROM Blog_Post__c WHERE Published_Date__c != null AND URL_Name__c != null"
-    );
-    const countUrl = `${instance_url}/services/data/v58.0/query/?q=${countQuery}`;
-
-    const countResponse = await fetch(countUrl, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${access_token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!countResponse.ok) {
-      const errorText = await countResponse.text();
-      throw new Error(`Salesforce API error: ${countResponse.status} - ${errorText}`);
+    // Check cache for all blogs first
+    const baseQuery = "SELECT Id, Header__c, Content__c, Published_Date__c, URL_Name__c FROM Blog_Post__c WHERE Published_Date__c != null AND URL_Name__c != null ORDER BY Published_Date__c DESC";
+    const listCacheKey = getListCacheKey('Blog_Post__c', simpleHash(baseQuery));
+    const cacheTTL = CACHE_TTLS['Blog_Post__c'] || CACHE_TTLS['all-blogs'];
+    
+    let allBlogs = null;
+    let fromCache = false;
+    let totalCount = 0;
+    
+    const cached = await getCache(listCacheKey, cacheTTL);
+    if (cached && !cached.isStale) {
+      // Use cached blog IDs list
+      console.log('✅ Using cached blog list');
+      const cachedRecordIds = cached.data || [];
+      
+      // Fetch individual blog records from cache
+      const blogPromises = cachedRecordIds.map(id => {
+        const recordCacheKey = getCacheKey('Blog_Post__c', id);
+        return getCache(recordCacheKey, cacheTTL);
+      });
+      
+      const cachedBlogs = await Promise.all(blogPromises);
+      allBlogs = cachedBlogs
+        .filter(b => b && b.data)
+        .map(b => b.data)
+        .filter(record => record && record.Id); // Filter out any nulls
+      
+      if (allBlogs.length > 0) {
+        fromCache = true;
+        totalCount = allBlogs.length;
+      }
     }
 
-    const countData = await countResponse.json();
-    const totalCount = countData.totalSize || 0;
+    // If cache miss, fetch from Salesforce
+    if (!fromCache) {
+      const soqlQuery = encodeURIComponent(baseQuery);
+      const queryUrl = `${instance_url}/services/data/v58.0/query/?q=${soqlQuery}`;
 
-    // Then fetch the paginated records
-    const soqlQuery = encodeURIComponent(
-      `SELECT Id, Header__c, Content__c, Published_Date__c, URL_Name__c FROM Blog_Post__c WHERE Published_Date__c != null AND URL_Name__c != null ORDER BY Published_Date__c DESC LIMIT ${pageSize} OFFSET ${offset}`
-    );
+      console.log('📤 Querying Salesforce for all blogs...');
 
-    const queryUrl = `${instance_url}/services/data/v58.0/query/?q=${soqlQuery}`;
+      let response;
+      let data;
+      
+      try {
+        response = await fetch(queryUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${access_token}`,
+            'Content-Type': 'application/json',
+          },
+        });
 
-    console.log('📤 Querying Salesforce for blogs...', { page, pageSize, offset });
+        console.log('📥 Salesforce Response Status:', response.status);
 
-    const response = await fetch(queryUrl, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${access_token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    console.log('📥 Salesforce Response Status:', response.status);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('❌ Salesforce API Error:', errorText);
-      throw new Error(`Salesforce API error: ${response.status} - ${errorText}`);
+        if (!response.ok) {
+          if (cached && cached.isStale) {
+            console.warn('⚠️ API failed, using stale cache');
+            // Try to get from stale cache
+            const cachedRecordIds = cached.data || [];
+            const blogPromises = cachedRecordIds.map(id => {
+              const recordCacheKey = getCacheKey('Blog_Post__c', id);
+              return getCache(recordCacheKey, cacheTTL * 2); // Use stale cache TTL
+            });
+            const cachedBlogs = await Promise.all(blogPromises);
+            allBlogs = cachedBlogs
+              .filter(b => b && b.data)
+              .map(b => b.data)
+              .filter(record => record && record.Id);
+            totalCount = allBlogs.length;
+            fromCache = true;
+          } else {
+            const errorText = await response.text();
+            throw new Error(`Salesforce API error: ${response.status} - ${errorText}`);
+          }
+        } else {
+          data = await response.json();
+          const records = data.records || [];
+          
+          // Cache individual records
+          const cachePromises = records.map(record => {
+            const recordCacheKey = getCacheKey('Blog_Post__c', record.Id);
+            return setCache(recordCacheKey, record, {
+              objectType: 'Blog_Post__c',
+              cachedAt: new Date().toISOString(),
+            });
+          });
+          await Promise.all(cachePromises);
+          
+          // Cache the list
+          const recordIds = records.map(r => r.Id);
+          await setCache(listCacheKey, recordIds, {
+            objectType: 'Blog_Post__c',
+            query: baseQuery,
+            count: records.length,
+            cachedAt: new Date().toISOString(),
+          });
+          
+          allBlogs = records;
+          totalCount = records.length;
+        }
+      } catch (fetchError) {
+        if (cached && cached.isStale) {
+          console.warn('⚠️ Fetch failed, using stale cache:', fetchError.message);
+          // Try stale cache
+          const cachedRecordIds = cached.data || [];
+          const blogPromises = cachedRecordIds.map(id => {
+            const recordCacheKey = getCacheKey('Blog_Post__c', id);
+            return getCache(recordCacheKey, cacheTTL * 2);
+          });
+          const cachedBlogs = await Promise.all(blogPromises);
+          allBlogs = cachedBlogs
+            .filter(b => b && b.data)
+            .map(b => b.data)
+            .filter(record => record && record.Id);
+          totalCount = allBlogs.length;
+          fromCache = true;
+        } else {
+          throw fetchError;
+        }
+      }
     }
 
-    const data = await response.json();
-    console.log(`✅ Fetched ${data.records?.length || 0} blog records`);
-
-    // Transform Salesforce records to blog format
-    const blogs = (data.records || []).map((record) => ({
+    // Transform to blog format and paginate
+    const blogsData = (allBlogs || []).map((record) => ({
       id: record.Id,
       urlName: record.URL_Name__c || '',
       title: record.Header__c || '',
       content: record.Content__c || '',
       publishedDate: record.Published_Date__c || null,
     }));
+
+    // Apply pagination
+    const blogs = blogsData.slice(offset, offset + pageSize)
+
+    const totalPages = Math.ceil(totalCount / pageSize);
 
     const totalPages = Math.ceil(totalCount / pageSize);
 
@@ -114,6 +201,7 @@ exports.handler = async (event, context) => {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
+        'Cache-Control': fromCache ? 'public, max-age=3600' : 'public, max-age=86400',
       },
       body: JSON.stringify({ 
         blogs,
@@ -124,6 +212,10 @@ exports.handler = async (event, context) => {
           totalPages,
           hasNextPage: page < totalPages,
           hasPreviousPage: page > 1,
+        },
+        metadata: {
+          fromCache,
+          cached: fromCache,
         }
       }),
     };
