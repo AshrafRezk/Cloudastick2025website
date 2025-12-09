@@ -532,17 +532,57 @@ async function getOKRsForUsers(userIds, contactIds, contactToUserMap, access_tok
       return okrsMap;
     }
 
-    console.log(`✅ Found ${allOkrs.length} total OKRs across all users`);
+    console.log(`✅ Found ${allOkrs.length} total parent OKRs across all users`);
 
-    // Fetch key results for all OKRs in parallel
-    const keyResultsPromises = allOkrs.map(okr => 
+    // Collect all parent OKR IDs
+    const parentOkrIds = allOkrs.map(okr => okr.Id);
+    console.log(`📋 Parent OKR IDs: ${parentOkrIds.length}`);
+
+    // Fetch child OKRs (child objectives) where Parent_Objective__c points to parent OKRs
+    let childOkrs = [];
+    if (parentOkrIds.length > 0) {
+      const escapedParentIds = parentOkrIds.map(id => `'${id.replace(/'/g, "\\'")}'`).join(',');
+      const childOkrQuery = `SELECT FIELDS(ALL) FROM OKR__c WHERE Parent_Objective__c IN (${escapedParentIds}) LIMIT 200`;
+      const childOkrEncoded = encodeURIComponent(childOkrQuery);
+      const childOkrUrl = `${instance_url}/services/data/v58.0/query/?q=${childOkrEncoded}`;
+
+      console.log(`🔍 Fetching child OKRs: SELECT FIELDS(ALL) FROM OKR__c WHERE Parent_Objective__c IN (${parentOkrIds.length} parent IDs)`);
+
+      try {
+        const childOkrResponse = await fetch(childOkrUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${access_token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (childOkrResponse.ok) {
+          const childOkrData = await childOkrResponse.json();
+          childOkrs = childOkrData.records || [];
+          console.log(`✅ Found ${childOkrs.length} child OKRs`);
+        } else {
+          const errorText = await childOkrResponse.text();
+          console.warn(`⚠️ Failed to fetch child OKRs: ${childOkrResponse.status} - ${errorText.substring(0, 200)}`);
+        }
+      } catch (childError) {
+        console.warn(`⚠️ Error fetching child OKRs:`, childError.message);
+      }
+    }
+
+    // Combine parent and child OKRs
+    const allOkrsWithChildren = [...allOkrs, ...childOkrs];
+    console.log(`📊 Total OKRs (parent + child): ${allOkrsWithChildren.length}`);
+
+    // Fetch key results for all OKRs (parent + child) in parallel
+    const keyResultsPromises = allOkrsWithChildren.map(okr => 
       getKeyResultsForOKR(okr.Id, access_token, instance_url)
     );
     const allKeyResults = await Promise.all(keyResultsPromises);
 
     // Build OKR objects with key results
     // Owner__c is the lookup field to User - use it directly
-    const okrObjects = allOkrs.map((okr, index) => {
+    const okrObjects = allOkrsWithChildren.map((okr, index) => {
       return {
         id: okr.Id,
         name: okr.Name || '',
