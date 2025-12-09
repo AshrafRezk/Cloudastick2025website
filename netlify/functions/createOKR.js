@@ -37,7 +37,7 @@ exports.handler = async (event, context) => {
     const yearValue = year || new Date().getFullYear();
 
     const okrObjects = ['OKR__c', 'Objective__c'];
-    const contactFields = ['Contact__c', 'Employee__c', 'OwnerId', 'ContactId'];
+    const contactFields = ['Owner__c', 'Contact__c', 'Employee__c', 'OwnerId', 'ContactId'];
     const periodFields = ['Period__c', 'Quarter__c', 'Quarter'];
     const statusFields = ['Status__c', 'Status'];
     const progressFields = ['Progress__c', 'Progress'];

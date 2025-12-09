@@ -327,8 +327,9 @@ async function getOKRsForContact(contactId, access_token, instance_url) {
     for (const objectName of objectNames) {
       try {
         // Try common field name variations
-        // Contact__c, Employee__c, OwnerId, ContactId
+        // Owner__c (custom), Contact__c, Employee__c, OwnerId, ContactId
         const fieldVariations = [
+          `Owner__c = '${escapedContactId}'`,
           `Contact__c = '${escapedContactId}'`,
           `Employee__c = '${escapedContactId}'`,
           `OwnerId = '${escapedContactId}'`,

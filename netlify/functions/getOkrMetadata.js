@@ -47,7 +47,7 @@ exports.handler = async (event, context) => {
     };
 
     const lookupFields = {
-      okrContactField: findFirstField(okrMetadata, ['Contact__c', 'Employee__c', 'OwnerId', 'ContactId']),
+      okrContactField: findFirstField(okrMetadata, ['Owner__c', 'Contact__c', 'Employee__c', 'OwnerId', 'ContactId']),
       krOkrLookupField: findFirstField(krMetadata, ['OKR__c', 'Objective__c', 'Parent_OKR__c']),
     };
 
