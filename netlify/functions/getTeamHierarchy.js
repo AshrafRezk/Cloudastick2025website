@@ -365,8 +365,11 @@ async function getOKRsForUsers(userIds, access_token, instance_url) {
   
   try {
     if (!userIds || userIds.length === 0) {
+      console.log('⚠️ No user IDs provided for OKR fetching');
       return okrsMap;
     }
+
+    console.log(`📊 Fetching OKRs for ${userIds.length} users:`, userIds.slice(0, 3).join(', '), userIds.length > 3 ? '...' : '');
 
     // Initialize map with empty arrays for all users
     userIds.forEach(userId => {
@@ -382,40 +385,67 @@ async function getOKRsForUsers(userIds, access_token, instance_url) {
     let okrObjectName = null;
 
     for (const objectName of objectNames) {
-      try {
-        // Query OKRs using Owner__c (lookup to User)
-        // Include Parent_Objective__c for hierarchical relationships
-        const okrQuery = `SELECT Id, Name, Objective__c, Objective_Description__c, Status__c, Progress__c, Period__c, Year__c, Quarter__c, Start_Date__c, End_Date__c, CreatedDate, Owner__c, Parent_Objective__c FROM ${objectName} WHERE Owner__c IN (${escapedUserIds}) ORDER BY Year__c DESC, Quarter__c DESC, CreatedDate DESC`;
-        const okrEncoded = encodeURIComponent(okrQuery);
-        const okrUrl = `${instance_url}/services/data/v58.0/query/?q=${okrEncoded}`;
+      // Try Owner__c (custom field) first, then OwnerId (standard field) as fallback
+      const ownerFields = ['Owner__c', 'OwnerId'];
+      
+      for (const ownerField of ownerFields) {
+        try {
+          // Query OKRs using Owner__c (lookup to User) or OwnerId (standard field)
+          // Include Parent_Objective__c for hierarchical relationships
+          const okrQuery = `SELECT Id, Name, Objective__c, Objective_Description__c, Status__c, Progress__c, Period__c, Year__c, Quarter__c, Start_Date__c, End_Date__c, CreatedDate, ${ownerField}, Parent_Objective__c FROM ${objectName} WHERE ${ownerField} IN (${escapedUserIds}) ORDER BY Year__c DESC, Quarter__c DESC, CreatedDate DESC`;
+          const okrEncoded = encodeURIComponent(okrQuery);
+          const okrUrl = `${instance_url}/services/data/v58.0/query/?q=${okrEncoded}`;
 
-        const okrResponse = await fetch(okrUrl, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${access_token}`,
-            'Content-Type': 'application/json',
-          },
-        });
+          console.log(`🔍 Querying OKRs from ${objectName} using ${ownerField} for ${userIds.length} users`);
 
-        if (okrResponse.ok) {
-          const okrData = await okrResponse.json();
-          const records = okrData.records || [];
+          const okrResponse = await fetch(okrUrl, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${access_token}`,
+              'Content-Type': 'application/json',
+            },
+          });
 
-          if (records.length > 0) {
-            allOkrs = records;
-            okrObjectName = objectName;
-            break; // Found OKRs, stop trying other object names
+          if (okrResponse.ok) {
+            const okrData = await okrResponse.json();
+            const records = okrData.records || [];
+
+            console.log(`✅ Found ${records.length} OKRs from ${objectName} using ${ownerField}`);
+
+            if (records.length > 0) {
+              allOkrs = records;
+              okrObjectName = objectName;
+              // Update the owner field reference for later use
+              allOkrs.forEach(okr => {
+                okr._ownerField = ownerField; // Store which field was used
+              });
+              break; // Found OKRs, stop trying other field names
+            }
+          } else {
+            // Log error response but continue to try next field
+            const errorText = await okrResponse.text();
+            console.warn(`⚠️ Failed to query ${objectName} with ${ownerField}: ${okrResponse.status} - ${errorText.substring(0, 200)}`);
+            // Try next field name
+            continue;
           }
+        } catch (fieldError) {
+          // Field doesn't exist or error, try next field
+          console.warn(`⚠️ Error querying ${objectName} with ${ownerField}:`, fieldError.message);
+          continue;
         }
-      } catch (objectError) {
-        // Object doesn't exist or not accessible, try next object name
-        continue;
+      }
+
+      if (allOkrs.length > 0) {
+        break; // Found OKRs, stop trying other object names
       }
     }
 
     if (allOkrs.length === 0) {
+      console.log('⚠️ No OKRs found for any users');
       return okrsMap;
     }
+
+    console.log(`✅ Found ${allOkrs.length} total OKRs across all users`);
 
     // Fetch key results for all OKRs in parallel
     const keyResultsPromises = allOkrs.map(okr => 
@@ -424,22 +454,28 @@ async function getOKRsForUsers(userIds, access_token, instance_url) {
     const allKeyResults = await Promise.all(keyResultsPromises);
 
     // Build OKR objects with key results
-    const okrObjects = allOkrs.map((okr, index) => ({
-      id: okr.Id,
-      name: okr.Name,
-      objective: okr.Objective__c || okr.Objective_Description__c || '',
-      status: okr.Status__c || 'Active',
-      progress: okr.Progress__c || 0,
-      period: okr.Period__c || okr.Quarter__c || '',
-      year: okr.Year__c || new Date().getFullYear(),
-      startDate: okr.Start_Date__c || null,
-      endDate: okr.End_Date__c || null,
-      createdDate: okr.CreatedDate,
-      ownerId: okr.Owner__c,
-      parentObjectiveId: okr.Parent_Objective__c || null,
-      keyResults: allKeyResults[index],
-      children: [], // Will be populated below
-    }));
+    const okrObjects = allOkrs.map((okr, index) => {
+      // Use the stored owner field or default to Owner__c
+      const ownerField = okr._ownerField || 'Owner__c';
+      const ownerId = okr[ownerField] || okr.Owner__c || okr.OwnerId;
+      
+      return {
+        id: okr.Id,
+        name: okr.Name,
+        objective: okr.Objective__c || okr.Objective_Description__c || '',
+        status: okr.Status__c || 'Active',
+        progress: okr.Progress__c || 0,
+        period: okr.Period__c || okr.Quarter__c || '',
+        year: okr.Year__c || new Date().getFullYear(),
+        startDate: okr.Start_Date__c || null,
+        endDate: okr.End_Date__c || null,
+        createdDate: okr.CreatedDate,
+        ownerId: ownerId,
+        parentObjectiveId: okr.Parent_Objective__c || null,
+        keyResults: allKeyResults[index],
+        children: [], // Will be populated below
+      };
+    });
 
     // Build hierarchy: group OKRs by owner and establish parent-child relationships
     const okrIdToOkr = new Map();
