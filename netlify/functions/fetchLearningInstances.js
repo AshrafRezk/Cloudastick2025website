@@ -79,9 +79,49 @@ exports.handler = async (event, context) => {
     });
 
     if (!queryResponse.ok) {
-      const errorText = await queryResponse.text();
-      console.error('❌ Salesforce query error:', errorText);
-      throw new Error(`Salesforce query failed: ${queryResponse.status} - ${errorText}`);
+      let errorMessage = `Salesforce query failed: ${queryResponse.status}`;
+      let isApiLimitError = false;
+      
+      try {
+        const errorText = await queryResponse.text();
+        if (errorText) {
+          try {
+            const errorData = JSON.parse(errorText);
+            const errors = Array.isArray(errorData) ? errorData : [errorData];
+            const apiLimitError = errors.find(e => e.errorCode === 'REQUEST_LIMIT_EXCEEDED');
+            
+            if (apiLimitError) {
+              isApiLimitError = true;
+              errorMessage = 'TotalRequests Limit exceeded.';
+              console.error('❌ Salesforce API limit exceeded');
+            } else {
+              errorMessage = errorData.message || errors[0]?.message || errorMessage;
+            }
+            console.error('❌ Salesforce query error:', JSON.stringify(errorData));
+          } catch (e) {
+            errorMessage = errorText.substring(0, 500) || errorMessage;
+          }
+        }
+      } catch (e) {
+        console.error('❌ Error parsing response:', e);
+      }
+      
+      return {
+        statusCode: isApiLimitError ? 403 : queryResponse.status === 403 ? 403 : 500,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          error: 'Failed to fetch learning instances',
+          message: errorMessage,
+          statusCode: queryResponse.status,
+          errorCode: isApiLimitError ? 'REQUEST_LIMIT_EXCEEDED' : undefined,
+          suggestion: isApiLimitError 
+            ? 'Salesforce API daily limit has been reached. Please try again later or contact your administrator.'
+            : 'Check your Salesforce permissions and try again',
+        }),
+      };
     }
 
     const queryData = await queryResponse.json();

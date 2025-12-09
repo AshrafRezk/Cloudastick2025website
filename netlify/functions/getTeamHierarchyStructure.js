@@ -351,15 +351,26 @@ exports.handler = async (event, context) => {
 
   } catch (error) {
     console.error('❌ Error fetching team hierarchy structure:', error);
+    
+    // Check if it's an API limit error
+    const errorMessage = error.message || 'An unexpected error occurred';
+    const isApiLimitError = errorMessage.includes('REQUEST_LIMIT_EXCEEDED') || 
+                           errorMessage.includes('TotalRequests Limit exceeded') ||
+                           errorMessage.includes('REQUEST_LIMIT_EXCEEDED');
+    
     return {
-      statusCode: 500,
+      statusCode: isApiLimitError ? 403 : 500,
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         error: 'Failed to fetch team hierarchy structure',
-        message: error.message || 'An unexpected error occurred',
+        message: isApiLimitError ? 'TotalRequests Limit exceeded.' : errorMessage,
+        errorCode: isApiLimitError ? 'REQUEST_LIMIT_EXCEEDED' : undefined,
+        suggestion: isApiLimitError 
+          ? 'Salesforce API daily limit has been reached. Please try again later or contact your administrator.'
+          : 'An unexpected error occurred. Please try again.',
       }),
     };
   }
