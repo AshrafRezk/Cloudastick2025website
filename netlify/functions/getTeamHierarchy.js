@@ -145,6 +145,9 @@ exports.handler = async (event, context) => {
           // Get requirements stats
           const requirementsStats = await getRequirementsStats(sub.Associated_User__c, access_token, instance_url);
           
+          // Get OKRs
+          const okrs = await getOKRsForContact(sub.Id, access_token, instance_url);
+          
           // Calculate total allocation percentage
           const totalAllocation = teamBuilds.reduce((sum, tb) => sum + (tb.allocationPercentage || 0), 0);
 
@@ -157,6 +160,7 @@ exports.handler = async (event, context) => {
             subordinates: children,
             teamBuilds: teamBuilds,
             requirementsStats: requirementsStats,
+            okrs: okrs,
             totalAllocationPercentage: totalAllocation,
           };
         })
@@ -170,6 +174,7 @@ exports.handler = async (event, context) => {
     // Step 4: Enrich current contact with data
     const currentTeamBuilds = await getTeamBuildsForContact(currentContact.Name, access_token, instance_url);
     const currentRequirementsStats = await getRequirementsStats(currentContact.Associated_User__c, access_token, instance_url);
+    const currentOKRs = await getOKRsForContact(currentContact.Id, access_token, instance_url);
     const currentTotalAllocation = currentTeamBuilds.reduce((sum, tb) => sum + (tb.allocationPercentage || 0), 0);
 
     const enrichedCurrentContact = {
@@ -189,6 +194,7 @@ exports.handler = async (event, context) => {
       subordinates: subordinates,
       teamBuilds: currentTeamBuilds,
       requirementsStats: currentRequirementsStats,
+      okrs: currentOKRs,
       totalAllocationPercentage: currentTotalAllocation,
     };
 
@@ -299,6 +305,173 @@ async function getTeamBuildsForContact(contactName, access_token, instance_url) 
 
   } catch (error) {
     console.error('Error fetching team builds:', error);
+    return [];
+  }
+}
+
+/**
+ * Get OKRs for a contact
+ * Supports both OKR__c and Objective__c object names
+ * Tries multiple common field name variations
+ */
+async function getOKRsForContact(contactId, access_token, instance_url) {
+  try {
+    if (!contactId) return [];
+
+    const escapedContactId = contactId.replace(/'/g, "\\'");
+
+    // Try OKR__c first, then Objective__c
+    const objectNames = ['OKR__c', 'Objective__c'];
+    let okrs = [];
+
+    for (const objectName of objectNames) {
+      try {
+        // Try common field name variations
+        // Contact__c, Employee__c, OwnerId, ContactId
+        const fieldVariations = [
+          `Contact__c = '${escapedContactId}'`,
+          `Employee__c = '${escapedContactId}'`,
+          `OwnerId = '${escapedContactId}'`,
+        ];
+
+        for (const whereClause of fieldVariations) {
+          try {
+            // Query OKR with common fields
+            const okrQuery = `SELECT Id, Name, Objective__c, Objective_Description__c, Status__c, Progress__c, Period__c, Year__c, Quarter__c, Start_Date__c, End_Date__c, CreatedDate FROM ${objectName} WHERE ${whereClause} ORDER BY Year__c DESC, Quarter__c DESC, CreatedDate DESC`;
+            const okrEncoded = encodeURIComponent(okrQuery);
+            const okrUrl = `${instance_url}/services/data/v58.0/query/?q=${okrEncoded}`;
+
+            const okrResponse = await fetch(okrUrl, {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${access_token}`,
+                'Content-Type': 'application/json',
+              },
+            });
+
+            if (okrResponse.ok) {
+              const okrData = await okrResponse.json();
+              const records = okrData.records || [];
+
+              if (records.length > 0) {
+                // Fetch key results for each OKR
+                const okrsWithKeyResults = await Promise.all(
+                  records.map(async (okr) => {
+                    const keyResults = await getKeyResultsForOKR(okr.Id, access_token, instance_url);
+                    return {
+                      id: okr.Id,
+                      name: okr.Name,
+                      objective: okr.Objective__c || okr.Objective_Description__c || '',
+                      status: okr.Status__c || 'Active',
+                      progress: okr.Progress__c || 0,
+                      period: okr.Period__c || okr.Quarter__c || '',
+                      year: okr.Year__c || new Date().getFullYear(),
+                      startDate: okr.Start_Date__c || null,
+                      endDate: okr.End_Date__c || null,
+                      createdDate: okr.CreatedDate,
+                      keyResults: keyResults,
+                    };
+                  })
+                );
+
+                okrs = okrsWithKeyResults;
+                break; // Found OKRs, stop trying other variations
+              }
+            }
+          } catch (fieldError) {
+            // Field variation didn't work, try next one
+            continue;
+          }
+        }
+
+        if (okrs.length > 0) {
+          break; // Found OKRs with this object name, stop trying others
+        }
+      } catch (objectError) {
+        // Object doesn't exist or not accessible, try next object name
+        continue;
+      }
+    }
+
+    return okrs;
+  } catch (error) {
+    console.error('Error fetching OKRs:', error);
+    return [];
+  }
+}
+
+/**
+ * Get Key Results for an OKR
+ * Supports both Key_Result__c and OKR_Key_Result__c object names
+ */
+async function getKeyResultsForOKR(okrId, access_token, instance_url) {
+  try {
+    if (!okrId) return [];
+
+    const escapedOkrId = okrId.replace(/'/g, "\\'");
+
+    // Try different object and field name variations
+    const objectNames = ['Key_Result__c', 'OKR_Key_Result__c', 'KR__c'];
+    let keyResults = [];
+
+    for (const objectName of objectNames) {
+      try {
+        // Try common lookup field names
+        const lookupVariations = [
+          `OKR__c = '${escapedOkrId}'`,
+          `Objective__c = '${escapedOkrId}'`,
+          `Parent_OKR__c = '${escapedOkrId}'`,
+        ];
+
+        for (const whereClause of lookupVariations) {
+          try {
+            const krQuery = `SELECT Id, Name, Description__c, Key_Result__c, Target__c, Current_Value__c, Progress__c, Status__c, Unit__c, CreatedDate FROM ${objectName} WHERE ${whereClause} ORDER BY CreatedDate ASC`;
+            const krEncoded = encodeURIComponent(krQuery);
+            const krUrl = `${instance_url}/services/data/v58.0/query/?q=${krEncoded}`;
+
+            const krResponse = await fetch(krUrl, {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${access_token}`,
+                'Content-Type': 'application/json',
+              },
+            });
+
+            if (krResponse.ok) {
+              const krData = await krResponse.json();
+              const records = krData.records || [];
+
+              if (records.length > 0) {
+                keyResults = records.map(kr => ({
+                  id: kr.Id,
+                  name: kr.Name,
+                  description: kr.Description__c || kr.Key_Result__c || '',
+                  target: kr.Target__c || 0,
+                  currentValue: kr.Current_Value__c || 0,
+                  progress: kr.Progress__c || (kr.Target__c && kr.Current_Value__c ? Math.round((kr.Current_Value__c / kr.Target__c) * 100) : 0),
+                  status: kr.Status__c || 'In Progress',
+                  unit: kr.Unit__c || '',
+                  createdDate: kr.CreatedDate,
+                }));
+                break;
+              }
+            }
+          } catch (fieldError) {
+            continue;
+          }
+        }
+
+        if (keyResults.length > 0) {
+          break;
+        }
+      } catch (objectError) {
+        continue;
+      }
+    }
+
+    return keyResults;
+  } catch (error) {
+    console.error('Error fetching key results:', error);
     return [];
   }
 }

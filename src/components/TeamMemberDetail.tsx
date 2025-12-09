@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback } from './ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { 
   Briefcase, CheckCircle2, Clock, TrendingUp, Mail, Users, 
-  BookOpen, Loader2, Calendar, Percent
+  BookOpen, Loader2, Calendar, Percent, Target
 } from 'lucide-react';
 import type { TeamMember } from '../services/teamService';
 import { fetchLearningInstances } from '../services/learningService';
@@ -94,16 +94,17 @@ export const TeamMemberDetail = ({ member, isOpen, onClose }: TeamMemberDetailPr
         </DialogHeader>
 
         <Tabs defaultValue="overview" className="mt-4">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="projects">Projects</TabsTrigger>
             <TabsTrigger value="lms">LMS Progress</TabsTrigger>
             <TabsTrigger value="requirements">Requirements</TabsTrigger>
+            <TabsTrigger value="okrs">OKRs</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-4 mt-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -137,6 +138,22 @@ export const TeamMemberDetail = ({ member, isOpen, onClose }: TeamMemberDetailPr
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{member.requirementsStats.inProgress}</div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    OKRs
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{member.okrs?.length || 0}</div>
+                  {member.okrs && member.okrs.length > 0 && (
+                    <div className="text-xs text-muted-foreground">
+                      {Math.round(member.okrs.reduce((sum, okr) => sum + okr.progress, 0) / member.okrs.length)}% avg progress
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -366,6 +383,128 @@ export const TeamMemberDetail = ({ member, isOpen, onClose }: TeamMemberDetailPr
                     </Card>
                   ))}
                 </div>
+              </div>
+            )}
+          </TabsContent>
+
+          {/* OKRs Tab */}
+          <TabsContent value="okrs" className="space-y-4 mt-4">
+            {!member.okrs || member.okrs.length === 0 ? (
+              <Card>
+                <CardContent className="py-8 text-center text-muted-foreground">
+                  <Target className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                  <p>No OKRs assigned</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {member.okrs.map((okr) => (
+                  <Card key={okr.id}>
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <CardTitle className="text-lg mb-2">{okr.objective || okr.name}</CardTitle>
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                            {okr.period && (
+                              <span className="flex items-center gap-1">
+                                <Calendar className="h-4 w-4" />
+                                {okr.period} {okr.year}
+                              </span>
+                            )}
+                            <Badge
+                              variant={
+                                okr.status === 'Completed'
+                                  ? 'default'
+                                  : okr.status === 'On Track'
+                                  ? 'secondary'
+                                  : 'outline'
+                              }
+                            >
+                              {okr.status}
+                            </Badge>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-2xl font-bold">{okr.progress}%</div>
+                          <div className="text-xs text-muted-foreground">Progress</div>
+                        </div>
+                      </div>
+                      {okr.progress > 0 && (
+                        <div className="mt-3 w-full bg-muted rounded-full h-2">
+                          <div
+                            className="bg-primary h-2 rounded-full transition-all"
+                            style={{ width: `${okr.progress}%` }}
+                          />
+                        </div>
+                      )}
+                    </CardHeader>
+                    {okr.keyResults && okr.keyResults.length > 0 && (
+                      <CardContent>
+                        <div className="space-y-3">
+                          <div className="text-sm font-medium mb-2">Key Results</div>
+                          {okr.keyResults.map((kr) => (
+                            <div key={kr.id} className="p-3 rounded-lg border bg-muted/50">
+                              <div className="flex items-start justify-between mb-2">
+                                <div className="flex-1">
+                                  <div className="font-medium text-sm">{kr.name || kr.description}</div>
+                                  {kr.description && kr.description !== kr.name && (
+                                    <div className="text-xs text-muted-foreground mt-1">
+                                      {kr.description}
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="text-right ml-4">
+                                  <div className="text-sm font-semibold">
+                                    {kr.currentValue.toLocaleString()}
+                                    {kr.unit && ` ${kr.unit}`} / {kr.target.toLocaleString()}
+                                    {kr.unit && ` ${kr.unit}`}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">
+                                    {kr.progress}% complete
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="w-full bg-background rounded-full h-1.5 mt-2">
+                                <div
+                                  className={`h-1.5 rounded-full transition-all ${
+                                    kr.progress >= 100
+                                      ? 'bg-green-600'
+                                      : kr.progress >= 75
+                                      ? 'bg-blue-600'
+                                      : kr.progress >= 50
+                                      ? 'bg-yellow-600'
+                                      : 'bg-orange-600'
+                                  }`}
+                                  style={{ width: `${Math.min(100, kr.progress)}%` }}
+                                />
+                              </div>
+                              <div className="flex items-center justify-between mt-1">
+                                <Badge
+                                  variant="outline"
+                                  className="text-xs"
+                                >
+                                  {kr.status}
+                                </Badge>
+                                {kr.unit && (
+                                  <span className="text-xs text-muted-foreground">
+                                    Target: {kr.target.toLocaleString()} {kr.unit}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    )}
+                    {(!okr.keyResults || okr.keyResults.length === 0) && (
+                      <CardContent>
+                        <div className="text-sm text-muted-foreground text-center py-4">
+                          No key results defined
+                        </div>
+                      </CardContent>
+                    )}
+                  </Card>
+                ))}
               </div>
             )}
           </TabsContent>

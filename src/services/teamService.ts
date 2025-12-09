@@ -24,6 +24,32 @@ export interface ProjectAllocation {
   createdDate: string;
 }
 
+export interface KeyResult {
+  id: string;
+  name: string;
+  description: string;
+  target: number;
+  currentValue: number;
+  progress: number;
+  status: string;
+  unit: string;
+  createdDate: string;
+}
+
+export interface OKR {
+  id: string;
+  name: string;
+  objective: string;
+  status: string;
+  progress: number;
+  period: string;
+  year: number;
+  startDate: string | null;
+  endDate: string | null;
+  createdDate: string;
+  keyResults: KeyResult[];
+}
+
 export interface TeamMember {
   id: string;
   name: string;
@@ -34,6 +60,7 @@ export interface TeamMember {
   subordinates: TeamMember[];
   teamBuilds: ProjectAllocation[];
   requirementsStats: RequirementStats;
+  okrs: OKR[];
   totalAllocationPercentage: number;
   managers?: TeamMember[]; // Only on current user
 }

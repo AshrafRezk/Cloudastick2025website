@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronRight, Users, Briefcase, CheckCircle2, Clock, TrendingUp, Mail } from 'lucide-react';
+import { ChevronDown, ChevronRight, Users, Briefcase, CheckCircle2, Clock, TrendingUp, Mail, Target } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Avatar, AvatarFallback } from './ui/avatar';
@@ -123,7 +123,7 @@ export const TeamTree = ({ member, currentUserId, level = 0, isCurrentUser = fal
 
             {!isCurrentUser && (
               <CardContent className="pt-0">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                   {/* Projects */}
                   <div className="flex items-center gap-2">
                     <Briefcase className="h-4 w-4 text-muted-foreground" />
@@ -150,6 +150,22 @@ export const TeamTree = ({ member, currentUserId, level = 0, isCurrentUser = fal
                     <div>
                       <div className="text-xs text-muted-foreground">In Progress</div>
                       <div className="text-sm font-semibold">{member.requirementsStats.inProgress}</div>
+                    </div>
+                  </div>
+
+                  {/* OKRs */}
+                  <div className="flex items-center gap-2">
+                    <Target className="h-4 w-4 text-muted-foreground" />
+                    <div>
+                      <div className="text-xs text-muted-foreground">OKRs</div>
+                      <div className="text-sm font-semibold">
+                        {member.okrs?.length || 0}
+                        {member.okrs && member.okrs.length > 0 && (
+                          <span className="text-xs text-muted-foreground ml-1">
+                            ({Math.round(member.okrs.reduce((sum, okr) => sum + okr.progress, 0) / member.okrs.length)}% avg)
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
 
