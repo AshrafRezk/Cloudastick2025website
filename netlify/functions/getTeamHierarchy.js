@@ -2,7 +2,84 @@
  * Netlify Function to fetch Team Hierarchy for a Contact
  * Returns hierarchical tree of contacts (subordinates and managers)
  * with team build allocations, requirements stats, and LMS progress
+ * Uses cache first to reduce API calls
  */
+
+const {
+  getCache,
+  setCache,
+  getCacheKey,
+  getListCacheKey,
+  simpleHash,
+  CACHE_TTLS,
+} = require('./salesforceCacheManager');
+
+/**
+ * Get Contact from cache or Salesforce
+ */
+async function getContactById(contactId, access_token, instance_url) {
+  // Check cache first
+  const contactCacheKey = getCacheKey('Contact', contactId);
+  const contactCached = await getCache(contactCacheKey, CACHE_TTLS['Contact']);
+  
+  if (contactCached && contactCached.data) {
+    return contactCached.data;
+  }
+  
+  // Cache miss - query Salesforce
+  const escapedContactId = contactId.replace(/'/g, "\\'");
+  const contactQuery = `SELECT Id, Name, Email, ReportsToId, ReportsTo.Name, Associated_User__c FROM Contact WHERE Id = '${escapedContactId}' LIMIT 1`;
+  const contactEncoded = encodeURIComponent(contactQuery);
+  const contactUrl = `${instance_url}/services/data/v58.0/query/?q=${contactEncoded}`;
+
+  const contactResponse = await fetch(contactUrl, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${access_token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!contactResponse.ok) {
+    return null;
+  }
+
+  const contactData = await contactResponse.json();
+  if (!contactData.records || contactData.records.length === 0) {
+    return null;
+  }
+
+  const contact = contactData.records[0];
+  
+  // Cache the contact
+  setCache(contactCacheKey, contact, {
+    objectType: 'Contact',
+    cachedAt: new Date().toISOString(),
+  }).catch(err => console.warn('⚠️ Failed to cache contact:', err.message));
+  
+  return contact;
+}
+
+/**
+ * Get subordinates from cache or Salesforce
+ */
+async function getSubordinatesFromCache(parentId) {
+  try {
+    const allContactsKey = getListCacheKey('Contact', 'all');
+    const cached = await getCache(allContactsKey, CACHE_TTLS['Contact']);
+    
+    if (cached && cached.data && Array.isArray(cached.data)) {
+      // Filter contacts by ReportsToId from cache
+      const subordinates = cached.data.filter(c => c.ReportsToId === parentId);
+      return subordinates.sort((a, b) => (a.Name || '').localeCompare(b.Name || ''));
+    }
+    
+    return null;
+  } catch (error) {
+    console.warn('⚠️ Error getting subordinates from cache:', error.message);
+    return null;
+  }
+}
 
 exports.handler = async (event, context) => {
   // Handle CORS preflight requests
@@ -46,27 +123,10 @@ exports.handler = async (event, context) => {
       };
     }
 
-    const escapedContactId = contactId.replace(/'/g, "\\'");
-
-    // Step 1: Get current contact info
-    const contactQuery = `SELECT Id, Name, Email, ReportsToId, ReportsTo.Name, Associated_User__c FROM Contact WHERE Id = '${escapedContactId}' LIMIT 1`;
-    const contactEncoded = encodeURIComponent(contactQuery);
-    const contactUrl = `${instance_url}/services/data/v58.0/query/?q=${contactEncoded}`;
-
-    const contactResponse = await fetch(contactUrl, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${access_token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!contactResponse.ok) {
-      throw new Error(`Failed to fetch contact: ${contactResponse.status}`);
-    }
-
-    const contactData = await contactResponse.json();
-    if (!contactData.records || contactData.records.length === 0) {
+    // Step 1: Get current contact info - check cache first
+    const currentContact = await getContactById(contactId, access_token, instance_url);
+    
+    if (!currentContact) {
       return {
         statusCode: 404,
         headers: {
@@ -77,70 +137,58 @@ exports.handler = async (event, context) => {
       };
     }
 
-    const currentContact = contactData.records[0];
-
     // Step 2: Collect all contacts in the hierarchy
     const allContacts = [currentContact];
     const contactIdToContact = new Map();
     contactIdToContact.set(currentContact.Id, currentContact);
 
-    // Build hierarchy up (managers)
+    // Build hierarchy up (managers) - use cache
     const managers = [];
     let currentManagerId = currentContact.ReportsToId;
     const visitedIds = new Set([contactId]); // Prevent cycles
 
     while (currentManagerId && !visitedIds.has(currentManagerId)) {
       visitedIds.add(currentManagerId);
-      const managerQuery = `SELECT Id, Name, Email, ReportsToId, Associated_User__c FROM Contact WHERE Id = '${currentManagerId.replace(/'/g, "\\'")}' LIMIT 1`;
-      const managerEncoded = encodeURIComponent(managerQuery);
-      const managerUrl = `${instance_url}/services/data/v58.0/query/?q=${managerEncoded}`;
-
-      const managerResponse = await fetch(managerUrl, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${access_token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (managerResponse.ok) {
-        const managerData = await managerResponse.json();
-        if (managerData.records && managerData.records.length > 0) {
-          const manager = managerData.records[0];
-          managers.push(manager);
-          allContacts.push(manager);
-          contactIdToContact.set(manager.Id, manager);
-          currentManagerId = manager.ReportsToId;
-        } else {
-          break;
-        }
+      const manager = await getContactById(currentManagerId, access_token, instance_url);
+      
+      if (manager) {
+        managers.push(manager);
+        allContacts.push(manager);
+        contactIdToContact.set(manager.Id, manager);
+        currentManagerId = manager.ReportsToId;
       } else {
         break;
       }
     }
 
-    // Step 3: Collect all subordinates recursively
+    // Step 3: Collect all subordinates recursively - use cache
     const collectSubordinates = async (parentId, depth = 0) => {
       if (depth > 10) return; // Prevent infinite recursion
 
-      const subordinatesQuery = `SELECT Id, Name, Email, ReportsToId, Associated_User__c FROM Contact WHERE ReportsToId = '${parentId.replace(/'/g, "\\'")}' ORDER BY Name`;
-      const subordinatesEncoded = encodeURIComponent(subordinatesQuery);
-      const subordinatesUrl = `${instance_url}/services/data/v58.0/query/?q=${subordinatesEncoded}`;
+      // Try cache first
+      let directSubordinates = await getSubordinatesFromCache(parentId);
+      
+      if (!directSubordinates) {
+        // Cache miss - query Salesforce
+        const subordinatesQuery = `SELECT Id, Name, Email, ReportsToId, Associated_User__c FROM Contact WHERE ReportsToId = '${parentId.replace(/'/g, "\\'")}' ORDER BY Name`;
+        const subordinatesEncoded = encodeURIComponent(subordinatesQuery);
+        const subordinatesUrl = `${instance_url}/services/data/v58.0/query/?q=${subordinatesEncoded}`;
 
-      const subordinatesResponse = await fetch(subordinatesUrl, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${access_token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+        const subordinatesResponse = await fetch(subordinatesUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${access_token}`,
+            'Content-Type': 'application/json',
+          },
+        });
 
-      if (!subordinatesResponse.ok) {
-        return;
+        if (!subordinatesResponse.ok) {
+          return;
+        }
+
+        const subordinatesData = await subordinatesResponse.json();
+        directSubordinates = subordinatesData.records || [];
       }
-
-      const subordinatesData = await subordinatesResponse.json();
-      const directSubordinates = subordinatesData.records || [];
 
       // Add to all contacts and recursively collect their subordinates
       for (const sub of directSubordinates) {
@@ -418,6 +466,7 @@ async function getTeamBuildsForContact(contactName, access_token, instance_url) 
  * Uses Owner__c field (lookup to User) on OKR__c
  * Returns Map<UserId, number> where number is the count of OKRs per user
  * Only fetches counts for performance - full OKR data should be loaded on demand
+ * Uses cache first to reduce API calls
  */
 async function getOKRsForUsers(userIds, contactIds, contactToUserMap, access_token, instance_url) {
   const okrsMap = new Map();
@@ -436,16 +485,41 @@ async function getOKRsForUsers(userIds, contactIds, contactToUserMap, access_tok
       okrsMap.set(userId, []);
     });
 
+    // Try cache first
+    const allOKRsKey = getListCacheKey('OKR__c', 'all');
+    const cached = await getCache(allOKRsKey, CACHE_TTLS['OKR__c']);
+    
+    if (cached && cached.data && Array.isArray(cached.data)) {
+      // Filter OKRs by Owner__c from cache
+      const userIdSet = new Set(userIds);
+      const userOKRs = cached.data.filter(okr => userIdSet.has(okr.Owner__c));
+      
+      // Count OKRs per user and create placeholder arrays
+      const userCounts = new Map();
+      userOKRs.forEach(okr => {
+        const ownerId = okr.Owner__c;
+        if (ownerId && userIdSet.has(ownerId)) {
+          userCounts.set(ownerId, (userCounts.get(ownerId) || 0) + 1);
+        }
+      });
+      
+      // Create placeholder arrays of appropriate length (matching original behavior)
+      userCounts.forEach((count, userId) => {
+        okrsMap.set(userId, new Array(count));
+      });
+      
+      console.log('✅ Got OKR counts from cache');
+      return okrsMap;
+    }
+    
+    // Cache miss - query Salesforce
     // Query OKR counts per user - batch queries to avoid query length limits
-    // Process in batches of 50 users at a time (Salesforce IN clause limit is 500, but we'll be conservative)
     const batchSize = 50;
     for (let i = 0; i < userIds.length; i += batchSize) {
       const batchUserIds = userIds.slice(i, i + batchSize);
       const escapedUserIds = batchUserIds.map(id => `'${id.replace(/'/g, "\\'")}'`).join(',');
       
       // Query to get counts grouped by Owner__c
-      // Note: We can't directly GROUP BY in SOQL, so we'll use a workaround
-      // Query all OKRs for this batch and count them in memory
       const okrQuery = `SELECT Owner__c FROM OKR__c WHERE Owner__c IN (${escapedUserIds})`;
       const okrEncoded = encodeURIComponent(okrQuery);
       const okrUrl = `${instance_url}/services/data/v58.0/query/?q=${okrEncoded}`;
@@ -506,7 +580,6 @@ async function getOKRsForUsers(userIds, contactIds, contactToUserMap, access_tok
           }
           
           // Update the map with placeholder arrays of appropriate length for compatibility
-          // The arrays are just for length - actual OKR data will be loaded on demand
           userCounts.forEach((count, userId) => {
             okrsMap.set(userId, new Array(count));
           });
@@ -554,6 +627,7 @@ async function getKeyResultsForOKR(okrId, access_token, instance_url) {
  * Get requirements statistics for multiple users (batch)
  * Uses OwnerId field (lookup to User) on Requirement__c
  * Returns Map<UserId, RequirementStats>
+ * Uses cache first to reduce API calls
  */
 async function getRequirementsStatsForUsers(userIds, access_token, instance_url) {
   const statsMap = new Map();
@@ -568,11 +642,42 @@ async function getRequirementsStatsForUsers(userIds, access_token, instance_url)
       statsMap.set(userId, { completed: 0, inProgress: 0, total: 0 });
     });
 
-    // Escape user IDs for SOQL
+    // Try cache first
+    const allRequirementsKey = getListCacheKey('Requirement__c', 'all');
+    const cached = await getCache(allRequirementsKey, CACHE_TTLS['Requirement__c']);
+    
+    if (cached && cached.data && Array.isArray(cached.data)) {
+      // Filter requirements by OwnerId from cache
+      const userIdSet = new Set(userIds);
+      const userRequirements = cached.data.filter(req => userIdSet.has(req.OwnerId));
+      
+      // Process records and aggregate by user
+      userRequirements.forEach(record => {
+        const userId = record.OwnerId;
+        
+        if (!statsMap.has(userId)) {
+          statsMap.set(userId, { completed: 0, inProgress: 0, total: 0 });
+        }
+        
+        const stats = statsMap.get(userId);
+        stats.total++;
+        
+        const status = (record.Status__c || '').toLowerCase();
+        if (status === 'completed' || status === 'done' || status === 'closed') {
+          stats.completed++;
+        } else if (status === 'in progress' || status === 'in-progress' || status === 'working') {
+          stats.inProgress++;
+        }
+      });
+      
+      console.log('✅ Got requirements stats from cache');
+      return statsMap;
+    }
+    
+    // Cache miss - query Salesforce
     const escapedUserIds = userIds.map(id => `'${id.replace(/'/g, "\\'")}'`).join(',');
     
     // Query requirements grouped by OwnerId and Status__c
-    // Using OwnerId (lookup to User) instead of Associated_User__c
     const requirementsQuery = `SELECT OwnerId, Status__c, COUNT(Id) total FROM Requirement__c WHERE OwnerId IN (${escapedUserIds}) GROUP BY OwnerId, Status__c`;
     const requirementsEncoded = encodeURIComponent(requirementsQuery);
     const requirementsUrl = `${instance_url}/services/data/v58.0/query/?q=${requirementsEncoded}`;

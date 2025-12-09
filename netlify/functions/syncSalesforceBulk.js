@@ -197,12 +197,22 @@ async function syncObjectBulk(objectType, access_token, instance_url) {
       }
     }
 
-    // Cache the full list as well
+    // Cache the full list with all record data (for efficient searching)
     const listCacheKey = getListCacheKey(objectType, simpleHash(soqlQuery));
     await setCache(listCacheKey, result.records, {
       objectType,
       query: soqlQuery,
       count: result.count,
+      syncedAt: new Date().toISOString(),
+      syncMethod: 'bulk-api',
+    });
+    
+    // Also cache a full list with all record data (keyed by 'all' for easy lookup)
+    const allListCacheKey = getListCacheKey(objectType, 'all');
+    await setCache(allListCacheKey, records, {
+      objectType,
+      query: 'all',
+      count: records.length,
       syncedAt: new Date().toISOString(),
       syncMethod: 'bulk-api',
     });
@@ -249,6 +259,7 @@ async function syncObjectRegular(objectType, access_token, instance_url) {
     let hasMore = true;
     let offset = 0;
     const limit = 2000;
+    const allRecords = []; // Collect all records for full list cache
 
     while (hasMore) {
       const query = `${soqlQuery} LIMIT ${limit} OFFSET ${offset}`;
@@ -270,6 +281,7 @@ async function syncObjectRegular(objectType, access_token, instance_url) {
 
       const data = await response.json();
       const records = data.records || [];
+      allRecords.push(...records); // Collect for full list
 
       // Cache each record
       for (const record of records) {
@@ -297,12 +309,22 @@ async function syncObjectRegular(objectType, access_token, instance_url) {
       }
     }
 
-    // Cache the list
+    // Cache the list (IDs only)
     const listCacheKey = getListCacheKey(objectType, simpleHash(soqlQuery));
     await setCache(listCacheKey, result.records, {
       objectType,
       query: soqlQuery,
       count: result.count,
+      syncedAt: new Date().toISOString(),
+      syncMethod: 'soql',
+    });
+    
+    // Also cache full list with all record data (for efficient searching)
+    const allListCacheKey = getListCacheKey(objectType, 'all');
+    await setCache(allListCacheKey, allRecords, {
+      objectType,
+      query: 'all',
+      count: allRecords.length,
       syncedAt: new Date().toISOString(),
       syncMethod: 'soql',
     });

@@ -1,12 +1,55 @@
 /**
  * Netlify Function for Contact Portal Login
  * Authenticates portal users by validating Portal_Username__c and Portal_Password__c
+ * Uses cache first to reduce API calls
  * 
  * Environment variables required:
  * - SALESFORCE_CLIENT_ID
  * - SALESFORCE_CLIENT_SECRET
  * - SALESFORCE_TOKEN_URL
  */
+
+const {
+  getCache,
+  setCache,
+  getCacheKey,
+  getListCacheKey,
+  simpleHash,
+  CACHE_TTLS,
+} = require('./salesforceCacheManager');
+
+/**
+ * Find Contact by username from cache
+ */
+async function findContactByUsernameFromCache(username) {
+  try {
+    // Try to get all contacts from cache (if bulk sync has run)
+    const allContactsKey = getListCacheKey('Contact', 'all');
+    const cached = await getCache(allContactsKey, CACHE_TTLS['Contact']);
+    
+    if (cached && cached.data && Array.isArray(cached.data)) {
+      // Search through cached contacts
+      const contact = cached.data.find(c => 
+        c.Portal_Username__c && c.Portal_Username__c.toLowerCase() === username.toLowerCase()
+      );
+      
+      if (contact) {
+        // Get full contact details from individual cache
+        const contactCacheKey = getCacheKey('Contact', contact.Id);
+        const contactCached = await getCache(contactCacheKey, CACHE_TTLS['Contact']);
+        if (contactCached && contactCached.data) {
+          return contactCached.data;
+        }
+        return contact;
+      }
+    }
+    
+    return null;
+  } catch (error) {
+    console.warn('⚠️ Error searching cache for contact:', error.message);
+    return null;
+  }
+}
 
 exports.handler = async (event, context) => {
   // Handle CORS preflight requests
@@ -94,46 +137,63 @@ exports.handler = async (event, context) => {
     const authData = await authResponse.json();
     const { access_token, instance_url } = authData;
 
-    // Query Contact by Portal_Username__c - include all access fields
-    const escapedUsername = username.replace(/'/g, "\\'");
-    const soqlQuery = `SELECT Id, Name, Email, Portal_Username__c, Portal_Password__c, Portal_Access__c, Portal_LMS_Access__c, Portal_Sales_Access__c, Portal_CMS_Access__c, Portal_CPM_Access__c, LinkedInURL__c, TrailheadProfileURL__c, NumberofCertifications__c, Certifications_List__c FROM Contact WHERE Portal_Username__c = '${escapedUsername}' LIMIT 1`;
-    
-    const encodedQuery = encodeURIComponent(soqlQuery);
-    const queryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedQuery}`;
+    // Try cache first
+    let contact = await findContactByUsernameFromCache(username);
+    let fromCache = !!contact;
 
-    console.log('📤 Querying Contact by username...');
+    if (!contact) {
+      // Cache miss - query Salesforce
+      const escapedUsername = username.replace(/'/g, "\\'");
+      const soqlQuery = `SELECT Id, Name, Email, Portal_Username__c, Portal_Password__c, Portal_Access__c, Portal_LMS_Access__c, Portal_Sales_Access__c, Portal_CMS_Access__c, Portal_CPM_Access__c, LinkedInURL__c, TrailheadProfileURL__c, NumberofCertifications__c, Certifications_List__c FROM Contact WHERE Portal_Username__c = '${escapedUsername}' LIMIT 1`;
+      
+      const encodedQuery = encodeURIComponent(soqlQuery);
+      const queryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedQuery}`;
 
-    const queryResponse = await fetch(queryUrl, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${access_token}`,
-        'Content-Type': 'application/json',
-      },
-    });
+      console.log('📤 Querying Contact by username from Salesforce...');
 
-    if (!queryResponse.ok) {
-      const errorText = await queryResponse.text();
-      throw new Error(`Salesforce query failed: ${queryResponse.status} - ${errorText}`);
-    }
-
-    const queryData = await queryResponse.json();
-    const records = queryData.records || [];
-
-    if (records.length === 0) {
-      return {
-        statusCode: 401,
+      const queryResponse = await fetch(queryUrl, {
+        method: 'GET',
         headers: {
-          'Access-Control-Allow-Origin': '*',
+          'Authorization': `Bearer ${access_token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
-          error: 'Invalid credentials',
-          message: 'Username not found'
-        }),
-      };
-    }
+      });
 
-    const contact = records[0];
+      if (!queryResponse.ok) {
+        const errorText = await queryResponse.text();
+        throw new Error(`Salesforce query failed: ${queryResponse.status} - ${errorText}`);
+      }
+
+      const queryData = await queryResponse.json();
+      const records = queryData.records || [];
+
+      if (records.length === 0) {
+        return {
+          statusCode: 401,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            error: 'Invalid credentials',
+            message: 'Username not found'
+          }),
+        };
+      }
+
+      contact = records[0];
+      
+      // Cache the contact for future logins
+      if (contact.Id) {
+        const contactCacheKey = getCacheKey('Contact', contact.Id);
+        setCache(contactCacheKey, contact, {
+          objectType: 'Contact',
+          cachedAt: new Date().toISOString(),
+        }).catch(err => console.warn('⚠️ Failed to cache contact:', err.message));
+      }
+    } else {
+      console.log('✅ Found contact in cache');
+    }
 
     // Check if portal is active
     if (!contact.Portal_Access__c) {

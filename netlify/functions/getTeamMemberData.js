@@ -2,7 +2,17 @@
  * Netlify Function to fetch data for a single team member
  * Returns OKRs, requirements stats, and team builds for one contact
  * Supports pagination for large datasets
+ * Uses cache first to reduce API calls
  */
+
+const {
+  getCache,
+  setCache,
+  getCacheKey,
+  getListCacheKey,
+  simpleHash,
+  CACHE_TTLS,
+} = require('./salesforceCacheManager');
 
 exports.handler = async (event, context) => {
   // Handle CORS preflight requests
@@ -56,36 +66,52 @@ exports.handler = async (event, context) => {
 
     const escapedContactId = contactId.replace(/'/g, "\\'");
 
-    // Step 1: Get contact info and associated user
-    const contactQuery = `SELECT Id, Name, Email, Associated_User__c FROM Contact WHERE Id = '${escapedContactId}' LIMIT 1`;
-    const contactEncoded = encodeURIComponent(contactQuery);
-    const contactUrl = `${instance_url}/services/data/v58.0/query/?q=${contactEncoded}`;
+    // Step 1: Get contact info and associated user - check cache first
+    let contact = null;
+    const contactCacheKey = getCacheKey('Contact', contactId);
+    const contactCached = await getCache(contactCacheKey, CACHE_TTLS['Contact']);
+    
+    if (contactCached && contactCached.data) {
+      contact = contactCached.data;
+      console.log('✅ Found contact in cache');
+    } else {
+      // Cache miss - query Salesforce
+      const contactQuery = `SELECT Id, Name, Email, Associated_User__c FROM Contact WHERE Id = '${escapedContactId}' LIMIT 1`;
+      const contactEncoded = encodeURIComponent(contactQuery);
+      const contactUrl = `${instance_url}/services/data/v58.0/query/?q=${contactEncoded}`;
 
-    const contactResponse = await fetch(contactUrl, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${access_token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!contactResponse.ok) {
-      throw new Error(`Failed to fetch contact: ${contactResponse.status}`);
-    }
-
-    const contactData = await contactResponse.json();
-    if (!contactData.records || contactData.records.length === 0) {
-      return {
-        statusCode: 404,
+      const contactResponse = await fetch(contactUrl, {
+        method: 'GET',
         headers: {
-          'Access-Control-Allow-Origin': '*',
+          'Authorization': `Bearer ${access_token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ error: 'Contact not found' }),
-      };
-    }
+      });
 
-    const contact = contactData.records[0];
+      if (!contactResponse.ok) {
+        throw new Error(`Failed to fetch contact: ${contactResponse.status}`);
+      }
+
+      const contactData = await contactResponse.json();
+      if (!contactData.records || contactData.records.length === 0) {
+        return {
+          statusCode: 404,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ error: 'Contact not found' }),
+        };
+      }
+
+      contact = contactData.records[0];
+      
+      // Cache the contact
+      setCache(contactCacheKey, contact, {
+        objectType: 'Contact',
+        cachedAt: new Date().toISOString(),
+      }).catch(err => console.warn('⚠️ Failed to cache contact:', err.message));
+    }
     const userId = contact.Associated_User__c;
 
     if (!userId) {
@@ -176,9 +202,36 @@ exports.handler = async (event, context) => {
 
 /**
  * Get requirements statistics for a single user
+ * Uses cache first to reduce API calls
  */
 async function getRequirementsStatsForUser(userId, access_token, instance_url) {
   try {
+    // Try to get all requirements from cache
+    const allRequirementsKey = getListCacheKey('Requirement__c', 'all');
+    const cached = await getCache(allRequirementsKey, CACHE_TTLS['Requirement__c']);
+    
+    if (cached && cached.data && Array.isArray(cached.data)) {
+      // Filter requirements by OwnerId from cache
+      const userRequirements = cached.data.filter(req => req.OwnerId === userId);
+      
+      let completed = 0;
+      let inProgress = 0;
+      let total = userRequirements.length;
+
+      userRequirements.forEach(record => {
+        const status = (record.Status__c || '').toLowerCase();
+        if (status === 'completed' || status === 'done' || status === 'closed') {
+          completed++;
+        } else if (status === 'in progress' || status === 'in-progress' || status === 'working') {
+          inProgress++;
+        }
+      });
+
+      console.log('✅ Got requirements stats from cache');
+      return { completed, inProgress, total };
+    }
+    
+    // Cache miss - query Salesforce
     const escapedUserId = userId.replace(/'/g, "\\'");
     const requirementsQuery = `SELECT Status__c, COUNT(Id) total FROM Requirement__c WHERE OwnerId = '${escapedUserId}' GROUP BY Status__c`;
     const requirementsEncoded = encodeURIComponent(requirementsQuery);
@@ -223,61 +276,94 @@ async function getRequirementsStatsForUser(userId, access_token, instance_url) {
 
 /**
  * Get OKRs for a single user with pagination
+ * Uses cache first to reduce API calls
  */
 async function getOKRsForUser(userId, access_token, instance_url, offset = 0, limit = 50) {
   try {
-    const escapedUserId = userId.replace(/'/g, "\\'");
+    // Try to get all OKRs from cache
+    const allOKRsKey = getListCacheKey('OKR__c', 'all');
+    const cached = await getCache(allOKRsKey, CACHE_TTLS['OKR__c']);
     
-    // First, get total count
-    const countQuery = `SELECT COUNT() FROM OKR__c WHERE Owner__c = '${escapedUserId}'`;
-    const countEncoded = encodeURIComponent(countQuery);
-    const countUrl = `${instance_url}/services/data/v58.0/query/?q=${countEncoded}`;
-
+    let parentOkrs = [];
+    let childOkrs = [];
     let total = 0;
-    try {
-      const countResponse = await fetch(countUrl, {
+    let fromCache = false;
+    
+    if (cached && cached.data && Array.isArray(cached.data)) {
+      // Filter OKRs by Owner__c from cache
+      const userOKRs = cached.data.filter(okr => okr.Owner__c === userId);
+      total = userOKRs.length;
+      
+      // Separate parent and child OKRs
+      const allParentOkrs = userOKRs.filter(okr => !okr.Parent_Objective__c);
+      childOkrs = userOKRs.filter(okr => okr.Parent_Objective__c);
+      
+      // Sort parent OKRs by Quarter and CreatedDate (descending)
+      allParentOkrs.sort((a, b) => {
+        const quarterCompare = (b.Quarter__c || '').localeCompare(a.Quarter__c || '');
+        if (quarterCompare !== 0) return quarterCompare;
+        const dateA = new Date(a.CreatedDate || 0);
+        const dateB = new Date(b.CreatedDate || 0);
+        return dateB - dateA;
+      });
+      
+      // Apply pagination
+      parentOkrs = allParentOkrs.slice(offset, offset + limit);
+      fromCache = true;
+      console.log('✅ Got OKRs from cache');
+    }
+    
+    // If cache miss or insufficient data, query Salesforce
+    if (!fromCache || parentOkrs.length === 0) {
+      const escapedUserId = userId.replace(/'/g, "\\'");
+      
+      // First, get total count
+      const countQuery = `SELECT COUNT() FROM OKR__c WHERE Owner__c = '${escapedUserId}'`;
+      const countEncoded = encodeURIComponent(countQuery);
+      const countUrl = `${instance_url}/services/data/v58.0/query/?q=${countEncoded}`;
+
+      try {
+        const countResponse = await fetch(countUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${access_token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        if (countResponse.ok) {
+          const countData = await countResponse.json();
+          total = countData.totalSize || 0;
+        }
+      } catch (e) {
+        console.warn('Could not get OKR count:', e.message);
+      }
+
+      // Fetch parent OKRs with pagination
+      const okrFields = 'Id, Name, Owner__c, Type__c, Status__c, Parent_Objective__c, Due_Date__c, Department__c, Quarter__c, Progress__c, Weight__c, Overall_Health__c, Comments__c, CreatedDate';
+      let okrQuery = `SELECT ${okrFields} FROM OKR__c WHERE Owner__c = '${escapedUserId}' AND Parent_Objective__c = null ORDER BY Quarter__c DESC, CreatedDate DESC LIMIT ${limit} OFFSET ${offset}`;
+      const okrEncoded = encodeURIComponent(okrQuery);
+      const okrUrl = `${instance_url}/services/data/v58.0/query/?q=${okrEncoded}`;
+
+      const okrResponse = await fetch(okrUrl, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${access_token}`,
           'Content-Type': 'application/json',
         },
       });
-      if (countResponse.ok) {
-        const countData = await countResponse.json();
-        total = countData.totalSize || 0;
+
+      if (!okrResponse.ok) {
+        return { okrs: [], total: 0, hasMore: false };
       }
-    } catch (e) {
-      console.warn('Could not get OKR count:', e.message);
-    }
 
-    // Fetch parent OKRs with pagination - only query specific fields for performance
-    const okrFields = 'Id, Name, Owner__c, Type__c, Status__c, Parent_Objective__c, Due_Date__c, Department__c, Quarter__c, Progress__c, Weight__c, Overall_Health__c, Comments__c, CreatedDate';
-    // Note: We need to handle sorting - if Year__c is not available, sort by CreatedDate and Quarter
-    // Try with Year__c first, fall back if it doesn't exist
-    let okrQuery = `SELECT ${okrFields} FROM OKR__c WHERE Owner__c = '${escapedUserId}' AND Parent_Objective__c = null ORDER BY Quarter__c DESC, CreatedDate DESC LIMIT ${limit} OFFSET ${offset}`;
-    const okrEncoded = encodeURIComponent(okrQuery);
-    const okrUrl = `${instance_url}/services/data/v58.0/query/?q=${okrEncoded}`;
+      const okrData = await okrResponse.json();
+      parentOkrs = okrData.records || [];
 
-    const okrResponse = await fetch(okrUrl, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${access_token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!okrResponse.ok) {
-      return { okrs: [], total: 0, hasMore: false };
-    }
-
-    const okrData = await okrResponse.json();
-    const parentOkrs = okrData.records || [];
-
-    // Fetch child OKRs for the parent OKRs we got - use same specific fields
-    let childOkrs = [];
-    if (parentOkrs.length > 0) {
+    // Fetch child OKRs for the parent OKRs we got
+    if (parentOkrs.length > 0 && !fromCache) {
       const parentOkrIds = parentOkrs.map(okr => okr.Id);
       const escapedParentIds = parentOkrIds.map(id => `'${id.replace(/'/g, "\\'")}'`).join(',');
+      const okrFields = 'Id, Name, Owner__c, Type__c, Status__c, Parent_Objective__c, Due_Date__c, Department__c, Quarter__c, Progress__c, Weight__c, Overall_Health__c, Comments__c, CreatedDate';
       const childOkrQuery = `SELECT ${okrFields} FROM OKR__c WHERE Parent_Objective__c IN (${escapedParentIds})`;
       const childOkrEncoded = encodeURIComponent(childOkrQuery);
       const childOkrUrl = `${instance_url}/services/data/v58.0/query/?q=${childOkrEncoded}`;
@@ -323,6 +409,10 @@ async function getOKRsForUser(userId, access_token, instance_url, offset = 0, li
       } catch (e) {
         console.warn('Error fetching child OKRs:', e.message);
       }
+    } else if (fromCache && parentOkrs.length > 0) {
+      // Filter child OKRs from cache for these parent IDs
+      const parentOkrIds = new Set(parentOkrs.map(okr => okr.Id));
+      childOkrs = childOkrs.filter(okr => parentOkrIds.has(okr.Parent_Objective__c));
     }
 
     // Group child OKRs by their parent (these are the key results)
