@@ -439,13 +439,38 @@ async function getOKRsForUsers(userIds, access_token, instance_url) {
       });
       
       if (testResponse.ok) {
-        console.log('✅ OKR__c object is accessible');
+        const testData = await testResponse.json();
+        console.log(`✅ OKR__c object is accessible. Total count: ${testData.totalSize || 'unknown'}`);
       } else {
         const testError = await testResponse.text();
         console.warn(`⚠️ Cannot access OKR__c object: ${testResponse.status} - ${testError.substring(0, 200)}`);
       }
     } catch (testError) {
       console.warn('⚠️ Error testing OKR__c access:', testError.message);
+    }
+    
+    // Try to describe the OKR__c object to see available fields
+    try {
+      const describeUrl = `${instance_url}/services/data/v58.0/sobjects/OKR__c/describe`;
+      const describeResponse = await fetch(describeUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (describeResponse.ok) {
+        const describeData = await describeResponse.json();
+        const ownerFields = describeData.fields?.filter(f => 
+          f.name.includes('Owner') || f.name.includes('owner') || 
+          (f.type === 'reference' && f.referenceTo?.some(ref => ref === 'User'))
+        ).map(f => f.name) || [];
+        console.log(`📋 OKR__c owner-related fields found:`, ownerFields.join(', ') || 'none');
+        console.log(`📋 All fields (first 10):`, describeData.fields?.slice(0, 10).map(f => f.name).join(', '));
+      }
+    } catch (describeError) {
+      console.warn('⚠️ Could not describe OKR__c object:', describeError.message);
     }
     
     // Try OKR__c first, then Objective__c
