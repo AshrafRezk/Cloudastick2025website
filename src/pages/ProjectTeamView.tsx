@@ -166,6 +166,106 @@ async function fetchSalesforceImage(
   }
 }
 
+// Helper function to render rich text content safely
+const renderRichText = (content: string) => {
+  if (!content) return null;
+  
+  // Check if content contains HTML tags
+  const hasHTML = /<[^>]+>/.test(content);
+  
+  if (hasHTML) {
+    // Sanitize and render HTML content
+    return (
+      <div 
+        className="prose prose-invert max-w-none text-gray-300 leading-relaxed
+          prose-headings:text-white prose-strong:text-white prose-em:text-gray-200
+          prose-ul:text-gray-300 prose-ol:text-gray-300 prose-li:text-gray-300
+          prose-p:text-gray-300 prose-a:text-blue-400 hover:prose-a:text-blue-300
+          prose-code:text-gray-200 prose-pre:bg-gray-900 prose-blockquote:text-gray-400
+          prose-hr:border-gray-700"
+        dangerouslySetInnerHTML={{ __html: content }}
+        style={{
+          wordBreak: 'break-word',
+        }}
+      />
+    );
+  }
+  
+  // Plain text - preserve line breaks and format common patterns
+  // Convert markdown-like syntax to HTML
+  const formatted = content
+    // Bold: **text** or __text__
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/__(.*?)__/g, '<strong>$1</strong>')
+    // Italic: *text* or _text_
+    .replace(/(?<!\*)\*(?!\*)([^*]+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>')
+    .replace(/(?<!_)_(?!_)([^_]+?)(?<!_)_(?!_)/g, '<em>$1</em>')
+    // Code: `text`
+    .replace(/`([^`]+)`/g, '<code class="bg-gray-900 px-1 py-0.5 rounded text-gray-200 text-sm">$1</code>');
+  
+  // Handle line breaks
+  const lines = formatted.split('\n');
+  const processedLines = lines.map((line, index) => {
+    const trimmed = line.trim();
+    if (!trimmed) return '<br />';
+    
+    // Check for bullet points
+    if (/^[-•*]\s/.test(trimmed)) {
+      return `<li>${trimmed.replace(/^[-•*]\s/, '')}</li>`;
+    }
+    
+    // Check for numbered lists
+    if (/^\d+\.\s/.test(trimmed)) {
+      return `<li>${trimmed.replace(/^\d+\.\s/, '')}</li>`;
+    }
+    
+    return `<p>${trimmed}</p>`;
+  });
+  
+  // Wrap consecutive list items in ul/ol
+  let wrapped = '';
+  let inList = false;
+  let listType: 'ul' | 'ol' | null = null;
+  
+  processedLines.forEach((line, index) => {
+    if (line.startsWith('<li>')) {
+      // Check original line to determine if it's numbered
+      const originalLine = lines[index]?.trim() || '';
+      const isNumbered = /^\d+\.\s/.test(originalLine);
+      const currentListType = isNumbered ? 'ol' : 'ul';
+      
+      if (!inList || listType !== currentListType) {
+        if (inList) wrapped += `</${listType}>`;
+        wrapped += `<${currentListType} class="list-disc list-inside space-y-1 my-2">`;
+        inList = true;
+        listType = currentListType;
+      }
+      wrapped += line;
+    } else {
+      if (inList) {
+        wrapped += `</${listType}>`;
+        inList = false;
+        listType = null;
+      }
+      wrapped += line;
+    }
+  });
+  
+  if (inList && listType) {
+    wrapped += `</${listType}>`;
+  }
+  
+  return (
+    <div 
+      className="text-gray-300 leading-relaxed"
+      dangerouslySetInnerHTML={{ __html: wrapped }}
+      style={{
+        wordBreak: 'break-word',
+      }}
+    />
+  );
+};
+
 const ProjectTeamView: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -856,7 +956,7 @@ const ProjectTeamView: React.FC = () => {
                   </div>
                   <h3 className="text-xl font-semibold text-white">Project Scope</h3>
                 </div>
-                <div className="text-gray-300 whitespace-pre-wrap leading-relaxed">{projectScope}</div>
+                {renderRichText(projectScope)}
               </motion.div>
             )}
             {deliverables && (
@@ -872,7 +972,7 @@ const ProjectTeamView: React.FC = () => {
                   </div>
                   <h3 className="text-xl font-semibold text-white">Deliverables</h3>
                 </div>
-                <div className="text-gray-300 whitespace-pre-wrap leading-relaxed">{deliverables}</div>
+                {renderRichText(deliverables)}
               </motion.div>
             )}
           </div>

@@ -17,6 +17,106 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 
+// Helper function to render rich text content safely
+const renderRichText = (content: string) => {
+  if (!content) return null;
+  
+  // Check if content contains HTML tags
+  const hasHTML = /<[^>]+>/.test(content);
+  
+  if (hasHTML) {
+    // Sanitize and render HTML content
+    return (
+      <div 
+        className="prose prose-invert max-w-none text-muted-foreground leading-relaxed text-sm
+          prose-headings:text-foreground prose-strong:text-foreground prose-em:text-muted-foreground
+          prose-ul:text-muted-foreground prose-ol:text-muted-foreground prose-li:text-muted-foreground
+          prose-p:text-muted-foreground prose-a:text-primary hover:prose-a:text-primary/80
+          prose-code:text-foreground prose-pre:bg-muted prose-blockquote:text-muted-foreground
+          prose-hr:border-border"
+        dangerouslySetInnerHTML={{ __html: content }}
+        style={{
+          wordBreak: 'break-word',
+        }}
+      />
+    );
+  }
+  
+  // Plain text - preserve line breaks and format common patterns
+  // Convert markdown-like syntax to HTML
+  const formatted = content
+    // Bold: **text** or __text__
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/__(.*?)__/g, '<strong>$1</strong>')
+    // Italic: *text* or _text_
+    .replace(/(?<!\*)\*(?!\*)([^*]+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>')
+    .replace(/(?<!_)_(?!_)([^_]+?)(?<!_)_(?!_)/g, '<em>$1</em>')
+    // Code: `text`
+    .replace(/`([^`]+)`/g, '<code class="bg-muted px-1 py-0.5 rounded text-foreground text-xs">$1</code>');
+  
+  // Handle line breaks
+  const lines = formatted.split('\n');
+  const processedLines = lines.map((line, index) => {
+    const trimmed = line.trim();
+    if (!trimmed) return '<br />';
+    
+    // Check for bullet points
+    if (/^[-•*]\s/.test(trimmed)) {
+      return `<li>${trimmed.replace(/^[-•*]\s/, '')}</li>`;
+    }
+    
+    // Check for numbered lists
+    if (/^\d+\.\s/.test(trimmed)) {
+      return `<li>${trimmed.replace(/^\d+\.\s/, '')}</li>`;
+    }
+    
+    return `<p>${trimmed}</p>`;
+  });
+  
+  // Wrap consecutive list items in ul/ol
+  let wrapped = '';
+  let inList = false;
+  let listType: 'ul' | 'ol' | null = null;
+  
+  processedLines.forEach((line, index) => {
+    if (line.startsWith('<li>')) {
+      // Check original line to determine if it's numbered
+      const originalLine = lines[index]?.trim() || '';
+      const isNumbered = /^\d+\.\s/.test(originalLine);
+      const currentListType = isNumbered ? 'ol' : 'ul';
+      
+      if (!inList || listType !== currentListType) {
+        if (inList) wrapped += `</${listType}>`;
+        wrapped += `<${currentListType} class="list-disc list-inside space-y-1 my-2">`;
+        inList = true;
+        listType = currentListType;
+      }
+      wrapped += line;
+    } else {
+      if (inList) {
+        wrapped += `</${listType}>`;
+        inList = false;
+        listType = null;
+      }
+      wrapped += line;
+    }
+  });
+  
+  if (inList && listType) {
+    wrapped += `</${listType}>`;
+  }
+  
+  return (
+    <div 
+      className="text-muted-foreground leading-relaxed text-sm"
+      dangerouslySetInnerHTML={{ __html: wrapped }}
+      style={{
+        wordBreak: 'break-word',
+      }}
+    />
+  );
+};
+
 interface TeamMemberDetailProps {
   member: TeamMember;
   isOpen: boolean;
@@ -426,17 +526,13 @@ export const TeamMemberDetail = ({ member, isOpen, onClose }: TeamMemberDetailPr
                       {project.scope && (
                         <div>
                           <div className="text-sm font-medium mb-1">Scope</div>
-                          <div className="text-sm text-muted-foreground whitespace-pre-wrap">
-                            {project.scope}
-                          </div>
+                          {renderRichText(project.scope)}
                         </div>
                       )}
                       {project.deliverables && (
                         <div>
                           <div className="text-sm font-medium mb-1">Deliverables</div>
-                          <div className="text-sm text-muted-foreground whitespace-pre-wrap">
-                            {project.deliverables}
-                          </div>
+                          {renderRichText(project.deliverables)}
                         </div>
                       )}
                     </CardContent>
