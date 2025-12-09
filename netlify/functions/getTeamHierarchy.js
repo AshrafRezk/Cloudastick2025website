@@ -165,6 +165,17 @@ exports.handler = async (event, context) => {
 
     // Step 5: Batch fetch requirements and OKRs for all users
     const userIds = Array.from(userToContactsMap.keys()).filter(Boolean);
+    console.log(`👥 Total contacts: ${allContacts.length}, Unique user IDs: ${userIds.length}`);
+    console.log(`👤 User IDs for OKR query:`, userIds.slice(0, 5).join(', '), userIds.length > 5 ? `... (${userIds.length} total)` : '');
+    
+    // Log which contacts have Associated_User__c
+    const contactsWithUsers = allContacts.filter(c => c.Associated_User__c);
+    const contactsWithoutUsers = allContacts.filter(c => !c.Associated_User__c);
+    console.log(`📊 Contacts with Associated_User__c: ${contactsWithUsers.length}, without: ${contactsWithoutUsers.length}`);
+    if (contactsWithoutUsers.length > 0) {
+      console.log(`⚠️ Contacts without Associated_User__c:`, contactsWithoutUsers.slice(0, 3).map(c => c.Name).join(', '));
+    }
+    
     const requirementsStatsMap = await getRequirementsStatsForUsers(userIds, access_token, instance_url);
     const okrsMap = await getOKRsForUsers(userIds, access_token, instance_url);
 
@@ -413,10 +424,35 @@ async function getOKRsForUsers(userIds, access_token, instance_url) {
     // Escape user IDs for SOQL
     const escapedUserIds = userIds.map(id => `'${id.replace(/'/g, "\\'")}'`).join(',');
     
+    // First, test if we can query OKR__c at all (without WHERE clause to check object access)
+    const testQuery = `SELECT COUNT() FROM OKR__c LIMIT 1`;
+    const testEncoded = encodeURIComponent(testQuery);
+    const testUrl = `${instance_url}/services/data/v58.0/query/?q=${testEncoded}`;
+    
+    try {
+      const testResponse = await fetch(testUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (testResponse.ok) {
+        console.log('✅ OKR__c object is accessible');
+      } else {
+        const testError = await testResponse.text();
+        console.warn(`⚠️ Cannot access OKR__c object: ${testResponse.status} - ${testError.substring(0, 200)}`);
+      }
+    } catch (testError) {
+      console.warn('⚠️ Error testing OKR__c access:', testError.message);
+    }
+    
     // Try OKR__c first, then Objective__c
     const objectNames = ['OKR__c', 'Objective__c'];
     let allOkrs = [];
     let okrObjectName = null;
+    let lastError = null;
 
     for (const objectName of objectNames) {
       // Try Owner__c (custom field) first, then OwnerId (standard field) as fallback
@@ -431,6 +467,7 @@ async function getOKRsForUsers(userIds, access_token, instance_url) {
           const okrUrl = `${instance_url}/services/data/v58.0/query/?q=${okrEncoded}`;
 
           console.log(`🔍 Querying OKRs from ${objectName} using ${ownerField} for ${userIds.length} users`);
+          console.log(`📝 Full query: ${okrQuery}`);
 
           const okrResponse = await fetch(okrUrl, {
             method: 'GET',
@@ -444,7 +481,10 @@ async function getOKRsForUsers(userIds, access_token, instance_url) {
             const okrData = await okrResponse.json();
             const records = okrData.records || [];
 
-            console.log(`✅ Found ${records.length} OKRs from ${objectName} using ${ownerField}`);
+            console.log(`✅ Query successful: Found ${records.length} OKRs from ${objectName} using ${ownerField}`);
+            if (records.length > 0) {
+              console.log(`📋 Sample OKR:`, JSON.stringify(records[0], null, 2).substring(0, 500));
+            }
 
             if (records.length > 0) {
               allOkrs = records;
@@ -454,17 +494,46 @@ async function getOKRsForUsers(userIds, access_token, instance_url) {
                 okr._ownerField = ownerField; // Store which field was used
               });
               break; // Found OKRs, stop trying other field names
+            } else {
+              // Query succeeded but no records - try querying all OKRs to see if any exist
+              const allOkrQuery = `SELECT Id, Name, ${ownerField} FROM ${objectName} LIMIT 5`;
+              const allOkrEncoded = encodeURIComponent(allOkrQuery);
+              const allOkrUrl = `${instance_url}/services/data/v58.0/query/?q=${allOkrEncoded}`;
+              
+              try {
+                const allOkrResponse = await fetch(allOkrUrl, {
+                  method: 'GET',
+                  headers: {
+                    'Authorization': `Bearer ${access_token}`,
+                    'Content-Type': 'application/json',
+                  },
+                });
+                
+                if (allOkrResponse.ok) {
+                  const allOkrData = await allOkrResponse.json();
+                  const allRecords = allOkrData.records || [];
+                  console.log(`ℹ️ Found ${allRecords.length} total OKRs in ${objectName} (not filtered by user)`);
+                  if (allRecords.length > 0) {
+                    console.log(`📋 Sample OKR owner:`, allRecords[0][ownerField]);
+                    console.log(`📋 User IDs we're looking for:`, userIds.slice(0, 3));
+                  }
+                }
+              } catch (e) {
+                // Ignore this test query error
+              }
             }
           } else {
             // Log error response but continue to try next field
             const errorText = await okrResponse.text();
-            console.warn(`⚠️ Failed to query ${objectName} with ${ownerField}: ${okrResponse.status} - ${errorText.substring(0, 200)}`);
+            lastError = `${okrResponse.status}: ${errorText}`;
+            console.error(`❌ Failed to query ${objectName} with ${ownerField}: ${okrResponse.status} - ${errorText.substring(0, 500)}`);
             // Try next field name
             continue;
           }
         } catch (fieldError) {
           // Field doesn't exist or error, try next field
-          console.warn(`⚠️ Error querying ${objectName} with ${ownerField}:`, fieldError.message);
+          lastError = fieldError.message;
+          console.error(`❌ Error querying ${objectName} with ${ownerField}:`, fieldError.message);
           continue;
         }
       }
@@ -472,6 +541,10 @@ async function getOKRsForUsers(userIds, access_token, instance_url) {
       if (allOkrs.length > 0) {
         break; // Found OKRs, stop trying other object names
       }
+    }
+    
+    if (allOkrs.length === 0 && lastError) {
+      console.error(`❌ All OKR queries failed. Last error: ${lastError}`);
     }
 
     if (allOkrs.length === 0) {
