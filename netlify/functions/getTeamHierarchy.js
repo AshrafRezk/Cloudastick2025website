@@ -416,312 +416,119 @@ async function getTeamBuildsForContact(contactName, access_token, instance_url) 
 /**
  * Get OKRs for multiple users (batch)
  * Uses Owner__c field (lookup to User) on OKR__c
- * Also tries Contact lookup fields as fallback
- * Handles hierarchical relationships via Parent_Objective__c
+ * Simple direct query: SELECT FIELDS(ALL) FROM OKR__c WHERE Owner__c IN (userIds)
  * Returns Map<UserId, OKR[]> where OKRs include children
  */
 async function getOKRsForUsers(userIds, contactIds, contactToUserMap, access_token, instance_url) {
   const okrsMap = new Map();
   
   try {
-    if ((!userIds || userIds.length === 0) && (!contactIds || contactIds.length === 0)) {
-      console.log('⚠️ No user IDs or contact IDs provided for OKR fetching');
+    if (!userIds || userIds.length === 0) {
+      console.log('⚠️ No user IDs provided for OKR fetching');
       return okrsMap;
     }
 
-    console.log(`📊 Fetching OKRs for ${userIds?.length || 0} users and ${contactIds?.length || 0} contacts`);
-    if (userIds && userIds.length > 0) {
-      console.log(`   User IDs:`, userIds.slice(0, 3).join(', '), userIds.length > 3 ? '...' : '');
-    }
+    console.log(`📊 Fetching OKRs for ${userIds.length} users`);
+    console.log(`   User IDs:`, userIds.slice(0, 5).join(', '), userIds.length > 5 ? `... (${userIds.length} total)` : '');
 
     // Initialize map with empty arrays for all users
-    if (userIds && userIds.length > 0) {
-      userIds.forEach(userId => {
-        okrsMap.set(userId, []);
-      });
-    }
+    userIds.forEach(userId => {
+      okrsMap.set(userId, []);
+    });
 
-    // Escape user IDs and contact IDs for SOQL
-    const escapedUserIds = userIds && userIds.length > 0 
-      ? userIds.map(id => `'${id.replace(/'/g, "\\'")}'`).join(',')
-      : '';
-    const escapedContactIds = contactIds && contactIds.length > 0
-      ? contactIds.map(id => `'${id.replace(/'/g, "\\'")}'`).join(',')
-      : '';
+    // Escape user IDs for SOQL
+    const escapedUserIds = userIds.map(id => `'${id.replace(/'/g, "\\'")}'`).join(',');
     
-    // First, test if we can query OKR__c at all (without WHERE clause to check object access)
-    const testQuery = `SELECT COUNT() FROM OKR__c LIMIT 1`;
-    const testEncoded = encodeURIComponent(testQuery);
-    const testUrl = `${instance_url}/services/data/v58.0/query/?q=${testEncoded}`;
-    
-    try {
-      const testResponse = await fetch(testUrl, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${access_token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (testResponse.ok) {
-        const testData = await testResponse.json();
-        console.log(`✅ OKR__c object is accessible. Total count: ${testData.totalSize || 'unknown'}`);
-      } else {
-        const testError = await testResponse.text();
-        console.warn(`⚠️ Cannot access OKR__c object: ${testResponse.status} - ${testError.substring(0, 200)}`);
-      }
-    } catch (testError) {
-      console.warn('⚠️ Error testing OKR__c access:', testError.message);
-    }
-    
-    // Try to describe the OKR__c object to see available fields
-    try {
-      const describeUrl = `${instance_url}/services/data/v58.0/sobjects/OKR__c/describe`;
-      const describeResponse = await fetch(describeUrl, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${access_token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (describeResponse.ok) {
-        const describeData = await describeResponse.json();
-        const ownerFields = describeData.fields?.filter(f => 
-          f.name.includes('Owner') || f.name.includes('owner') || 
-          (f.type === 'reference' && f.referenceTo?.some(ref => ref === 'User'))
-        ).map(f => f.name) || [];
-        console.log(`📋 OKR__c owner-related fields found:`, ownerFields.join(', ') || 'none');
-        console.log(`📋 All fields (first 10):`, describeData.fields?.slice(0, 10).map(f => f.name).join(', '));
-      }
-    } catch (describeError) {
-      console.warn('⚠️ Could not describe OKR__c object:', describeError.message);
-    }
-    
-    // Try OKR__c first, then Objective__c
-    const objectNames = ['OKR__c', 'Objective__c'];
+    // Simple direct query: SELECT FIELDS(ALL) FROM OKR__c WHERE Owner__c IN (userIds)
+    const okrQuery = `SELECT FIELDS(ALL) FROM OKR__c WHERE Owner__c IN (${escapedUserIds}) LIMIT 200`;
+    const okrEncoded = encodeURIComponent(okrQuery);
+    const okrUrl = `${instance_url}/services/data/v58.0/query/?q=${okrEncoded}`;
+
+    console.log(`🔍 Querying OKRs: SELECT FIELDS(ALL) FROM OKR__c WHERE Owner__c IN (${userIds.length} user IDs)`);
+    console.log(`📝 Full query: ${okrQuery}`);
+
     let allOkrs = [];
-    let lastError = null;
 
-    // First, try querying by User (Owner__c)
-    if (escapedUserIds) {
-      for (const objectName of objectNames) {
-        try {
-          // Use Owner__c field (lookup to User) on OKR__c - this is the correct field
-          // Include Parent_Objective__c for hierarchical relationships
-          const okrQuery = `SELECT Id, Name, Objective__c, Objective_Description__c, Status__c, Progress__c, Period__c, Year__c, Quarter__c, Start_Date__c, End_Date__c, CreatedDate, Owner__c, Parent_Objective__c FROM ${objectName} WHERE Owner__c IN (${escapedUserIds}) ORDER BY Year__c DESC, Quarter__c DESC, CreatedDate DESC`;
-          const okrEncoded = encodeURIComponent(okrQuery);
-          const okrUrl = `${instance_url}/services/data/v58.0/query/?q=${okrEncoded}`;
+    try {
+      const okrResponse = await fetch(okrUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
 
-          console.log(`🔍 Querying OKRs from ${objectName} using Owner__c (lookup to User) for ${userIds.length} users`);
+      if (okrResponse.ok) {
+        const okrData = await okrResponse.json();
+        allOkrs = okrData.records || [];
 
-          const okrResponse = await fetch(okrUrl, {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${access_token}`,
-              'Content-Type': 'application/json',
-            },
-          });
-
-          if (okrResponse.ok) {
-            const okrData = await okrResponse.json();
-            const records = okrData.records || [];
-
-            console.log(`✅ Query successful: Found ${records.length} OKRs from ${objectName} using Owner__c`);
-            if (records.length > 0) {
-              console.log(`📋 Sample OKR Owner__c:`, records[0].Owner__c);
-              console.log(`📋 Sample OKR Name:`, records[0].Name);
-            }
-
-            if (records.length > 0) {
-              allOkrs = records;
-              // Store the owner field reference
-              allOkrs.forEach(okr => {
-                okr._ownerField = 'Owner__c'; // Store which field was used
-              });
-              break; // Found OKRs, stop trying other object names
-            } else {
-              // Query succeeded but no records - check if OKRs exist at all
-              const allOkrQuery = `SELECT Id, Name, Owner__c FROM ${objectName} LIMIT 5`;
-              const allOkrEncoded = encodeURIComponent(allOkrQuery);
-              const allOkrUrl = `${instance_url}/services/data/v58.0/query/?q=${allOkrEncoded}`;
-              
-              try {
-                const allOkrResponse = await fetch(allOkrUrl, {
-                  method: 'GET',
-                  headers: {
-                    'Authorization': `Bearer ${access_token}`,
-                    'Content-Type': 'application/json',
-                  },
-                });
-                
-                if (allOkrResponse.ok) {
-                  const allOkrData = await allOkrResponse.json();
-                  const allRecords = allOkrData.records || [];
-                  console.log(`ℹ️ Found ${allRecords.length} total OKRs in ${objectName} (not filtered by user)`);
-                  if (allRecords.length > 0) {
-                    console.log(`📋 Sample OKR Owner__c value:`, allRecords[0].Owner__c);
-                    console.log(`📋 User IDs we're querying for:`, userIds.slice(0, 3));
-                    console.log(`📋 Match check:`, userIds.includes(allRecords[0].Owner__c) ? 'MATCH' : 'NO MATCH');
-                  }
-                }
-              } catch (e) {
-                // Ignore this test query error
-              }
-            }
-          } else {
-            // Log error response
-            const errorText = await okrResponse.text();
-            lastError = `${okrResponse.status}: ${errorText}`;
-            console.error(`❌ Failed to query ${objectName} with Owner__c: ${okrResponse.status} - ${errorText.substring(0, 500)}`);
-            // Try next object name
-            continue;
-          }
-        } catch (objectError) {
-          // Object doesn't exist or error, try next object name
-          lastError = objectError.message;
-          console.error(`❌ Error querying ${objectName}:`, objectError.message);
-          continue;
-        }
-      }
-    }
-
-    // If no OKRs found by User, try querying by Contact lookup fields
-    if (allOkrs.length === 0 && escapedContactIds) {
-      console.log('⚠️ No OKRs found by User lookup. Trying Contact lookup fields...');
-      
-      // Try common Contact lookup field names
-      const contactLookupFields = ['Contact__c', 'Employee__c', 'ContactId', 'EmployeeId'];
-      
-      for (const objectName of objectNames) {
-        for (const contactField of contactLookupFields) {
+        console.log(`✅ Query successful: Found ${allOkrs.length} OKRs`);
+        if (allOkrs.length > 0) {
+          console.log(`📋 Sample OKR Owner__c:`, allOkrs[0].Owner__c);
+          console.log(`📋 Sample OKR Name:`, allOkrs[0].Name);
+          console.log(`📋 Sample OKR fields:`, Object.keys(allOkrs[0]).slice(0, 10).join(', '));
+        } else {
+          console.log(`⚠️ Query returned 0 OKRs. Checking if OKR__c object exists and has records...`);
+          
+          // Diagnostic query to see if OKRs exist at all
+          const diagnosticQuery = `SELECT COUNT() FROM OKR__c`;
+          const diagnosticEncoded = encodeURIComponent(diagnosticQuery);
+          const diagnosticUrl = `${instance_url}/services/data/v58.0/query/?q=${diagnosticEncoded}`;
+          
           try {
-            const okrQuery = `SELECT Id, Name, Objective__c, Objective_Description__c, Status__c, Progress__c, Period__c, Year__c, Quarter__c, Start_Date__c, End_Date__c, CreatedDate, Owner__c, ${contactField}, Parent_Objective__c FROM ${objectName} WHERE ${contactField} IN (${escapedContactIds}) ORDER BY Year__c DESC, Quarter__c DESC, CreatedDate DESC`;
-            const okrEncoded = encodeURIComponent(okrQuery);
-            const okrUrl = `${instance_url}/services/data/v58.0/query/?q=${okrEncoded}`;
-
-            console.log(`🔍 Querying OKRs from ${objectName} using ${contactField} (lookup to Contact) for ${contactIds.length} contacts`);
-
-            const okrResponse = await fetch(okrUrl, {
+            const diagnosticResponse = await fetch(diagnosticUrl, {
               method: 'GET',
               headers: {
                 'Authorization': `Bearer ${access_token}`,
                 'Content-Type': 'application/json',
               },
             });
-
-            if (okrResponse.ok) {
-              const okrData = await okrResponse.json();
-              const records = okrData.records || [];
-
-              console.log(`✅ Query successful: Found ${records.length} OKRs from ${objectName} using ${contactField}`);
-              if (records.length > 0) {
-                console.log(`📋 Sample OKR ${contactField}:`, records[0][contactField]);
-                console.log(`📋 Sample OKR Name:`, records[0].Name);
-              }
-
-              if (records.length > 0) {
-                allOkrs = records;
-                // Store which field was used and map to user IDs via contactToUserMap
-                allOkrs.forEach(okr => {
-                  okr._ownerField = contactField;
-                  okr._contactId = okr[contactField];
-                  // Map contact ID to user ID if available
-                  if (contactToUserMap && contactToUserMap.has(okr._contactId)) {
-                    okr._mappedUserId = contactToUserMap.get(okr._contactId);
-                  }
-                });
-                break; // Found OKRs, stop trying other fields
-              }
-            } else {
-              // Field doesn't exist, try next field
-              const errorText = await okrResponse.text();
-              if (!errorText.includes('did not understand') && !errorText.includes('No such column')) {
-                console.warn(`⚠️ Query failed for ${objectName}.${contactField}: ${okrResponse.status}`);
-              }
-              continue;
-            }
-          } catch (fieldError) {
-            // Field doesn't exist, try next field
-            continue;
-          }
-        }
-        if (allOkrs.length > 0) break; // Found OKRs, stop trying other object names
-      }
-    }
-    
-    if (allOkrs.length === 0 && lastError) {
-      console.error(`❌ All OKR queries failed. Last error: ${lastError}`);
-    }
-
-    // Fallback: If no OKRs found with filtered query, fetch ALL OKRs without filter
-    // This helps diagnose if the issue is with user ID matching or if OKRs simply don't exist
-    if (allOkrs.length === 0) {
-      console.log('⚠️ No OKRs found with filtered query. Trying fallback: fetching ALL OKRs without filter...');
-      
-      // Try OKR__c first
-      for (const objectName of ['OKR__c', 'Objective__c']) {
-        try {
-          const fallbackQuery = `SELECT Id, Name, Objective__c, Objective_Description__c, Status__c, Progress__c, Period__c, Year__c, Quarter__c, Start_Date__c, End_Date__c, CreatedDate, Owner__c, Parent_Objective__c FROM ${objectName} ORDER BY Year__c DESC, Quarter__c DESC, CreatedDate DESC LIMIT 100`;
-          const fallbackEncoded = encodeURIComponent(fallbackQuery);
-          const fallbackUrl = `${instance_url}/services/data/v58.0/query/?q=${fallbackEncoded}`;
-
-          console.log(`🔄 Fallback: Querying ALL OKRs from ${objectName} without filter`);
-
-          const fallbackResponse = await fetch(fallbackUrl, {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${access_token}`,
-              'Content-Type': 'application/json',
-            },
-          });
-
-          if (fallbackResponse.ok) {
-            const fallbackData = await fallbackResponse.json();
-            const fallbackRecords = fallbackData.records || [];
-
-            console.log(`✅ Fallback query successful: Found ${fallbackRecords.length} total OKRs in ${objectName}`);
             
-            if (fallbackRecords.length > 0) {
-              // Filter OKRs to match our user IDs
-              const matchingOkrs = fallbackRecords.filter(okr => {
-                const ownerId = okr.Owner__c;
-                const matches = userIds.includes(ownerId);
-                if (matches) {
-                  console.log(`✅ Found matching OKR: ${okr.Name} (Owner__c: ${ownerId})`);
-                }
-                return matches;
-              });
-
-              console.log(`📊 Filtered ${matchingOkrs.length} OKRs matching our ${userIds.length} user IDs`);
+            if (diagnosticResponse.ok) {
+              const diagnosticData = await diagnosticResponse.json();
+              console.log(`📊 Total OKRs in system: ${diagnosticData.totalSize || 0}`);
               
-              if (matchingOkrs.length > 0) {
-                allOkrs = matchingOkrs;
-                allOkrs.forEach(okr => {
-                  okr._ownerField = 'Owner__c';
-                });
-                console.log(`✅ Using ${allOkrs.length} OKRs from fallback query`);
-                break; // Found OKRs, stop trying other object names
-              } else {
-                // Log diagnostic info
-                const uniqueOwners = [...new Set(fallbackRecords.map(okr => okr.Owner__c).filter(Boolean))];
-                console.log(`⚠️ Fallback found ${fallbackRecords.length} OKRs but none match our user IDs`);
-                console.log(`📋 Sample OKR Owner__c values:`, uniqueOwners.slice(0, 5));
-                console.log(`📋 User IDs we're looking for:`, userIds.slice(0, 5));
+              // Also check a sample OKR to see Owner__c values
+              const sampleQuery = `SELECT Id, Name, Owner__c FROM OKR__c LIMIT 5`;
+              const sampleEncoded = encodeURIComponent(sampleQuery);
+              const sampleUrl = `${instance_url}/services/data/v58.0/query/?q=${sampleEncoded}`;
+              
+              const sampleResponse = await fetch(sampleUrl, {
+                method: 'GET',
+                headers: {
+                  'Authorization': `Bearer ${access_token}`,
+                  'Content-Type': 'application/json',
+                },
+              });
+              
+              if (sampleResponse.ok) {
+                const sampleData = await sampleResponse.json();
+                const samples = sampleData.records || [];
+                if (samples.length > 0) {
+                  console.log(`📋 Sample OKR Owner__c values:`, samples.map(okr => okr.Owner__c).join(', '));
+                  console.log(`📋 User IDs we're querying for:`, userIds.slice(0, 5).join(', '));
+                  const sampleOwner = samples[0].Owner__c;
+                  const matches = userIds.includes(sampleOwner);
+                  console.log(`📋 Match check (first sample vs our user IDs): ${matches ? '✅ MATCH' : '❌ NO MATCH'}`);
+                }
               }
             }
-          } else {
-            const errorText = await fallbackResponse.text();
-            console.warn(`⚠️ Fallback query failed for ${objectName}: ${fallbackResponse.status} - ${errorText.substring(0, 200)}`);
+          } catch (diagError) {
+            console.warn('⚠️ Diagnostic query failed:', diagError.message);
           }
-        } catch (fallbackError) {
-          console.warn(`⚠️ Fallback query error for ${objectName}:`, fallbackError.message);
         }
+      } else {
+        const errorText = await okrResponse.text();
+        console.error(`❌ Failed to query OKR__c: ${okrResponse.status} - ${errorText.substring(0, 500)}`);
+        return okrsMap;
       }
+    } catch (queryError) {
+      console.error(`❌ Error querying OKR__c:`, queryError.message);
+      return okrsMap;
     }
 
     if (allOkrs.length === 0) {
-      console.log('⚠️ No OKRs found for any users (even with fallback)');
+      console.log('⚠️ No OKRs found for any users');
       return okrsMap;
     }
 
@@ -738,8 +545,8 @@ async function getOKRsForUsers(userIds, contactIds, contactToUserMap, access_tok
     const okrObjects = allOkrs.map((okr, index) => {
       return {
         id: okr.Id,
-        name: okr.Name,
-        objective: okr.Objective__c || okr.Objective_Description__c || '',
+        name: okr.Name || '',
+        objective: okr.Objective__c || okr.Objective_Description__c || okr.Name || '',
         status: okr.Status__c || 'Active',
         progress: okr.Progress__c || 0,
         period: okr.Period__c || okr.Quarter__c || '',
@@ -749,7 +556,7 @@ async function getOKRsForUsers(userIds, contactIds, contactToUserMap, access_tok
         createdDate: okr.CreatedDate,
         ownerId: okr.Owner__c, // Owner__c is the lookup to User
         parentObjectiveId: okr.Parent_Objective__c || null,
-        keyResults: allKeyResults[index],
+        keyResults: allKeyResults[index] || [],
         children: [], // Will be populated below
       };
     });
@@ -762,12 +569,11 @@ async function getOKRsForUsers(userIds, contactIds, contactToUserMap, access_tok
 
     // Group by owner and build parent-child relationships
     okrObjects.forEach(okr => {
-      // Determine which user ID to use: mappedUserId (from contact lookup) or ownerId (from user lookup)
-      const userId = okr._mappedUserId || okr.ownerId;
+      const userId = okr.ownerId;
       
       if (!userId) {
-        console.warn(`⚠️ OKR ${okr.id} has no associated user ID (ownerId: ${okr.ownerId}, mappedUserId: ${okr._mappedUserId})`);
-        return; // Skip OKRs without user association
+        console.warn(`⚠️ OKR ${okr.id} has no Owner__c value`);
+        return; // Skip OKRs without owner
       }
       
       if (!okrsMap.has(userId)) {
@@ -778,12 +584,12 @@ async function getOKRsForUsers(userIds, contactIds, contactToUserMap, access_tok
       if (okr.parentObjectiveId && okrIdToOkr.has(okr.parentObjectiveId)) {
         const parent = okrIdToOkr.get(okr.parentObjectiveId);
         // Remove temporary fields before adding as child
-        const { ownerId, parentObjectiveId, _ownerField, _contactId, _mappedUserId, ...cleanOkr } = okr;
+        const { ownerId, parentObjectiveId, ...cleanOkr } = okr;
         parent.children.push(cleanOkr);
       } else {
         // This is a top-level OKR (no parent), add it to the user's list
         // Remove temporary fields
-        const { ownerId, parentObjectiveId, _ownerField, _contactId, _mappedUserId, ...cleanOkr } = okr;
+        const { ownerId, parentObjectiveId, ...cleanOkr } = okr;
         okrsMap.get(userId).push(cleanOkr);
       }
     });
