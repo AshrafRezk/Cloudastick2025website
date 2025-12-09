@@ -371,17 +371,29 @@ export const TeamMemberDetail = ({ member, isOpen, onClose }: TeamMemberDetailPr
                       <div className="flex items-start justify-between">
                         <div>
                           <CardTitle className="text-lg">{project.name || 'Unnamed Project'}</CardTitle>
-                          <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground flex-wrap">
                             {project.accountName && (
                               <span className="flex items-center gap-1">
                                 <Briefcase className="h-4 w-4" />
-                                {project.accountName}
+                                Account: {project.accountName}
+                              </span>
+                            )}
+                            {project.opportunityName && (
+                              <span className="flex items-center gap-1">
+                                <Briefcase className="h-4 w-4" />
+                                Opportunity: {project.opportunityName}
                               </span>
                             )}
                             {project.projectName && (
                               <span className="flex items-center gap-1">
                                 <Calendar className="h-4 w-4" />
-                                {project.projectName}
+                                Project: {project.projectName}
+                              </span>
+                            )}
+                            {project.teamMembers && project.teamMembers.length > 0 && (
+                              <span className="flex items-center gap-1">
+                                <Users className="h-4 w-4" />
+                                {project.teamMembers.length} member{project.teamMembers.length !== 1 ? 's' : ''}
                               </span>
                             )}
                             <Badge
@@ -395,26 +407,39 @@ export const TeamMemberDetail = ({ member, isOpen, onClose }: TeamMemberDetailPr
                         </div>
                       </div>
                     </CardHeader>
-                    {(project.scope || project.deliverables) && (
-                      <CardContent className="space-y-3">
-                        {project.scope && (
-                          <div>
-                            <div className="text-sm font-medium mb-1">Scope</div>
-                            <div className="text-sm text-muted-foreground whitespace-pre-wrap">
-                              {project.scope}
-                            </div>
+                    <CardContent className="space-y-3">
+                      {project.teamMembers && project.teamMembers.length > 0 && (
+                        <div>
+                          <div className="text-sm font-medium mb-2 flex items-center gap-2">
+                            <Users className="h-4 w-4" />
+                            Team Members
                           </div>
-                        )}
-                        {project.deliverables && (
-                          <div>
-                            <div className="text-sm font-medium mb-1">Deliverables</div>
-                            <div className="text-sm text-muted-foreground whitespace-pre-wrap">
-                              {project.deliverables}
-                            </div>
+                          <div className="flex flex-wrap gap-2">
+                            {project.teamMembers.map((member) => (
+                              <Badge key={member.id} variant="outline" className="text-xs">
+                                {member.name}
+                              </Badge>
+                            ))}
                           </div>
-                        )}
-                      </CardContent>
-                    )}
+                        </div>
+                      )}
+                      {project.scope && (
+                        <div>
+                          <div className="text-sm font-medium mb-1">Scope</div>
+                          <div className="text-sm text-muted-foreground whitespace-pre-wrap">
+                            {project.scope}
+                          </div>
+                        </div>
+                      )}
+                      {project.deliverables && (
+                        <div>
+                          <div className="text-sm font-medium mb-1">Deliverables</div>
+                          <div className="text-sm text-muted-foreground whitespace-pre-wrap">
+                            {project.deliverables}
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
                   </Card>
                 ))}
               </div>

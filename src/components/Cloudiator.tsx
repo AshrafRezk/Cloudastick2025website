@@ -112,18 +112,72 @@ Keep responses clear, concise, and professional while maintaining your warm, hos
       console.log('📥 Response Status:', response.status);
       console.log('📥 Response Headers:', Object.fromEntries(response.headers.entries()));
 
-      if (!response.ok) {
+      let data;
+      try {
+        data = await response.json();
+        console.log('📥 Response Data:', data);
+      } catch (parseError) {
+        // If response is not JSON, try to read as text
         const errorText = await response.text();
-        console.error('❌ API Error Response:', errorText);
-        throw new Error(`API error: ${response.status} - ${errorText}`);
+        console.error('❌ Failed to parse response as JSON:', errorText);
+        throw new Error(`API returned invalid response: ${errorText.substring(0, 200)}`);
       }
 
-      const data = await response.json();
-      console.log('📥 Response Data:', data);
+      // Check if response contains an error field
+      if (!response.ok || data.error) {
+        const isQuotaError = response.status === 429 || data.quotaExceeded;
+        const retryAfter = data.retryAfter;
+        
+        // Use the error message from the API if available, otherwise generate one
+        let userFriendlyError: string;
+        
+        if (data.error && typeof data.error === 'string') {
+          // API provided a user-friendly error message
+          userFriendlyError = data.error;
+        } else if (isQuotaError) {
+          // Quota error - provide helpful message
+          const retryInfo = retryAfter 
+            ? currentLanguage === 'ar' 
+              ? `جرب تاني بعد ${retryAfter} دقايق.`
+              : `Please try again in ${retryAfter} minutes.`
+            : currentLanguage === 'ar'
+              ? 'جرب تاني بعد شوية.'
+              : 'Please try again in a few minutes.';
+          
+          userFriendlyError = currentLanguage === 'ar'
+            ? `أعتذر، بس حالياً عندي طلب عالي وتم تجاوز الحصة المؤقتة. ${retryInfo} لو محتاج مساعدة فورية، تواصل مع فريقنا مباشرة.`
+            : `I apologize, but I'm currently experiencing high demand and my quota has been temporarily exceeded. ${retryInfo} If you need immediate assistance, please contact our team directly.`;
+        } else {
+          // Generic error
+          userFriendlyError = currentLanguage === 'ar'
+            ? `أعتذر، بس في مشكلة تقنية. جرب تاني بعد شوية أو تواصل مع فريقنا مباشرة.`
+            : `I apologize, but I'm experiencing technical difficulties. Please try again in a moment or contact our team directly.`;
+        }
+        
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          text: userFriendlyError,
+          sender: 'bot',
+          timestamp: new Date(),
+          language: currentLanguage
+        };
+        setMessages(prev => [...prev, errorMessage]);
+        return;
+      }
       
       if (!data.response) {
         console.error('❌ Invalid Response Structure:', data);
-        throw new Error('Invalid response from API - missing response field');
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          text: currentLanguage === 'ar' 
+            ? `أعتذر، بس في مشكلة تقنية. جرب تاني بعد شوية أو تواصل مع فريقنا مباشرة.`
+            : `I apologize, but I'm experiencing technical difficulties. Please try again in a moment or contact our team directly.`,
+          sender: 'bot',
+          timestamp: new Date(),
+          language: currentLanguage
+        };
+        setMessages(prev => [...prev, errorMessage]);
+        return;
       }
 
       const botResponse = data.response;
@@ -138,18 +192,36 @@ Keep responses clear, concise, and professional while maintaining your warm, hos
       };
 
       setMessages(prev => [...prev, botMessage]);
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Mira Error Details:');
       console.error('Error Type:', typeof error);
       console.error('Error Message:', error.message);
       console.error('Error Stack:', error.stack);
       console.error('Full Error Object:', error);
       
+      // Check if error message contains raw JSON or technical details
+      let userFriendlyError: string;
+      const errorMsg = error.message || String(error);
+      
+      // Try to detect if this is a quota-related error
+      const isQuotaError = errorMsg.toLowerCase().includes('quota') || 
+                           errorMsg.toLowerCase().includes('429') ||
+                           errorMsg.toLowerCase().includes('resource_exhausted');
+      
+      if (isQuotaError) {
+        userFriendlyError = currentLanguage === 'ar'
+          ? `أعتذر، بس حالياً عندي طلب عالي. جرب تاني بعد شوية أو تواصل مع فريقنا مباشرة للمساعدة الفورية.`
+          : `I apologize, but I'm currently experiencing high demand. Please try again in a few minutes, or contact our team directly for immediate assistance.`;
+      } else {
+        // Remove any raw JSON or technical error details from user-facing message
+        userFriendlyError = currentLanguage === 'ar' 
+          ? `أعتذر، بس في مشكلة تقنية. جرب تاني بعد شوية أو تواصل مع فريقنا مباشرة.`
+          : `I apologize, but I'm experiencing technical difficulties. Please try again in a moment or contact our team directly.`;
+      }
+      
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: currentLanguage === 'ar' 
-          ? `أعتذر، بس في مشكلة تقنية. Error: ${error.message}. جرب تاني بعد شوية أو تواصل مع فريقنا مباشرة.`
-          : `I apologize, but I'm experiencing technical difficulties. Error: ${error.message}. Please try again in a moment or contact our team directly.`,
+        text: userFriendlyError,
         sender: 'bot',
         timestamp: new Date(),
         language: currentLanguage

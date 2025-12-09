@@ -332,21 +332,55 @@ async function getTeamBuildsForContact(contactName, access_token, instance_url) 
     const teamBuildsData = await teamBuildsResponse.json();
     const teamBuilds = teamBuildsData.records || [];
 
-    // Map to simplified format
-    return teamBuilds.map(tb => ({
-      id: tb.Id,
-      name: tb.Name,
-      scope: tb.Scope__c || '',
-      deliverables: tb.Deliverables__c || '',
-      accountId: tb.Account__c,
-      accountName: tb.Account__r?.Name || '',
-      opportunityId: tb.Opportunity__c,
-      opportunityName: tb.Opportunity__r?.Name || '',
-      projectId: tb.Project__c,
-      projectName: tb.Project__r?.Name || '',
-      allocationPercentage: tb.Allocation_Percentage__c || 0,
-      createdDate: tb.CreatedDate,
-    }));
+    // Fetch team members for each team build
+    const teamBuildsWithMembers = await Promise.all(
+      teamBuilds.map(async (tb) => {
+        // Fetch team members for this team build
+        const escapedTeamBuildId = tb.Id.replace(/'/g, "\\'");
+        const membersQuery = `SELECT Id, Name FROM Team_build_member__c WHERE Team_build__c = '${escapedTeamBuildId}' ORDER BY Name`;
+        const membersEncoded = encodeURIComponent(membersQuery);
+        const membersUrl = `${instance_url}/services/data/v58.0/query/?q=${membersEncoded}`;
+
+        let teamMembers = [];
+        try {
+          const membersResponse = await fetch(membersUrl, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${access_token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (membersResponse.ok) {
+            const membersData = await membersResponse.json();
+            teamMembers = (membersData.records || []).map(m => ({
+              id: m.Id,
+              name: m.Name,
+            }));
+          }
+        } catch (error) {
+          console.warn(`Error fetching team members for ${tb.Id}:`, error);
+        }
+
+        return {
+          id: tb.Id,
+          name: tb.Name,
+          scope: tb.Scope__c || '',
+          deliverables: tb.Deliverables__c || '',
+          accountId: tb.Account__c,
+          accountName: tb.Account__r?.Name || '',
+          opportunityId: tb.Opportunity__c,
+          opportunityName: tb.Opportunity__r?.Name || '',
+          projectId: tb.Project__c,
+          projectName: tb.Project__r?.Name || '',
+          allocationPercentage: tb.Allocation_Percentage__c || 0,
+          createdDate: tb.CreatedDate,
+          teamMembers: teamMembers,
+        };
+      })
+    );
+
+    return teamBuildsWithMembers;
 
   } catch (error) {
     console.error('Error fetching team builds:', error);

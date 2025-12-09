@@ -9,6 +9,11 @@ export interface RequirementStats {
   total: number;
 }
 
+export interface ProjectTeamMember {
+  id: string;
+  name: string;
+}
+
 export interface ProjectAllocation {
   id: string;
   name: string;
@@ -22,6 +27,7 @@ export interface ProjectAllocation {
   projectName: string;
   allocationPercentage: number;
   createdDate: string;
+  teamMembers?: ProjectTeamMember[];
 }
 
 export interface KeyResult {

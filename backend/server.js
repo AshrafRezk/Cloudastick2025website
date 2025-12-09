@@ -16,6 +16,116 @@ app.use(express.static(path.join(__dirname, '../dist')));
 // In-memory storage for push subscriptions (in production, use a database)
 const pushSubscriptions = new Map();
 
+// Helper function to check if error is quota-related
+const isQuotaError = (statusCode, errorData) => {
+  if (statusCode === 429) return true;
+  if (errorData && typeof errorData === 'object') {
+    const errorStr = JSON.stringify(errorData).toLowerCase();
+    return errorStr.includes('quota') || 
+           errorStr.includes('resource_exhausted') ||
+           errorStr.includes('rate limit');
+  }
+  return false;
+};
+
+// Helper function to extract retry information from error
+const extractRetryInfo = (errorData) => {
+  let retryAfter = null;
+  if (errorData && typeof errorData === 'object') {
+    const errorStr = JSON.stringify(errorData);
+    const retryMatch = errorStr.match(/retry.*?(\d+).*?minute/i);
+    if (retryMatch) {
+      retryAfter = retryMatch[1];
+    }
+  }
+  return retryAfter;
+};
+
+// Helper function to call Gemini API with a specific model
+const callGeminiAPI = async (apiKey, model, prompt) => {
+  const geminiPayload = {
+    contents: [{ parts: [{ text: prompt }] }],
+    generationConfig: {
+      temperature: 0.4,
+      maxOutputTokens: 512,
+      topP: 0.8,
+      topK: 10,
+    },
+  };
+
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-goog-api-key': apiKey
+      },
+      body: JSON.stringify(geminiPayload),
+    }
+  );
+
+  const errorText = !response.ok ? await response.text() : null;
+  return { response, errorText };
+};
+
+// Helper function to try multiple models with fallback
+const tryGeminiWithFallback = async (apiKey, prompt, models) => {
+  for (let i = 0; i < models.length; i++) {
+    const model = models[i];
+    console.log(`🔄 Attempting with model: ${model} (${i + 1}/${models.length})`);
+    
+    try {
+      const { response, errorText } = await callGeminiAPI(apiKey, model, prompt);
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+          console.log(`✅ Success with model: ${model}`);
+          return { success: true, data };
+        }
+      } else {
+        // Check if it's a quota error
+        let errorData = null;
+        try {
+          errorData = errorText ? JSON.parse(errorText) : null;
+        } catch (e) {
+          // Not JSON, continue
+        }
+        
+        if (isQuotaError(response.status, errorData)) {
+          console.log(`⚠️ Quota exceeded for model: ${model}`);
+          // If this is not the last model, try the next one
+          if (i < models.length - 1) {
+            console.log(`🔄 Trying fallback model...`);
+            continue;
+          }
+          // Last model, return quota error
+          return { 
+            success: false, 
+            quotaError: true, 
+            statusCode: response.status,
+            errorData 
+          };
+        } else {
+          // Non-quota error, throw it
+          throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
+        }
+      }
+    } catch (error) {
+      // Network or parsing error
+      if (i === models.length - 1) {
+        throw error;
+      }
+      console.log(`⚠️ Error with model ${model}, trying next...`);
+      continue;
+    }
+  }
+  
+  // Should not reach here, but just in case
+  throw new Error('All models failed without specific error');
+};
+
 // Cloudiator API endpoint
 app.post('/api/cloudiator', async (req, res) => {
   console.log('🤖 Backend - Cloudiator API call received');
@@ -41,51 +151,38 @@ app.post('/api/cloudiator', async (req, res) => {
   console.log('📤 Prompt length:', prompt.length);
 
   try {
-    const geminiPayload = {
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.4,
-        maxOutputTokens: 512,
-        topP: 0.8,
-        topK: 10,
-      },
-    };
+    // Get models list from config
+    const primaryModel = config.GEMINI_MODEL;
+    const fallbackModels = config.GEMINI_FALLBACK_MODELS || ['gemini-1.5-flash', 'gemini-pro'];
+    const models = [primaryModel, ...fallbackModels];
 
-    console.log('📤 Gemini Payload:', JSON.stringify(geminiPayload, null, 2));
+    console.log('📤 Models to try:', models.join(', '));
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${config.GEMINI_MODEL}:generateContent?key=${config.GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'X-goog-api-key': config.GEMINI_API_KEY
-        },
-        body: JSON.stringify(geminiPayload),
-      }
-    );
+    // Try with primary model and fallbacks
+    const result = await tryGeminiWithFallback(config.GEMINI_API_KEY, prompt, models);
 
-    console.log('📥 Gemini Response Status:', response.status);
-    console.log('📥 Gemini Response Headers:', Object.fromEntries(response.headers.entries()));
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('❌ Gemini API Error Response:', errorText);
-      throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
+    if (result.success) {
+      const botResponse = result.data.candidates[0].content.parts[0].text;
+      console.log('✅ Extracted Bot Response:', botResponse);
+      
+      res.status(200).json({ response: botResponse });
+    } else if (result.quotaError) {
+      // Handle quota error with user-friendly message
+      const retryAfter = extractRetryInfo(result.errorData);
+      const retryMessage = retryAfter 
+        ? `Please try again in ${retryAfter} minutes.`
+        : 'Please try again in a few minutes.';
+      
+      const userMessage = `I apologize, but I'm currently experiencing high demand and my quota has been temporarily exceeded. ${retryMessage} If you need immediate assistance, please contact our team directly at arezk@cloudastick.com.`;
+      
+      console.error('❌ Quota exceeded for all models');
+      
+      res.status(429).json({ 
+        error: userMessage,
+        quotaExceeded: true,
+        retryAfter: retryAfter || 5
+      });
     }
-
-    const data = await response.json();
-    console.log('📥 Gemini Response Data:', JSON.stringify(data, null, 2));
-    
-    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-      console.error('❌ Invalid Gemini Response Structure:', data);
-      throw new Error('Invalid response from Gemini API - missing candidates or content');
-    }
-
-    const botResponse = data.candidates[0].content.parts[0].text;
-    console.log('✅ Extracted Bot Response:', botResponse);
-    
-    res.status(200).json({ response: botResponse });
   } catch (error) {
     console.error('❌ Backend Cloudiator API error:');
     console.error('Error Type:', typeof error);
@@ -93,8 +190,17 @@ app.post('/api/cloudiator', async (req, res) => {
     console.error('Error Stack:', error.stack);
     console.error('Full Error Object:', error);
     
-    res.status(500).json({ 
-      error: `I apologize, but I'm experiencing technical difficulties. Error: ${error.message}. Please try again in a moment or contact our team directly at arezk@cloudastick.com.` 
+    // Check if error message contains quota information
+    const isQuota = error.message.toLowerCase().includes('quota') || 
+                    error.message.toLowerCase().includes('429');
+    
+    const userMessage = isQuota
+      ? `I apologize, but I'm currently experiencing high demand. Please try again in a few minutes, or contact our team directly at arezk@cloudastick.com for immediate assistance.`
+      : `I apologize, but I'm experiencing technical difficulties. Please try again in a moment or contact our team directly at arezk@cloudastick.com.`;
+    
+    res.status(isQuota ? 429 : 500).json({ 
+      error: userMessage,
+      quotaExceeded: isQuota
     });
   }
 });
