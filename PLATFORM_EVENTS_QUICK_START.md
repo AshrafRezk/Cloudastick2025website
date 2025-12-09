@@ -16,7 +16,7 @@
 3. URL: `https://cloudastick.org/.netlify/functions/salesforceCacheWebhook`
 4. Identity Type: Named Principal
 5. Auth Protocol: No Authentication
-6. Add Custom Header: `X-Webhook-Secret` = `your-secret-key`
+6. Add Custom Header: `X-Webhook-Secret` = `[GENERATE_STRONG_SECRET_HERE]`
 
 ### 3. Create Apex Class (3 minutes)
 1. Setup → Apex Classes → New
@@ -33,7 +33,7 @@
 
 ### 5. Set Netlify Environment Variable (1 minute)
 1. Netlify Dashboard → Site Settings → Environment Variables
-2. Add: `WEBHOOK_SECRET` = `your-secret-key` (same as Named Credential)
+2. Add: `WEBHOOK_SECRET` = `[USE_SAME_SECRET_FROM_SALESFORCE_NAMED_CREDENTIAL]` (must match exactly)
 
 ### 6. Test (2 minutes)
 1. Update a Contact in Salesforce

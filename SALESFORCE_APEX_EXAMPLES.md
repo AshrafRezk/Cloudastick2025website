@@ -18,7 +18,7 @@ public class PushNotificationService {
     
     // Option 2: Direct URL (if not using Named Credential)
     // private static final String WEBHOOK_URL = 'https://cloudastick.org/.netlify/functions/salesforceWebhook';
-    // private static final String WEBHOOK_SECRET = 'your-webhook-secret'; // Store in Custom Metadata
+    // private static final String WEBHOOK_SECRET = '[GENERATE_STRONG_SECRET]'; // Store in Custom Metadata - DO NOT commit actual secrets
     
     /**
      * Send push notification asynchronously

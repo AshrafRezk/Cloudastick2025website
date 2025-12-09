@@ -14,15 +14,17 @@ Based on your setup, here's what to verify:
 
 ### 1. Set Secret in Netlify
 
-The custom header value (`YOUR_SECRET_KEY_RANDOM_STRING`) must be **exactly the same** in Netlify:
+The custom header value you set in Salesforce must be **exactly the same** in Netlify:
 
 1. Go to Netlify Dashboard
 2. Your site → **Site settings** → **Environment variables**
 3. Add variable:
    - **Key**: `WEBHOOK_SECRET`
-   - **Value**: `YOUR_SECRET_KEY_RANDOM_STRING` (exact same value from Salesforce custom header)
+   - **Value**: Use the same secret value you set in the Salesforce Named Credential custom header (DO NOT use placeholder text - use the actual secret you generated)
 4. Click **Save**
 5. **Redeploy** your site for the environment variable to take effect
+
+**IMPORTANT**: Never commit actual secret values to the repository. Always use environment variables.
 
 ### 2. Callout Options Configuration
 

@@ -161,7 +161,7 @@ Create an Apex trigger that sends HTTP callouts directly.
 ```apex
 public class PushNotificationService {
     private static final String WEBHOOK_URL = 'https://cloudastick.org/.netlify/functions/salesforceWebhook';
-    private static final String WEBHOOK_SECRET = 'your-webhook-secret'; // Store in Custom Metadata or Named Credential
+    private static final String WEBHOOK_SECRET = '[GENERATE_STRONG_SECRET]'; // Store in Custom Metadata or Named Credential - DO NOT commit actual secrets to repo
     
     public static void sendNotification(String objectType, String recordId, String recordName, String action, Map<String, Object> additionalData) {
         HttpRequest req = new HttpRequest();

@@ -154,7 +154,7 @@ trigger ContactCacheInvalidation on Contact (after insert, after update, after d
 
 In Netlify:
 1. Go to **Site settings → Environment variables**
-2. Add: `WEBHOOK_SECRET` = `your-secret-key`
+2. Add: `WEBHOOK_SECRET` = `[GENERATE_AND_USE_STRONG_SECRET]` (generate a strong random secret, must match the value in Salesforce Named Credential)
 
 ### Step 6: Initial Cache Sync
 

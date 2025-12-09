@@ -123,14 +123,14 @@ This guide provides detailed step-by-step instructions for setting up Platform E
 3. Click **New Header** button
 4. Fill in:
    - **Header Name**: `X-Webhook-Secret`
-   - **Header Value**: `YOUR_SECRET_KEY` (use a strong random string, e.g., `sk_live_abc123xyz789`)
+   - **Header Value**: `YOUR_SECRET_KEY_HERE` (use a strong random string - generate one using a secure random generator)
    - Click **Save**
 
 **Important Notes**:
 - ✅ **Generate Authorization Header**: Can be checked or unchecked - doesn't matter since we're using custom header
 - ✅ **Allow Formulas in HTTP Header**: Leave unchecked (we're using a static secret)
 - ✅ **Allow Formulas in HTTP Body**: Leave unchecked
-- **Copy the exact secret value** - you'll need to set it as `WEBHOOK_SECRET` in Netlify environment variables (same value, exact match)
+- **IMPORTANT**: After setting the header value in Salesforce, you MUST set the same value as the `WEBHOOK_SECRET` environment variable in Netlify (Site settings > Environment variables). The values must match exactly.
 
 ### 2.4 Get Named Credential URL (for Flow)
 
