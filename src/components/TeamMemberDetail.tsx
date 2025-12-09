@@ -576,7 +576,20 @@ export const TeamMemberDetail = ({ member, isOpen, onClose }: TeamMemberDetailPr
                       id="objective"
                       placeholder="Increase NPS to 60"
                       value={newObjective.objective}
-                      onChange={(e) => setNewObjective((prev) => ({ ...prev, objective: e.target.value }))}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setNewObjective((prev) => ({ ...prev, objective: value }));
+                        // Clear creation error when user starts typing
+                        if (creationError) {
+                          setCreationError(null);
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        // Allow Enter key to submit if button is enabled
+                        if (e.key === 'Enter' && newObjective.objective.trim() && authData && !isCreatingObjective) {
+                          handleCreateObjective();
+                        }
+                      }}
                     />
                   </div>
                   <div className="space-y-1">
@@ -636,9 +649,13 @@ export const TeamMemberDetail = ({ member, isOpen, onClose }: TeamMemberDetailPr
                   </div>
                 </div>
                 {creationError && <p className="text-sm text-destructive">{creationError}</p>}
+                {!authData && (
+                  <p className="text-sm text-muted-foreground">Salesforce authentication required to create OKRs</p>
+                )}
                 <Button
                   onClick={handleCreateObjective}
                   disabled={isCreatingObjective || !newObjective.objective.trim() || !authData}
+                  className={(!newObjective.objective.trim() || !authData) ? 'opacity-50 cursor-not-allowed' : ''}
                 >
                   {isCreatingObjective ? (
                     <span className="flex items-center gap-2">

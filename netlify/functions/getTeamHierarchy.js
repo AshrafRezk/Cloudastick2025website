@@ -568,8 +568,74 @@ async function getOKRsForUsers(userIds, access_token, instance_url) {
       console.error(`❌ All OKR queries failed. Last error: ${lastError}`);
     }
 
+    // Fallback: If no OKRs found with filtered query, fetch ALL OKRs without filter
+    // This helps diagnose if the issue is with user ID matching or if OKRs simply don't exist
     if (allOkrs.length === 0) {
-      console.log('⚠️ No OKRs found for any users');
+      console.log('⚠️ No OKRs found with filtered query. Trying fallback: fetching ALL OKRs without filter...');
+      
+      // Try OKR__c first
+      for (const objectName of ['OKR__c', 'Objective__c']) {
+        try {
+          const fallbackQuery = `SELECT Id, Name, Objective__c, Objective_Description__c, Status__c, Progress__c, Period__c, Year__c, Quarter__c, Start_Date__c, End_Date__c, CreatedDate, Owner__c, Parent_Objective__c FROM ${objectName} ORDER BY Year__c DESC, Quarter__c DESC, CreatedDate DESC LIMIT 100`;
+          const fallbackEncoded = encodeURIComponent(fallbackQuery);
+          const fallbackUrl = `${instance_url}/services/data/v58.0/query/?q=${fallbackEncoded}`;
+
+          console.log(`🔄 Fallback: Querying ALL OKRs from ${objectName} without filter`);
+
+          const fallbackResponse = await fetch(fallbackUrl, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${access_token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (fallbackResponse.ok) {
+            const fallbackData = await fallbackResponse.json();
+            const fallbackRecords = fallbackData.records || [];
+
+            console.log(`✅ Fallback query successful: Found ${fallbackRecords.length} total OKRs in ${objectName}`);
+            
+            if (fallbackRecords.length > 0) {
+              // Filter OKRs to match our user IDs
+              const matchingOkrs = fallbackRecords.filter(okr => {
+                const ownerId = okr.Owner__c;
+                const matches = userIds.includes(ownerId);
+                if (matches) {
+                  console.log(`✅ Found matching OKR: ${okr.Name} (Owner__c: ${ownerId})`);
+                }
+                return matches;
+              });
+
+              console.log(`📊 Filtered ${matchingOkrs.length} OKRs matching our ${userIds.length} user IDs`);
+              
+              if (matchingOkrs.length > 0) {
+                allOkrs = matchingOkrs;
+                allOkrs.forEach(okr => {
+                  okr._ownerField = 'Owner__c';
+                });
+                console.log(`✅ Using ${allOkrs.length} OKRs from fallback query`);
+                break; // Found OKRs, stop trying other object names
+              } else {
+                // Log diagnostic info
+                const uniqueOwners = [...new Set(fallbackRecords.map(okr => okr.Owner__c).filter(Boolean))];
+                console.log(`⚠️ Fallback found ${fallbackRecords.length} OKRs but none match our user IDs`);
+                console.log(`📋 Sample OKR Owner__c values:`, uniqueOwners.slice(0, 5));
+                console.log(`📋 User IDs we're looking for:`, userIds.slice(0, 5));
+              }
+            }
+          } else {
+            const errorText = await fallbackResponse.text();
+            console.warn(`⚠️ Fallback query failed for ${objectName}: ${fallbackResponse.status} - ${errorText.substring(0, 200)}`);
+          }
+        } catch (fallbackError) {
+          console.warn(`⚠️ Fallback query error for ${objectName}:`, fallbackError.message);
+        }
+      }
+    }
+
+    if (allOkrs.length === 0) {
+      console.log('⚠️ No OKRs found for any users (even with fallback)');
       return okrsMap;
     }
 
