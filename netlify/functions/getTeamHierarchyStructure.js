@@ -117,22 +117,29 @@ exports.handler = async (event, context) => {
     contactIdToContact.set(currentContact.Id, currentContact);
 
     // Build hierarchy up (managers) - collect IDs first, then batch query
-    const managerIds = [];
+    const managerIdsToFetch = [];
     const visitedIds = new Set([contactId]); // Prevent cycles
     let currentManagerId = currentContact.ReportsToId;
 
+    // Collect all manager IDs we need to fetch
     while (currentManagerId && !visitedIds.has(currentManagerId)) {
       visitedIds.add(currentManagerId);
-      managerIds.push(currentManagerId);
-      // We'll fetch ReportsToId in batch query, so we need to track it
-      currentManagerId = currentManagerId; // Keep for now, will update after batch fetch
+      managerIdsToFetch.push(currentManagerId);
+      // We need to fetch these managers first to get their ReportsToId
+      // So we'll break here and fetch in batches
+      break; // Fetch first batch, then continue if needed
     }
 
-    // Batch query all managers at once
+    // Batch query all managers at once, following the chain
     const managers = [];
-    if (managerIds.length > 0) {
+    let managerIds = [...managerIdsToFetch];
+    
+    // Follow manager chain iteratively (batch by batch)
+    while (managerIds.length > 0) {
       // Fetch managers in batches of 500 (Salesforce limit)
       const batchSize = 500;
+      const nextLevelManagerIds = [];
+      
       for (let i = 0; i < managerIds.length; i += batchSize) {
         const batch = managerIds.slice(i, i + batchSize);
         const escapedIds = batch.map(id => `'${id.replace(/'/g, "\\'")}'`).join(',');
@@ -156,6 +163,12 @@ exports.handler = async (event, context) => {
             managers.push(manager);
             allContacts.push(manager);
             contactIdToContact.set(manager.Id, manager);
+            
+            // Collect next level manager IDs
+            if (manager.ReportsToId && !visitedIds.has(manager.ReportsToId)) {
+              visitedIds.add(manager.ReportsToId);
+              nextLevelManagerIds.push(manager.ReportsToId);
+            }
           }
 
           // Handle pagination if needed
@@ -177,6 +190,12 @@ exports.handler = async (event, context) => {
                   managers.push(manager);
                   allContacts.push(manager);
                   contactIdToContact.set(manager.Id, manager);
+                  
+                  // Collect next level manager IDs
+                  if (manager.ReportsToId && !visitedIds.has(manager.ReportsToId)) {
+                    visitedIds.add(manager.ReportsToId);
+                    nextLevelManagerIds.push(manager.ReportsToId);
+                  }
                 }
                 nextRecordsUrl = nextData.nextRecordsUrl;
               } else {
@@ -189,6 +208,10 @@ exports.handler = async (event, context) => {
           }
         }
       }
+      
+      // Continue with next level if any managers found
+      managerIds = nextLevelManagerIds;
+      if (managerIds.length === 0) break;
     }
 
     // Step 3: Collect all subordinates using iterative batch queries (much more efficient)
