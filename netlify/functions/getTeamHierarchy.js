@@ -311,14 +311,41 @@ async function getTeamBuildsForContact(contactName, access_token, instance_url) 
 
 /**
  * Get OKRs for a contact
+ * Since OKR.Owner__c is a User lookup and Contact.Associated_User__c links to User,
+ * we need to get the Contact's Associated_User__c first, then query OKRs by Owner__c
  * Supports both OKR__c and Objective__c object names
- * Tries multiple common field name variations
  */
 async function getOKRsForContact(contactId, access_token, instance_url) {
   try {
     if (!contactId) return [];
 
+    // First, get the Contact's Associated_User__c (User ID)
     const escapedContactId = contactId.replace(/'/g, "\\'");
+    const contactQuery = `SELECT Id, Associated_User__c FROM Contact WHERE Id = '${escapedContactId}' LIMIT 1`;
+    const contactEncoded = encodeURIComponent(contactQuery);
+    const contactUrl = `${instance_url}/services/data/v58.0/query/?q=${contactEncoded}`;
+
+    const contactResponse = await fetch(contactUrl, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${access_token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    let userId = null;
+    if (contactResponse.ok) {
+      const contactData = await contactResponse.json();
+      if (contactData.records && contactData.records.length > 0) {
+        userId = contactData.records[0].Associated_User__c;
+      }
+    }
+
+    // If no Associated_User__c, try querying with Contact ID as fallback for other field variations
+    // But prioritize Owner__c as User lookup
+    if (!userId) {
+      console.warn(`No Associated_User__c found for Contact ${contactId}, trying fallback fields`);
+    }
 
     // Try OKR__c first, then Objective__c
     const objectNames = ['OKR__c', 'Objective__c'];
@@ -326,14 +353,19 @@ async function getOKRsForContact(contactId, access_token, instance_url) {
 
     for (const objectName of objectNames) {
       try {
-        // Try common field name variations
-        // Owner__c (custom), Contact__c, Employee__c, OwnerId, ContactId
-        const fieldVariations = [
-          `Owner__c = '${escapedContactId}'`,
+        // Owner__c is a User lookup - use userId if available
+        // Also try other field variations as fallback
+        const fieldVariations = [];
+        if (userId) {
+          const escapedUserId = userId.replace(/'/g, "\\'");
+          fieldVariations.push(`Owner__c = '${escapedUserId}'`); // User lookup - prioritize this
+        }
+        // Fallback variations (in case Owner__c is used differently or other fields exist)
+        fieldVariations.push(
           `Contact__c = '${escapedContactId}'`,
           `Employee__c = '${escapedContactId}'`,
-          `OwnerId = '${escapedContactId}'`,
-        ];
+          `OwnerId = '${escapedContactId}'`
+        );
 
         for (const whereClause of fieldVariations) {
           try {

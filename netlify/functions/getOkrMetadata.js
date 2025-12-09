@@ -47,7 +47,9 @@ exports.handler = async (event, context) => {
     };
 
     const lookupFields = {
-      okrContactField: findFirstField(okrMetadata, ['Owner__c', 'Contact__c', 'Employee__c', 'OwnerId', 'ContactId']),
+      // Owner__c is a User lookup, not Contact - prioritize it for User relationship
+      okrOwnerField: findFirstField(okrMetadata, ['Owner__c']), // User lookup
+      okrContactField: findFirstField(okrMetadata, ['Contact__c', 'Employee__c', 'OwnerId', 'ContactId']), // Fallback fields
       krOkrLookupField: findFirstField(krMetadata, ['OKR__c', 'Objective__c', 'Parent_OKR__c']),
     };
 
