@@ -247,3 +247,127 @@ export const createKeyResult = async (
   }
 };
 
+/**
+ * Fetch team hierarchy structure only (fast, no heavy data)
+ */
+export const fetchTeamHierarchyStructure = async (
+  contactId: string,
+  authData: { access_token: string; instance_url: string }
+): Promise<TeamHierarchy> => {
+  try {
+    const response = await fetch('/.netlify/functions/getTeamHierarchyStructure', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        access_token: authData.access_token,
+        instance_url: authData.instance_url,
+        contactId,
+      }),
+    });
+
+    if (!response.ok) {
+      let errorData;
+      try {
+        const text = await response.text();
+        try {
+          errorData = JSON.parse(text);
+        } catch {
+          errorData = { message: text || `Failed to fetch team hierarchy structure: ${response.status}` };
+        }
+      } catch (e) {
+        errorData = { message: `Failed to fetch team hierarchy structure: ${response.status}` };
+      }
+      throw new Error(errorData.message || errorData.error || `Failed to fetch team hierarchy structure: ${response.status}`);
+    }
+
+    const data: TeamHierarchy = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch team hierarchy structure error:', error);
+    throw error;
+  }
+};
+
+/**
+ * Fetch data for a single team member (OKRs, requirements, team builds)
+ * Supports pagination
+ */
+export interface TeamMemberData {
+  contactId: string;
+  okrs: OKR[];
+  requirementsStats: RequirementStats;
+  teamBuilds: ProjectAllocation[];
+  totalAllocationPercentage: number;
+  pagination: {
+    okrs: {
+      offset: number;
+      limit: number;
+      total: number;
+      hasMore: boolean;
+    };
+    teamBuilds: {
+      offset: number;
+      limit: number;
+      total: number;
+      hasMore: boolean;
+    };
+  };
+}
+
+export interface TeamMemberDataResponse {
+  success: boolean;
+  data: TeamMemberData;
+}
+
+export const fetchTeamMemberData = async (
+  contactId: string,
+  authData: { access_token: string; instance_url: string },
+  options?: {
+    okrOffset?: number;
+    okrLimit?: number;
+    teamBuildOffset?: number;
+    teamBuildLimit?: number;
+  }
+): Promise<TeamMemberDataResponse> => {
+  try {
+    const response = await fetch('/.netlify/functions/getTeamMemberData', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        access_token: authData.access_token,
+        instance_url: authData.instance_url,
+        contactId,
+        okrOffset: options?.okrOffset || 0,
+        okrLimit: options?.okrLimit || 50,
+        teamBuildOffset: options?.teamBuildOffset || 0,
+        teamBuildLimit: options?.teamBuildLimit || 20,
+      }),
+    });
+
+    if (!response.ok) {
+      let errorData;
+      try {
+        const text = await response.text();
+        try {
+          errorData = JSON.parse(text);
+        } catch {
+          errorData = { message: text || `Failed to fetch team member data: ${response.status}` };
+        }
+      } catch (e) {
+        errorData = { message: `Failed to fetch team member data: ${response.status}` };
+      }
+      throw new Error(errorData.message || errorData.error || `Failed to fetch team member data: ${response.status}`);
+    }
+
+    const data: TeamMemberDataResponse = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch team member data error:', error);
+    throw error;
+  }
+};
+

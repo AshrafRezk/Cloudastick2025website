@@ -15,8 +15,7 @@ import { Avatar, AvatarFallback } from '../components/ui/avatar';
 import { Separator } from '../components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../components/ui/dialog';
 import { TeamHierarchyView } from '../components/TeamTree';
-import { fetchTeamHierarchy } from '../services/teamService';
-import type { TeamMember } from '../services/teamService';
+import { useTeamHierarchy } from '../hooks/useTeamHierarchy';
 
 interface SystemAccess {
   id: string;
@@ -36,9 +35,19 @@ const Profile = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
-  const [teamHierarchy, setTeamHierarchy] = useState<TeamMember | null>(null);
-  const [isLoadingTeam, setIsLoadingTeam] = useState(false);
-  const [teamError, setTeamError] = useState<string | null>(null);
+
+  // Use progressive loading hook
+  const {
+    currentUser,
+    loading: teamLoading,
+    error: teamError,
+    loadMemberData,
+    isMemberDataLoaded,
+    refresh: refreshTeam,
+  } = useTeamHierarchy({
+    contactId: user?.id || '',
+    enabled: isTeamModalOpen && !!user?.id && !!authData,
+  });
 
   useEffect(() => {
     // Check if user is logged in
@@ -163,29 +172,12 @@ const Profile = () => {
     navigate('/');
   };
 
-  const handleOpenTeamModal = async () => {
+  const handleOpenTeamModal = () => {
     if (!user || !authData) return;
-    
     setIsTeamModalOpen(true);
-    setIsLoadingTeam(true);
-    setTeamError(null);
-
-    try {
-      const response = await fetchTeamHierarchy(user.id, authData);
-      if (response.success && response.data) {
-        setTeamHierarchy(response.data);
-      } else {
-        setTeamError('Failed to load team hierarchy');
-      }
-    } catch (error) {
-      console.error('Failed to load team hierarchy:', error);
-      setTeamError(error instanceof Error ? error.message : 'Failed to load team hierarchy');
-    } finally {
-      setIsLoadingTeam(false);
-    }
   };
 
-  const hasTeamAccess = teamHierarchy && (
+  const hasTeamAccess = currentUser && (
     (teamHierarchy.subordinates && teamHierarchy.subordinates.length > 0) ||
     (teamHierarchy.managers && teamHierarchy.managers.length > 0)
   );
@@ -280,9 +272,10 @@ const Profile = () => {
             <DialogHeader>
               <DialogTitle className="text-2xl">My Team</DialogTitle>
             </DialogHeader>
-            {isLoadingTeam ? (
-              <div className="flex items-center justify-center py-12">
+            {teamLoading.structure ? (
+              <div className="flex flex-col items-center justify-center py-12 space-y-4">
                 <Loader2 className="h-8 w-8 animate-spin text-brand-primary" />
+                <p className="text-sm text-muted-foreground">Loading team structure...</p>
               </div>
             ) : teamError ? (
               <div className="py-12 text-center text-destructive">
@@ -290,16 +283,27 @@ const Profile = () => {
                 <Button
                   variant="outline"
                   className="mt-4"
-                  onClick={handleOpenTeamModal}
+                  onClick={refreshTeam}
                 >
                   Retry
                 </Button>
               </div>
-            ) : teamHierarchy ? (
-              <TeamHierarchyView
-                currentUser={teamHierarchy}
-                currentUserId={user?.id || ''}
-              />
+            ) : currentUser ? (
+              <div className="space-y-4">
+                {teamLoading.currentUser && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Loading your data...</span>
+                  </div>
+                )}
+                <TeamHierarchyView
+                  currentUser={currentUser}
+                  currentUserId={user?.id || ''}
+                  loadMemberData={loadMemberData}
+                  isMemberLoading={teamLoading.isMemberLoading}
+                  isMemberDataLoaded={isMemberDataLoaded}
+                />
+              </div>
             ) : (
               <div className="py-12 text-center text-muted-foreground">
                 <Network className="h-12 w-12 mx-auto mb-2 opacity-50" />

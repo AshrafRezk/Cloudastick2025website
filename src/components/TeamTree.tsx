@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { ChevronDown, ChevronRight, Users, Briefcase, CheckCircle2, Clock, TrendingUp, Mail, Target } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ChevronDown, ChevronRight, Users, Briefcase, CheckCircle2, Clock, TrendingUp, Mail, Target, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Avatar, AvatarFallback } from './ui/avatar';
@@ -12,14 +12,38 @@ interface TeamTreeProps {
   currentUserId: string;
   level?: number;
   isCurrentUser?: boolean;
+  loadMemberData?: (contactId: string) => void;
+  isMemberLoading?: (memberId: string) => boolean;
+  isMemberDataLoaded?: (memberId: string) => boolean;
 }
 
-export const TeamTree = ({ member, currentUserId, level = 0, isCurrentUser = false }: TeamTreeProps) => {
+export const TeamTree = ({ 
+  member, 
+  currentUserId, 
+  level = 0, 
+  isCurrentUser = false,
+  loadMemberData,
+  isMemberLoading,
+  isMemberDataLoaded,
+}: TeamTreeProps) => {
   const [isExpanded, setIsExpanded] = useState(level < 2); // Auto-expand first 2 levels
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
+  const [enrichedMember, setEnrichedMember] = useState<TeamMember>(member);
 
   const hasSubordinates = member.subordinates && member.subordinates.length > 0;
   const indent = level * 24;
+
+  // Lazy load member data when expanded (if not current user and data not loaded)
+  useEffect(() => {
+    if (isExpanded && !isCurrentUser && loadMemberData && !isMemberDataLoaded?.(member.id)) {
+      loadMemberData(member.id);
+    }
+  }, [isExpanded, member.id, isCurrentUser, loadMemberData, isMemberDataLoaded]);
+
+  // Update enriched member when member prop changes (data loaded)
+  useEffect(() => {
+    setEnrichedMember(member);
+  }, [member]);
 
   const getUserInitials = (name: string) => {
     return name
@@ -112,7 +136,9 @@ export const TeamTree = ({ member, currentUserId, level = 0, isCurrentUser = fal
                       setIsExpanded(!isExpanded);
                     }}
                   >
-                    {isExpanded ? (
+                    {isMemberLoading?.(member.id) ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : isExpanded ? (
                       <ChevronDown className="h-4 w-4" />
                     ) : (
                       <ChevronRight className="h-4 w-4" />
@@ -129,7 +155,13 @@ export const TeamTree = ({ member, currentUserId, level = 0, isCurrentUser = fal
                     <Briefcase className="h-4 w-4 text-muted-foreground" />
                     <div>
                       <div className="text-xs text-muted-foreground">Projects</div>
-                      <div className="text-sm font-semibold">{member.teamBuilds.length}</div>
+                      <div className="text-sm font-semibold">
+                        {isMemberLoading?.(member.id) ? (
+                          <Loader2 className="h-3 w-3 animate-spin inline" />
+                        ) : (
+                          enrichedMember.teamBuilds.length
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -139,7 +171,11 @@ export const TeamTree = ({ member, currentUserId, level = 0, isCurrentUser = fal
                     <div>
                       <div className="text-xs text-muted-foreground">Requirements</div>
                       <div className="text-sm font-semibold">
-                        {member.requirementsStats.completed}/{member.requirementsStats.total}
+                        {isMemberLoading?.(member.id) ? (
+                          <Loader2 className="h-3 w-3 animate-spin inline" />
+                        ) : (
+                          `${enrichedMember.requirementsStats.completed}/${enrichedMember.requirementsStats.total}`
+                        )}
                       </div>
                     </div>
                   </div>
@@ -149,7 +185,13 @@ export const TeamTree = ({ member, currentUserId, level = 0, isCurrentUser = fal
                     <Clock className="h-4 w-4 text-muted-foreground" />
                     <div>
                       <div className="text-xs text-muted-foreground">In Progress</div>
-                      <div className="text-sm font-semibold">{member.requirementsStats.inProgress}</div>
+                      <div className="text-sm font-semibold">
+                        {isMemberLoading?.(member.id) ? (
+                          <Loader2 className="h-3 w-3 animate-spin inline" />
+                        ) : (
+                          enrichedMember.requirementsStats.inProgress
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -159,11 +201,17 @@ export const TeamTree = ({ member, currentUserId, level = 0, isCurrentUser = fal
                     <div>
                       <div className="text-xs text-muted-foreground">OKRs</div>
                       <div className="text-sm font-semibold">
-                        {member.okrs?.length || 0}
-                        {member.okrs && member.okrs.length > 0 && (
-                          <span className="text-xs text-muted-foreground ml-1">
-                            ({Math.round(member.okrs.reduce((sum, okr) => sum + okr.progress, 0) / member.okrs.length)}% avg)
-                          </span>
+                        {isMemberLoading?.(member.id) ? (
+                          <Loader2 className="h-3 w-3 animate-spin inline" />
+                        ) : (
+                          <>
+                            {enrichedMember.okrs?.length || 0}
+                            {enrichedMember.okrs && enrichedMember.okrs.length > 0 && (
+                              <span className="text-xs text-muted-foreground ml-1">
+                                ({Math.round(enrichedMember.okrs.reduce((sum, okr) => sum + okr.progress, 0) / enrichedMember.okrs.length)}% avg)
+                              </span>
+                            )}
+                          </>
                         )}
                       </div>
                     </div>
@@ -174,12 +222,16 @@ export const TeamTree = ({ member, currentUserId, level = 0, isCurrentUser = fal
                     <TrendingUp className="h-4 w-4 text-muted-foreground" />
                     <div>
                       <div className="text-xs text-muted-foreground">Allocation</div>
-                      <Badge
-                        variant="outline"
-                        className={`text-xs ${getAllocationColor(member.totalAllocationPercentage)}`}
-                      >
-                        {member.totalAllocationPercentage}%
-                      </Badge>
+                      {isMemberLoading?.(member.id) ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <Badge
+                          variant="outline"
+                          className={`text-xs ${getAllocationColor(enrichedMember.totalAllocationPercentage)}`}
+                        >
+                          {enrichedMember.totalAllocationPercentage}%
+                        </Badge>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -204,6 +256,9 @@ export const TeamTree = ({ member, currentUserId, level = 0, isCurrentUser = fal
                   currentUserId={currentUserId}
                   level={level + 1}
                   isCurrentUser={false}
+                  loadMemberData={loadMemberData}
+                  isMemberLoading={isMemberLoading}
+                  isMemberDataLoaded={isMemberDataLoaded}
                 />
               ))}
             </div>
@@ -214,7 +269,7 @@ export const TeamTree = ({ member, currentUserId, level = 0, isCurrentUser = fal
       {/* Member Detail Modal */}
       {selectedMember && (
         <TeamMemberDetail
-          member={selectedMember}
+          member={enrichedMember.id === selectedMember.id ? enrichedMember : selectedMember}
           isOpen={!!selectedMember}
           onClose={() => setSelectedMember(null)}
         />
@@ -226,9 +281,18 @@ export const TeamTree = ({ member, currentUserId, level = 0, isCurrentUser = fal
 interface TeamHierarchyViewProps {
   currentUser: TeamMember;
   currentUserId: string;
+  loadMemberData?: (contactId: string) => void;
+  isMemberLoading?: (memberId: string) => boolean;
+  isMemberDataLoaded?: (memberId: string) => boolean;
 }
 
-export const TeamHierarchyView = ({ currentUser, currentUserId }: TeamHierarchyViewProps) => {
+export const TeamHierarchyView = ({ 
+  currentUser, 
+  currentUserId,
+  loadMemberData,
+  isMemberLoading,
+  isMemberDataLoaded,
+}: TeamHierarchyViewProps) => {
   return (
     <div className="space-y-6">
       {/* Managers (upward hierarchy) */}
@@ -268,7 +332,15 @@ export const TeamHierarchyView = ({ currentUser, currentUserId }: TeamHierarchyV
         {currentUser.managers && currentUser.managers.length > 0 && (
           <h3 className="text-lg font-semibold mb-4">Your Team</h3>
         )}
-        <TeamTree member={currentUser} currentUserId={currentUserId} level={0} isCurrentUser={true} />
+        <TeamTree 
+          member={currentUser} 
+          currentUserId={currentUserId} 
+          level={0} 
+          isCurrentUser={true}
+          loadMemberData={loadMemberData}
+          isMemberLoading={isMemberLoading}
+          isMemberDataLoaded={isMemberDataLoaded}
+        />
       </div>
     </div>
   );
