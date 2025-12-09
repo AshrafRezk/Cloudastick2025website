@@ -79,7 +79,12 @@ exports.handler = async (event, context) => {
 
     const currentContact = contactData.records[0];
 
-    // Step 2: Build hierarchy up (managers)
+    // Step 2: Collect all contacts in the hierarchy
+    const allContacts = [currentContact];
+    const contactIdToContact = new Map();
+    contactIdToContact.set(currentContact.Id, currentContact);
+
+    // Build hierarchy up (managers)
     const managers = [];
     let currentManagerId = currentContact.ReportsToId;
     const visitedIds = new Set([contactId]); // Prevent cycles
@@ -101,8 +106,11 @@ exports.handler = async (event, context) => {
       if (managerResponse.ok) {
         const managerData = await managerResponse.json();
         if (managerData.records && managerData.records.length > 0) {
-          managers.push(managerData.records[0]);
-          currentManagerId = managerData.records[0].ReportsToId;
+          const manager = managerData.records[0];
+          managers.push(manager);
+          allContacts.push(manager);
+          contactIdToContact.set(manager.Id, manager);
+          currentManagerId = manager.ReportsToId;
         } else {
           break;
         }
@@ -111,9 +119,9 @@ exports.handler = async (event, context) => {
       }
     }
 
-    // Step 3: Build hierarchy down (subordinates) - recursively
-    const buildSubordinates = async (parentId, depth = 0) => {
-      if (depth > 10) return []; // Prevent infinite recursion
+    // Step 3: Collect all subordinates recursively
+    const collectSubordinates = async (parentId, depth = 0) => {
+      if (depth > 10) return; // Prevent infinite recursion
 
       const subordinatesQuery = `SELECT Id, Name, Email, ReportsToId, Associated_User__c FROM Contact WHERE ReportsToId = '${parentId.replace(/'/g, "\\'")}' ORDER BY Name`;
       const subordinatesEncoded = encodeURIComponent(subordinatesQuery);
@@ -128,53 +136,90 @@ exports.handler = async (event, context) => {
       });
 
       if (!subordinatesResponse.ok) {
-        return [];
+        return;
       }
 
       const subordinatesData = await subordinatesResponse.json();
       const directSubordinates = subordinatesData.records || [];
 
-      // For each subordinate, recursively get their subordinates and enrich with data
-      const enrichedSubordinates = await Promise.all(
-        directSubordinates.map(async (sub) => {
-          const children = await buildSubordinates(sub.Id, depth + 1);
-          
-          // Get team builds for this contact
-          const teamBuilds = await getTeamBuildsForContact(sub.Name, access_token, instance_url);
-          
-          // Get requirements stats
-          const requirementsStats = await getRequirementsStats(sub.Associated_User__c, access_token, instance_url);
-          
-          // Get OKRs
-          const okrs = await getOKRsForContact(sub.Id, access_token, instance_url);
-          
-          // Calculate total allocation percentage
-          const totalAllocation = teamBuilds.reduce((sum, tb) => sum + (tb.allocationPercentage || 0), 0);
-
-          return {
-            id: sub.Id,
-            name: sub.Name,
-            email: sub.Email,
-            reportsToId: sub.ReportsToId,
-            associatedUserId: sub.Associated_User__c,
-            subordinates: children,
-            teamBuilds: teamBuilds,
-            requirementsStats: requirementsStats,
-            okrs: okrs,
-            totalAllocationPercentage: totalAllocation,
-          };
-        })
-      );
-
-      return enrichedSubordinates;
+      // Add to all contacts and recursively collect their subordinates
+      for (const sub of directSubordinates) {
+        allContacts.push(sub);
+        contactIdToContact.set(sub.Id, sub);
+        await collectSubordinates(sub.Id, depth + 1);
+      }
     };
 
-    const subordinates = await buildSubordinates(contactId);
+    await collectSubordinates(contactId);
 
-    // Step 4: Enrich current contact with data
-    const currentTeamBuilds = await getTeamBuildsForContact(currentContact.Name, access_token, instance_url);
-    const currentRequirementsStats = await getRequirementsStats(currentContact.Associated_User__c, access_token, instance_url);
-    const currentOKRs = await getOKRsForContact(currentContact.Id, access_token, instance_url);
+    // Step 4: Build User-to-Contact map
+    const userToContactsMap = new Map();
+    allContacts.forEach(contact => {
+      if (contact.Associated_User__c) {
+        if (!userToContactsMap.has(contact.Associated_User__c)) {
+          userToContactsMap.set(contact.Associated_User__c, []);
+        }
+        userToContactsMap.get(contact.Associated_User__c).push(contact);
+      }
+    });
+
+    // Step 5: Batch fetch requirements and OKRs for all users
+    const userIds = Array.from(userToContactsMap.keys()).filter(Boolean);
+    const requirementsStatsMap = await getRequirementsStatsForUsers(userIds, access_token, instance_url);
+    const okrsMap = await getOKRsForUsers(userIds, access_token, instance_url);
+
+    // Step 6: Fetch team builds for all contacts in parallel
+    const teamBuildsPromises = allContacts.map(contact => 
+      getTeamBuildsForContact(contact.Name, access_token, instance_url)
+    );
+    const allTeamBuilds = await Promise.all(teamBuildsPromises);
+    const contactIdToTeamBuilds = new Map();
+    allContacts.forEach((contact, index) => {
+      contactIdToTeamBuilds.set(contact.Id, allTeamBuilds[index]);
+    });
+
+    // Step 7: Build hierarchy structure with mapped data
+    const buildSubordinates = (parentId, depth = 0) => {
+      if (depth > 10) return []; // Prevent infinite recursion
+
+      const subordinates = allContacts.filter(c => c.ReportsToId === parentId);
+      
+      return subordinates.map(sub => {
+        const children = buildSubordinates(sub.Id, depth + 1);
+        
+        // Get team builds from map
+        const teamBuilds = contactIdToTeamBuilds.get(sub.Id) || [];
+        
+        // Get requirements stats from map
+        const requirementsStats = requirementsStatsMap.get(sub.Associated_User__c) || { completed: 0, inProgress: 0, total: 0 };
+        
+        // Get OKRs from map
+        const okrs = okrsMap.get(sub.Associated_User__c) || [];
+        
+        // Calculate total allocation percentage
+        const totalAllocation = teamBuilds.reduce((sum, tb) => sum + (tb.allocationPercentage || 0), 0);
+
+        return {
+          id: sub.Id,
+          name: sub.Name,
+          email: sub.Email,
+          reportsToId: sub.ReportsToId,
+          associatedUserId: sub.Associated_User__c,
+          subordinates: children,
+          teamBuilds: teamBuilds,
+          requirementsStats: requirementsStats,
+          okrs: okrs,
+          totalAllocationPercentage: totalAllocation,
+        };
+      });
+    };
+
+    const subordinates = buildSubordinates(contactId);
+
+    // Step 8: Enrich current contact with data
+    const currentTeamBuilds = contactIdToTeamBuilds.get(currentContact.Id) || [];
+    const currentRequirementsStats = requirementsStatsMap.get(currentContact.Associated_User__c) || { completed: 0, inProgress: 0, total: 0 };
+    const currentOKRs = okrsMap.get(currentContact.Associated_User__c) || [];
     const currentTotalAllocation = currentTeamBuilds.reduce((sum, tb) => sum + (tb.allocationPercentage || 0), 0);
 
     const enrichedCurrentContact = {
@@ -310,115 +355,57 @@ async function getTeamBuildsForContact(contactName, access_token, instance_url) 
 }
 
 /**
- * Get OKRs for a contact
- * Since OKR.Owner__c is a User lookup and Contact.Associated_User__c links to User,
- * we need to get the Contact's Associated_User__c first, then query OKRs by Owner__c
- * Supports both OKR__c and Objective__c object names
+ * Get OKRs for multiple users (batch)
+ * Uses Owner__c field (lookup to User) on OKR__c
+ * Handles hierarchical relationships via Parent_Objective__c
+ * Returns Map<UserId, OKR[]> where OKRs include children
  */
-async function getOKRsForContact(contactId, access_token, instance_url) {
+async function getOKRsForUsers(userIds, access_token, instance_url) {
+  const okrsMap = new Map();
+  
   try {
-    if (!contactId) return [];
+    if (!userIds || userIds.length === 0) {
+      return okrsMap;
+    }
 
-    // First, get the Contact's Associated_User__c (User ID)
-    const escapedContactId = contactId.replace(/'/g, "\\'");
-    const contactQuery = `SELECT Id, Associated_User__c FROM Contact WHERE Id = '${escapedContactId}' LIMIT 1`;
-    const contactEncoded = encodeURIComponent(contactQuery);
-    const contactUrl = `${instance_url}/services/data/v58.0/query/?q=${contactEncoded}`;
-
-    const contactResponse = await fetch(contactUrl, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${access_token}`,
-        'Content-Type': 'application/json',
-      },
+    // Initialize map with empty arrays for all users
+    userIds.forEach(userId => {
+      okrsMap.set(userId, []);
     });
 
-    let userId = null;
-    if (contactResponse.ok) {
-      const contactData = await contactResponse.json();
-      if (contactData.records && contactData.records.length > 0) {
-        userId = contactData.records[0].Associated_User__c;
-      }
-    }
-
-    // If no Associated_User__c, try querying with Contact ID as fallback for other field variations
-    // But prioritize Owner__c as User lookup
-    if (!userId) {
-      console.warn(`No Associated_User__c found for Contact ${contactId}, trying fallback fields`);
-    }
-
+    // Escape user IDs for SOQL
+    const escapedUserIds = userIds.map(id => `'${id.replace(/'/g, "\\'")}'`).join(',');
+    
     // Try OKR__c first, then Objective__c
     const objectNames = ['OKR__c', 'Objective__c'];
-    let okrs = [];
+    let allOkrs = [];
+    let okrObjectName = null;
 
     for (const objectName of objectNames) {
       try {
-        // Owner__c is a User lookup - use userId if available
-        // Also try other field variations as fallback
-        const fieldVariations = [];
-        if (userId) {
-          const escapedUserId = userId.replace(/'/g, "\\'");
-          fieldVariations.push(`Owner__c = '${escapedUserId}'`); // User lookup - prioritize this
-        }
-        // Fallback variations (in case Owner__c is used differently or other fields exist)
-        fieldVariations.push(
-          `Contact__c = '${escapedContactId}'`,
-          `Employee__c = '${escapedContactId}'`,
-          `OwnerId = '${escapedContactId}'`
-        );
+        // Query OKRs using Owner__c (lookup to User)
+        // Include Parent_Objective__c for hierarchical relationships
+        const okrQuery = `SELECT Id, Name, Objective__c, Objective_Description__c, Status__c, Progress__c, Period__c, Year__c, Quarter__c, Start_Date__c, End_Date__c, CreatedDate, Owner__c, Parent_Objective__c FROM ${objectName} WHERE Owner__c IN (${escapedUserIds}) ORDER BY Year__c DESC, Quarter__c DESC, CreatedDate DESC`;
+        const okrEncoded = encodeURIComponent(okrQuery);
+        const okrUrl = `${instance_url}/services/data/v58.0/query/?q=${okrEncoded}`;
 
-        for (const whereClause of fieldVariations) {
-          try {
-            // Query OKR with common fields
-            const okrQuery = `SELECT Id, Name, Objective__c, Objective_Description__c, Status__c, Progress__c, Period__c, Year__c, Quarter__c, Start_Date__c, End_Date__c, CreatedDate FROM ${objectName} WHERE ${whereClause} ORDER BY Year__c DESC, Quarter__c DESC, CreatedDate DESC`;
-            const okrEncoded = encodeURIComponent(okrQuery);
-            const okrUrl = `${instance_url}/services/data/v58.0/query/?q=${okrEncoded}`;
+        const okrResponse = await fetch(okrUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${access_token}`,
+            'Content-Type': 'application/json',
+          },
+        });
 
-            const okrResponse = await fetch(okrUrl, {
-              method: 'GET',
-              headers: {
-                'Authorization': `Bearer ${access_token}`,
-                'Content-Type': 'application/json',
-              },
-            });
+        if (okrResponse.ok) {
+          const okrData = await okrResponse.json();
+          const records = okrData.records || [];
 
-            if (okrResponse.ok) {
-              const okrData = await okrResponse.json();
-              const records = okrData.records || [];
-
-              if (records.length > 0) {
-                // Fetch key results for each OKR
-                const okrsWithKeyResults = await Promise.all(
-                  records.map(async (okr) => {
-                    const keyResults = await getKeyResultsForOKR(okr.Id, access_token, instance_url);
-                    return {
-                      id: okr.Id,
-                      name: okr.Name,
-                      objective: okr.Objective__c || okr.Objective_Description__c || '',
-                      status: okr.Status__c || 'Active',
-                      progress: okr.Progress__c || 0,
-                      period: okr.Period__c || okr.Quarter__c || '',
-                      year: okr.Year__c || new Date().getFullYear(),
-                      startDate: okr.Start_Date__c || null,
-                      endDate: okr.End_Date__c || null,
-                      createdDate: okr.CreatedDate,
-                      keyResults: keyResults,
-                    };
-                  })
-                );
-
-                okrs = okrsWithKeyResults;
-                break; // Found OKRs, stop trying other variations
-              }
-            }
-          } catch (fieldError) {
-            // Field variation didn't work, try next one
-            continue;
+          if (records.length > 0) {
+            allOkrs = records;
+            okrObjectName = objectName;
+            break; // Found OKRs, stop trying other object names
           }
-        }
-
-        if (okrs.length > 0) {
-          break; // Found OKRs with this object name, stop trying others
         }
       } catch (objectError) {
         // Object doesn't exist or not accessible, try next object name
@@ -426,10 +413,67 @@ async function getOKRsForContact(contactId, access_token, instance_url) {
       }
     }
 
-    return okrs;
+    if (allOkrs.length === 0) {
+      return okrsMap;
+    }
+
+    // Fetch key results for all OKRs in parallel
+    const keyResultsPromises = allOkrs.map(okr => 
+      getKeyResultsForOKR(okr.Id, access_token, instance_url)
+    );
+    const allKeyResults = await Promise.all(keyResultsPromises);
+
+    // Build OKR objects with key results
+    const okrObjects = allOkrs.map((okr, index) => ({
+      id: okr.Id,
+      name: okr.Name,
+      objective: okr.Objective__c || okr.Objective_Description__c || '',
+      status: okr.Status__c || 'Active',
+      progress: okr.Progress__c || 0,
+      period: okr.Period__c || okr.Quarter__c || '',
+      year: okr.Year__c || new Date().getFullYear(),
+      startDate: okr.Start_Date__c || null,
+      endDate: okr.End_Date__c || null,
+      createdDate: okr.CreatedDate,
+      ownerId: okr.Owner__c,
+      parentObjectiveId: okr.Parent_Objective__c || null,
+      keyResults: allKeyResults[index],
+      children: [], // Will be populated below
+    }));
+
+    // Build hierarchy: group OKRs by owner and establish parent-child relationships
+    const okrIdToOkr = new Map();
+    okrObjects.forEach(okr => {
+      okrIdToOkr.set(okr.id, okr);
+    });
+
+    // Group by owner and build parent-child relationships
+    okrObjects.forEach(okr => {
+      const userId = okr.ownerId;
+      
+      if (!okrsMap.has(userId)) {
+        okrsMap.set(userId, []);
+      }
+
+      // If this OKR has a parent, add it as a child to the parent
+      if (okr.parentObjectiveId && okrIdToOkr.has(okr.parentObjectiveId)) {
+        const parent = okrIdToOkr.get(okr.parentObjectiveId);
+        // Remove temporary fields before adding as child
+        const { ownerId, parentObjectiveId, ...cleanOkr } = okr;
+        parent.children.push(cleanOkr);
+      } else {
+        // This is a top-level OKR (no parent), add it to the user's list
+        // Remove temporary fields
+        const { ownerId, parentObjectiveId, ...cleanOkr } = okr;
+        okrsMap.get(userId).push(cleanOkr);
+      }
+    });
+
+    return okrsMap;
+
   } catch (error) {
     console.error('Error fetching OKRs:', error);
-    return [];
+    return okrsMap;
   }
 }
 
@@ -510,18 +554,29 @@ async function getKeyResultsForOKR(okrId, access_token, instance_url) {
 }
 
 /**
- * Get requirements statistics for a user
+ * Get requirements statistics for multiple users (batch)
+ * Uses OwnerId field (lookup to User) on Requirement__c
+ * Returns Map<UserId, RequirementStats>
  */
-async function getRequirementsStats(associatedUserId, access_token, instance_url) {
+async function getRequirementsStatsForUsers(userIds, access_token, instance_url) {
+  const statsMap = new Map();
+  
   try {
-    if (!associatedUserId) {
-      return { completed: 0, inProgress: 0, total: 0 };
+    if (!userIds || userIds.length === 0) {
+      return statsMap;
     }
 
-    const escapedUserId = associatedUserId.replace(/'/g, "\\'");
+    // Initialize map with default stats for all users
+    userIds.forEach(userId => {
+      statsMap.set(userId, { completed: 0, inProgress: 0, total: 0 });
+    });
+
+    // Escape user IDs for SOQL
+    const escapedUserIds = userIds.map(id => `'${id.replace(/'/g, "\\'")}'`).join(',');
     
-    // Query requirements grouped by status
-    const requirementsQuery = `SELECT Status__c, COUNT(Id) total FROM Requirement__c WHERE Associated_User__c = '${escapedUserId}' GROUP BY Status__c`;
+    // Query requirements grouped by OwnerId and Status__c
+    // Using OwnerId (lookup to User) instead of Associated_User__c
+    const requirementsQuery = `SELECT OwnerId, Status__c, COUNT(Id) total FROM Requirement__c WHERE OwnerId IN (${escapedUserIds}) GROUP BY OwnerId, Status__c`;
     const requirementsEncoded = encodeURIComponent(requirementsQuery);
     const requirementsUrl = `${instance_url}/services/data/v58.0/query/?q=${requirementsEncoded}`;
 
@@ -534,33 +589,38 @@ async function getRequirementsStats(associatedUserId, access_token, instance_url
     });
 
     if (!requirementsResponse.ok) {
-      return { completed: 0, inProgress: 0, total: 0 };
+      console.warn('Failed to fetch requirements stats:', requirementsResponse.status);
+      return statsMap;
     }
 
     const requirementsData = await requirementsResponse.json();
     const records = requirementsData.records || [];
 
-    let completed = 0;
-    let inProgress = 0;
-    let total = 0;
-
+    // Process records and aggregate by user
     records.forEach(record => {
+      const userId = record.OwnerId;
       const count = record.total || 0;
-      total += count;
+      
+      if (!statsMap.has(userId)) {
+        statsMap.set(userId, { completed: 0, inProgress: 0, total: 0 });
+      }
+      
+      const stats = statsMap.get(userId);
+      stats.total += count;
       
       const status = (record.Status__c || '').toLowerCase();
       if (status === 'completed' || status === 'done' || status === 'closed') {
-        completed += count;
+        stats.completed += count;
       } else if (status === 'in progress' || status === 'in-progress' || status === 'working') {
-        inProgress += count;
+        stats.inProgress += count;
       }
     });
 
-    return { completed, inProgress, total };
+    return statsMap;
 
   } catch (error) {
     console.error('Error fetching requirements stats:', error);
-    return { completed: 0, inProgress: 0, total: 0 };
+    return statsMap;
   }
 }
 
