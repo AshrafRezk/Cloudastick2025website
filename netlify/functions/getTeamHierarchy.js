@@ -440,7 +440,7 @@ async function getOKRsForUsers(userIds, contactIds, contactToUserMap, access_tok
     const escapedUserIds = userIds.map(id => `'${id.replace(/'/g, "\\'")}'`).join(',');
     
     // Simple direct query: SELECT FIELDS(ALL) FROM OKR__c WHERE Owner__c IN (userIds)
-    const okrQuery = `SELECT FIELDS(ALL) FROM OKR__c WHERE Owner__c IN (${escapedUserIds}) LIMIT 200`;
+    const okrQuery = `SELECT FIELDS(ALL) FROM OKR__c WHERE Owner__c IN (${escapedUserIds}) `;
     const okrEncoded = encodeURIComponent(okrQuery);
     const okrUrl = `${instance_url}/services/data/v58.0/query/?q=${okrEncoded}`;
 
@@ -542,7 +542,7 @@ async function getOKRsForUsers(userIds, contactIds, contactToUserMap, access_tok
     let childOkrs = [];
     if (parentOkrIds.length > 0) {
       const escapedParentIds = parentOkrIds.map(id => `'${id.replace(/'/g, "\\'")}'`).join(',');
-      const childOkrQuery = `SELECT FIELDS(ALL) FROM OKR__c WHERE Parent_Objective__c IN (${escapedParentIds}) LIMIT 200`;
+      const childOkrQuery = `SELECT FIELDS(ALL) FROM OKR__c WHERE Parent_Objective__c IN (${escapedParentIds}) `;
       const childOkrEncoded = encodeURIComponent(childOkrQuery);
       const childOkrUrl = `${instance_url}/services/data/v58.0/query/?q=${childOkrEncoded}`;
 
