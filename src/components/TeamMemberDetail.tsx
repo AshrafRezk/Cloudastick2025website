@@ -4,14 +4,18 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { 
-  Briefcase, CheckCircle2, Clock, TrendingUp, Mail, Users, 
-  BookOpen, Loader2, Calendar, Percent, Target
+import {
+  Briefcase, CheckCircle2, Clock, TrendingUp, Mail, Users,
+  BookOpen, Loader2, Calendar, Percent, Target, Plus
 } from 'lucide-react';
-import type { TeamMember } from '../services/teamService';
+import type { TeamMember, OKR, OkrMetadata } from '../services/teamService';
 import { fetchLearningInstances } from '../services/learningService';
 import { useSalesforce } from '../contexts/SalesforceContext';
 import type { LearningMaterialInstance } from '../services/learningService';
+import { createObjective, createKeyResult, fetchOkrMetadata } from '../services/teamService';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
 
 interface TeamMemberDetailProps {
   member: TeamMember;
@@ -24,12 +28,34 @@ export const TeamMemberDetail = ({ member, isOpen, onClose }: TeamMemberDetailPr
   const [lmsInstances, setLmsInstances] = useState<LearningMaterialInstance[]>([]);
   const [isLoadingLMS, setIsLoadingLMS] = useState(false);
   const [lmsError, setLmsError] = useState<string | null>(null);
+  const [okrs, setOkrs] = useState<OKR[]>(member.okrs || []);
+  const [okrMetadata, setOkrMetadata] = useState<OkrMetadata | null>(null);
+  const [isLoadingMetadata, setIsLoadingMetadata] = useState(false);
+  const [metadataError, setMetadataError] = useState<string | null>(null);
+  const [creationError, setCreationError] = useState<string | null>(null);
+
+  const [isCreatingObjective, setIsCreatingObjective] = useState(false);
+  const [newObjective, setNewObjective] = useState({
+    objective: '',
+    status: '',
+    period: '',
+    year: new Date().getFullYear(),
+    startDate: '',
+    endDate: '',
+  });
+
+  const [isCreatingKR, setIsCreatingKR] = useState<{ [okrId: string]: boolean }>({});
+  const [krForms, setKrForms] = useState<{
+    [okrId: string]: { name: string; description: string; target: string; currentValue: string; unit: string; status: string };
+  }>({});
 
   useEffect(() => {
     if (isOpen && member.id && authData) {
       loadLMSData();
+      loadOkrMetadata();
+      setOkrs(member.okrs || []);
     }
-  }, [isOpen, member.id, authData]);
+  }, [isOpen, member.id, authData, member.okrs]);
 
   const loadLMSData = async () => {
     if (!authData || !member.id) return;
@@ -44,6 +70,126 @@ export const TeamMemberDetail = ({ member, isOpen, onClose }: TeamMemberDetailPr
       setLmsError(error instanceof Error ? error.message : 'Failed to load learning data');
     } finally {
       setIsLoadingLMS(false);
+    }
+  };
+
+  const loadOkrMetadata = async () => {
+    if (!authData) return;
+    setIsLoadingMetadata(true);
+    setMetadataError(null);
+    try {
+      const meta = await fetchOkrMetadata(authData);
+      setOkrMetadata(meta);
+    } catch (error) {
+      console.error('Failed to load OKR metadata:', error);
+      setMetadataError(error instanceof Error ? error.message : 'Failed to load OKR metadata');
+    } finally {
+      setIsLoadingMetadata(false);
+    }
+  };
+
+  const handleCreateObjective = async () => {
+    if (!authData || !member.id || !newObjective.objective.trim()) return;
+    setIsCreatingObjective(true);
+    setCreationError(null);
+    try {
+      const res = await createObjective(
+        {
+          contactId: member.id,
+          objective: newObjective.objective.trim(),
+          status: newObjective.status || undefined,
+          period: newObjective.period || undefined,
+          year: newObjective.year,
+          startDate: newObjective.startDate || undefined,
+          endDate: newObjective.endDate || undefined,
+        },
+        authData
+      );
+
+      if (res.success && res.id) {
+        const newOkr: OKR = {
+          id: res.id,
+          name: newObjective.objective.trim(),
+          objective: newObjective.objective.trim(),
+          status: newObjective.status || 'In Progress',
+          progress: 0,
+          period: newObjective.period || '',
+          year: newObjective.year || new Date().getFullYear(),
+          startDate: newObjective.startDate || null,
+          endDate: newObjective.endDate || null,
+          createdDate: new Date().toISOString(),
+          keyResults: [],
+        };
+        setOkrs((prev) => [newOkr, ...prev]);
+        setNewObjective({
+          objective: '',
+          status: '',
+          period: '',
+          year: new Date().getFullYear(),
+          startDate: '',
+          endDate: '',
+        });
+      } else {
+        setCreationError('Failed to create OKR');
+      }
+    } catch (error) {
+      setCreationError(error instanceof Error ? error.message : 'Failed to create OKR');
+    } finally {
+      setIsCreatingObjective(false);
+    }
+  };
+
+  const handleCreateKeyResult = async (okrId: string) => {
+    if (!authData) return;
+    const form = krForms[okrId] || { name: '', description: '', target: '', currentValue: '', unit: '', status: '' };
+    if (!form.name.trim()) return;
+    setIsCreatingKR((prev) => ({ ...prev, [okrId]: true }));
+    setCreationError(null);
+    try {
+      const res = await createKeyResult(
+        {
+          okrId,
+          name: form.name.trim(),
+          description: form.description || undefined,
+          target: form.target ? Number(form.target) : undefined,
+          currentValue: form.currentValue ? Number(form.currentValue) : undefined,
+          unit: form.unit || undefined,
+          status: form.status || undefined,
+        },
+        authData
+      );
+
+      if (res.success && res.id) {
+        const newKr = {
+          id: res.id,
+          name: form.name.trim(),
+          description: form.description || '',
+          target: form.target ? Number(form.target) : 0,
+          currentValue: form.currentValue ? Number(form.currentValue) : 0,
+          progress:
+            form.target && form.currentValue
+              ? Math.round((Number(form.currentValue) / Number(form.target)) * 100)
+              : 0,
+          status: form.status || 'In Progress',
+          unit: form.unit || '',
+          createdDate: new Date().toISOString(),
+        };
+        setOkrs((prev) =>
+          prev.map((okr) =>
+            okr.id === okrId ? { ...okr, keyResults: [...(okr.keyResults || []), newKr] } : okr
+          )
+        );
+        setKrForms((prev) => ({
+          ...prev,
+          [okrId]: { name: '', description: '', target: '', currentValue: '', unit: '', status: '' },
+        }));
+      } else {
+        setCreationError('Failed to create Key Result');
+      }
+    } catch (error) {
+      setCreationError(error instanceof Error ? error.message : 'Failed to create Key Result');
+    } finally {
+      setIsCreatingKR((prev) => ({ ...prev, [okrId]: false }));
     }
   };
 
@@ -148,10 +294,10 @@ export const TeamMemberDetail = ({ member, isOpen, onClose }: TeamMemberDetailPr
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{member.okrs?.length || 0}</div>
-                  {member.okrs && member.okrs.length > 0 && (
+                  <div className="text-2xl font-bold">{okrs?.length || 0}</div>
+                  {okrs && okrs.length > 0 && (
                     <div className="text-xs text-muted-foreground">
-                      {Math.round(member.okrs.reduce((sum, okr) => sum + okr.progress, 0) / member.okrs.length)}% avg progress
+                      {Math.round(okrs.reduce((sum, okr) => sum + okr.progress, 0) / okrs.length)}% avg progress
                     </div>
                   )}
                 </CardContent>
@@ -389,7 +535,100 @@ export const TeamMemberDetail = ({ member, isOpen, onClose }: TeamMemberDetailPr
 
           {/* OKRs Tab */}
           <TabsContent value="okrs" className="space-y-4 mt-4">
-            {!member.okrs || member.okrs.length === 0 ? (
+            <Card>
+              <CardHeader className="flex flex-col gap-2">
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="h-5 w-5" />
+                  Objectives & Key Results
+                </CardTitle>
+                {metadataError && <p className="text-sm text-destructive">{metadataError}</p>}
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  <div className="space-y-1">
+                    <Label htmlFor="objective">Objective</Label>
+                    <Input
+                      id="objective"
+                      placeholder="Increase NPS to 60"
+                      value={newObjective.objective}
+                      onChange={(e) => setNewObjective((prev) => ({ ...prev, objective: e.target.value }))}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="status">Status</Label>
+                    <select
+                      id="status"
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                      value={newObjective.status}
+                      onChange={(e) => setNewObjective((prev) => ({ ...prev, status: e.target.value }))}
+                    >
+                      <option value="">Select</option>
+                      {(okrMetadata?.picklists.okrStatus || ['Not Started', 'In Progress', 'On Track', 'Completed']).map((val) => (
+                        <option key={val} value={val}>{val}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="period">Period</Label>
+                    <select
+                      id="period"
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                      value={newObjective.period}
+                      onChange={(e) => setNewObjective((prev) => ({ ...prev, period: e.target.value }))}
+                    >
+                      <option value="">Select</option>
+                      {(okrMetadata?.picklists.okrPeriod || ['Q1', 'Q2', 'Q3', 'Q4']).map((val) => (
+                        <option key={val} value={val}>{val}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="year">Year</Label>
+                    <Input
+                      id="year"
+                      type="number"
+                      value={newObjective.year}
+                      onChange={(e) => setNewObjective((prev) => ({ ...prev, year: Number(e.target.value) }))}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="startDate">Start Date</Label>
+                    <Input
+                      id="startDate"
+                      type="date"
+                      value={newObjective.startDate}
+                      onChange={(e) => setNewObjective((prev) => ({ ...prev, startDate: e.target.value }))}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="endDate">End Date</Label>
+                    <Input
+                      id="endDate"
+                      type="date"
+                      value={newObjective.endDate}
+                      onChange={(e) => setNewObjective((prev) => ({ ...prev, endDate: e.target.value }))}
+                    />
+                  </div>
+                </div>
+                {creationError && <p className="text-sm text-destructive">{creationError}</p>}
+                <Button
+                  onClick={handleCreateObjective}
+                  disabled={isCreatingObjective || !newObjective.objective.trim() || !authData}
+                >
+                  {isCreatingObjective ? (
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" /> Saving...
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <Plus className="h-4 w-4" /> Add Objective
+                    </span>
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+
+            {!okrs || okrs.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
                   <Target className="h-12 w-12 mx-auto mb-2 opacity-50" />
@@ -398,7 +637,7 @@ export const TeamMemberDetail = ({ member, isOpen, onClose }: TeamMemberDetailPr
               </Card>
             ) : (
               <div className="space-y-4">
-                {member.okrs.map((okr) => (
+                {okrs.map((okr) => (
                   <Card key={okr.id}>
                     <CardHeader>
                       <div className="flex items-start justify-between">
@@ -503,6 +742,135 @@ export const TeamMemberDetail = ({ member, isOpen, onClose }: TeamMemberDetailPr
                         </div>
                       </CardContent>
                     )}
+                    <CardContent className="pt-0 mt-1 border-t">
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 items-end">
+                        <div className="space-y-1">
+                          <Label>Name</Label>
+                          <Input
+                            value={krForms[okr.id]?.name || ''}
+                            onChange={(e) =>
+                              setKrForms((prev) => ({
+                                ...prev,
+                                [okr.id]: {
+                                  ...(prev[okr.id] || { name: '', description: '', target: '', currentValue: '', unit: '', status: '' }),
+                                  name: e.target.value,
+                                },
+                              }))
+                            }
+                            placeholder="Ship feature X"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label>Description</Label>
+                          <Input
+                            value={krForms[okr.id]?.description || ''}
+                            onChange={(e) =>
+                              setKrForms((prev) => ({
+                                ...prev,
+                                [okr.id]: {
+                                  ...(prev[okr.id] || { name: '', description: '', target: '', currentValue: '', unit: '', status: '' }),
+                                  description: e.target.value,
+                                },
+                              }))
+                            }
+                            placeholder="Outcome / metric"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label>Target</Label>
+                          <Input
+                            type="number"
+                            value={krForms[okr.id]?.target || ''}
+                            onChange={(e) =>
+                              setKrForms((prev) => ({
+                                ...prev,
+                                [okr.id]: {
+                                  ...(prev[okr.id] || { name: '', description: '', target: '', currentValue: '', unit: '', status: '' }),
+                                  target: e.target.value,
+                                },
+                              }))
+                            }
+                            placeholder="100"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label>Current</Label>
+                          <Input
+                            type="number"
+                            value={krForms[okr.id]?.currentValue || ''}
+                            onChange={(e) =>
+                              setKrForms((prev) => ({
+                                ...prev,
+                                [okr.id]: {
+                                  ...(prev[okr.id] || { name: '', description: '', target: '', currentValue: '', unit: '', status: '' }),
+                                  currentValue: e.target.value,
+                                },
+                              }))
+                            }
+                            placeholder="25"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label>Unit</Label>
+                          <select
+                            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                            value={krForms[okr.id]?.unit || ''}
+                            onChange={(e) =>
+                              setKrForms((prev) => ({
+                                ...prev,
+                                [okr.id]: {
+                                  ...(prev[okr.id] || { name: '', description: '', target: '', currentValue: '', unit: '', status: '' }),
+                                  unit: e.target.value,
+                                },
+                              }))
+                            }
+                          >
+                            <option value="">Select</option>
+                            {(okrMetadata?.picklists.krUnit || ['Units', '%', '$']).map((val) => (
+                              <option key={val} value={val}>{val}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="space-y-1">
+                          <Label>Status</Label>
+                          <select
+                            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                            value={krForms[okr.id]?.status || ''}
+                            onChange={(e) =>
+                              setKrForms((prev) => ({
+                                ...prev,
+                                [okr.id]: {
+                                  ...(prev[okr.id] || { name: '', description: '', target: '', currentValue: '', unit: '', status: '' }),
+                                  status: e.target.value,
+                                },
+                              }))
+                            }
+                          >
+                            <option value="">Select</option>
+                            {(okrMetadata?.picklists.krStatus || ['Not Started', 'In Progress', 'Completed']).map((val) => (
+                              <option key={val} value={val}>{val}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                      <div className="flex justify-end mt-3">
+                        <Button
+                          size="sm"
+                          onClick={() => handleCreateKeyResult(okr.id)}
+                          disabled={isCreatingKR[okr.id] || !(krForms[okr.id]?.name || '').trim() || !authData}
+                        >
+                          {isCreatingKR[okr.id] ? (
+                            <span className="flex items-center gap-2">
+                              <Loader2 className="h-4 w-4 animate-spin" /> Saving...
+                            </span>
+                          ) : (
+                            <span className="flex items-center gap-2">
+                              <Plus className="h-4 w-4" /> Add Key Result
+                            </span>
+                          )}
+                        </Button>
+                      </div>
+                    </CardContent>
                   </Card>
                 ))}
               </div>

@@ -70,6 +70,22 @@ export interface TeamHierarchy {
   data: TeamMember;
 }
 
+export interface OkrMetadata {
+  success: boolean;
+  okrObject: string | null;
+  krObject: string | null;
+  picklists: {
+    okrStatus: string[];
+    okrPeriod: string[];
+    krStatus: string[];
+    krUnit: string[];
+  };
+  lookupFields: {
+    okrContactField: string | null;
+    krOkrLookupField: string | null;
+  };
+}
+
 /**
  * Fetch team hierarchy for a contact
  */
@@ -109,6 +125,118 @@ export const fetchTeamHierarchy = async (
     return data;
   } catch (error) {
     console.error('Fetch team hierarchy error:', error);
+    throw error;
+  }
+};
+
+/**
+ * Fetch OKR metadata (picklists and field names)
+ */
+export const fetchOkrMetadata = async (
+  authData: { access_token: string; instance_url: string }
+): Promise<OkrMetadata> => {
+  try {
+    const response = await fetch('/.netlify/functions/getOkrMetadata', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        access_token: authData.access_token,
+        instance_url: authData.instance_url,
+      }),
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(text || `Failed to fetch OKR metadata: ${response.status}`);
+    }
+
+    const data: OkrMetadata = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch OKR metadata error:', error);
+    throw error;
+  }
+};
+
+/**
+ * Create an OKR (Objective) for a contact
+ */
+export const createObjective = async (
+  params: {
+    contactId: string;
+    objective: string;
+    status?: string;
+    period?: string;
+    year?: number;
+    startDate?: string;
+    endDate?: string;
+    progress?: number;
+  },
+  authData: { access_token: string; instance_url: string }
+): Promise<{ success: boolean; id: string; object: string }> => {
+  try {
+    const response = await fetch('/.netlify/functions/createOKR', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        access_token: authData.access_token,
+        instance_url: authData.instance_url,
+        ...params,
+      }),
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(text || `Failed to create OKR: ${response.status}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('Create OKR error:', error);
+    throw error;
+  }
+};
+
+/**
+ * Create a Key Result for an OKR
+ */
+export const createKeyResult = async (
+  params: {
+    okrId: string;
+    name: string;
+    description?: string;
+    target?: number;
+    currentValue?: number;
+    unit?: string;
+    status?: string;
+  },
+  authData: { access_token: string; instance_url: string }
+): Promise<{ success: boolean; id: string; object: string }> => {
+  try {
+    const response = await fetch('/.netlify/functions/createKeyResult', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        access_token: authData.access_token,
+        instance_url: authData.instance_url,
+        ...params,
+      }),
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(text || `Failed to create Key Result: ${response.status}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('Create Key Result error:', error);
     throw error;
   }
 };
