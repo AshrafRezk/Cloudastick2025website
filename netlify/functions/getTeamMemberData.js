@@ -325,13 +325,35 @@ async function getOKRsForUser(userId, access_token, instance_url, offset = 0, li
       }
     }
 
-    // Combine and fetch key results
-    const allOkrs = [...parentOkrs, ...childOkrs];
-    const keyResultsPromises = allOkrs.map(okr => getKeyResultsForOKR(okr.Id, access_token, instance_url));
-    const allKeyResults = await Promise.all(keyResultsPromises);
+    // Group child OKRs by their parent (these are the key results)
+    const childOkrsByParent = new Map();
+    childOkrs.forEach(childOkr => {
+      const parentId = childOkr.Parent_Objective__c;
+      if (parentId) {
+        if (!childOkrsByParent.has(parentId)) {
+          childOkrsByParent.set(parentId, []);
+        }
+        childOkrsByParent.get(parentId).push(childOkr);
+      }
+    });
 
     // Build OKR objects - map from specific fields only
-    const okrObjects = allOkrs.map((okr, index) => {
+    const allOkrs = [...parentOkrs, ...childOkrs];
+    const okrObjects = allOkrs.map((okr) => {
+      // Get key results for this parent OKR (child OKRs where Parent_Objective__c = this OKR's Id)
+      const keyResultsForThisOkr = childOkrsByParent.get(okr.Id) || [];
+      const mappedKeyResults = keyResultsForThisOkr.map(childOkr => ({
+        id: childOkr.Id,
+        name: childOkr.Name || '',
+        description: childOkr.Comments__c || childOkr.Name || '',
+        target: 0, // Not applicable for OKR-style key results
+        currentValue: 0, // Not applicable for OKR-style key results
+        progress: childOkr.Progress__c || 0,
+        status: childOkr.Status__c || 'In Progress',
+        unit: '', // Not applicable for OKR-style key results
+        createdDate: childOkr.CreatedDate || '',
+      }));
+
       return {
         id: okr.Id,
         name: okr.Name || '',
@@ -344,7 +366,7 @@ async function getOKRsForUser(userId, access_token, instance_url, offset = 0, li
         endDate: okr.Due_Date__c || null, // Map Due_Date__c to endDate
         createdDate: okr.CreatedDate || '',
         parentObjectiveId: okr.Parent_Objective__c || null,
-        keyResults: allKeyResults[index] || [],
+        keyResults: mappedKeyResults,
         children: [],
       };
     });
