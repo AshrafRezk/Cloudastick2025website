@@ -206,9 +206,9 @@ export const TeamTree = ({
                         ) : (
                           <>
                             {enrichedMember.okrs?.length || 0}
-                            {enrichedMember.okrs && enrichedMember.okrs.length > 0 && (
+                            {enrichedMember.okrs && enrichedMember.okrs.length > 0 && enrichedMember.okrs[0] && typeof enrichedMember.okrs[0] === 'object' && 'progress' in enrichedMember.okrs[0] && (
                               <span className="text-xs text-muted-foreground ml-1">
-                                ({Math.round(enrichedMember.okrs.reduce((sum, okr) => sum + okr.progress, 0) / enrichedMember.okrs.length)}% avg)
+                                ({Math.round(enrichedMember.okrs.reduce((sum, okr) => sum + (okr?.progress || 0), 0) / enrichedMember.okrs.length)}% avg)
                               </span>
                             )}
                           </>

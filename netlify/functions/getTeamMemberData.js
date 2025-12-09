@@ -250,8 +250,11 @@ async function getOKRsForUser(userId, access_token, instance_url, offset = 0, li
       console.warn('Could not get OKR count:', e.message);
     }
 
-    // Fetch parent OKRs with pagination
-    const okrQuery = `SELECT FIELDS(ALL) FROM OKR__c WHERE Owner__c = '${escapedUserId}' AND Parent_Objective__c = null ORDER BY Year__c DESC, Quarter__c DESC, CreatedDate DESC LIMIT ${limit} OFFSET ${offset}`;
+    // Fetch parent OKRs with pagination - only query specific fields for performance
+    const okrFields = 'Id, Name, Owner__c, Type__c, Status__c, Parent_Objective__c, Due_Date__c, Department__c, Quarter__c, Progress__c, Weight__c, Overall_Health__c, Comments__c, CreatedDate';
+    // Note: We need to handle sorting - if Year__c is not available, sort by CreatedDate and Quarter
+    // Try with Year__c first, fall back if it doesn't exist
+    let okrQuery = `SELECT ${okrFields} FROM OKR__c WHERE Owner__c = '${escapedUserId}' AND Parent_Objective__c = null ORDER BY Quarter__c DESC, CreatedDate DESC LIMIT ${limit} OFFSET ${offset}`;
     const okrEncoded = encodeURIComponent(okrQuery);
     const okrUrl = `${instance_url}/services/data/v58.0/query/?q=${okrEncoded}`;
 
@@ -270,12 +273,12 @@ async function getOKRsForUser(userId, access_token, instance_url, offset = 0, li
     const okrData = await okrResponse.json();
     const parentOkrs = okrData.records || [];
 
-    // Fetch child OKRs for the parent OKRs we got
+    // Fetch child OKRs for the parent OKRs we got - use same specific fields
     let childOkrs = [];
     if (parentOkrs.length > 0) {
       const parentOkrIds = parentOkrs.map(okr => okr.Id);
       const escapedParentIds = parentOkrIds.map(id => `'${id.replace(/'/g, "\\'")}'`).join(',');
-      const childOkrQuery = `SELECT FIELDS(ALL) FROM OKR__c WHERE Parent_Objective__c IN (${escapedParentIds})`;
+      const childOkrQuery = `SELECT ${okrFields} FROM OKR__c WHERE Parent_Objective__c IN (${escapedParentIds})`;
       const childOkrEncoded = encodeURIComponent(childOkrQuery);
       const childOkrUrl = `${instance_url}/services/data/v58.0/query/?q=${childOkrEncoded}`;
 
@@ -291,6 +294,31 @@ async function getOKRsForUser(userId, access_token, instance_url, offset = 0, li
         if (childOkrResponse.ok) {
           const childOkrData = await childOkrResponse.json();
           childOkrs = childOkrData.records || [];
+          
+          // Handle pagination for child OKRs if needed
+          let nextRecordsUrl = childOkrData.nextRecordsUrl;
+          while (nextRecordsUrl) {
+            try {
+              const nextResponse = await fetch(`${instance_url}${nextRecordsUrl}`, {
+                method: 'GET',
+                headers: {
+                  'Authorization': `Bearer ${access_token}`,
+                  'Content-Type': 'application/json',
+                },
+              });
+              
+              if (nextResponse.ok) {
+                const nextData = await nextResponse.json();
+                childOkrs = [...childOkrs, ...(nextData.records || [])];
+                nextRecordsUrl = nextData.nextRecordsUrl;
+              } else {
+                break;
+              }
+            } catch (nextError) {
+              console.warn('Error fetching next child OKR batch:', nextError.message);
+              break;
+            }
+          }
         }
       } catch (e) {
         console.warn('Error fetching child OKRs:', e.message);
@@ -302,20 +330,19 @@ async function getOKRsForUser(userId, access_token, instance_url, offset = 0, li
     const keyResultsPromises = allOkrs.map(okr => getKeyResultsForOKR(okr.Id, access_token, instance_url));
     const allKeyResults = await Promise.all(keyResultsPromises);
 
-    // Build OKR objects
+    // Build OKR objects - map from specific fields only
     const okrObjects = allOkrs.map((okr, index) => {
-      const isChild = !!okr.Parent_Objective__c;
       return {
         id: okr.Id,
         name: okr.Name || '',
-        objective: okr.Objective__c || okr.Objective_Description__c || okr.Name || '',
+        objective: okr.Name || '', // Use Name as objective if Objective__c is not available
         status: okr.Status__c || 'Active',
         progress: okr.Progress__c || 0,
-        period: okr.Period__c || okr.Quarter__c || '',
-        year: okr.Year__c || new Date().getFullYear(),
-        startDate: okr.Start_Date__c || null,
-        endDate: okr.End_Date__c || null,
-        createdDate: okr.CreatedDate,
+        period: okr.Quarter__c || '',
+        year: new Date().getFullYear(), // Default to current year if Year__c not available
+        startDate: null, // Not in requested fields
+        endDate: okr.Due_Date__c || null, // Map Due_Date__c to endDate
+        createdDate: okr.CreatedDate || '',
         parentObjectiveId: okr.Parent_Objective__c || null,
         keyResults: allKeyResults[index] || [],
         children: [],

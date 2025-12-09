@@ -12,7 +12,7 @@ import type { TeamMember, OKR, OkrMetadata } from '../services/teamService';
 import { fetchLearningInstances } from '../services/learningService';
 import { useSalesforce } from '../contexts/SalesforceContext';
 import type { LearningMaterialInstance } from '../services/learningService';
-import { createObjective, createKeyResult, fetchOkrMetadata } from '../services/teamService';
+import { createObjective, createKeyResult, fetchOkrMetadata, fetchTeamMemberData } from '../services/teamService';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -128,11 +128,15 @@ export const TeamMemberDetail = ({ member, isOpen, onClose }: TeamMemberDetailPr
   const [lmsInstances, setLmsInstances] = useState<LearningMaterialInstance[]>([]);
   const [isLoadingLMS, setIsLoadingLMS] = useState(false);
   const [lmsError, setLmsError] = useState<string | null>(null);
-  const [okrs, setOkrs] = useState<OKR[]>(member.okrs || []);
+  const [okrs, setOkrs] = useState<OKR[]>([]);
+  const [isLoadingOKRs, setIsLoadingOKRs] = useState(false);
+  const [okrError, setOkrError] = useState<string | null>(null);
   const [okrMetadata, setOkrMetadata] = useState<OkrMetadata | null>(null);
   const [isLoadingMetadata, setIsLoadingMetadata] = useState(false);
   const [metadataError, setMetadataError] = useState<string | null>(null);
   const [creationError, setCreationError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<string>('overview');
+  const [okrPagination, setOkrPagination] = useState({ offset: 0, limit: 50, total: 0, hasMore: false });
 
   const [isCreatingObjective, setIsCreatingObjective] = useState(false);
   const [newObjective, setNewObjective] = useState({
@@ -153,9 +157,18 @@ export const TeamMemberDetail = ({ member, isOpen, onClose }: TeamMemberDetailPr
     if (isOpen && member.id && authData) {
       loadLMSData();
       loadOkrMetadata();
-      setOkrs(member.okrs || []);
+      // Don't load OKRs here - they will be loaded when OKRs tab is clicked
+      setOkrs([]);
+      setOkrPagination({ offset: 0, limit: 50, total: 0, hasMore: false });
     }
-  }, [isOpen, member.id, authData, member.okrs]);
+  }, [isOpen, member.id, authData]);
+
+  // Load OKRs when OKRs tab is activated
+  useEffect(() => {
+    if (activeTab === 'okrs' && isOpen && member.id && authData && okrs.length === 0 && !isLoadingOKRs) {
+      loadOKRsData();
+    }
+  }, [activeTab, isOpen, member.id, authData]);
 
   const loadLMSData = async () => {
     if (!authData || !member.id) return;
@@ -185,6 +198,67 @@ export const TeamMemberDetail = ({ member, isOpen, onClose }: TeamMemberDetailPr
       setMetadataError(error instanceof Error ? error.message : 'Failed to load OKR metadata');
     } finally {
       setIsLoadingMetadata(false);
+    }
+  };
+
+  const loadOKRsData = async () => {
+    if (!authData || !member.id || isLoadingOKRs) return;
+
+    setIsLoadingOKRs(true);
+    setOkrError(null);
+    try {
+      const response = await fetchTeamMemberData(member.id, authData, {
+        okrOffset: okrPagination.offset,
+        okrLimit: okrPagination.limit,
+      });
+
+      if (response.success && response.data) {
+        setOkrs(response.data.okrs || []);
+        setOkrPagination({
+          offset: response.data.pagination.okrs.offset,
+          limit: response.data.pagination.okrs.limit,
+          total: response.data.pagination.okrs.total,
+          hasMore: response.data.pagination.okrs.hasMore,
+        });
+      } else {
+        throw new Error('Failed to load OKR data');
+      }
+    } catch (error) {
+      console.error('Failed to load OKR data:', error);
+      setOkrError(error instanceof Error ? error.message : 'Failed to load OKR data');
+    } finally {
+      setIsLoadingOKRs(false);
+    }
+  };
+
+  const loadMoreOKRs = async () => {
+    if (!authData || !member.id || isLoadingOKRs || !okrPagination.hasMore) return;
+
+    setIsLoadingOKRs(true);
+    setOkrError(null);
+    try {
+      const nextOffset = okrPagination.offset + okrPagination.limit;
+      const response = await fetchTeamMemberData(member.id, authData, {
+        okrOffset: nextOffset,
+        okrLimit: okrPagination.limit,
+      });
+
+      if (response.success && response.data) {
+        setOkrs((prev) => [...prev, ...(response.data.okrs || [])]);
+        setOkrPagination({
+          offset: response.data.pagination.okrs.offset,
+          limit: response.data.pagination.okrs.limit,
+          total: response.data.pagination.okrs.total,
+          hasMore: response.data.pagination.okrs.hasMore,
+        });
+      } else {
+        throw new Error('Failed to load more OKR data');
+      }
+    } catch (error) {
+      console.error('Failed to load more OKR data:', error);
+      setOkrError(error instanceof Error ? error.message : 'Failed to load more OKR data');
+    } finally {
+      setIsLoadingOKRs(false);
     }
   };
 
@@ -339,7 +413,7 @@ export const TeamMemberDetail = ({ member, isOpen, onClose }: TeamMemberDetailPr
           </div>
         </DialogHeader>
 
-        <Tabs defaultValue="overview" className="mt-4">
+        <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="mt-4">
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="projects">Projects</TabsTrigger>
@@ -781,7 +855,23 @@ export const TeamMemberDetail = ({ member, isOpen, onClose }: TeamMemberDetailPr
               </CardContent>
             </Card>
 
-            {!okrs || okrs.length === 0 ? (
+            {isLoadingOKRs && okrs.length === 0 ? (
+              <Card>
+                <CardContent className="py-8 text-center text-muted-foreground">
+                  <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
+                  <p>Loading OKRs...</p>
+                </CardContent>
+              </Card>
+            ) : okrError ? (
+              <Card>
+                <CardContent className="py-8 text-center">
+                  <p className="text-destructive mb-2">{okrError}</p>
+                  <Button size="sm" variant="outline" onClick={loadOKRsData}>
+                    Retry
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : !okrs || okrs.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
                   <Target className="h-12 w-12 mx-auto mb-2 opacity-50" />
@@ -1032,6 +1122,23 @@ export const TeamMemberDetail = ({ member, isOpen, onClose }: TeamMemberDetailPr
                     </CardContent>
                   </Card>
                 ))}
+                  {okrPagination.hasMore && (
+                    <div className="flex justify-center pt-4">
+                      <Button
+                        variant="outline"
+                        onClick={loadMoreOKRs}
+                        disabled={isLoadingOKRs}
+                      >
+                        {isLoadingOKRs ? (
+                          <span className="flex items-center gap-2">
+                            <Loader2 className="h-4 w-4 animate-spin" /> Loading...
+                          </span>
+                        ) : (
+                          'Load More OKRs'
+                        )}
+                      </Button>
+                    </div>
+                  )}
               </div>
             )}
           </TabsContent>
