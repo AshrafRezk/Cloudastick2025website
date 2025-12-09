@@ -16,11 +16,12 @@ const {
 
 /**
  * Get Contact from cache or Salesforce
+ * @param {object} context - Netlify function context (required for Blobs)
  */
-async function getContactById(contactId, access_token, instance_url) {
+async function getContactById(contactId, access_token, instance_url, context) {
   // Check cache first
   const contactCacheKey = getCacheKey('Contact', contactId);
-  const contactCached = await getCache(contactCacheKey, CACHE_TTLS['Contact']);
+  const contactCached = await getCache(contactCacheKey, CACHE_TTLS['Contact'], context);
   
   if (contactCached && contactCached.data) {
     return contactCached.data;
@@ -55,18 +56,19 @@ async function getContactById(contactId, access_token, instance_url) {
   setCache(contactCacheKey, contact, {
     objectType: 'Contact',
     cachedAt: new Date().toISOString(),
-  }).catch(err => console.warn('⚠️ Failed to cache contact:', err.message));
+  }, context).catch(err => console.warn('⚠️ Failed to cache contact:', err.message));
   
   return contact;
 }
 
 /**
  * Get subordinates from cache or Salesforce
+ * @param {object} context - Netlify function context (required for Blobs)
  */
-async function getSubordinatesFromCache(parentId) {
+async function getSubordinatesFromCache(parentId, context) {
   try {
     const allContactsKey = getListCacheKey('Contact', 'all');
-    const cached = await getCache(allContactsKey, CACHE_TTLS['Contact']);
+    const cached = await getCache(allContactsKey, CACHE_TTLS['Contact'], context);
     
     if (cached && cached.data && Array.isArray(cached.data)) {
       // Filter contacts by ReportsToId from cache
@@ -124,7 +126,7 @@ exports.handler = async (event, context) => {
     }
 
     // Step 1: Get current contact info - check cache first
-    const currentContact = await getContactById(contactId, access_token, instance_url);
+    const currentContact = await getContactById(contactId, access_token, instance_url, context);
     
     if (!currentContact) {
       return {
@@ -149,7 +151,7 @@ exports.handler = async (event, context) => {
 
     while (currentManagerId && !visitedIds.has(currentManagerId)) {
       visitedIds.add(currentManagerId);
-      const manager = await getContactById(currentManagerId, access_token, instance_url);
+      const manager = await getContactById(currentManagerId, access_token, instance_url, context);
       
       if (manager) {
         managers.push(manager);
@@ -166,7 +168,7 @@ exports.handler = async (event, context) => {
       if (depth > 10) return; // Prevent infinite recursion
 
       // Try cache first
-      let directSubordinates = await getSubordinatesFromCache(parentId);
+      let directSubordinates = await getSubordinatesFromCache(parentId, context);
       
       if (!directSubordinates) {
         // Cache miss - query Salesforce
@@ -227,7 +229,7 @@ exports.handler = async (event, context) => {
     }
     
     // Step 5a: Fetch requirements first
-    const requirementsStatsMap = await getRequirementsStatsForUsers(userIds, access_token, instance_url);
+    const requirementsStatsMap = await getRequirementsStatsForUsers(userIds, access_token, instance_url, context);
     console.log(`✅ Requirements fetched for ${requirementsStatsMap.size} users`);
     
     // Step 5b: Fetch OKRs AFTER requirements, using both user IDs and contact IDs
@@ -238,7 +240,7 @@ exports.handler = async (event, context) => {
         contactToUserMap.set(contact.Id, contact.Associated_User__c);
       }
     });
-    const okrsMap = await getOKRsForUsers(userIds, contactIds, contactToUserMap, access_token, instance_url);
+    const okrsMap = await getOKRsForUsers(userIds, contactIds, contactToUserMap, access_token, instance_url, context);
     console.log(`✅ OKRs fetched for ${okrsMap.size} users`);
 
     // Step 6: Fetch team builds for all contacts in parallel
@@ -467,8 +469,9 @@ async function getTeamBuildsForContact(contactName, access_token, instance_url) 
  * Returns Map<UserId, number> where number is the count of OKRs per user
  * Only fetches counts for performance - full OKR data should be loaded on demand
  * Uses cache first to reduce API calls
+ * @param {object} context - Netlify function context (required for Blobs)
  */
-async function getOKRsForUsers(userIds, contactIds, contactToUserMap, access_token, instance_url) {
+async function getOKRsForUsers(userIds, contactIds, contactToUserMap, access_token, instance_url, context) {
   const okrsMap = new Map();
   
   try {
@@ -487,7 +490,7 @@ async function getOKRsForUsers(userIds, contactIds, contactToUserMap, access_tok
 
     // Try cache first
     const allOKRsKey = getListCacheKey('OKR__c', 'all');
-    const cached = await getCache(allOKRsKey, CACHE_TTLS['OKR__c']);
+    const cached = await getCache(allOKRsKey, CACHE_TTLS['OKR__c'], context);
     
     if (cached && cached.data && Array.isArray(cached.data)) {
       // Filter OKRs by Owner__c from cache
@@ -628,8 +631,9 @@ async function getKeyResultsForOKR(okrId, access_token, instance_url) {
  * Uses OwnerId field (lookup to User) on Requirement__c
  * Returns Map<UserId, RequirementStats>
  * Uses cache first to reduce API calls
+ * @param {object} context - Netlify function context (required for Blobs)
  */
-async function getRequirementsStatsForUsers(userIds, access_token, instance_url) {
+async function getRequirementsStatsForUsers(userIds, access_token, instance_url, context) {
   const statsMap = new Map();
   
   try {
@@ -644,7 +648,7 @@ async function getRequirementsStatsForUsers(userIds, access_token, instance_url)
 
     // Try cache first
     const allRequirementsKey = getListCacheKey('Requirement__c', 'all');
-    const cached = await getCache(allRequirementsKey, CACHE_TTLS['Requirement__c']);
+    const cached = await getCache(allRequirementsKey, CACHE_TTLS['Requirement__c'], context);
     
     if (cached && cached.data && Array.isArray(cached.data)) {
       // Filter requirements by OwnerId from cache

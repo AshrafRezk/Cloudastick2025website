@@ -67,7 +67,7 @@ exports.handler = async (event, context) => {
     let fromCache = false;
     let totalCount = 0;
     
-    const cached = await getCache(listCacheKey, cacheTTL);
+    const cached = await getCache(listCacheKey, cacheTTL, context);
     if (cached && !cached.isStale) {
       // Use cached blog IDs list
       console.log('✅ Using cached blog list');
@@ -76,7 +76,7 @@ exports.handler = async (event, context) => {
       // Fetch individual blog records from cache
       const blogPromises = cachedRecordIds.map(id => {
         const recordCacheKey = getCacheKey('Blog_Post__c', id);
-        return getCache(recordCacheKey, cacheTTL);
+        return getCache(recordCacheKey, cacheTTL, context);
       });
       
       const cachedBlogs = await Promise.all(blogPromises);
@@ -119,7 +119,7 @@ exports.handler = async (event, context) => {
             const cachedRecordIds = cached.data || [];
             const blogPromises = cachedRecordIds.map(id => {
               const recordCacheKey = getCacheKey('Blog_Post__c', id);
-              return getCache(recordCacheKey, cacheTTL * 2); // Use stale cache TTL
+              return getCache(recordCacheKey, cacheTTL * 2, context); // Use stale cache TTL
             });
             const cachedBlogs = await Promise.all(blogPromises);
             allBlogs = cachedBlogs
@@ -142,7 +142,7 @@ exports.handler = async (event, context) => {
             return setCache(recordCacheKey, record, {
               objectType: 'Blog_Post__c',
               cachedAt: new Date().toISOString(),
-            });
+            }, context);
           });
           await Promise.all(cachePromises);
           
@@ -153,7 +153,7 @@ exports.handler = async (event, context) => {
             query: baseQuery,
             count: records.length,
             cachedAt: new Date().toISOString(),
-          });
+          }, context);
           
           allBlogs = records;
           totalCount = records.length;
@@ -165,7 +165,7 @@ exports.handler = async (event, context) => {
           const cachedRecordIds = cached.data || [];
           const blogPromises = cachedRecordIds.map(id => {
             const recordCacheKey = getCacheKey('Blog_Post__c', id);
-            return getCache(recordCacheKey, cacheTTL * 2);
+            return getCache(recordCacheKey, cacheTTL * 2, context);
           });
           const cachedBlogs = await Promise.all(blogPromises);
           allBlogs = cachedBlogs

@@ -20,12 +20,14 @@ const {
 
 /**
  * Find Contact by username from cache
+ * @param {string} username - Username to search for
+ * @param {object} context - Netlify function context (required for Blobs)
  */
-async function findContactByUsernameFromCache(username) {
+async function findContactByUsernameFromCache(username, context) {
   try {
     // Try to get all contacts from cache (if bulk sync has run)
     const allContactsKey = getListCacheKey('Contact', 'all');
-    const cached = await getCache(allContactsKey, CACHE_TTLS['Contact']);
+    const cached = await getCache(allContactsKey, CACHE_TTLS['Contact'], context);
     
     if (cached && cached.data && Array.isArray(cached.data)) {
       // Search through cached contacts
@@ -36,7 +38,7 @@ async function findContactByUsernameFromCache(username) {
       if (contact) {
         // Get full contact details from individual cache
         const contactCacheKey = getCacheKey('Contact', contact.Id);
-        const contactCached = await getCache(contactCacheKey, CACHE_TTLS['Contact']);
+        const contactCached = await getCache(contactCacheKey, CACHE_TTLS['Contact'], context);
         if (contactCached && contactCached.data) {
           return contactCached.data;
         }
@@ -138,7 +140,7 @@ exports.handler = async (event, context) => {
     const { access_token, instance_url } = authData;
 
     // Try cache first
-    let contact = await findContactByUsernameFromCache(username);
+    let contact = await findContactByUsernameFromCache(username, context);
     let fromCache = !!contact;
 
     if (!contact) {
@@ -189,7 +191,7 @@ exports.handler = async (event, context) => {
         setCache(contactCacheKey, contact, {
           objectType: 'Contact',
           cachedAt: new Date().toISOString(),
-        }).catch(err => console.warn('⚠️ Failed to cache contact:', err.message));
+        }, context).catch(err => console.warn('⚠️ Failed to cache contact:', err.message));
       }
     } else {
       console.log('✅ Found contact in cache');

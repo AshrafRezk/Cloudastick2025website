@@ -64,7 +64,7 @@ exports.handler = async (event, context) => {
     let blogs = null;
     let fromCache = false;
     
-    const cached = await getCache(listCacheKey, cacheTTL);
+    const cached = await getCache(listCacheKey, cacheTTL, context);
     if (cached && !cached.isStale) {
       // Use fresh cache
       blogs = cached.data;
@@ -120,7 +120,7 @@ exports.handler = async (event, context) => {
             objectType: 'Blog_Post__c',
             query: query,
             cachedAt: new Date().toISOString(),
-          }).catch(err => console.warn('⚠️ Failed to cache blogs:', err.message));
+          }, context).catch(err => console.warn('⚠️ Failed to cache blogs:', err.message));
         }
       } catch (fetchError) {
         // If we have stale cache, use it

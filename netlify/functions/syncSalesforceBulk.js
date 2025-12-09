@@ -134,8 +134,9 @@ async function waitForBulkJobCompletion(jobId, access_token, instance_url, maxWa
 
 /**
  * Sync a single object using Bulk API
+ * @param {object} context - Netlify function context (required for Blobs)
  */
-async function syncObjectBulk(objectType, access_token, instance_url) {
+async function syncObjectBulk(objectType, access_token, instance_url, context) {
   const result = {
     objectType,
     count: 0,
@@ -188,7 +189,7 @@ async function syncObjectBulk(objectType, access_token, instance_url) {
           objectType,
           syncedAt: new Date().toISOString(),
           syncMethod: 'bulk-api',
-        });
+        }, context);
         result.cached++;
         result.records.push(record.Id);
       } catch (cacheError) {
@@ -205,7 +206,7 @@ async function syncObjectBulk(objectType, access_token, instance_url) {
       count: result.count,
       syncedAt: new Date().toISOString(),
       syncMethod: 'bulk-api',
-    });
+    }, context);
     
     // Also cache a full list with all record data (keyed by 'all' for easy lookup)
     const allListCacheKey = getListCacheKey(objectType, 'all');
@@ -215,7 +216,7 @@ async function syncObjectBulk(objectType, access_token, instance_url) {
       count: records.length,
       syncedAt: new Date().toISOString(),
       syncMethod: 'bulk-api',
-    });
+    }, context);
 
     console.log(`✅ Cached ${result.cached} ${objectType} records`);
 
@@ -230,8 +231,9 @@ async function syncObjectBulk(objectType, access_token, instance_url) {
 
 /**
  * Sync objects using regular SOQL (for smaller datasets or fallback)
+ * @param {object} context - Netlify function context (required for Blobs)
  */
-async function syncObjectRegular(objectType, access_token, instance_url) {
+async function syncObjectRegular(objectType, access_token, instance_url, context) {
   const result = {
     objectType,
     count: 0,
@@ -291,7 +293,7 @@ async function syncObjectRegular(objectType, access_token, instance_url) {
             objectType,
             syncedAt: new Date().toISOString(),
             syncMethod: 'soql',
-          });
+          }, context);
           result.cached++;
           result.records.push(record.Id);
         } catch (cacheError) {
@@ -317,7 +319,7 @@ async function syncObjectRegular(objectType, access_token, instance_url) {
       count: result.count,
       syncedAt: new Date().toISOString(),
       syncMethod: 'soql',
-    });
+    }, context);
     
     // Also cache full list with all record data (for efficient searching)
     const allListCacheKey = getListCacheKey(objectType, 'all');
@@ -327,7 +329,7 @@ async function syncObjectRegular(objectType, access_token, instance_url) {
       count: allRecords.length,
       syncedAt: new Date().toISOString(),
       syncMethod: 'soql',
-    });
+    }, context);
 
   } catch (error) {
     console.error(`❌ Error syncing ${objectType}:`, error);
@@ -398,7 +400,7 @@ exports.handler = async (event, context) => {
     // Clear cache first if requested
     if (clearCacheFirst) {
       console.log('🗑️ Clearing all cache first...');
-      await clearAllCache();
+      await clearAllCache(context);
     }
 
     const results = {
@@ -418,9 +420,9 @@ exports.handler = async (event, context) => {
         
         let objectResult;
         if (useBulkAPI) {
-          objectResult = await syncObjectBulk(objectType, access_token, instance_url);
+          objectResult = await syncObjectBulk(objectType, access_token, instance_url, context);
         } else {
-          objectResult = await syncObjectRegular(objectType, access_token, instance_url);
+          objectResult = await syncObjectRegular(objectType, access_token, instance_url, context);
         }
         
         objectResult.duration = Date.now() - startTime;

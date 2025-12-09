@@ -46,9 +46,16 @@ const CACHE_TTLS = {
 
 /**
  * Get cache store instance
+ * @param {object} context - Netlify function context (required for Blobs)
  */
-function getCacheStore() {
-  return getStore(CACHE_STORE_NAME);
+function getCacheStore(context) {
+  if (!context) {
+    throw new Error('Context is required for Netlify Blobs. Make sure to pass context from the function handler.');
+  }
+  return getStore({
+    name: CACHE_STORE_NAME,
+    context,
+  });
 }
 
 /**
@@ -88,11 +95,12 @@ function simpleHash(str) {
  * Get cached data
  * @param {string} cacheKey - Cache key
  * @param {number} ttl - Time to live in milliseconds
+ * @param {object} context - Netlify function context (required for Blobs)
  * @returns {Promise<{data: any, isStale: boolean} | null>}
  */
-async function getCache(cacheKey, ttl = DEFAULT_CACHE_TTL) {
+async function getCache(cacheKey, ttl = DEFAULT_CACHE_TTL, context = null) {
   try {
-    const store = getCacheStore();
+    const store = getCacheStore(context);
     const cached = await store.get(cacheKey, { type: 'json' });
     
     if (!cached || !cached.data || !cached.timestamp) {
@@ -131,10 +139,11 @@ async function getCache(cacheKey, ttl = DEFAULT_CACHE_TTL) {
  * @param {string} cacheKey - Cache key
  * @param {any} data - Data to cache
  * @param {object} metadata - Optional metadata
+ * @param {object} context - Netlify function context (required for Blobs)
  */
-async function setCache(cacheKey, data, metadata = {}) {
+async function setCache(cacheKey, data, metadata = {}, context = null) {
   try {
-    const store = getCacheStore();
+    const store = getCacheStore(context);
     await store.setJSON(cacheKey, {
       data,
       timestamp: Date.now(),
@@ -152,10 +161,11 @@ async function setCache(cacheKey, data, metadata = {}) {
 /**
  * Delete cached data
  * @param {string} cacheKey - Cache key
+ * @param {object} context - Netlify function context (required for Blobs)
  */
-async function deleteCache(cacheKey) {
+async function deleteCache(cacheKey, context = null) {
   try {
-    const store = getCacheStore();
+    const store = getCacheStore(context);
     await store.delete(cacheKey);
     console.log(`🗑️ Deleted cache: ${cacheKey}`);
   } catch (error) {
@@ -167,20 +177,22 @@ async function deleteCache(cacheKey) {
  * Invalidate cache for a specific record
  * @param {string} objectType - Salesforce object API name
  * @param {string} recordId - Salesforce record ID
+ * @param {object} context - Netlify function context (required for Blobs)
  */
-async function invalidateRecord(objectType, recordId) {
+async function invalidateRecord(objectType, recordId, context = null) {
   const cacheKey = getCacheKey(objectType, recordId);
-  await deleteCache(cacheKey);
+  await deleteCache(cacheKey, context);
   console.log(`🔄 Invalidated cache for ${objectType} record: ${recordId}`);
 }
 
 /**
  * Invalidate all cache for an object type
  * @param {string} objectType - Salesforce object API name
+ * @param {object} context - Netlify function context (required for Blobs)
  */
-async function invalidateObjectType(objectType) {
+async function invalidateObjectType(objectType, context = null) {
   try {
-    const store = getCacheStore();
+    const store = getCacheStore(context);
     const prefix = objectType.toLowerCase() + '-';
     
     // List all keys with this prefix
@@ -207,52 +219,54 @@ async function invalidateObjectType(objectType) {
  * Invalidate related caches (e.g., when a Contact changes, invalidate team hierarchy)
  * @param {string} objectType - Salesforce object API name
  * @param {string} recordId - Salesforce record ID
+ * @param {object} context - Netlify function context (required for Blobs)
  */
-async function invalidateRelatedCaches(objectType, recordId) {
+async function invalidateRelatedCaches(objectType, recordId, context = null) {
   // Invalidate the specific record
-  await invalidateRecord(objectType, recordId);
+  await invalidateRecord(objectType, recordId, context);
   
   // Invalidate related caches based on object type
   switch (objectType) {
     case 'Contact':
       // Invalidate team hierarchy caches
-      await invalidateObjectType('team-hierarchy');
-      await invalidateObjectType('all-contacts');
+      await invalidateObjectType('team-hierarchy', context);
+      await invalidateObjectType('all-contacts', context);
       break;
       
     case 'User':
       // Users affect OKRs and team hierarchy
-      await invalidateObjectType('all-users');
+      await invalidateObjectType('all-users', context);
       // Invalidate OKRs that might reference this user
-      await invalidateObjectType('all-okrs');
+      await invalidateObjectType('all-okrs', context);
       break;
       
     case 'OKR__c':
       // OKRs affect team member data
-      await invalidateObjectType('all-okrs');
+      await invalidateObjectType('all-okrs', context);
       // If parent OKR changes, might need to invalidate child OKRs too
       break;
       
     case 'Blog_Post__c':
-      await invalidateObjectType('all-blogs');
+      await invalidateObjectType('all-blogs', context);
       break;
       
     case 'Requirement__c':
-      await invalidateObjectType('all-requirements');
+      await invalidateObjectType('all-requirements', context);
       break;
       
     default:
       // Invalidate object type lists
-      await invalidateObjectType(objectType);
+      await invalidateObjectType(objectType, context);
   }
 }
 
 /**
  * Get cache stats
+ * @param {object} context - Netlify function context (required for Blobs)
  */
-async function getCacheStats() {
+async function getCacheStats(context = null) {
   try {
-    const store = getCacheStore();
+    const store = getCacheStore(context);
     const stats = {
       totalKeys: 0,
       byObjectType: {},
@@ -305,10 +319,11 @@ async function getCacheStats() {
 
 /**
  * Clear all cache
+ * @param {object} context - Netlify function context (required for Blobs)
  */
-async function clearAllCache() {
+async function clearAllCache(context = null) {
   try {
-    const store = getCacheStore();
+    const store = getCacheStore(context);
     let deletedCount = 0;
     
     for await (const blob of store.list()) {

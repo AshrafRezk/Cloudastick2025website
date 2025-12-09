@@ -69,7 +69,7 @@ exports.handler = async (event, context) => {
     // Step 1: Get contact info and associated user - check cache first
     let contact = null;
     const contactCacheKey = getCacheKey('Contact', contactId);
-    const contactCached = await getCache(contactCacheKey, CACHE_TTLS['Contact']);
+    const contactCached = await getCache(contactCacheKey, CACHE_TTLS['Contact'], context);
     
     if (contactCached && contactCached.data) {
       contact = contactCached.data;
@@ -110,7 +110,7 @@ exports.handler = async (event, context) => {
       setCache(contactCacheKey, contact, {
         objectType: 'Contact',
         cachedAt: new Date().toISOString(),
-      }).catch(err => console.warn('⚠️ Failed to cache contact:', err.message));
+      }, context).catch(err => console.warn('⚠️ Failed to cache contact:', err.message));
     }
     const userId = contact.Associated_User__c;
 
@@ -140,10 +140,10 @@ exports.handler = async (event, context) => {
     }
 
     // Step 2: Fetch requirements stats
-    const requirementsStats = await getRequirementsStatsForUser(userId, access_token, instance_url);
+    const requirementsStats = await getRequirementsStatsForUser(userId, access_token, instance_url, context);
 
     // Step 3: Fetch OKRs with pagination
-    const okrData = await getOKRsForUser(userId, access_token, instance_url, okrOffset, okrLimit);
+    const okrData = await getOKRsForUser(userId, access_token, instance_url, okrOffset, okrLimit, context);
 
     // Step 4: Fetch team builds with pagination
     const teamBuildData = await getTeamBuildsForContact(contact.Name, access_token, instance_url, teamBuildOffset, teamBuildLimit);
@@ -203,12 +203,13 @@ exports.handler = async (event, context) => {
 /**
  * Get requirements statistics for a single user
  * Uses cache first to reduce API calls
+ * @param {object} context - Netlify function context (required for Blobs)
  */
-async function getRequirementsStatsForUser(userId, access_token, instance_url) {
+async function getRequirementsStatsForUser(userId, access_token, instance_url, context) {
   try {
     // Try to get all requirements from cache
     const allRequirementsKey = getListCacheKey('Requirement__c', 'all');
-    const cached = await getCache(allRequirementsKey, CACHE_TTLS['Requirement__c']);
+    const cached = await getCache(allRequirementsKey, CACHE_TTLS['Requirement__c'], context);
     
     if (cached && cached.data && Array.isArray(cached.data)) {
       // Filter requirements by OwnerId from cache
@@ -277,12 +278,13 @@ async function getRequirementsStatsForUser(userId, access_token, instance_url) {
 /**
  * Get OKRs for a single user with pagination
  * Uses cache first to reduce API calls
+ * @param {object} context - Netlify function context (required for Blobs)
  */
-async function getOKRsForUser(userId, access_token, instance_url, offset = 0, limit = 50) {
+async function getOKRsForUser(userId, access_token, instance_url, offset = 0, limit = 50, context) {
   try {
     // Try to get all OKRs from cache
     const allOKRsKey = getListCacheKey('OKR__c', 'all');
-    const cached = await getCache(allOKRsKey, CACHE_TTLS['OKR__c']);
+    const cached = await getCache(allOKRsKey, CACHE_TTLS['OKR__c'], context);
     
     let parentOkrs = [];
     let childOkrs = [];
