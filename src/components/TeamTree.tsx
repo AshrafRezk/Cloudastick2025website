@@ -39,7 +39,8 @@ export const TeamTree = ({ member, currentUserId, level = 0, isCurrentUser = fal
 
   const handleMemberClick = (e: React.MouseEvent, clickedMember: TeamMember) => {
     e.stopPropagation();
-    if (!isCurrentUser && clickedMember.id !== currentUserId) {
+    // Allow clicking on any member to see their details, including current user
+    if (clickedMember.id !== currentUserId || isCurrentUser) {
       setSelectedMember(clickedMember);
     }
   };
@@ -121,9 +122,8 @@ export const TeamTree = ({ member, currentUserId, level = 0, isCurrentUser = fal
               </div>
             </CardHeader>
 
-            {!isCurrentUser && (
-              <CardContent className="pt-0">
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <CardContent className="pt-0">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                   {/* Projects */}
                   <div className="flex items-center gap-2">
                     <Briefcase className="h-4 w-4 text-muted-foreground" />
@@ -192,7 +192,6 @@ export const TeamTree = ({ member, currentUserId, level = 0, isCurrentUser = fal
                   </div>
                 )}
               </CardContent>
-            )}
           </Card>
 
           {/* Subordinates */}
