@@ -3,7 +3,14 @@
  * Returns only contact hierarchy structure (names, emails, relationships)
  * No heavy data (OKRs, requirements, team builds)
  * Response time target: <500ms
+ * 
+ * Uses Netlify Blobs for caching to reduce API calls and provide fallback
  */
+
+const { getStore } = require('@netlify/blobs');
+
+// Cache TTL: 24 hours (team structure changes infrequently)
+const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 
 exports.handler = async (event, context) => {
   // Handle CORS preflight requests
@@ -49,6 +56,33 @@ exports.handler = async (event, context) => {
 
     const escapedContactId = contactId.replace(/'/g, "\\'");
 
+    // Check cache first (Netlify Blobs)
+    let cacheStore;
+    let cachedData = null;
+    let isStaleCache = false;
+    
+    try {
+      cacheStore = getStore('team-hierarchy-cache');
+      const cacheKey = `structure-${contactId}`;
+      const cached = await cacheStore.get(cacheKey, { type: 'json' });
+      
+      if (cached && cached.data && cached.timestamp) {
+        const age = Date.now() - cached.timestamp;
+        // Use cache if less than 24 hours old
+        if (age < CACHE_TTL) {
+          cachedData = cached.data;
+          console.log(`✅ Using cached team hierarchy (age: ${Math.round(age / 1000 / 60)} minutes)`);
+        } else if (age < CACHE_TTL * 2) {
+          // Stale cache (24-48 hours) - use as fallback if API fails
+          isStaleCache = true;
+          cachedData = cached.data;
+          console.log(`⚠️ Found stale cache (age: ${Math.round(age / 1000 / 60 / 60)} hours) - will use as fallback`);
+        }
+      }
+    } catch (cacheError) {
+      console.warn('⚠️ Cache check failed (will proceed with API call):', cacheError.message);
+    }
+
     // Step 1: Get current contact info
     const contactQuery = `SELECT Id, Name, Email, ReportsToId, ReportsTo.Name, Associated_User__c FROM Contact WHERE Id = '${escapedContactId}' LIMIT 1`;
     const contactEncoded = encodeURIComponent(contactQuery);
@@ -64,13 +98,22 @@ exports.handler = async (event, context) => {
 
     if (!contactResponse.ok) {
       let errorMessage = `Failed to fetch contact: ${contactResponse.status}`;
+      let isApiLimitError = false;
+      
       try {
         const errorText = await contactResponse.text();
         if (errorText) {
           try {
             const errorData = JSON.parse(errorText);
-            errorMessage = errorData.message || errorData[0]?.message || errorMessage;
-            // Log the full error for debugging
+            const errors = Array.isArray(errorData) ? errorData : [errorData];
+            const apiLimitError = errors.find(e => e.errorCode === 'REQUEST_LIMIT_EXCEEDED');
+            
+            if (apiLimitError) {
+              isApiLimitError = true;
+              errorMessage = 'TotalRequests Limit exceeded.';
+            } else {
+              errorMessage = errorData.message || errors[0]?.message || errorMessage;
+            }
             console.error('❌ Contact query error details:', JSON.stringify(errorData));
           } catch (e) {
             errorMessage = errorText.substring(0, 500) || errorMessage;
@@ -80,8 +123,32 @@ exports.handler = async (event, context) => {
         console.error('❌ Error parsing contact response:', e);
       }
       
+      // If API limit exceeded and we have cached data, return stale cache
+      if (isApiLimitError && cachedData) {
+        console.log('⚠️ API limit exceeded - returning stale cache');
+        return {
+          statusCode: 200,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Content-Type': 'application/json',
+            'Cache-Control': 'public, max-age=3600',
+            'X-Cache-Status': 'stale-fallback',
+          },
+          body: JSON.stringify({
+            success: true,
+            data: cachedData,
+            metadata: {
+              ...(cachedData.metadata || {}),
+              cached: true,
+              stale: true,
+              warning: 'API limit exceeded - showing cached data. Some information may be outdated.',
+            },
+          }),
+        };
+      }
+      
       return {
-        statusCode: contactResponse.status === 403 ? 403 : 500,
+        statusCode: isApiLimitError ? 403 : contactResponse.status === 403 ? 403 : 500,
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Content-Type': 'application/json',
@@ -90,9 +157,11 @@ exports.handler = async (event, context) => {
           error: 'Failed to fetch contact',
           message: errorMessage,
           statusCode: contactResponse.status,
-          suggestion: contactResponse.status === 403 
-            ? 'Check if the user has permission to read Contact records and the ReportsTo.Name field'
-            : 'Check the contact ID and try again',
+          suggestion: isApiLimitError
+            ? 'Salesforce API daily limit has been reached. Please try again later.'
+            : contactResponse.status === 403 
+              ? 'Check if the user has permission to read Contact records and the ReportsTo.Name field'
+              : 'Check the contact ID and try again',
         }),
       };
     }
@@ -332,12 +401,30 @@ exports.handler = async (event, context) => {
 
     console.log(`✅ Structure fetched: ${allContacts.length} contacts`);
 
+    // Save to cache
+    if (cacheStore) {
+      try {
+        const cacheKey = `structure-${contactId}`;
+        await cacheStore.setJSON(cacheKey, {
+          data: structure,
+          timestamp: Date.now(),
+          metadata: {
+            totalContacts: allContacts.length,
+            loadedAt: new Date().toISOString(),
+          },
+        });
+        console.log('💾 Saved team hierarchy to cache');
+      } catch (cacheError) {
+        console.warn('⚠️ Failed to save to cache:', cacheError.message);
+      }
+    }
+
     return {
       statusCode: 200,
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+        'Cache-Control': 'public, max-age=86400', // Cache for 24 hours
       },
       body: JSON.stringify({
         success: true,
@@ -345,6 +432,7 @@ exports.handler = async (event, context) => {
         metadata: {
           totalContacts: allContacts.length,
           loadedAt: new Date().toISOString(),
+          cached: false,
         },
       }),
     };
@@ -357,6 +445,30 @@ exports.handler = async (event, context) => {
     const isApiLimitError = errorMessage.includes('REQUEST_LIMIT_EXCEEDED') || 
                            errorMessage.includes('TotalRequests Limit exceeded') ||
                            errorMessage.includes('REQUEST_LIMIT_EXCEEDED');
+    
+    // If API limit exceeded and we have cached data, return stale cache
+    if (isApiLimitError && cachedData) {
+      console.log('⚠️ API limit exceeded - returning stale cache from catch block');
+      return {
+        statusCode: 200,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json',
+          'Cache-Control': 'public, max-age=3600',
+          'X-Cache-Status': 'stale-fallback',
+        },
+        body: JSON.stringify({
+          success: true,
+          data: cachedData,
+          metadata: {
+            ...(cachedData.metadata || {}),
+            cached: true,
+            stale: true,
+            warning: 'API limit exceeded - showing cached data. Some information may be outdated.',
+          },
+        }),
+      };
+    }
     
     return {
       statusCode: isApiLimitError ? 403 : 500,
