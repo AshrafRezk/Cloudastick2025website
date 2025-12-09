@@ -404,74 +404,16 @@ async function getOKRsForUser(userId, access_token, instance_url, offset = 0, li
 
 /**
  * Get Key Results for an OKR
+ * NOTE: Key Results are child OKR__c records where Parent_Objective__c points to the parent OKR
+ * This function is deprecated - key results are now fetched as child OKRs directly
+ * Keeping as stub for backward compatibility
  */
 async function getKeyResultsForOKR(okrId, access_token, instance_url) {
-  try {
-    if (!okrId) return [];
-
-    const escapedOkrId = okrId.replace(/'/g, "\\'");
-    const objectNames = ['Key_Result__c', 'OKR_Key_Result__c', 'KR__c'];
-    let keyResults = [];
-
-    for (const objectName of objectNames) {
-      try {
-        const lookupVariations = [
-          `OKR__c = '${escapedOkrId}'`,
-          `Objective__c = '${escapedOkrId}'`,
-          `Parent_OKR__c = '${escapedOkrId}'`,
-        ];
-
-        for (const whereClause of lookupVariations) {
-          try {
-            const krQuery = `SELECT Id, Name, Description__c, Key_Result__c, Target__c, Current_Value__c, Progress__c, Status__c, Unit__c, CreatedDate FROM ${objectName} WHERE ${whereClause} ORDER BY CreatedDate ASC`;
-            const krEncoded = encodeURIComponent(krQuery);
-            const krUrl = `${instance_url}/services/data/v58.0/query/?q=${krEncoded}`;
-
-            const krResponse = await fetch(krUrl, {
-              method: 'GET',
-              headers: {
-                'Authorization': `Bearer ${access_token}`,
-                'Content-Type': 'application/json',
-              },
-            });
-
-            if (krResponse.ok) {
-              const krData = await krResponse.json();
-              const records = krData.records || [];
-
-              if (records.length > 0) {
-                keyResults = records.map(kr => ({
-                  id: kr.Id,
-                  name: kr.Name,
-                  description: kr.Description__c || kr.Key_Result__c || '',
-                  target: kr.Target__c || 0,
-                  currentValue: kr.Current_Value__c || 0,
-                  progress: kr.Progress__c || (kr.Target__c && kr.Current_Value__c ? Math.round((kr.Current_Value__c / kr.Target__c) * 100) : 0),
-                  status: kr.Status__c || 'In Progress',
-                  unit: kr.Unit__c || '',
-                  createdDate: kr.CreatedDate,
-                }));
-                break;
-              }
-            }
-          } catch (fieldError) {
-            continue;
-          }
-        }
-
-        if (keyResults.length > 0) {
-          break;
-        }
-      } catch (objectError) {
-        continue;
-      }
-    }
-
-    return keyResults;
-  } catch (error) {
-    console.error('Error fetching key results:', error);
-    return [];
-  }
+  // Key results are child OKR__c records, not a separate object
+  // This function is kept for backward compatibility but returns empty array
+  // Key results should be fetched as child OKRs in the main query
+  console.warn('getKeyResultsForOKR called - key results should be fetched as child OKR__c records');
+  return [];
 }
 
 /**

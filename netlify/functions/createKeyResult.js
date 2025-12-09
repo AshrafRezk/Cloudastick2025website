@@ -1,6 +1,6 @@
 /**
  * Netlify Function to create a Key Result for an OKR
- * Tries multiple object and lookup field variations.
+ * Key Results are child OKR__c records where Parent_Objective__c points to the parent OKR
  */
 
 exports.handler = async (event, context) => {
@@ -33,87 +33,60 @@ exports.handler = async (event, context) => {
       };
     }
 
-    const krObjects = ['Key_Result__c', 'OKR_Key_Result__c', 'KR__c'];
-    const lookupFields = ['OKR__c', 'Objective__c', 'Parent_OKR__c'];
-    const statusFields = ['Status__c', 'Status'];
-    const targetFields = ['Target__c', 'Target'];
-    const currentFields = ['Current_Value__c', 'CurrentValue__c', 'Current__c'];
-    const descriptionFields = ['Description__c', 'Key_Result__c', 'Details__c'];
-    const unitFields = ['Unit__c', 'Unit'];
+    // Key Results are child OKR__c records - create a child OKR with Parent_Objective__c pointing to parent
+    const body = {
+      Name: name,
+      Parent_Objective__c: okrId, // This makes it a key result (child OKR)
+    };
 
-    let createdId = null;
-    let usedObject = null;
-
-    for (const obj of krObjects) {
-      for (const lookup of lookupFields) {
-        try {
-          const body = {
-            Name: name,
-            [lookup]: okrId,
-          };
-
-          const descField = descriptionFields.find(() => true);
-          if (description) body[descField] = description;
-
-          if (target !== undefined && target !== null) {
-            const targetField = targetFields.find(() => true);
-            body[targetField] = target;
-          }
-
-          if (currentValue !== undefined && currentValue !== null) {
-            const currentField = currentFields.find(() => true);
-            body[currentField] = currentValue;
-          }
-
-          if (unit) {
-            const unitField = unitFields.find(() => true);
-            body[unitField] = unit;
-          }
-
-          if (status) {
-            const statusField = statusFields.find(() => true);
-            body[statusField] = status;
-          }
-
-          const url = `${instance_url}/services/data/v58.0/sobjects/${obj}`;
-          const resp = await fetch(url, {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${access_token}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(body),
-          });
-
-          if (resp.ok) {
-            const data = await resp.json();
-            if (data.id) {
-              createdId = data.id;
-              usedObject = obj;
-              break;
-            }
-          } else {
-            const text = await resp.text();
-            console.warn(`Failed creating Key Result on ${obj} via ${lookup}:`, text);
-          }
-        } catch (e) {
-          continue;
-        }
-      }
-      if (createdId) break;
+    // Map optional fields (use field names from OKR__c)
+    if (description) {
+      body.Comments__c = description; // Use Comments__c field for description
     }
 
-    if (!createdId) {
-      throw new Error('Failed to create Key Result with available object/field combinations');
+    if (status) {
+      body.Status__c = status;
     }
+
+    if (unit) {
+      // Unit might not be a field on OKR__c, skip if not available
+      // Could use a custom field if needed
+    }
+
+    // Note: Target and Current Value might not be standard OKR__c fields
+    // If they exist as custom fields, add them here
+
+    const url = `${instance_url}/services/data/v58.0/sobjects/OKR__c`;
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!resp.ok) {
+      const errorText = await resp.text();
+      console.error('❌ Failed to create Key Result (child OKR):', errorText);
+      throw new Error(`Failed to create Key Result: ${resp.status} - ${errorText}`);
+    }
+
+    const data = await resp.json();
+    
+    if (!data.id) {
+      throw new Error('Failed to create Key Result - no ID returned');
+    }
+
+    console.log('✅ Created Key Result (child OKR):', data.id);
 
     return {
       statusCode: 200,
       headers: corsHeaders(),
       body: JSON.stringify({
         success: true,
-        id: createdId,
-        object: usedObject,
+        id: data.id,
+        object: 'OKR__c', // Key Result is a child OKR__c record
       }),
     };
   } catch (error) {

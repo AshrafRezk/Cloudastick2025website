@@ -32,25 +32,28 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Candidate object names
-    const okrObjects = ['OKR__c', 'Objective__c'];
-    const krObjects = ['Key_Result__c', 'OKR_Key_Result__c', 'KR__c'];
+    // Only OKR__c object exists - Key Results are child OKR__c records
+    const okrObjects = ['OKR__c', 'Objective__c']; // Try both in case Objective__c exists
 
     const okrMetadata = await describeFirstAvailable(okrObjects, access_token, instance_url);
-    const krMetadata = await describeFirstAvailable(krObjects, access_token, instance_url);
+    
+    // Key Results use the same object (OKR__c) - use same metadata
+    // Key Results are identified by having Parent_Objective__c populated
+    const krMetadata = okrMetadata; // Same object, just filtered by Parent_Objective__c
 
     const picklists = {
       okrStatus: getPicklistValues(okrMetadata, ['Status__c', 'Status']),
       okrPeriod: getPicklistValues(okrMetadata, ['Period__c', 'Quarter__c', 'Quarter']),
-      krStatus: getPicklistValues(krMetadata, ['Status__c', 'Status']),
-      krUnit: getPicklistValues(krMetadata, ['Unit__c', 'Unit']),
+      krStatus: getPicklistValues(krMetadata, ['Status__c', 'Status']), // Same as OKR status
+      krUnit: getPicklistValues(krMetadata, ['Unit__c', 'Unit']), // May not exist on OKR__c
     };
 
     const lookupFields = {
       // Owner__c is a User lookup, not Contact - prioritize it for User relationship
       okrOwnerField: findFirstField(okrMetadata, ['Owner__c']), // User lookup
       okrContactField: findFirstField(okrMetadata, ['Contact__c', 'Employee__c', 'OwnerId', 'ContactId']), // Fallback fields
-      krOkrLookupField: findFirstField(krMetadata, ['OKR__c', 'Objective__c', 'Parent_OKR__c']),
+      // Key Results are child OKRs - they use Parent_Objective__c to point to parent
+      krOkrLookupField: findFirstField(krMetadata, ['Parent_Objective__c']), // This links key result to parent OKR
     };
 
     return {
