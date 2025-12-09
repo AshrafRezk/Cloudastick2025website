@@ -24,7 +24,7 @@ interface TeamMemberDetailProps {
 }
 
 export const TeamMemberDetail = ({ member, isOpen, onClose }: TeamMemberDetailProps) => {
-  const { authData } = useSalesforce();
+  const { authData, isLoading: isAuthLoading, refreshAuth } = useSalesforce();
   const [lmsInstances, setLmsInstances] = useState<LearningMaterialInstance[]>([]);
   const [isLoadingLMS, setIsLoadingLMS] = useState(false);
   const [lmsError, setLmsError] = useState<string | null>(null);
@@ -649,13 +649,28 @@ export const TeamMemberDetail = ({ member, isOpen, onClose }: TeamMemberDetailPr
                   </div>
                 </div>
                 {creationError && <p className="text-sm text-destructive">{creationError}</p>}
-                {!authData && (
-                  <p className="text-sm text-muted-foreground">Salesforce authentication required to create OKRs</p>
+                {!authData && !isAuthLoading && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <p>Salesforce authentication required to create OKRs.</p>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={refreshAuth}
+                      className="h-7"
+                    >
+                      Authenticate
+                    </Button>
+                  </div>
+                )}
+                {isAuthLoading && (
+                  <p className="text-sm text-muted-foreground flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" /> Loading authentication...
+                  </p>
                 )}
                 <Button
                   onClick={handleCreateObjective}
-                  disabled={isCreatingObjective || !newObjective.objective.trim() || !authData}
-                  className={(!newObjective.objective.trim() || !authData) ? 'opacity-50 cursor-not-allowed' : ''}
+                  disabled={isCreatingObjective || !newObjective.objective.trim() || !authData || isAuthLoading}
+                  className={(!newObjective.objective.trim() || !authData || isAuthLoading) ? 'opacity-50 cursor-not-allowed' : ''}
                 >
                   {isCreatingObjective ? (
                     <span className="flex items-center gap-2">
@@ -896,10 +911,16 @@ export const TeamMemberDetail = ({ member, isOpen, onClose }: TeamMemberDetailPr
                         </div>
                       </div>
                       <div className="flex justify-end mt-3">
+                        {!authData && !isAuthLoading && (
+                          <p className="text-xs text-muted-foreground mr-2 flex items-center">
+                            Authentication required
+                          </p>
+                        )}
                         <Button
                           size="sm"
                           onClick={() => handleCreateKeyResult(okr.id)}
-                          disabled={isCreatingKR[okr.id] || !(krForms[okr.id]?.name || '').trim() || !authData}
+                          disabled={isCreatingKR[okr.id] || !(krForms[okr.id]?.name || '').trim() || !authData || isAuthLoading}
+                          className={(!(krForms[okr.id]?.name || '').trim() || !authData || isAuthLoading) ? 'opacity-50 cursor-not-allowed' : ''}
                         >
                           {isCreatingKR[okr.id] ? (
                             <span className="flex items-center gap-2">
