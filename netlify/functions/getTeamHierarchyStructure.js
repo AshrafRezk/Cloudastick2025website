@@ -111,51 +111,97 @@ exports.handler = async (event, context) => {
 
     const currentContact = contactData.records[0];
 
-    // Step 2: Collect all contacts in the hierarchy (structure only)
+    // Step 2: Collect all contacts in the hierarchy (optimized - batch queries)
     const allContacts = [currentContact];
     const contactIdToContact = new Map();
     contactIdToContact.set(currentContact.Id, currentContact);
 
-    // Build hierarchy up (managers)
-    const managers = [];
-    let currentManagerId = currentContact.ReportsToId;
+    // Build hierarchy up (managers) - collect IDs first, then batch query
+    const managerIds = [];
     const visitedIds = new Set([contactId]); // Prevent cycles
+    let currentManagerId = currentContact.ReportsToId;
 
     while (currentManagerId && !visitedIds.has(currentManagerId)) {
       visitedIds.add(currentManagerId);
-      const managerQuery = `SELECT Id, Name, Email, ReportsToId, Associated_User__c FROM Contact WHERE Id = '${currentManagerId.replace(/'/g, "\\'")}' LIMIT 1`;
-      const managerEncoded = encodeURIComponent(managerQuery);
-      const managerUrl = `${instance_url}/services/data/v58.0/query/?q=${managerEncoded}`;
+      managerIds.push(currentManagerId);
+      // We'll fetch ReportsToId in batch query, so we need to track it
+      currentManagerId = currentManagerId; // Keep for now, will update after batch fetch
+    }
 
-      const managerResponse = await fetch(managerUrl, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${access_token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+    // Batch query all managers at once
+    const managers = [];
+    if (managerIds.length > 0) {
+      // Fetch managers in batches of 500 (Salesforce limit)
+      const batchSize = 500;
+      for (let i = 0; i < managerIds.length; i += batchSize) {
+        const batch = managerIds.slice(i, i + batchSize);
+        const escapedIds = batch.map(id => `'${id.replace(/'/g, "\\'")}'`).join(',');
+        const managerQuery = `SELECT Id, Name, Email, ReportsToId, Associated_User__c FROM Contact WHERE Id IN (${escapedIds}) ORDER BY Name`;
+        const managerEncoded = encodeURIComponent(managerQuery);
+        const managerUrl = `${instance_url}/services/data/v58.0/query/?q=${managerEncoded}`;
 
-      if (managerResponse.ok) {
-        const managerData = await managerResponse.json();
-        if (managerData.records && managerData.records.length > 0) {
-          const manager = managerData.records[0];
-          managers.push(manager);
-          allContacts.push(manager);
-          contactIdToContact.set(manager.Id, manager);
-          currentManagerId = manager.ReportsToId;
-        } else {
-          break;
+        const managerResponse = await fetch(managerUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${access_token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (managerResponse.ok) {
+          const managerData = await managerResponse.json();
+          const managerRecords = managerData.records || [];
+          
+          for (const manager of managerRecords) {
+            managers.push(manager);
+            allContacts.push(manager);
+            contactIdToContact.set(manager.Id, manager);
+          }
+
+          // Handle pagination if needed
+          let nextRecordsUrl = managerData.nextRecordsUrl;
+          while (nextRecordsUrl) {
+            try {
+              const nextResponse = await fetch(`${instance_url}${nextRecordsUrl}`, {
+                method: 'GET',
+                headers: {
+                  'Authorization': `Bearer ${access_token}`,
+                  'Content-Type': 'application/json',
+                },
+              });
+              
+              if (nextResponse.ok) {
+                const nextData = await nextResponse.json();
+                const nextRecords = nextData.records || [];
+                for (const manager of nextRecords) {
+                  managers.push(manager);
+                  allContacts.push(manager);
+                  contactIdToContact.set(manager.Id, manager);
+                }
+                nextRecordsUrl = nextData.nextRecordsUrl;
+              } else {
+                break;
+              }
+            } catch (e) {
+              console.warn('Error fetching next manager batch:', e.message);
+              break;
+            }
+          }
         }
-      } else {
-        break;
       }
     }
 
-    // Step 3: Collect all subordinates recursively
-    const collectSubordinates = async (parentId, depth = 0) => {
-      if (depth > 10) return; // Prevent infinite recursion
+    // Step 3: Collect all subordinates using iterative batch queries (much more efficient)
+    let contactIdsToQuery = [contactId];
+    const maxDepth = 10;
+    let depth = 0;
 
-      const subordinatesQuery = `SELECT Id, Name, Email, ReportsToId, Associated_User__c FROM Contact WHERE ReportsToId = '${parentId.replace(/'/g, "\\'")}' ORDER BY Name`;
+    while (contactIdsToQuery.length > 0 && depth < maxDepth) {
+      depth++;
+      const escapedParentIds = contactIdsToQuery.map(id => `'${id.replace(/'/g, "\\'")}'`).join(',');
+      
+      // Batch query all subordinates at this level
+      const subordinatesQuery = `SELECT Id, Name, Email, ReportsToId, Associated_User__c FROM Contact WHERE ReportsToId IN (${escapedParentIds}) ORDER BY Name`;
       const subordinatesEncoded = encodeURIComponent(subordinatesQuery);
       const subordinatesUrl = `${instance_url}/services/data/v58.0/query/?q=${subordinatesEncoded}`;
 
@@ -168,21 +214,48 @@ exports.handler = async (event, context) => {
       });
 
       if (!subordinatesResponse.ok) {
-        return;
+        break;
       }
 
       const subordinatesData = await subordinatesResponse.json();
       const directSubordinates = subordinatesData.records || [];
 
-      // Add to all contacts and recursively collect their subordinates
-      for (const sub of directSubordinates) {
-        allContacts.push(sub);
-        contactIdToContact.set(sub.Id, sub);
-        await collectSubordinates(sub.Id, depth + 1);
+      // Handle pagination for subordinates
+      let nextRecordsUrl = subordinatesData.nextRecordsUrl;
+      while (nextRecordsUrl) {
+        try {
+          const nextResponse = await fetch(`${instance_url}${nextRecordsUrl}`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${access_token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+          
+          if (nextResponse.ok) {
+            const nextData = await nextResponse.json();
+            directSubordinates.push(...(nextData.records || []));
+            nextRecordsUrl = nextData.nextRecordsUrl;
+          } else {
+            break;
+          }
+        } catch (e) {
+          console.warn('Error fetching next subordinates batch:', e.message);
+          break;
+        }
       }
-    };
 
-    await collectSubordinates(contactId);
+      // Add to all contacts
+      for (const sub of directSubordinates) {
+        if (!contactIdToContact.has(sub.Id)) {
+          allContacts.push(sub);
+          contactIdToContact.set(sub.Id, sub);
+        }
+      }
+
+      // Get IDs for next level (only if we found subordinates)
+      contactIdsToQuery = directSubordinates.map(sub => sub.Id).filter(Boolean);
+    }
 
     // Step 4: Build hierarchy structure (no heavy data)
     const buildSubordinates = (parentId, depth = 0) => {
