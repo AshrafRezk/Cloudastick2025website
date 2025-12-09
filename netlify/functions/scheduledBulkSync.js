@@ -52,16 +52,17 @@ exports.handler = async (event, context) => {
         }),
       };
     }
-    
+
     console.log('✅ Got fresh Salesforce token');
 
     // Construct the sync function URL (reuse protocol and host from above)
     const syncUrl = `${protocol}://${host}/.netlify/functions/syncSalesforceBulk`;
     
-    console.log('📞 Calling sync function:', syncUrl);
+    console.log('📞 Calling sync function (fire-and-forget):', syncUrl);
     
-    // Call the sync function
-    const response = await fetch(syncUrl, {
+    // Call the sync function asynchronously (don't wait for it to complete)
+    // This prevents the scheduled function from timing out
+    fetch(syncUrl, {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
@@ -80,31 +81,29 @@ exports.handler = async (event, context) => {
           'SFDC_Project__c',
         ],
       }),
+    })
+    .then(response => {
+      if (!response.ok) {
+        return response.text().then(errorText => {
+          console.error('❌ Sync function failed:', response.status, errorText);
+        });
+      }
+      return response.json().then(result => {
+        console.log('✅ Scheduled sync complete:', JSON.stringify(result, null, 2));
+      });
+    })
+    .catch(error => {
+      console.error('❌ Error calling sync function:', error.message);
     });
     
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('❌ Sync function failed:', response.status, errorText);
-      
-      return {
-        statusCode: response.status,
-        body: JSON.stringify({ 
-          error: 'Sync function failed',
-          status: response.status,
-          message: errorText
-        }),
-      };
-    }
-    
-    const result = await response.json();
-    console.log('✅ Scheduled sync complete:', JSON.stringify(result, null, 2));
-    
+    // Return immediately - don't wait for sync to complete
+    // The sync will continue running in the background
     return {
       statusCode: 200,
       body: JSON.stringify({ 
         success: true, 
-        message: 'Bulk sync completed successfully',
-        result: result.results
+        message: 'Bulk sync started successfully (running in background)',
+        note: 'Check syncSalesforceBulk function logs for sync progress'
       }),
     };
   } catch (error) {
