@@ -60,9 +60,25 @@ const LeadCaptureModal: React.FC<LeadCaptureModalProps> = ({
     setIsSubmitting(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Log company name to Netlify
+      try {
+        await fetch('/.netlify/functions/logCompanyName', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            companyName: companyName.trim(),
+            industry: selectedIndustry,
+            source: 'lead-capture-modal',
+          }),
+        });
+      } catch (logError) {
+        // Don't block form submission if logging fails
+        console.warn('Failed to log company name:', logError);
+      }
       
+      // Call success callback
       onSuccess({
         companyName: companyName.trim(),
         industry: selectedIndustry

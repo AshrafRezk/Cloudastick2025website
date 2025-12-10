@@ -20,7 +20,7 @@ const TableOnboardingModal: React.FC<TableOnboardingModalProps> = ({
   const [selectedIndustry, setSelectedIndustry] = useState('');
   const [errors, setErrors] = useState<{ company?: string; industry?: string }>({});
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     const newErrors: { company?: string; industry?: string } = {};
@@ -36,6 +36,24 @@ const TableOnboardingModal: React.FC<TableOnboardingModalProps> = ({
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
+    }
+    
+    // Log company name to Netlify
+    try {
+      await fetch('/.netlify/functions/logCompanyName', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          companyName: companyName.trim(),
+          industry: selectedIndustry,
+          source: 'table-onboarding-modal',
+        }),
+      });
+    } catch (logError) {
+      // Don't block form submission if logging fails
+      console.warn('Failed to log company name:', logError);
     }
     
     // Store in localStorage
