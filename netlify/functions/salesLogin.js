@@ -146,43 +146,43 @@ exports.handler = async (event, context) => {
 
     if (!contact) {
       // Cache miss - query Salesforce
-      const escapedUsername = username.replace(/'/g, "\\'");
-      const soqlQuery = `SELECT Id, Name, Email, Portal_Username__c, Portal_Password__c, Portal_Access__c, Portal_Sales_Access__c, LinkedInURL__c, TrailheadProfileURL__c, NumberofCertifications__c, Certifications_List__c FROM Contact WHERE Portal_Username__c = '${escapedUsername}' LIMIT 1`;
-      
-      const encodedQuery = encodeURIComponent(soqlQuery);
-      const queryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedQuery}`;
+    const escapedUsername = username.replace(/'/g, "\\'");
+    const soqlQuery = `SELECT Id, Name, Email, Portal_Username__c, Portal_Password__c, Portal_Access__c, Portal_Sales_Access__c, LinkedInURL__c, TrailheadProfileURL__c, NumberofCertifications__c, Certifications_List__c FROM Contact WHERE Portal_Username__c = '${escapedUsername}' LIMIT 1`;
+    
+    const encodedQuery = encodeURIComponent(soqlQuery);
+    const queryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedQuery}`;
 
       console.log('📤 Querying Contact by username from Salesforce...');
 
-      const queryResponse = await fetch(queryUrl, {
-        method: 'GET',
+    const queryResponse = await fetch(queryUrl, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${access_token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!queryResponse.ok) {
+      const errorText = await queryResponse.text();
+      throw new Error(`Salesforce query failed: ${queryResponse.status} - ${errorText}`);
+    }
+
+    const queryData = await queryResponse.json();
+    const records = queryData.records || [];
+
+    if (records.length === 0) {
+      return {
+        statusCode: 401,
         headers: {
-          'Authorization': `Bearer ${access_token}`,
+          'Access-Control-Allow-Origin': '*',
           'Content-Type': 'application/json',
         },
-      });
-
-      if (!queryResponse.ok) {
-        const errorText = await queryResponse.text();
-        throw new Error(`Salesforce query failed: ${queryResponse.status} - ${errorText}`);
-      }
-
-      const queryData = await queryResponse.json();
-      const records = queryData.records || [];
-
-      if (records.length === 0) {
-        return {
-          statusCode: 401,
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ 
-            error: 'Invalid credentials',
-            message: 'Username not found'
-          }),
-        };
-      }
+        body: JSON.stringify({ 
+          error: 'Invalid credentials',
+          message: 'Username not found'
+        }),
+      };
+    }
 
       contact = records[0];
       

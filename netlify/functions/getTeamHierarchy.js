@@ -154,10 +154,10 @@ exports.handler = async (event, context) => {
       const manager = await getContactById(currentManagerId, access_token, instance_url, context);
       
       if (manager) {
-        managers.push(manager);
-        allContacts.push(manager);
-        contactIdToContact.set(manager.Id, manager);
-        currentManagerId = manager.ReportsToId;
+          managers.push(manager);
+          allContacts.push(manager);
+          contactIdToContact.set(manager.Id, manager);
+          currentManagerId = manager.ReportsToId;
       } else {
         break;
       }
@@ -172,23 +172,23 @@ exports.handler = async (event, context) => {
       
       if (!directSubordinates) {
         // Cache miss - query Salesforce
-        const subordinatesQuery = `SELECT Id, Name, Email, ReportsToId, Associated_User__c FROM Contact WHERE ReportsToId = '${parentId.replace(/'/g, "\\'")}' ORDER BY Name`;
-        const subordinatesEncoded = encodeURIComponent(subordinatesQuery);
-        const subordinatesUrl = `${instance_url}/services/data/v58.0/query/?q=${subordinatesEncoded}`;
+      const subordinatesQuery = `SELECT Id, Name, Email, ReportsToId, Associated_User__c FROM Contact WHERE ReportsToId = '${parentId.replace(/'/g, "\\'")}' ORDER BY Name`;
+      const subordinatesEncoded = encodeURIComponent(subordinatesQuery);
+      const subordinatesUrl = `${instance_url}/services/data/v58.0/query/?q=${subordinatesEncoded}`;
 
-        const subordinatesResponse = await fetch(subordinatesUrl, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${access_token}`,
-            'Content-Type': 'application/json',
-          },
-        });
+      const subordinatesResponse = await fetch(subordinatesUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
 
-        if (!subordinatesResponse.ok) {
-          return;
-        }
+      if (!subordinatesResponse.ok) {
+        return;
+      }
 
-        const subordinatesData = await subordinatesResponse.json();
+      const subordinatesData = await subordinatesResponse.json();
         directSubordinates = subordinatesData.records || [];
       }
 

@@ -76,33 +76,33 @@ exports.handler = async (event, context) => {
       console.log('✅ Found contact in cache');
     } else {
       // Cache miss - query Salesforce
-      const contactQuery = `SELECT Id, Name, Email, Associated_User__c FROM Contact WHERE Id = '${escapedContactId}' LIMIT 1`;
-      const contactEncoded = encodeURIComponent(contactQuery);
-      const contactUrl = `${instance_url}/services/data/v58.0/query/?q=${contactEncoded}`;
+    const contactQuery = `SELECT Id, Name, Email, Associated_User__c FROM Contact WHERE Id = '${escapedContactId}' LIMIT 1`;
+    const contactEncoded = encodeURIComponent(contactQuery);
+    const contactUrl = `${instance_url}/services/data/v58.0/query/?q=${contactEncoded}`;
 
-      const contactResponse = await fetch(contactUrl, {
-        method: 'GET',
+    const contactResponse = await fetch(contactUrl, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${access_token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!contactResponse.ok) {
+      throw new Error(`Failed to fetch contact: ${contactResponse.status}`);
+    }
+
+    const contactData = await contactResponse.json();
+    if (!contactData.records || contactData.records.length === 0) {
+      return {
+        statusCode: 404,
         headers: {
-          'Authorization': `Bearer ${access_token}`,
+          'Access-Control-Allow-Origin': '*',
           'Content-Type': 'application/json',
         },
-      });
-
-      if (!contactResponse.ok) {
-        throw new Error(`Failed to fetch contact: ${contactResponse.status}`);
-      }
-
-      const contactData = await contactResponse.json();
-      if (!contactData.records || contactData.records.length === 0) {
-        return {
-          statusCode: 404,
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ error: 'Contact not found' }),
-        };
-      }
+        body: JSON.stringify({ error: 'Contact not found' }),
+      };
+    }
 
       contact = contactData.records[0];
       
@@ -317,48 +317,48 @@ async function getOKRsForUser(userId, access_token, instance_url, offset = 0, li
     
     // If cache miss or insufficient data, query Salesforce
     if (!fromCache || parentOkrs.length === 0) {
-      const escapedUserId = userId.replace(/'/g, "\\'");
-      
-      // First, get total count
-      const countQuery = `SELECT COUNT() FROM OKR__c WHERE Owner__c = '${escapedUserId}'`;
-      const countEncoded = encodeURIComponent(countQuery);
-      const countUrl = `${instance_url}/services/data/v58.0/query/?q=${countEncoded}`;
+    const escapedUserId = userId.replace(/'/g, "\\'");
+    
+    // First, get total count
+    const countQuery = `SELECT COUNT() FROM OKR__c WHERE Owner__c = '${escapedUserId}'`;
+    const countEncoded = encodeURIComponent(countQuery);
+    const countUrl = `${instance_url}/services/data/v58.0/query/?q=${countEncoded}`;
 
-      try {
-        const countResponse = await fetch(countUrl, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${access_token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-        if (countResponse.ok) {
-          const countData = await countResponse.json();
-          total = countData.totalSize || 0;
-        }
-      } catch (e) {
-        console.warn('Could not get OKR count:', e.message);
-      }
-
-      // Fetch parent OKRs with pagination
-      const okrFields = 'Id, Name, Owner__c, Type__c, Status__c, Parent_Objective__c, Due_Date__c, Department__c, Quarter__c, Progress__c, Weight__c, Overall_Health__c, Comments__c, CreatedDate';
-      let okrQuery = `SELECT ${okrFields} FROM OKR__c WHERE Owner__c = '${escapedUserId}' AND Parent_Objective__c = null ORDER BY Quarter__c DESC, CreatedDate DESC LIMIT ${limit} OFFSET ${offset}`;
-      const okrEncoded = encodeURIComponent(okrQuery);
-      const okrUrl = `${instance_url}/services/data/v58.0/query/?q=${okrEncoded}`;
-
-      const okrResponse = await fetch(okrUrl, {
+    try {
+      const countResponse = await fetch(countUrl, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${access_token}`,
           'Content-Type': 'application/json',
         },
       });
-
-      if (!okrResponse.ok) {
-        return { okrs: [], total: 0, hasMore: false };
+      if (countResponse.ok) {
+        const countData = await countResponse.json();
+        total = countData.totalSize || 0;
       }
+    } catch (e) {
+      console.warn('Could not get OKR count:', e.message);
+    }
 
-      const okrData = await okrResponse.json();
+      // Fetch parent OKRs with pagination
+    const okrFields = 'Id, Name, Owner__c, Type__c, Status__c, Parent_Objective__c, Due_Date__c, Department__c, Quarter__c, Progress__c, Weight__c, Overall_Health__c, Comments__c, CreatedDate';
+    let okrQuery = `SELECT ${okrFields} FROM OKR__c WHERE Owner__c = '${escapedUserId}' AND Parent_Objective__c = null ORDER BY Quarter__c DESC, CreatedDate DESC LIMIT ${limit} OFFSET ${offset}`;
+    const okrEncoded = encodeURIComponent(okrQuery);
+    const okrUrl = `${instance_url}/services/data/v58.0/query/?q=${okrEncoded}`;
+
+    const okrResponse = await fetch(okrUrl, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${access_token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!okrResponse.ok) {
+      return { okrs: [], total: 0, hasMore: false };
+    }
+
+    const okrData = await okrResponse.json();
       parentOkrs = okrData.records || [];
 
     // Fetch child OKRs for the parent OKRs we got
