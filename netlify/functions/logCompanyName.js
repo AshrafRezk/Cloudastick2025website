@@ -62,11 +62,28 @@ exports.handler = async (event, context) => {
       date: new Date().toISOString().split('T')[0], // YYYY-MM-DD for easy querying
     };
 
-    // Store in Netlify Blobs
-    const store = getStore({
-      name: 'company-leads',
-      context,
-    });
+    // Store in Netlify Blobs with fallback
+    let store;
+    try {
+      store = getStore({
+        name: 'company-leads',
+        context,
+      });
+    } catch (storeError) {
+      // Try manual configuration with environment variables
+      const siteID = process.env.NETLIFY_SITE_ID || context?.site?.id;
+      const token = process.env.NETLIFY_AUTH_TOKEN || context?.account?.token;
+      
+      if (siteID && token) {
+        store = getStore({
+          name: 'company-leads',
+          siteID,
+          token,
+        });
+      } else {
+        throw storeError;
+      }
+    }
 
     // Create unique key with timestamp
     const logKey = `lead-${Date.now()}-${Math.random().toString(36).substring(7)}`;

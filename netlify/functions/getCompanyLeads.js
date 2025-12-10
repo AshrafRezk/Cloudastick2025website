@@ -49,24 +49,50 @@ exports.handler = async (event, context) => {
     // Initialize store with proper error handling
     let store;
     try {
+      // Try automatic configuration first (with context)
       store = getStore({
         name: 'company-leads',
         context,
       });
     } catch (storeError) {
-      console.error('❌ Failed to initialize Netlify Blobs store:', storeError);
-      return {
-        statusCode: 500,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          error: 'Failed to initialize storage',
-          message: storeError.message,
-          hint: 'Ensure Netlify Blobs is properly configured in your Netlify environment',
-        }),
-      };
+      console.error('❌ Failed to initialize Netlify Blobs store with context:', storeError);
+      
+      // Try manual configuration with environment variables
+      try {
+        const siteID = process.env.NETLIFY_SITE_ID || context?.site?.id;
+        const token = process.env.NETLIFY_AUTH_TOKEN || context?.account?.token;
+        
+        if (siteID && token) {
+          console.log('🔄 Trying manual Blobs configuration with siteID and token');
+          store = getStore({
+            name: 'company-leads',
+            siteID,
+            token,
+          });
+        } else {
+          throw new Error('Missing siteID or token for manual configuration');
+        }
+      } catch (manualError) {
+        console.error('❌ Manual configuration also failed:', manualError);
+        return {
+          statusCode: 500,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            error: 'Failed to initialize storage',
+            message: storeError.message,
+            hint: 'Netlify Blobs is not configured. Please enable it in your Netlify site settings or set NETLIFY_SITE_ID and NETLIFY_AUTH_TOKEN environment variables.',
+            details: {
+              automaticConfigFailed: storeError.message,
+              manualConfigFailed: manualError.message,
+              hasSiteID: !!process.env.NETLIFY_SITE_ID,
+              hasToken: !!process.env.NETLIFY_AUTH_TOKEN,
+            },
+          }),
+        };
+      }
     }
 
     const allLeads = [];
