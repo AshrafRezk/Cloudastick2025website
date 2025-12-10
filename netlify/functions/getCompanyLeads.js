@@ -13,31 +13,61 @@ exports.handler = async (event, context) => {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
       },
       body: '',
     };
   }
 
-  // Only allow POST requests
-  if (event.httpMethod !== 'POST') {
+  // Allow both GET and POST requests
+  if (event.httpMethod !== 'POST' && event.httpMethod !== 'GET') {
     return {
       statusCode: 405,
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ error: 'Method not allowed' }),
+      body: JSON.stringify({ error: 'Method not allowed. Use GET or POST.' }),
     };
   }
 
   try {
-    const { date, limit = 100 } = JSON.parse(event.body || '{}');
+    // Parse parameters from body (POST) or query string (GET)
+    let params = {};
+    if (event.httpMethod === 'POST') {
+      params = JSON.parse(event.body || '{}');
+    } else {
+      // GET request - parse from query string
+      params = {
+        date: event.queryStringParameters?.date,
+        limit: event.queryStringParameters?.limit ? parseInt(event.queryStringParameters.limit) : 100,
+      };
+    }
+    
+    const { date, limit = 100 } = params;
 
-    const store = getStore({
-      name: 'company-leads',
-      context,
-    });
+    // Initialize store with proper error handling
+    let store;
+    try {
+      store = getStore({
+        name: 'company-leads',
+        context,
+      });
+    } catch (storeError) {
+      console.error('❌ Failed to initialize Netlify Blobs store:', storeError);
+      return {
+        statusCode: 500,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          error: 'Failed to initialize storage',
+          message: storeError.message,
+          hint: 'Ensure Netlify Blobs is properly configured in your Netlify environment',
+        }),
+      };
+    }
 
     const allLeads = [];
 
@@ -65,18 +95,61 @@ exports.handler = async (event, context) => {
 
     // Otherwise, get all individual leads
     let count = 0;
-    for await (const blob of store.list({ prefix: 'lead-' })) {
-      if (count >= limit) break;
-      
-      try {
-        const lead = await store.get(blob.key, { type: 'json' });
-        if (lead) {
-          allLeads.push(lead);
-          count++;
+    try {
+      for await (const blob of store.list({ prefix: 'lead-' })) {
+        if (count >= limit) break;
+        
+        try {
+          const lead = await store.get(blob.key, { type: 'json' });
+          if (lead) {
+            allLeads.push(lead);
+            count++;
+          }
+        } catch (e) {
+          // Skip invalid entries
+          console.warn(`⚠️ Skipping invalid lead entry: ${blob.key}`, e.message);
         }
-      } catch (e) {
-        // Skip invalid entries
       }
+    } catch (listError) {
+      console.error('❌ Error listing leads from store:', listError);
+      // If listing fails, try to get daily logs as fallback
+      if (!date) {
+        // Try to get today's date as fallback
+        const today = new Date().toISOString().split('T')[0];
+        const dailyKey = `daily-${today}`;
+        const dailyLog = await store.get(dailyKey, { type: 'json' }).catch(() => null);
+        
+        if (dailyLog && dailyLog.entries) {
+          return {
+            statusCode: 200,
+            headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              success: true,
+              count: dailyLog.entries.length,
+              leads: dailyLog.entries.slice(0, limit),
+              note: 'Returned today\'s leads due to listing error',
+            }),
+          };
+        }
+      }
+      
+      // If we can't get any data, return empty result
+      return {
+        statusCode: 200,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          success: true,
+          count: 0,
+          leads: [],
+          note: 'No leads found or store access error',
+        }),
+      };
     }
 
     // Sort by timestamp (newest first)
