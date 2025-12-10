@@ -1,9 +1,9 @@
 /**
  * Netlify Function to retrieve logged company names
- * Returns all leads or filtered by date
+ * Returns all leads or filtered by date from Neon database
  */
 
-const { getStore } = require('@netlify/blobs');
+const { getDb } = require('./db');
 
 exports.handler = async (event, context) => {
   // Handle CORS preflight requests
@@ -46,140 +46,52 @@ exports.handler = async (event, context) => {
     
     const { date, limit = 100 } = params;
 
-    // Initialize store with proper error handling
-    let store;
-    try {
-      // Try automatic configuration first (with context)
-      store = getStore({
-        name: 'company-leads',
-        context,
-      });
-    } catch (storeError) {
-      console.error('❌ Failed to initialize Netlify Blobs store with context:', storeError);
-      
-      // Try manual configuration with environment variables
-      try {
-        const siteID = process.env.NETLIFY_SITE_ID || context?.site?.id;
-        const token = process.env.NETLIFY_AUTH_TOKEN || context?.account?.token;
-        
-        if (siteID && token) {
-          console.log('🔄 Trying manual Blobs configuration with siteID and token');
-          store = getStore({
-            name: 'company-leads',
-            siteID,
-            token,
-          });
-        } else {
-          throw new Error('Missing siteID or token for manual configuration');
-        }
-      } catch (manualError) {
-        console.error('❌ Manual configuration also failed:', manualError);
-        return {
-          statusCode: 500,
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            error: 'Failed to initialize storage',
-            message: storeError.message,
-            hint: 'Netlify Blobs is not configured. Please enable it in your Netlify site settings or set NETLIFY_SITE_ID and NETLIFY_AUTH_TOKEN environment variables.',
-            details: {
-              automaticConfigFailed: storeError.message,
-              manualConfigFailed: manualError.message,
-              hasSiteID: !!process.env.NETLIFY_SITE_ID,
-              hasToken: !!process.env.NETLIFY_AUTH_TOKEN,
-            },
-          }),
-        };
-      }
-    }
+    // Get database connection
+    const db = getDb();
 
-    const allLeads = [];
-
-    // If date is specified, get daily log
+    let leads;
+    
+    // If date is specified, filter by date
     if (date) {
-      const dailyKey = `daily-${date}`;
-      const dailyLog = await store.get(dailyKey, { type: 'json' }).catch(() => null);
+      const startDate = new Date(date);
+      startDate.setHours(0, 0, 0, 0);
+      const endDate = new Date(date);
+      endDate.setHours(23, 59, 59, 999);
       
-      if (dailyLog && dailyLog.entries) {
-        return {
-          statusCode: 200,
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            success: true,
-            date,
-            count: dailyLog.entries.length,
-            leads: dailyLog.entries.slice(0, limit),
-          }),
-        };
-      }
+      leads = await db`
+        SELECT 
+          id,
+          company_name as "companyName",
+          industry,
+          source,
+          user_agent as "userAgent",
+          ip_address as "ip",
+          referer,
+          created_at as "timestamp",
+          DATE(created_at) as "date"
+        FROM company_leads
+        WHERE created_at >= ${startDate.toISOString()} AND created_at <= ${endDate.toISOString()}
+        ORDER BY created_at DESC
+        LIMIT ${limit}
+      `;
+    } else {
+      // Get all leads
+      leads = await db`
+        SELECT 
+          id,
+          company_name as "companyName",
+          industry,
+          source,
+          user_agent as "userAgent",
+          ip_address as "ip",
+          referer,
+          created_at as "timestamp",
+          DATE(created_at) as "date"
+        FROM company_leads
+        ORDER BY created_at DESC
+        LIMIT ${limit}
+      `;
     }
-
-    // Otherwise, get all individual leads
-    let count = 0;
-    try {
-      for await (const blob of store.list({ prefix: 'lead-' })) {
-        if (count >= limit) break;
-        
-        try {
-          const lead = await store.get(blob.key, { type: 'json' });
-          if (lead) {
-            allLeads.push(lead);
-            count++;
-          }
-        } catch (e) {
-          // Skip invalid entries
-          console.warn(`⚠️ Skipping invalid lead entry: ${blob.key}`, e.message);
-        }
-      }
-    } catch (listError) {
-      console.error('❌ Error listing leads from store:', listError);
-      // If listing fails, try to get daily logs as fallback
-      if (!date) {
-        // Try to get today's date as fallback
-        const today = new Date().toISOString().split('T')[0];
-        const dailyKey = `daily-${today}`;
-        const dailyLog = await store.get(dailyKey, { type: 'json' }).catch(() => null);
-        
-        if (dailyLog && dailyLog.entries) {
-          return {
-            statusCode: 200,
-            headers: {
-              'Access-Control-Allow-Origin': '*',
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              success: true,
-              count: dailyLog.entries.length,
-              leads: dailyLog.entries.slice(0, limit),
-              note: 'Returned today\'s leads due to listing error',
-            }),
-          };
-        }
-      }
-      
-      // If we can't get any data, return empty result
-      return {
-        statusCode: 200,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          success: true,
-          count: 0,
-          leads: [],
-          note: 'No leads found or store access error',
-        }),
-      };
-    }
-
-    // Sort by timestamp (newest first)
-    allLeads.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
     return {
       statusCode: 200,
@@ -189,8 +101,9 @@ exports.handler = async (event, context) => {
       },
       body: JSON.stringify({
         success: true,
-        count: allLeads.length,
-        leads: allLeads,
+        count: leads.length,
+        leads: leads,
+        ...(date && { date }),
       }),
     };
 

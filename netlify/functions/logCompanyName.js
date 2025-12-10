@@ -1,9 +1,9 @@
 /**
  * Netlify Function to log company names from lead capture forms
- * Stores submissions in Netlify Blobs for analytics
+ * Stores submissions in Neon database for analytics
  */
 
-const { getStore } = require('@netlify/blobs');
+const { getDb } = require('./db');
 
 exports.handler = async (event, context) => {
   // Handle CORS preflight requests
@@ -62,44 +62,13 @@ exports.handler = async (event, context) => {
       date: new Date().toISOString().split('T')[0], // YYYY-MM-DD for easy querying
     };
 
-    // Store in Netlify Blobs with fallback
-    let store;
-    try {
-      store = getStore({
-        name: 'company-leads',
-        context,
-      });
-    } catch (storeError) {
-      // Try manual configuration with environment variables
-      const siteID = process.env.NETLIFY_SITE_ID || context?.site?.id;
-      const token = process.env.NETLIFY_AUTH_TOKEN || context?.account?.token;
-      
-      if (siteID && token) {
-        store = getStore({
-          name: 'company-leads',
-          siteID,
-          token,
-        });
-      } else {
-        throw storeError;
-      }
-    }
-
-    // Create unique key with timestamp
-    const logKey = `lead-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+    // Store in Neon database
+    const db = getDb();
     
-    await store.setJSON(logKey, logEntry);
-
-    // Also append to a daily log file for easy viewing
-    const dailyKey = `daily-${logEntry.date}`;
-    const existingDailyLog = await store.get(dailyKey, { type: 'json' }).catch(() => null);
-    const dailyLog = existingDailyLog || { date: logEntry.date, entries: [] };
-    dailyLog.entries.push({
-      companyName: logEntry.companyName,
-      industry: logEntry.industry,
-      timestamp: logEntry.timestamp,
-    });
-    await store.setJSON(dailyKey, dailyLog);
+    await db`
+      INSERT INTO company_leads (company_name, industry, source, user_agent, ip_address, referer, created_at)
+      VALUES (${logEntry.companyName}, ${logEntry.industry}, ${logEntry.source}, ${logEntry.userAgent}, ${logEntry.ip}, ${logEntry.referer}, ${logEntry.timestamp})
+    `;
 
     console.log('✅ Logged company lead:', {
       companyName: logEntry.companyName,

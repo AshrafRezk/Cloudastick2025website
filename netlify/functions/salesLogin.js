@@ -10,49 +10,7 @@
  * - SALESFORCE_TOKEN_URL
  */
 
-const {
-  getCache,
-  setCache,
-  getCacheKey,
-  getListCacheKey,
-  simpleHash,
-  CACHE_TTLS,
-} = require('./salesforceCacheManager');
-
-/**
- * Find Contact by username from cache
- * @param {string} username - Username to search for
- * @param {object} context - Netlify function context (required for Blobs)
- */
-async function findContactByUsernameFromCache(username, context) {
-  try {
-    // Try to get all contacts from cache (if bulk sync has run)
-    const allContactsKey = getListCacheKey('Contact', 'all');
-    const cached = await getCache(allContactsKey, CACHE_TTLS['Contact'], context);
-    
-    if (cached && cached.data && Array.isArray(cached.data)) {
-      // Search through cached contacts
-      const contact = cached.data.find(c => 
-        c.Portal_Username__c && c.Portal_Username__c.toLowerCase() === username.toLowerCase()
-      );
-      
-      if (contact) {
-        // Get full contact details from individual cache
-        const contactCacheKey = getCacheKey('Contact', contact.Id);
-        const contactCached = await getCache(contactCacheKey, CACHE_TTLS['Contact'], context);
-        if (contactCached && contactCached.data) {
-          return contactCached.data;
-        }
-        return contact;
-      }
-    }
-    
-    return null;
-  } catch (error) {
-    console.warn('⚠️ Error searching cache for contact:', error.message);
-    return null;
-  }
-}
+const { findContactByUsername, saveRecord } = require('./salesforceDb');
 
 exports.handler = async (event, context) => {
   // Handle CORS preflight requests
@@ -141,8 +99,8 @@ exports.handler = async (event, context) => {
     const { access_token, instance_url } = authData;
 
     // Try cache first
-    let contact = await findContactByUsernameFromCache(username, context);
-    let fromCache = !!contact;
+    let contact = await findContactByUsername(username);
+    let fromDatabase = !!contact;
 
     if (!contact) {
       // Cache miss - query Salesforce
@@ -186,16 +144,12 @@ exports.handler = async (event, context) => {
 
       contact = records[0];
       
-      // Cache the contact for future logins
+      // Save the contact to database for future logins
       if (contact.Id) {
-        const contactCacheKey = getCacheKey('Contact', contact.Id);
-        setCache(contactCacheKey, contact, {
-          objectType: 'Contact',
-          cachedAt: new Date().toISOString(),
-        }).catch(err => console.warn('⚠️ Failed to cache contact:', err.message));
+        saveRecord('Contact', contact).catch(err => console.warn('⚠️ Failed to save contact to database:', err.message));
       }
     } else {
-      console.log('✅ Found contact in cache');
+      console.log('✅ Found contact in database');
     }
 
     // Check if portal is active

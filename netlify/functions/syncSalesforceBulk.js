@@ -14,14 +14,8 @@
  * Body: { access_token, instance_url, objects?: ['Contact', 'User', ...] }
  */
 
-const {
-  setCache,
-  getCacheKey,
-  getListCacheKey,
-  simpleHash,
-  CACHE_TTLS,
-  clearAllCache,
-} = require('./salesforceCacheManager');
+const { saveRecord, clearObjectType } = require('./salesforceDb');
+const { initSchema } = require('./db');
 
 /**
  * Create a Bulk API 2.0 job
@@ -134,9 +128,8 @@ async function waitForBulkJobCompletion(jobId, access_token, instance_url, maxWa
 
 /**
  * Sync a single object using Bulk API
- * @param {object} context - Netlify function context (required for Blobs)
  */
-async function syncObjectBulk(objectType, access_token, instance_url, context) {
+async function syncObjectBulk(objectType, access_token, instance_url) {
   const result = {
     objectType,
     count: 0,
@@ -149,7 +142,7 @@ async function syncObjectBulk(objectType, access_token, instance_url, context) {
   try {
     // Define queries for each object type
     const queries = {
-      'Contact': "SELECT Id, Name, Email, ReportsToId, ReportsTo.Name, Associated_User__c FROM Contact",
+      'Contact': "SELECT Id, Name, Email, ReportsToId, ReportsTo.Name, Associated_User__c, Portal_Username__c, Portal_Password__c, Portal_Access__c, Portal_LMS_Access__c, Portal_Sales_Access__c, Portal_CMS_Access__c, Portal_CPM_Access__c, LinkedInURL__c, TrailheadProfileURL__c, NumberofCertifications__c, Certifications_List__c FROM Contact",
       'User': "SELECT Id, Name, Email, Username FROM User WHERE IsActive = true",
       'OKR__c': "SELECT Id, Name, Owner__c, Type__c, Status__c, Parent_Objective__c, Due_Date__c, Department__c, Quarter__c, Progress__c, Weight__c, Overall_Health__c, Comments__c, CreatedDate FROM OKR__c",
       'Blog_Post__c': "SELECT Id, Header__c, Content__c, Published_Date__c, URL_Name__c FROM Blog_Post__c WHERE Published_Date__c != null AND URL_Name__c != null",
@@ -181,44 +174,19 @@ async function syncObjectBulk(objectType, access_token, instance_url, context) {
     
     console.log(`📥 Retrieved ${records.length} records for ${objectType}`);
 
-    // Cache each record individually
+    // Save each record to database
     for (const record of records) {
       try {
-        const cacheKey = getCacheKey(objectType, record.Id);
-        await setCache(cacheKey, record, {
-          objectType,
-          syncedAt: new Date().toISOString(),
-          syncMethod: 'bulk-api',
-        }, context);
+        await saveRecord(objectType, record);
         result.cached++;
         result.records.push(record.Id);
-      } catch (cacheError) {
-        console.warn(`⚠️ Failed to cache ${objectType}:${record.Id}:`, cacheError.message);
+      } catch (dbError) {
+        console.warn(`⚠️ Failed to save ${objectType}:${record.Id}:`, dbError.message);
         result.errors++;
       }
     }
 
-    // Cache the full list with all record data (for efficient searching)
-    const listCacheKey = getListCacheKey(objectType, simpleHash(soqlQuery));
-    await setCache(listCacheKey, result.records, {
-      objectType,
-      query: soqlQuery,
-      count: result.count,
-      syncedAt: new Date().toISOString(),
-      syncMethod: 'bulk-api',
-    }, context);
-    
-    // Also cache a full list with all record data (keyed by 'all' for easy lookup)
-    const allListCacheKey = getListCacheKey(objectType, 'all');
-    await setCache(allListCacheKey, records, {
-      objectType,
-      query: 'all',
-      count: records.length,
-      syncedAt: new Date().toISOString(),
-      syncMethod: 'bulk-api',
-    }, context);
-
-    console.log(`✅ Cached ${result.cached} ${objectType} records`);
+    console.log(`✅ Saved ${result.cached} ${objectType} records to database`);
 
   } catch (error) {
     console.error(`❌ Error syncing ${objectType} via Bulk API:`, error);
@@ -231,9 +199,8 @@ async function syncObjectBulk(objectType, access_token, instance_url, context) {
 
 /**
  * Sync objects using regular SOQL (for smaller datasets or fallback)
- * @param {object} context - Netlify function context (required for Blobs)
  */
-async function syncObjectRegular(objectType, access_token, instance_url, context) {
+async function syncObjectRegular(objectType, access_token, instance_url) {
   const result = {
     objectType,
     count: 0,
@@ -244,7 +211,7 @@ async function syncObjectRegular(objectType, access_token, instance_url, context
 
   try {
     const queries = {
-      'Contact': "SELECT Id, Name, Email, ReportsToId, ReportsTo.Name, Associated_User__c FROM Contact",
+      'Contact': "SELECT Id, Name, Email, ReportsToId, ReportsTo.Name, Associated_User__c, Portal_Username__c, Portal_Password__c, Portal_Access__c, Portal_LMS_Access__c, Portal_Sales_Access__c, Portal_CMS_Access__c, Portal_CPM_Access__c, LinkedInURL__c, TrailheadProfileURL__c, NumberofCertifications__c, Certifications_List__c FROM Contact",
       'User': "SELECT Id, Name, Email, Username FROM User WHERE IsActive = true",
       'OKR__c': "SELECT Id, Name, Owner__c, Type__c, Status__c, Parent_Objective__c, Due_Date__c, Department__c, Quarter__c, Progress__c, Weight__c, Overall_Health__c, Comments__c, CreatedDate FROM OKR__c",
       'Blog_Post__c': "SELECT Id, Header__c, Content__c, Published_Date__c, URL_Name__c FROM Blog_Post__c WHERE Published_Date__c != null AND URL_Name__c != null ORDER BY Published_Date__c DESC",
@@ -285,18 +252,13 @@ async function syncObjectRegular(objectType, access_token, instance_url, context
       const records = data.records || [];
       allRecords.push(...records); // Collect for full list
 
-      // Cache each record
+      // Save each record to database
       for (const record of records) {
         try {
-          const cacheKey = getCacheKey(objectType, record.Id);
-          await setCache(cacheKey, record, {
-            objectType,
-            syncedAt: new Date().toISOString(),
-            syncMethod: 'soql',
-          }, context);
+          await saveRecord(objectType, record);
           result.cached++;
           result.records.push(record.Id);
-        } catch (cacheError) {
+        } catch (dbError) {
           result.errors++;
         }
       }
@@ -310,26 +272,6 @@ async function syncObjectRegular(objectType, access_token, instance_url, context
         break;
       }
     }
-
-    // Cache the list (IDs only)
-    const listCacheKey = getListCacheKey(objectType, simpleHash(soqlQuery));
-    await setCache(listCacheKey, result.records, {
-      objectType,
-      query: soqlQuery,
-      count: result.count,
-      syncedAt: new Date().toISOString(),
-      syncMethod: 'soql',
-    }, context);
-    
-    // Also cache full list with all record data (for efficient searching)
-    const allListCacheKey = getListCacheKey(objectType, 'all');
-    await setCache(allListCacheKey, allRecords, {
-      objectType,
-      query: 'all',
-      count: allRecords.length,
-      syncedAt: new Date().toISOString(),
-      syncMethod: 'soql',
-    }, context);
 
   } catch (error) {
     console.error(`❌ Error syncing ${objectType}:`, error);
@@ -397,17 +339,31 @@ exports.handler = async (event, context) => {
       'SFDC_Project__c',
     ];
 
-    // Clear cache first if requested
+    // Initialize database schema if needed
+    try {
+      await initSchema();
+    } catch (schemaError) {
+      console.warn('⚠️ Schema initialization warning (may already exist):', schemaError.message);
+    }
+
+    // Clear database tables first if requested
     if (clearCacheFirst) {
-      console.log('🗑️ Clearing all cache first...');
-      await clearAllCache(context);
+      console.log('🗑️ Clearing database tables first...');
+      for (const objectType of objectsToSync) {
+        try {
+          await clearObjectType(objectType);
+          console.log(`✅ Cleared ${objectType} table`);
+        } catch (clearError) {
+          console.warn(`⚠️ Failed to clear ${objectType}:`, clearError.message);
+        }
+      }
     }
 
     const results = {
       startedAt: new Date().toISOString(),
       syncMethod: useBulkAPI ? 'bulk-api' : 'soql',
       objects: {},
-      totalRecordsCached: 0,
+      totalRecordsSaved: 0,
       errors: [],
       duration: null,
     };
@@ -420,16 +376,16 @@ exports.handler = async (event, context) => {
         
         let objectResult;
         if (useBulkAPI) {
-          objectResult = await syncObjectBulk(objectType, access_token, instance_url, context);
+          objectResult = await syncObjectBulk(objectType, access_token, instance_url);
         } else {
-          objectResult = await syncObjectRegular(objectType, access_token, instance_url, context);
+          objectResult = await syncObjectRegular(objectType, access_token, instance_url);
         }
         
         objectResult.duration = Date.now() - startTime;
         results.objects[objectType] = objectResult;
-        results.totalRecordsCached += objectResult.cached;
+        results.totalRecordsSaved += objectResult.cached;
         
-        console.log(`✅ ${objectType}: ${objectResult.cached} records cached in ${objectResult.duration}ms`);
+        console.log(`✅ ${objectType}: ${objectResult.cached} records saved to database in ${objectResult.duration}ms`);
       } catch (error) {
         console.error(`❌ Error syncing ${objectType}:`, error.message);
         results.errors.push({
@@ -443,7 +399,7 @@ exports.handler = async (event, context) => {
     results.duration = new Date(results.completedAt) - new Date(results.startedAt);
 
     console.log(`\n✅ Bulk sync complete!`);
-    console.log(`📊 Total records cached: ${results.totalRecordsCached}`);
+    console.log(`📊 Total records saved to database: ${results.totalRecordsCached}`);
     console.log(`⏱️ Duration: ${results.duration}ms`);
 
     return {
