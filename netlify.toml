@@ -48,6 +48,22 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
+# Cache API functions for global CDN distribution
+# Netlify CDN will cache these responses at edge locations worldwide
+[[headers]]
+  for = "/.netlify/functions/fetchAllBlogs"
+  [headers.values]
+    Cache-Control = "public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400"
+    CDN-Cache-Control = "public, max-age=3600"
+    Vary = "Accept-Encoding"
+
+[[headers]]
+  for = "/.netlify/functions/fetchBlogs"
+  [headers.values]
+    Cache-Control = "public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400"
+    CDN-Cache-Control = "public, max-age=3600"
+    Vary = "Accept-Encoding"
+
 # Form handling (if needed for contact forms)
 [build.processing]
   skip_processing = false

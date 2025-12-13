@@ -321,6 +321,506 @@ export interface TeamMemberDataResponse {
   data: TeamMemberData;
 }
 
+// ============================================================================
+// MyTeam API Types
+// ============================================================================
+
+export interface ContactNode {
+  id: string;
+  name: string;
+  title: string | null;
+  email: string | null;
+  reportsToId: string | null;
+  children: ContactNode[];
+}
+
+export interface OKRNode {
+  id: string;
+  name: string;
+  type: string | null;
+  status: string | null;
+  progress: number | null;
+  dueDate: string | null;
+  quarter: string | null;
+  department: string | null;
+  ownerId: string | null;
+  ownerName: string | null;
+  health: string | null;
+  weight: number | null;
+  comments: string | null;
+  parentObjectiveId: string | null;
+  children: OKRNode[];
+}
+
+export interface TeamMemberRecord {
+  Id: string;
+  Name: string;
+  Allocation__c?: number | null;
+  Allocation_Percentage__c?: number | null;
+  Status__c?: string | null;
+  [key: string]: any; // Allow additional fields from SObject
+}
+
+export interface RequirementRecord {
+  Id: string;
+  Name: string;
+  Title__c?: string | null;
+  Status__c: string;
+  Due_Date__c?: string | null;
+  CompletedDate__c?: string | null;
+  Completion__c?: number | null;
+  OwnerId: string;
+  [key: string]: any;
+}
+
+export interface LearningMaterialRecord {
+  Id: string;
+  Name: string;
+  Learner__c: string;
+  Material__c?: string | null;
+  Progress__c?: number | null;
+  Status__c?: string | null;
+  Started_On__c?: string | null;
+  Completed_On__c?: string | null;
+  Score__c?: number | null;
+  Time_Taken_Minutes__c?: number | null;
+  Attempt_Number__c?: number | null;
+  [key: string]: any;
+}
+
+export interface MyTeamMutations {
+  teamMemberAllocations?: Array<{
+    id: string;
+    allocationPercentage?: number;
+    allocationField?: string;
+    fields?: Record<string, any>;
+  }>;
+  okrsToUpdate?: Array<{
+    id: string;
+    fields: Record<string, any>;
+  }>;
+  okrsToCreate?: Array<{
+    fields: Record<string, any>;
+  }>;
+}
+
+export interface MyTeamRequestPayload {
+  currentContactId: string;
+  mutations?: MyTeamMutations;
+}
+
+export interface MyTeamResponsePayload {
+  contact: ContactNode | null;
+  hierarchy: ContactNode[];
+  teamMembers: TeamMemberRecord[];
+  requirementsInProgress: RequirementRecord[];
+  requirementsNotCompleted: RequirementRecord[];
+  requirementCounts: Record<string, number>;
+  okrs: OKRNode[];
+  learningMaterials: LearningMaterialRecord[];
+  warnings: string[];
+  mutationErrors: string[];
+}
+
+export interface MyTeamResponse {
+  success: boolean;
+  data: MyTeamResponsePayload;
+  warnings?: string[];
+  mutationErrors?: string[];
+}
+
+// ============================================================================
+// MyTeam API Service Functions
+// ============================================================================
+
+/**
+ * Fetch team data using the new MyTeam REST API
+ */
+export const fetchMyTeamData = async (
+  contactId: string,
+  authData: { access_token: string; instance_url: string },
+  mutations?: MyTeamMutations
+): Promise<MyTeamResponse> => {
+  try {
+    const url = `${authData.instance_url}/services/apexrest/myteam/`;
+    const requestPayload: MyTeamRequestPayload = {
+      currentContactId: contactId,
+    };
+
+    if (mutations) {
+      requestPayload.mutations = mutations;
+    }
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${authData.access_token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestPayload),
+    });
+
+    if (!response.ok) {
+      let errorData;
+      try {
+        const text = await response.text();
+        try {
+          errorData = JSON.parse(text);
+        } catch {
+          errorData = { error: text || `Failed to fetch team data: ${response.status}` };
+        }
+      } catch (e) {
+        errorData = { error: `Failed to fetch team data: ${response.status}` };
+      }
+      throw new Error(errorData.error || `Failed to fetch team data: ${response.status}`);
+    }
+
+    const data: MyTeamResponsePayload = await response.json();
+
+    // Log warnings if any
+    if (data.warnings && data.warnings.length > 0) {
+      console.warn('MyTeam API Warnings:', data.warnings);
+    }
+
+    // Log mutation errors if any
+    if (data.mutationErrors && data.mutationErrors.length > 0) {
+      console.error('MyTeam API Mutation Errors:', data.mutationErrors);
+    }
+
+    return {
+      success: true,
+      data,
+      warnings: data.warnings,
+      mutationErrors: data.mutationErrors,
+    };
+  } catch (error) {
+    console.error('Fetch MyTeam data error:', error);
+    throw error;
+  }
+};
+
+// ============================================================================
+// Mapping Functions: MyTeam API Response → Existing Interfaces
+// ============================================================================
+
+/**
+ * Recursively collect all key result nodes from an OKRNode tree
+ */
+function collectKeyResults(node: OKRNode): OKRNode[] {
+  const keyResults: OKRNode[] = [];
+  
+  // If this node has children, all children are key results (or nested OKRs)
+  if (node.children && node.children.length > 0) {
+    node.children.forEach(child => {
+      // Add the child as a key result
+      keyResults.push(child);
+      // Recursively collect from grandchildren (for nested structures)
+      keyResults.push(...collectKeyResults(child));
+    });
+  }
+  
+  return keyResults;
+}
+
+/**
+ * Transform OKRNode tree structure to flat OKR[] with keyResults
+ * The API returns an array of root OKRNodes, each with a recursive children array
+ */
+function transformOKRTree(okrNodes: OKRNode[]): OKR[] {
+  const okrs: OKR[] = [];
+
+  // Filter to get root nodes (objectives with no parent)
+  const rootNodes = okrNodes.filter(node => !node.parentObjectiveId);
+
+  rootNodes.forEach(objNode => {
+    // Collect all key results from this objective's tree
+    const keyResultsNodes = collectKeyResults(objNode);
+    
+    const keyResults: KeyResult[] = keyResultsNodes.map(krNode => ({
+      id: krNode.id,
+      name: krNode.name,
+      description: krNode.comments || '',
+      target: 100, // Default, may not be available in API
+      currentValue: krNode.progress || 0,
+      progress: krNode.progress || 0,
+      status: krNode.status || 'Not Started',
+      unit: '', // May not be available in API
+      createdDate: '', // May not be available
+    }));
+
+    // Extract period and year from quarter if available
+    let period = '';
+    let year = new Date().getFullYear();
+    if (objNode.quarter) {
+      const quarterMatch = objNode.quarter.match(/(Q[1-4])\s*(\d{4})/);
+      if (quarterMatch) {
+        period = quarterMatch[1];
+        year = parseInt(quarterMatch[2], 10);
+      }
+    }
+
+    const okr: OKR = {
+      id: objNode.id,
+      name: objNode.name,
+      objective: objNode.name,
+      status: objNode.status || 'Not Started',
+      progress: objNode.progress || 0,
+      period,
+      year,
+      startDate: null, // API doesn't provide startDate
+      endDate: objNode.dueDate,
+      createdDate: '', // May not be available
+      keyResults,
+    };
+
+    okrs.push(okr);
+  });
+
+  return okrs;
+}
+
+/**
+ * Calculate requirement stats from API response
+ */
+function calculateRequirementStats(
+  inProgress: RequirementRecord[],
+  notCompleted: RequirementRecord[],
+  counts: Record<string, number>
+): RequirementStats {
+  const completed = counts['Completed'] || 0;
+  const inProgressCount = inProgress.length || counts['In Progress'] || 0;
+  const total = inProgressCount + Object.values(counts).reduce((sum, count) => sum + count, 0);
+
+  return {
+    completed,
+    inProgress: inProgressCount,
+    total: Math.max(total, inProgressCount + completed), // Ensure total is at least the sum
+  };
+}
+
+/**
+ * Transform TeamMemberRecord[] to ProjectAllocation[]
+ * Note: The API returns Team_Build_Member__c records, which may not have full project details.
+ * This is a simplified mapping - you may need to enhance based on actual API response fields.
+ */
+function transformTeamMembersToAllocations(
+  teamMembers: TeamMemberRecord[]
+): ProjectAllocation[] {
+  return teamMembers.map(tm => {
+    const allocation = tm.Allocation__c || tm.Allocation_Percentage__c || 0;
+    
+    return {
+      id: tm.Id,
+      name: tm.Name,
+      scope: '', // Not available in Team_Build_Member__c
+      deliverables: '', // Not available in Team_Build_Member__c
+      accountId: null,
+      accountName: '', // Not available in Team_Build_Member__c
+      opportunityId: null,
+      opportunityName: '', // Not available in Team_Build_Member__c
+      projectId: null,
+      projectName: '', // Not available in Team_Build_Member__c
+      allocationPercentage: typeof allocation === 'number' ? allocation : 0,
+      createdDate: '', // May not be available
+      teamMembers: [],
+    };
+  });
+}
+
+/**
+ * Calculate total allocation percentage from team members
+ */
+function calculateTotalAllocation(teamMembers: TeamMemberRecord[]): number {
+  return teamMembers.reduce((sum, tm) => {
+    const allocation = tm.Allocation__c || tm.Allocation_Percentage__c || 0;
+    return sum + (typeof allocation === 'number' ? allocation : 0);
+  }, 0);
+}
+
+/**
+ * Transform ContactNode to TeamMember with data from API response
+ */
+function transformContactNodeToTeamMember(
+  contactNode: ContactNode,
+  apiData: MyTeamResponsePayload,
+  contactId: string
+): TeamMember {
+  // Get data specific to this contact (filter by contact ID)
+  const isCurrentContact = contactNode.id === contactId;
+  
+  // For current contact, use the full data
+  // For subordinates, we'll need to fetch their data separately or it might not be available
+  // All OKRs in the response are for the current contact
+  const okrs = isCurrentContact ? transformOKRTree(apiData.okrs) : [];
+  
+  const requirementsStats = isCurrentContact 
+    ? calculateRequirementStats(
+        apiData.requirementsInProgress,
+        apiData.requirementsNotCompleted,
+        apiData.requirementCounts
+      )
+    : { completed: 0, inProgress: 0, total: 0 };
+  
+  const teamBuilds = isCurrentContact
+    ? transformTeamMembersToAllocations(apiData.teamMembers)
+    : [];
+  
+  const totalAllocationPercentage = isCurrentContact
+    ? calculateTotalAllocation(apiData.teamMembers)
+    : 0;
+
+  // Recursively transform subordinates
+  const subordinates = contactNode.children.map(child =>
+    transformContactNodeToTeamMember(child, apiData, contactId)
+  );
+
+  return {
+    id: contactNode.id,
+    name: contactNode.name,
+    email: contactNode.email || '',
+    reportsToId: contactNode.reportsToId,
+    reportsToName: undefined, // Not in API response
+    associatedUserId: null, // Not in API response
+    subordinates,
+    teamBuilds,
+    requirementsStats,
+    okrs,
+    totalAllocationPercentage,
+  };
+}
+
+/**
+ * Transform MyTeam API response to TeamHierarchy structure
+ */
+export function transformMyTeamResponseToTeamHierarchy(
+  apiResponse: MyTeamResponse,
+  contactId: string
+): TeamHierarchy {
+  const { data } = apiResponse;
+  
+  if (!data.contact) {
+    throw new Error('Contact data not found in API response');
+  }
+
+  const teamMember = transformContactNodeToTeamMember(data.contact, data, contactId);
+
+  return {
+    success: true,
+    data: teamMember,
+  };
+}
+
+/**
+ * Transform MyTeam API response to TeamMemberData for a specific contact
+ */
+export function transformMyTeamResponseToTeamMemberData(
+  apiResponse: MyTeamResponse,
+  contactId: string
+): TeamMemberData {
+  const { data } = apiResponse;
+  
+  // All OKRs in the response are for the current contact
+  const contactOKRs = transformOKRTree(data.okrs);
+  
+  // All team members in the response are for the current contact
+  const contactTeamMembers = data.teamMembers;
+  
+  const requirementsStats = calculateRequirementStats(
+    data.requirementsInProgress,
+    data.requirementsNotCompleted,
+    data.requirementCounts
+  );
+
+  return {
+    contactId,
+    okrs: contactOKRs,
+    requirementsStats,
+    teamBuilds: transformTeamMembersToAllocations(contactTeamMembers),
+    totalAllocationPercentage: calculateTotalAllocation(contactTeamMembers),
+    pagination: {
+      okrs: {
+        offset: 0,
+        limit: contactOKRs.length,
+        total: contactOKRs.length,
+        hasMore: false, // API doesn't support pagination currently
+      },
+      teamBuilds: {
+        offset: 0,
+        limit: contactTeamMembers.length,
+        total: contactTeamMembers.length,
+        hasMore: false, // API doesn't support pagination currently
+      },
+    },
+  };
+}
+
+// ============================================================================
+// Mutation Helper Functions
+// ============================================================================
+
+/**
+ * Update team member allocation
+ */
+export const updateTeamMemberAllocation = async (
+  contactId: string,
+  allocationId: string,
+  allocationPercentage: number,
+  authData: { access_token: string; instance_url: string },
+  additionalFields?: Record<string, any>
+): Promise<MyTeamResponse> => {
+  const mutations: MyTeamMutations = {
+    teamMemberAllocations: [
+      {
+        id: allocationId,
+        allocationPercentage,
+        fields: additionalFields || {},
+      },
+    ],
+  };
+
+  return fetchMyTeamData(contactId, authData, mutations);
+};
+
+/**
+ * Update an OKR
+ */
+export const updateOKR = async (
+  contactId: string,
+  okrId: string,
+  fields: Record<string, any>,
+  authData: { access_token: string; instance_url: string }
+): Promise<MyTeamResponse> => {
+  const mutations: MyTeamMutations = {
+    okrsToUpdate: [
+      {
+        id: okrId,
+        fields,
+      },
+    ],
+  };
+
+  return fetchMyTeamData(contactId, authData, mutations);
+};
+
+/**
+ * Create an OKR
+ */
+export const createOKR = async (
+  contactId: string,
+  fields: Record<string, any>,
+  authData: { access_token: string; instance_url: string }
+): Promise<MyTeamResponse> => {
+  const mutations: MyTeamMutations = {
+    okrsToCreate: [
+      {
+        fields,
+      },
+    ],
+  };
+
+  return fetchMyTeamData(contactId, authData, mutations);
+};
+
 export const fetchTeamMemberData = async (
   contactId: string,
   authData: { access_token: string; instance_url: string },

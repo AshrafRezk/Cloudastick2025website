@@ -1,36 +1,22 @@
 import { useState, useEffect } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Calendar, ArrowRight, Loader2, BookOpen } from "lucide-react";
+import { Calendar, ArrowRight, Loader2, BookOpen, ChevronDown } from "lucide-react";
 import { useSalesforce } from "../contexts/SalesforceContext";
 import { fetchAllBlogs, type BlogPost } from "../services/blogService";
 import AnimatedSection from "../components/AnimatedSection";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-  PaginationEllipsis,
-} from "../components/ui/pagination";
+
+const INITIAL_BLOG_COUNT = 10;
+const BLOGS_PER_LOAD = 10;
 
 const Blogs = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const currentPage = parseInt(searchParams.get("page") || "1", 10);
-  
   const { authData, isLoading: authLoading } = useSalesforce();
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [pagination, setPagination] = useState({
-    page: 1,
-    pageSize: 10,
-    totalCount: 0,
-    totalPages: 0,
-    hasNextPage: false,
-    hasPreviousPage: false,
-  });
+  const [totalCount, setTotalCount] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
 
   useEffect(() => {
     const loadBlogs = async () => {
@@ -45,15 +31,17 @@ const Blogs = () => {
       try {
         setIsLoading(true);
         setError(null);
+        // Initially fetch first page (10 blogs)
         const data = await fetchAllBlogs(
           authData.access_token,
           authData.instance_url,
-          currentPage,
-          10
+          1,
+          INITIAL_BLOG_COUNT
         );
         
         setBlogs(data.blogs);
-        setPagination(data.pagination);
+        setTotalCount(data.pagination.totalCount);
+        setHasMore(data.pagination.hasNextPage);
       } catch (err) {
         console.error("Failed to load blogs:", err);
         setError(err instanceof Error ? err.message : "Failed to load blogs");
@@ -63,123 +51,33 @@ const Blogs = () => {
     };
 
     loadBlogs();
-  }, [authData, authLoading, currentPage]);
+  }, [authData, authLoading]);
 
-  const handlePageChange = (newPage: number) => {
-    setSearchParams({ page: newPage.toString() });
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const handleLoadMore = async () => {
+    if (isLoadingMore || !hasMore || !authData?.access_token || !authData?.instance_url) return;
+
+    try {
+      setIsLoadingMore(true);
+      // Calculate next page based on current number of blogs loaded
+      const nextPage = Math.floor(blogs.length / BLOGS_PER_LOAD) + 1;
+      const data = await fetchAllBlogs(
+        authData.access_token,
+        authData.instance_url,
+        nextPage,
+        BLOGS_PER_LOAD
+      );
+      
+      // Append new blogs to existing ones
+      setBlogs(prev => [...prev, ...data.blogs]);
+      setHasMore(data.pagination.hasNextPage);
+    } catch (err) {
+      console.error("Failed to load more blogs:", err);
+      setError(err instanceof Error ? err.message : "Failed to load more blogs");
+    } finally {
+      setIsLoadingMore(false);
+    }
   };
 
-  const renderPagination = () => {
-    if (pagination.totalPages <= 1) return null;
-
-    const pages = [];
-    const maxVisible = 5;
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
-    let endPage = Math.min(pagination.totalPages, startPage + maxVisible - 1);
-
-    if (endPage - startPage < maxVisible - 1) {
-      startPage = Math.max(1, endPage - maxVisible + 1);
-    }
-
-    // Previous button
-    if (pagination.hasPreviousPage) {
-      pages.push(
-        <PaginationItem key="prev">
-          <PaginationPrevious
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              handlePageChange(currentPage - 1);
-            }}
-          />
-        </PaginationItem>
-      );
-    }
-
-    // First page
-    if (startPage > 1) {
-      pages.push(
-        <PaginationItem key={1}>
-          <PaginationLink
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              handlePageChange(1);
-            }}
-          >
-            1
-          </PaginationLink>
-        </PaginationItem>
-      );
-      if (startPage > 2) {
-        pages.push(
-          <PaginationItem key="ellipsis-start">
-            <PaginationEllipsis />
-          </PaginationItem>
-        );
-      }
-    }
-
-    // Page numbers
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(
-        <PaginationItem key={i}>
-          <PaginationLink
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              handlePageChange(i);
-            }}
-            isActive={i === currentPage}
-          >
-            {i}
-          </PaginationLink>
-        </PaginationItem>
-      );
-    }
-
-    // Last page
-    if (endPage < pagination.totalPages) {
-      if (endPage < pagination.totalPages - 1) {
-        pages.push(
-          <PaginationItem key="ellipsis-end">
-            <PaginationEllipsis />
-          </PaginationItem>
-        );
-      }
-      pages.push(
-        <PaginationItem key={pagination.totalPages}>
-          <PaginationLink
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              handlePageChange(pagination.totalPages);
-            }}
-          >
-            {pagination.totalPages}
-          </PaginationLink>
-        </PaginationItem>
-      );
-    }
-
-    // Next button
-    if (pagination.hasNextPage) {
-      pages.push(
-        <PaginationItem key="next">
-          <PaginationNext
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              handlePageChange(currentPage + 1);
-            }}
-          />
-        </PaginationItem>
-      );
-    }
-
-    return pages;
-  };
 
   if (authLoading || isLoading) {
     return (
@@ -225,9 +123,9 @@ const Blogs = () => {
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Discover insights, best practices, and updates from our Salesforce experts
           </p>
-          {pagination.totalCount > 0 && (
+          {totalCount > 0 && (
             <p className="text-sm text-muted-foreground mt-4">
-              Showing {blogs.length} of {pagination.totalCount} blogs
+              Showing {blogs.length} of {totalCount} blogs
             </p>
           )}
         </AnimatedSection>
@@ -275,12 +173,28 @@ const Blogs = () => {
               ))}
             </div>
 
-            {/* Pagination */}
-            {pagination.totalPages > 1 && (
-              <AnimatedSection>
-                <Pagination>
-                  <PaginationContent>{renderPagination()}</PaginationContent>
-                </Pagination>
+            {/* Load More Button */}
+            {hasMore && (
+              <AnimatedSection className="flex justify-center mt-8">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleLoadMore}
+                  disabled={isLoadingMore}
+                  className="flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-brand-primary to-brand-secondary text-white rounded-lg hover:shadow-lg hover:shadow-brand-primary/25 transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoadingMore ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Loading...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Load More</span>
+                      <ChevronDown className="w-5 h-5" />
+                    </>
+                  )}
+                </motion.button>
               </AnimatedSection>
             )}
           </>

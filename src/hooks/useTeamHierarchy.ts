@@ -4,7 +4,14 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { fetchTeamHierarchyStructure, fetchTeamMemberData, type TeamMember, type TeamMemberData } from '../services/teamService';
+import {
+  fetchMyTeamData,
+  transformMyTeamResponseToTeamHierarchy,
+  transformMyTeamResponseToTeamMemberData,
+  fetchTeamMemberData, // Keep for subordinate data if needed
+  type TeamMember,
+  type TeamMemberData,
+} from '../services/teamService';
 import { useSalesforce } from '../contexts/SalesforceContext';
 
 interface UseTeamHierarchyOptions {
@@ -55,86 +62,69 @@ export const useTeamHierarchy = ({ contactId, enabled = true }: UseTeamHierarchy
 
   const loadedMembers = useRef<Set<string>>(new Set());
 
-  // Load structure (fast, cached for 1 hour)
+  // Load structure and current user data using new MyTeam API
   const loadStructure = useCallback(async () => {
     if (!authData || !enabled) return;
 
-    const cacheKey = `structure-${contactId}`;
+    const cacheKey = `myteam-${contactId}`;
     const cached = getCached(cacheKey);
     if (cached) {
-      setState(prev => ({ ...prev, structure: cached }));
+      // Cached data includes both structure and current user data
+      setState(prev => ({
+        ...prev,
+        structure: cached.structure,
+        memberData: new Map([[contactId, cached.memberData]]),
+        loading: { ...prev.loading, structure: false, currentUser: false },
+      }));
+      loadedMembers.current.add(contactId);
       return;
     }
 
-    setState(prev => ({ ...prev, loading: { ...prev.loading, structure: true }, error: null }));
+    setState(prev => ({
+      ...prev,
+      loading: { ...prev.loading, structure: true, currentUser: true },
+      error: null,
+    }));
 
     try {
-      const response = await fetchTeamHierarchyStructure(contactId, authData);
+      const response = await fetchMyTeamData(contactId, authData);
       if (response.success && response.data) {
-        setCached(cacheKey, response.data, 3600000); // 1 hour cache
-        setState(prev => ({
-          ...prev,
-          structure: response.data,
-          loading: { ...prev.loading, structure: false },
-        }));
+        // Transform API response to existing structure
+        const teamHierarchy = transformMyTeamResponseToTeamHierarchy(response, contactId);
+        const memberData = transformMyTeamResponseToTeamMemberData(response, contactId);
+
+        // Cache both structure and member data together (5 minutes cache)
+        setCached(cacheKey, { structure: teamHierarchy.data, memberData }, 300000);
+
+        setState(prev => {
+          const newMemberData = new Map(prev.memberData);
+          newMemberData.set(contactId, memberData);
+          return {
+            ...prev,
+            structure: teamHierarchy.data,
+            memberData: newMemberData,
+            loading: { ...prev.loading, structure: false, currentUser: false },
+          };
+        });
+        loadedMembers.current.add(contactId);
       } else {
-        throw new Error('Failed to load team structure');
+        throw new Error('Failed to load team data');
       }
     } catch (error) {
       console.error('Failed to load team structure:', error);
       setState(prev => ({
         ...prev,
         error: error instanceof Error ? error.message : 'Failed to load team structure',
-        loading: { ...prev.loading, structure: false },
+        loading: { ...prev.loading, structure: false, currentUser: false },
       }));
     }
   }, [contactId, authData, enabled]);
 
-  // Load current user data (priority)
+  // Note: Current user data is now loaded together with structure in loadStructure
+  // This function is kept for backward compatibility but is no longer needed
   const loadCurrentUserData = useCallback(async () => {
-    if (!authData || !enabled || !state.structure) return;
-
-    const cacheKey = `member-${contactId}`;
-    const cached = getCached(cacheKey);
-    if (cached) {
-      setState(prev => {
-        const newMemberData = new Map(prev.memberData);
-        newMemberData.set(contactId, cached);
-        return {
-          ...prev,
-          memberData: newMemberData,
-          loading: { ...prev.loading, currentUser: false },
-        };
-      });
-      return;
-    }
-
-    setState(prev => ({ ...prev, loading: { ...prev.loading, currentUser: true } }));
-
-    try {
-      const response = await fetchTeamMemberData(contactId, authData);
-      if (response.success && response.data) {
-        setCached(cacheKey, response.data, 300000); // 5 minutes cache
-        setState(prev => {
-          const newMemberData = new Map(prev.memberData);
-          newMemberData.set(contactId, response.data);
-          return {
-            ...prev,
-            memberData: newMemberData,
-            loading: { ...prev.loading, currentUser: false },
-          };
-        });
-      } else {
-        throw new Error('Failed to load current user data');
-      }
-    } catch (error) {
-      console.error('Failed to load current user data:', error);
-      setState(prev => ({
-        ...prev,
-        loading: { ...prev.loading, currentUser: false },
-      }));
-    }
-  }, [contactId, authData, enabled, state.structure]);
+    // Data is already loaded in loadStructure, so this is a no-op
+  }, []);
 
   // Load member data on demand (lazy loading)
   const loadMemberData = useCallback(async (memberContactId: string) => {
@@ -208,19 +198,12 @@ export const useTeamHierarchy = ({ contactId, enabled = true }: UseTeamHierarchy
     };
   }, [state.memberData]);
 
-  // Phase 1: Load structure on mount
+  // Load structure and current user data on mount (single API call now)
   useEffect(() => {
     if (enabled && authData) {
       loadStructure();
     }
   }, [enabled, authData, loadStructure]);
-
-  // Phase 2: Load current user data after structure loads
-  useEffect(() => {
-    if (state.structure && !state.memberData.has(contactId)) {
-      loadCurrentUserData();
-    }
-  }, [state.structure, contactId, loadCurrentUserData]);
 
   // Get enriched current user
   const currentUser = state.structure ? getEnrichedMember(state.structure) : null;
@@ -246,7 +229,7 @@ export const useTeamHierarchy = ({ contactId, enabled = true }: UseTeamHierarchy
     error: state.error,
     loadMemberData,
     isMemberDataLoaded,
-    refresh: () => {
+    refresh: async () => {
       cache.clear();
       loadedMembers.current.clear();
       setState({
@@ -260,7 +243,7 @@ export const useTeamHierarchy = ({ contactId, enabled = true }: UseTeamHierarchy
         error: null,
       });
       if (enabled && authData) {
-        loadStructure();
+        await loadStructure();
       }
     },
   };

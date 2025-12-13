@@ -194,14 +194,21 @@ exports.handler = async (event, context) => {
 
     const totalPages = Math.ceil(totalCount / pageSize);
 
-    const totalPages = Math.ceil(totalCount / pageSize);
+    // Enhanced Netlify CDN caching headers for global distribution
+    // Using stale-while-revalidate for better performance
+    const cacheControl = fromCache 
+      ? 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400'
+      : 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=172800';
 
     return {
       statusCode: 200,
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
-        'Cache-Control': fromCache ? 'public, max-age=3600' : 'public, max-age=86400',
+        'Cache-Control': cacheControl,
+        // Additional headers for Netlify CDN
+        'CDN-Cache-Control': 'public, max-age=3600',
+        'Vary': 'Accept-Encoding',
       },
       body: JSON.stringify({ 
         blogs,
