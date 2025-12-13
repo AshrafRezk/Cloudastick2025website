@@ -3,12 +3,11 @@
  * Manages structure loading, current user data, and lazy loading for subordinates
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import {
   fetchMyTeamData,
   transformMyTeamResponseToTeamHierarchy,
   transformMyTeamResponseToTeamMemberData,
-  fetchTeamMemberData, // Keep for subordinate data if needed
   type TeamMember,
   type TeamMemberData,
 } from '../services/teamService';
@@ -126,16 +125,16 @@ export const useTeamHierarchy = ({ contactId, enabled = true }: UseTeamHierarchy
     // Data is already loaded in loadStructure, so this is a no-op
   }, []);
 
-  // Load member data on demand (lazy loading)
+  // Load member data on demand (lazy loading) - uses new MyTeam API
   const loadMemberData = useCallback(async (memberContactId: string) => {
     if (!authData || !enabled || loadedMembers.current.has(memberContactId)) return;
 
-    const cacheKey = `member-${memberContactId}`;
+    const cacheKey = `myteam-${memberContactId}`;
     const cached = getCached(cacheKey);
-    if (cached) {
+    if (cached && cached.memberData) {
       setState(prev => {
         const newMemberData = new Map(prev.memberData);
-        newMemberData.set(memberContactId, cached);
+        newMemberData.set(memberContactId, cached.memberData);
         return prev;
       });
       loadedMembers.current.add(memberContactId);
@@ -152,12 +151,17 @@ export const useTeamHierarchy = ({ contactId, enabled = true }: UseTeamHierarchy
     });
 
     try {
-      const response = await fetchTeamMemberData(memberContactId, authData);
+      // Use new MyTeam API to fetch data for this subordinate
+      const response = await fetchMyTeamData(memberContactId, authData);
       if (response.success && response.data) {
-        setCached(cacheKey, response.data, 300000); // 5 minutes cache
+        const memberData = transformMyTeamResponseToTeamMemberData(response, memberContactId);
+        
+        // Cache the member data (5 minutes cache)
+        setCached(cacheKey, { memberData }, 300000);
+        
         setState(prev => {
           const newMemberData = new Map(prev.memberData);
-          newMemberData.set(memberContactId, response.data);
+          newMemberData.set(memberContactId, memberData);
           const newLoadingMembers = new Set(prev.loading.members);
           newLoadingMembers.delete(memberContactId);
           return {
@@ -205,8 +209,10 @@ export const useTeamHierarchy = ({ contactId, enabled = true }: UseTeamHierarchy
     }
   }, [enabled, authData, loadStructure]);
 
-  // Get enriched current user
-  const currentUser = state.structure ? getEnrichedMember(state.structure) : null;
+  // Get enriched current user - recompute when structure or memberData changes
+  const currentUser = useMemo(() => {
+    return state.structure ? getEnrichedMember(state.structure) : null;
+  }, [state.structure, state.memberData, getEnrichedMember]);
 
   // Check if member data is loaded
   const isMemberDataLoaded = (memberId: string) => {
