@@ -60,10 +60,15 @@ export const useTeamHierarchy = ({ contactId, enabled = true }: UseTeamHierarchy
   });
 
   const loadedMembers = useRef<Set<string>>(new Set());
+  const isLoadingStructure = useRef<boolean>(false);
+  const hasAttemptedLoad = useRef<string | null>(null); // Track which contactId we've attempted to load
 
   // Load structure and current user data using new MyTeam API
   const loadStructure = useCallback(async () => {
-    if (!authData || !enabled) return;
+    if (!authData || !enabled || isLoadingStructure.current) return;
+
+    // Prevent loading the same contactId multiple times
+    if (hasAttemptedLoad.current === contactId && state.structure) return;
 
     const cacheKey = `myteam-${contactId}`;
     const cached = getCached(cacheKey);
@@ -76,8 +81,14 @@ export const useTeamHierarchy = ({ contactId, enabled = true }: UseTeamHierarchy
         loading: { ...prev.loading, structure: false, currentUser: false },
       }));
       loadedMembers.current.add(contactId);
+      hasAttemptedLoad.current = contactId;
       return;
     }
+
+    // Prevent multiple simultaneous calls
+    if (isLoadingStructure.current) return;
+    isLoadingStructure.current = true;
+    hasAttemptedLoad.current = contactId;
 
     setState(prev => ({
       ...prev,
@@ -116,8 +127,10 @@ export const useTeamHierarchy = ({ contactId, enabled = true }: UseTeamHierarchy
         error: error instanceof Error ? error.message : 'Failed to load team structure',
         loading: { ...prev.loading, structure: false, currentUser: false },
       }));
+    } finally {
+      isLoadingStructure.current = false;
     }
-  }, [contactId, authData, enabled]);
+  }, [contactId, authData?.access_token, authData?.instance_url, enabled]);
 
   // Note: Current user data is now loaded together with structure in loadStructure
   // This function is kept for backward compatibility but is no longer needed
@@ -204,15 +217,25 @@ export const useTeamHierarchy = ({ contactId, enabled = true }: UseTeamHierarchy
 
   // Load structure and current user data on mount (single API call now)
   useEffect(() => {
-    if (enabled && authData) {
+    // Only load if we have auth data and haven't loaded this contactId yet
+    if (
+      enabled && 
+      authData?.access_token && 
+      authData?.instance_url && 
+      hasAttemptedLoad.current !== contactId && 
+      !isLoadingStructure.current
+    ) {
       loadStructure();
     }
-  }, [enabled, authData, loadStructure]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enabled, authData?.access_token, authData?.instance_url, contactId]); // Only depend on primitive values
 
   // Get enriched current user - recompute when structure or memberData changes
+  // Use a string key to detect memberData changes (since Map reference changes don't work well with dependencies)
+  const memberDataKey = useMemo(() => Array.from(state.memberData.keys()).join(','), [state.memberData]);
   const currentUser = useMemo(() => {
     return state.structure ? getEnrichedMember(state.structure) : null;
-  }, [state.structure, state.memberData, getEnrichedMember]);
+  }, [state.structure, memberDataKey, getEnrichedMember]);
 
   // Check if member data is loaded
   const isMemberDataLoaded = (memberId: string) => {
@@ -238,6 +261,8 @@ export const useTeamHierarchy = ({ contactId, enabled = true }: UseTeamHierarchy
     refresh: async () => {
       cache.clear();
       loadedMembers.current.clear();
+      hasAttemptedLoad.current = null; // Reset so we can load again
+      isLoadingStructure.current = false;
       setState({
         structure: null,
         memberData: new Map(),
