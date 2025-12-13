@@ -60,8 +60,10 @@ export const useTeamHierarchy = ({ contactId, enabled = true }: UseTeamHierarchy
   });
 
   const loadedMembers = useRef<Set<string>>(new Set());
+  const failedMembers = useRef<Set<string>>(new Set()); // Track members that failed to load
   const isLoadingStructure = useRef<boolean>(false);
   const hasAttemptedLoad = useRef<string | null>(null); // Track which contactId we've attempted to load
+  const loadingMembers = useRef<Set<string>>(new Set()); // Track currently loading members to prevent concurrent loads
 
   // Load structure and current user data using new MyTeam API
   const loadStructure = useCallback(async () => {
@@ -140,7 +142,13 @@ export const useTeamHierarchy = ({ contactId, enabled = true }: UseTeamHierarchy
 
   // Load member data on demand (lazy loading) - uses new MyTeam API
   const loadMemberData = useCallback(async (memberContactId: string) => {
-    if (!authData || !enabled || loadedMembers.current.has(memberContactId)) return;
+    // Prevent loading if already loaded, failed, or currently loading
+    if (!authData || !enabled || 
+        loadedMembers.current.has(memberContactId) || 
+        failedMembers.current.has(memberContactId) ||
+        loadingMembers.current.has(memberContactId)) {
+      return;
+    }
 
     const cacheKey = `myteam-${memberContactId}`;
     const cached = getCached(cacheKey);
@@ -153,6 +161,9 @@ export const useTeamHierarchy = ({ contactId, enabled = true }: UseTeamHierarchy
       loadedMembers.current.add(memberContactId);
       return;
     }
+
+    // Mark as loading to prevent concurrent calls
+    loadingMembers.current.add(memberContactId);
 
     setState(prev => {
       const newLoadingMembers = new Set(prev.loading.members);
@@ -184,11 +195,14 @@ export const useTeamHierarchy = ({ contactId, enabled = true }: UseTeamHierarchy
           };
         });
         loadedMembers.current.add(memberContactId);
+        failedMembers.current.delete(memberContactId); // Clear failure flag if successful
       } else {
         throw new Error('Failed to load member data');
       }
     } catch (error) {
       console.error(`Failed to load member data for ${memberContactId}:`, error);
+      // Mark as failed to prevent infinite retries
+      failedMembers.current.add(memberContactId);
       setState(prev => {
         const newLoadingMembers = new Set(prev.loading.members);
         newLoadingMembers.delete(memberContactId);
@@ -197,6 +211,8 @@ export const useTeamHierarchy = ({ contactId, enabled = true }: UseTeamHierarchy
           loading: { ...prev.loading, members: newLoadingMembers },
         };
       });
+    } finally {
+      loadingMembers.current.delete(memberContactId);
     }
   }, [authData, enabled]);
 
@@ -237,9 +253,11 @@ export const useTeamHierarchy = ({ contactId, enabled = true }: UseTeamHierarchy
     return state.structure ? getEnrichedMember(state.structure) : null;
   }, [state.structure, memberDataKey, getEnrichedMember]);
 
-  // Check if member data is loaded
+  // Check if member data is loaded (or failed)
   const isMemberDataLoaded = (memberId: string) => {
-    return state.memberData.has(memberId) || loadedMembers.current.has(memberId);
+    return state.memberData.has(memberId) || 
+           loadedMembers.current.has(memberId) || 
+           failedMembers.current.has(memberId); // Treat failed as "loaded" to prevent retries
   };
 
   // Check if member is loading
@@ -261,6 +279,8 @@ export const useTeamHierarchy = ({ contactId, enabled = true }: UseTeamHierarchy
     refresh: async () => {
       cache.clear();
       loadedMembers.current.clear();
+      failedMembers.current.clear(); // Clear failed members on refresh
+      loadingMembers.current.clear(); // Clear loading members on refresh
       hasAttemptedLoad.current = null; // Reset so we can load again
       isLoadingStructure.current = false;
       setState({

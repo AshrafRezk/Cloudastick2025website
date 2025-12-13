@@ -475,7 +475,25 @@ export const fetchMyTeamData = async (
       throw new Error(errorData.error || `Failed to fetch team data: ${response.status}`);
     }
 
-    const data: MyTeamResponsePayload = await response.json();
+    let data: MyTeamResponsePayload;
+    try {
+      const responseText = await response.text();
+      data = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error('Failed to parse MyTeam API response:', parseError);
+      throw new Error('Invalid JSON response from MyTeam API');
+    }
+
+    // Safely handle requirementCounts with null keys
+    if (data.requirementCounts && typeof data.requirementCounts === 'object') {
+      const safeCounts: Record<string, number> = {};
+      Object.entries(data.requirementCounts).forEach(([key, value]) => {
+        if (key !== null && key !== undefined) {
+          safeCounts[String(key)] = typeof value === 'number' ? value : 0;
+        }
+      });
+      data.requirementCounts = safeCounts;
+    }
 
     // Log warnings if any
     if (data.warnings && data.warnings.length > 0) {
@@ -581,15 +599,26 @@ function transformOKRTree(okrNodes: OKRNode[]): OKR[] {
 
 /**
  * Calculate requirement stats from API response
+ * Safely handles requirementCounts that may have null keys
  */
 function calculateRequirementStats(
   inProgress: RequirementRecord[],
   notCompleted: RequirementRecord[],
   counts: Record<string, number>
 ): RequirementStats {
-  const completed = counts['Completed'] || 0;
-  const inProgressCount = inProgress.length || counts['In Progress'] || 0;
-  const total = inProgressCount + Object.values(counts).reduce((sum, count) => sum + count, 0);
+  // Safely process counts, filtering out null keys
+  const safeCounts: Record<string, number> = {};
+  if (counts && typeof counts === 'object') {
+    Object.entries(counts).forEach(([key, value]) => {
+      if (key !== null && key !== undefined) {
+        safeCounts[String(key)] = typeof value === 'number' ? value : 0;
+      }
+    });
+  }
+
+  const completed = safeCounts['Completed'] || 0;
+  const inProgressCount = inProgress.length || safeCounts['In Progress'] || 0;
+  const total = inProgressCount + Object.values(safeCounts).reduce((sum, count) => sum + count, 0);
 
   return {
     completed,
