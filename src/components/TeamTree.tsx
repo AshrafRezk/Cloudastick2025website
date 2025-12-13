@@ -33,12 +33,13 @@ export const TeamTree = ({
   const hasSubordinates = member.subordinates && member.subordinates.length > 0;
   const indent = level * 24;
 
-  // Lazy load member data when expanded (if not current user and data not loaded)
-  useEffect(() => {
-    if (isExpanded && !isCurrentUser && loadMemberData && !isMemberDataLoaded?.(member.id)) {
-      loadMemberData(member.id);
-    }
-  }, [isExpanded, member.id, isCurrentUser, loadMemberData, isMemberDataLoaded]);
+  // DISABLED: Lazy loading removed - only one API call is made for the current user
+  // Subordinates will show whatever data is available from the initial API response
+  // useEffect(() => {
+  //   if (isExpanded && !isCurrentUser && loadMemberData && !isMemberDataLoaded?.(member.id)) {
+  //     loadMemberData(member.id);
+  //   }
+  // }, [isExpanded, member.id, isCurrentUser, loadMemberData, isMemberDataLoaded]);
 
   // Update enriched member when member prop changes (data loaded)
   useEffect(() => {
@@ -256,7 +257,7 @@ export const TeamTree = ({
                   currentUserId={currentUserId}
                   level={level + 1}
                   isCurrentUser={false}
-                  loadMemberData={loadMemberData}
+                  loadMemberData={undefined}
                   isMemberLoading={isMemberLoading}
                   isMemberDataLoaded={isMemberDataLoaded}
                 />
@@ -332,12 +333,12 @@ export const TeamHierarchyView = ({
         {currentUser.managers && currentUser.managers.length > 0 && (
           <h3 className="text-lg font-semibold mb-4">Your Team</h3>
         )}
-        <TeamTree 
+                <TeamTree 
           member={currentUser} 
           currentUserId={currentUserId} 
           level={0} 
           isCurrentUser={true}
-          loadMemberData={loadMemberData}
+          loadMemberData={undefined}
           isMemberLoading={isMemberLoading}
           isMemberDataLoaded={isMemberDataLoaded}
         />
