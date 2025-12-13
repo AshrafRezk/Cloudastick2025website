@@ -12,7 +12,7 @@ import type { TeamMember, OKR, OkrMetadata } from '../services/teamService';
 import { fetchLearningInstances } from '../services/learningService';
 import { useSalesforce } from '../contexts/SalesforceContext';
 import type { LearningMaterialInstance } from '../services/learningService';
-import { createObjective, createKeyResult, fetchOkrMetadata, fetchTeamMemberData } from '../services/teamService';
+import { createObjective, createKeyResult, fetchOkrMetadata, fetchMyTeamData, transformMyTeamResponseToTeamMemberData } from '../services/teamService';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -207,18 +207,18 @@ export const TeamMemberDetail = ({ member, isOpen, onClose }: TeamMemberDetailPr
     setIsLoadingOKRs(true);
     setOkrError(null);
     try {
-      const response = await fetchTeamMemberData(member.id, authData, {
-        okrOffset: okrPagination.offset,
-        okrLimit: okrPagination.limit,
-      });
+      // Use direct Salesforce MyTeam API instead of Netlify function to avoid timeout issues
+      const response = await fetchMyTeamData(member.id, authData);
 
       if (response.success && response.data) {
-        setOkrs(response.data.okrs || []);
+        // Transform the response to get OKRs
+        const memberData = transformMyTeamResponseToTeamMemberData(response, member.id);
+        setOkrs(memberData.okrs || []);
         setOkrPagination({
-          offset: response.data.pagination.okrs.offset,
-          limit: response.data.pagination.okrs.limit,
-          total: response.data.pagination.okrs.total,
-          hasMore: response.data.pagination.okrs.hasMore,
+          offset: 0,
+          limit: memberData.okrs.length,
+          total: memberData.okrs.length,
+          hasMore: false, // MyTeam API loads all OKRs at once
         });
       } else {
         throw new Error('Failed to load OKR data');
@@ -231,35 +231,11 @@ export const TeamMemberDetail = ({ member, isOpen, onClose }: TeamMemberDetailPr
     }
   };
 
+  // Note: MyTeam API doesn't support pagination for OKRs, so loadMoreOKRs is a no-op
+  // All OKRs are loaded in the initial request
   const loadMoreOKRs = async () => {
-    if (!authData || !member.id || isLoadingOKRs || !okrPagination.hasMore) return;
-
-    setIsLoadingOKRs(true);
-    setOkrError(null);
-    try {
-      const nextOffset = okrPagination.offset + okrPagination.limit;
-      const response = await fetchTeamMemberData(member.id, authData, {
-        okrOffset: nextOffset,
-        okrLimit: okrPagination.limit,
-      });
-
-      if (response.success && response.data) {
-        setOkrs((prev) => [...prev, ...(response.data.okrs || [])]);
-        setOkrPagination({
-          offset: response.data.pagination.okrs.offset,
-          limit: response.data.pagination.okrs.limit,
-          total: response.data.pagination.okrs.total,
-          hasMore: response.data.pagination.okrs.hasMore,
-        });
-      } else {
-        throw new Error('Failed to load more OKR data');
-      }
-    } catch (error) {
-      console.error('Failed to load more OKR data:', error);
-      setOkrError(error instanceof Error ? error.message : 'Failed to load more OKR data');
-    } finally {
-      setIsLoadingOKRs(false);
-    }
+    // MyTeam API loads all OKRs at once, no pagination needed
+    return;
   };
 
   const handleCreateObjective = async () => {

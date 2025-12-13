@@ -79,6 +79,17 @@
 [build.processing.html]
   pretty_urls = true
 
+# Function-specific configurations
+# Extended timeout for functions that make multiple Salesforce API calls
+[functions."getTeamMemberData"]
+  timeout = 26  # 26 seconds (max for free tier, use 60 for Pro)
+
+[functions."getTeamHierarchy"]
+  timeout = 26
+
+[functions."syncSalesforceBulk"]
+  timeout = 26
+
 # Scheduled Functions - Bulk Salesforce Sync
 # Runs daily at 1:30 AM to sync all Salesforce data to cache
 [functions."scheduledBulkSync"]
