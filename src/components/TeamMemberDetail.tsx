@@ -128,7 +128,8 @@ export const TeamMemberDetail = ({ member, isOpen, onClose }: TeamMemberDetailPr
   const [lmsInstances, setLmsInstances] = useState<LearningMaterialInstance[]>([]);
   const [isLoadingLMS, setIsLoadingLMS] = useState(false);
   const [lmsError, setLmsError] = useState<string | null>(null);
-  const [okrs, setOkrs] = useState<OKR[]>([]);
+  // Initialize OKRs from member prop if available (from subordinateData)
+  const [okrs, setOkrs] = useState<OKR[]>(member.okrs || []);
   const [isLoadingOKRs, setIsLoadingOKRs] = useState(false);
   const [okrError, setOkrError] = useState<string | null>(null);
   const [okrMetadata, setOkrMetadata] = useState<OkrMetadata | null>(null);
@@ -157,13 +158,26 @@ export const TeamMemberDetail = ({ member, isOpen, onClose }: TeamMemberDetailPr
     if (isOpen && member.id && authData) {
       loadLMSData();
       loadOkrMetadata();
-      // Don't load OKRs here - they will be loaded when OKRs tab is clicked
-      setOkrs([]);
-      setOkrPagination({ offset: 0, limit: 50, total: 0, hasMore: false });
+      // Use OKRs from member prop if available (from subordinateData), otherwise reset
+      if (member.okrs && member.okrs.length > 0) {
+        setOkrs(member.okrs);
+        setOkrPagination({ offset: 0, limit: member.okrs.length, total: member.okrs.length, hasMore: false });
+      } else {
+        setOkrs([]);
+        setOkrPagination({ offset: 0, limit: 50, total: 0, hasMore: false });
+      }
     }
   }, [isOpen, member.id, authData]);
 
-  // Load OKRs when OKRs tab is activated
+  // Update OKRs when member prop changes (e.g., when data is loaded)
+  useEffect(() => {
+    if (member.okrs && member.okrs.length > 0 && okrs.length === 0) {
+      setOkrs(member.okrs);
+      setOkrPagination({ offset: 0, limit: member.okrs.length, total: member.okrs.length, hasMore: false });
+    }
+  }, [member.okrs]);
+
+  // Load OKRs when OKRs tab is activated - only if not already loaded from member prop
   useEffect(() => {
     if (activeTab === 'okrs' && isOpen && member.id && authData && okrs.length === 0 && !isLoadingOKRs) {
       loadOKRsData();
@@ -444,10 +458,10 @@ export const TeamMemberDetail = ({ member, isOpen, onClose }: TeamMemberDetailPr
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{okrs?.length || 0}</div>
-                  {okrs && okrs.length > 0 && (
+                  <div className="text-2xl font-bold">{okrs?.length || member.okrs?.length || 0}</div>
+                  {(okrs?.length > 0 || member.okrs?.length > 0) && (
                     <div className="text-xs text-muted-foreground">
-                      {Math.round(okrs.reduce((sum, okr) => sum + okr.progress, 0) / okrs.length)}% avg progress
+                      {Math.round((okrs?.length > 0 ? okrs : member.okrs || []).reduce((sum, okr) => sum + okr.progress, 0) / (okrs?.length || member.okrs?.length || 1))}% avg progress
                     </div>
                   )}
                 </CardContent>
