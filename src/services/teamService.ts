@@ -409,6 +409,16 @@ export interface MyTeamRequestPayload {
   mutations?: MyTeamMutations;
 }
 
+/**
+ * Subordinate data returned by the API for direct reports
+ * Contains OKRs, requirement counts, and team members for each subordinate
+ */
+export interface SubordinateData {
+  okrs: OKRNode[];
+  requirementCounts: Record<string, number>;
+  teamMembers: TeamMemberRecord[];
+}
+
 export interface MyTeamResponsePayload {
   contact: ContactNode | null;
   hierarchy: ContactNode[];
@@ -420,6 +430,12 @@ export interface MyTeamResponsePayload {
   learningMaterials: LearningMaterialRecord[];
   warnings: string[];
   mutationErrors: string[];
+  /**
+   * Data for direct reports (subordinates), keyed by Contact ID
+   * Only subordinates with Associated_User__c populated will have data
+   * Only direct reports (depth = 1) are included
+   */
+  subordinateData?: Record<string, SubordinateData>;
 }
 
 export interface MyTeamResponse {
@@ -493,6 +509,22 @@ export const fetchMyTeamData = async (
         }
       });
       data.requirementCounts = safeCounts;
+    }
+
+    // Safely handle subordinateData requirementCounts with null keys
+    if (data.subordinateData && typeof data.subordinateData === 'object') {
+      Object.keys(data.subordinateData).forEach(contactId => {
+        const subData = data.subordinateData![contactId];
+        if (subData?.requirementCounts && typeof subData.requirementCounts === 'object') {
+          const safeCounts: Record<string, number> = {};
+          Object.entries(subData.requirementCounts).forEach(([key, value]) => {
+            if (key !== null && key !== undefined) {
+              safeCounts[String(key)] = typeof value === 'number' ? value : 0;
+            }
+          });
+          subData.requirementCounts = safeCounts;
+        }
+      });
     }
 
     // Log warnings if any
@@ -666,41 +698,117 @@ function calculateTotalAllocation(teamMembers: TeamMemberRecord[]): number {
   }, 0);
 }
 
+// ============================================================================
+// Subordinate Data Helper Functions
+// ============================================================================
+
+/**
+ * Flatten OKR tree to get all OKRs (objectives and key results)
+ * OKRs are returned as a tree from the API - this flattens them for counting and progress calculation
+ */
+function flattenOKRTree(okrs: OKRNode[]): OKRNode[] {
+  const result: OKRNode[] = [];
+  
+  function traverse(node: OKRNode) {
+    result.push(node);
+    if (node.children && node.children.length > 0) {
+      node.children.forEach(traverse);
+    }
+  }
+  
+  okrs.forEach(traverse);
+  return result;
+}
+
+/**
+ * Calculate total requirements from requirement counts object
+ */
+function calculateTotalRequirements(requirementCounts: Record<string, number> | undefined): number {
+  if (!requirementCounts) return 0;
+  return Object.values(requirementCounts).reduce((sum, count) => sum + (typeof count === 'number' ? count : 0), 0);
+}
+
+/**
+ * Calculate average progress from OKR array
+ * Flattens the OKR tree to include all objectives and key results
+ */
+function calculateAverageProgress(okrs: OKRNode[] | undefined): number {
+  if (!okrs || okrs.length === 0) return 0;
+  
+  // Flatten OKR tree to get all OKRs (including children)
+  const allOkrs = flattenOKRTree(okrs);
+  
+  if (allOkrs.length === 0) return 0;
+  
+  const totalProgress = allOkrs.reduce((sum, okr) => sum + (okr.progress || 0), 0);
+  return Math.round(totalProgress / allOkrs.length);
+}
+
+/**
+ * Calculate total allocation percentage from subordinate team members
+ * Handles multiple possible field names for allocation percentage
+ */
+function calculateSubordinateAllocation(teamMembers: TeamMemberRecord[] | undefined): number {
+  if (!teamMembers || teamMembers.length === 0) return 0;
+  
+  // Sum allocation percentages from team members
+  return teamMembers.reduce((sum, member) => {
+    const allocation = member.Allocation_Percentage__c || 
+                      member.Allocation__c || 
+                      0;
+    return sum + (typeof allocation === 'number' ? allocation : 0);
+  }, 0);
+}
+
 /**
  * Transform ContactNode to TeamMember with data from API response
+ * Supports subordinateData for direct reports when available
  */
 function transformContactNodeToTeamMember(
   contactNode: ContactNode,
   apiData: MyTeamResponsePayload,
-  contactId: string
+  rootContactId: string
 ): TeamMember {
-  // Get data specific to this contact (filter by contact ID)
-  const isCurrentContact = contactNode.id === contactId;
+  const isCurrentContact = contactNode.id === rootContactId;
+  const isDirectReport = contactNode.reportsToId === rootContactId;
   
-  // For current contact, use the full data
-  // For subordinates, we'll need to fetch their data separately or it might not be available
-  // All OKRs in the response are for the current contact
-  const okrs = isCurrentContact ? transformOKRTree(apiData.okrs) : [];
+  // Check if this is a subordinate with data in subordinateData
+  const subordinateData = apiData.subordinateData?.[contactNode.id];
   
-  const requirementsStats = isCurrentContact 
-    ? calculateRequirementStats(
-        apiData.requirementsInProgress,
-        apiData.requirementsNotCompleted,
-        apiData.requirementCounts
-      )
-    : { completed: 0, inProgress: 0, total: 0 };
+  let okrs: OKR[] = [];
+  let requirementsStats: RequirementStats = { completed: 0, inProgress: 0, total: 0 };
+  let teamBuilds: ProjectAllocation[] = [];
+  let totalAllocationPercentage = 0;
   
-  const teamBuilds = isCurrentContact
-    ? transformTeamMembersToAllocations(apiData.teamMembers)
-    : [];
-  
-  const totalAllocationPercentage = isCurrentContact
-    ? calculateTotalAllocation(apiData.teamMembers)
-    : 0;
+  if (isCurrentContact) {
+    // Current user - use the main data from API response
+    okrs = transformOKRTree(apiData.okrs);
+    requirementsStats = calculateRequirementStats(
+      apiData.requirementsInProgress,
+      apiData.requirementsNotCompleted,
+      apiData.requirementCounts
+    );
+    teamBuilds = transformTeamMembersToAllocations(apiData.teamMembers);
+    totalAllocationPercentage = calculateTotalAllocation(apiData.teamMembers);
+  } else if (isDirectReport && subordinateData) {
+    // Direct report with subordinateData - use that data
+    okrs = transformOKRTree(subordinateData.okrs || []);
+    
+    // Calculate requirements stats from subordinateData.requirementCounts
+    const completed = subordinateData.requirementCounts?.['Completed'] || 0;
+    const inProgress = subordinateData.requirementCounts?.['In Progress'] || 0;
+    const total = calculateTotalRequirements(subordinateData.requirementCounts);
+    requirementsStats = { completed, inProgress, total };
+    
+    // Transform team members to allocations
+    teamBuilds = transformTeamMembersToAllocations(subordinateData.teamMembers || []);
+    totalAllocationPercentage = calculateSubordinateAllocation(subordinateData.teamMembers);
+  }
+  // else: subordinate without data - use default zeros (graceful fallback)
 
   // Recursively transform subordinates
   const subordinates = contactNode.children.map(child =>
-    transformContactNodeToTeamMember(child, apiData, contactId)
+    transformContactNodeToTeamMember(child, apiData, rootContactId)
   );
 
   return {
