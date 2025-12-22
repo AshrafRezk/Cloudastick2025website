@@ -11,15 +11,8 @@ interface CompanyLogoProps {
   domain?: string;
 }
 
-// Get favicon size based on component size
-const getFaviconSize = (size: 'small' | 'medium' | 'large'): number => {
-  switch (size) {
-    case 'small': return 32;
-    case 'medium': return 64;
-    case 'large': return 128;
-    default: return 64;
-  }
-};
+// Fixed favicon size for consistent quality
+const FAVICON_SIZE = 64;
 
 const CompanyLogo: React.FC<CompanyLogoProps> = ({
   logoUrl,
@@ -50,9 +43,8 @@ const CompanyLogo: React.FC<CompanyLogoProps> = ({
   };
 
   // Build Google favicon URL
-  const faviconSize = getFaviconSize(size);
   const faviconUrl = domain 
-    ? `https://www.google.com/s2/favicons?sz=${faviconSize}&domain_url=${encodeURIComponent(domain)}`
+    ? `https://www.google.com/s2/favicons?sz=${FAVICON_SIZE}&domain=${encodeURIComponent(domain)}`
     : null;
 
   // Handle primary image error - try favicon fallback
