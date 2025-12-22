@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
 interface CompanyLogoProps {
@@ -7,17 +7,40 @@ interface CompanyLogoProps {
   size?: 'small' | 'medium' | 'large';
   className?: string;
   showFallback?: boolean;
+  /** Domain for Google favicon fallback (e.g., "example.com") */
+  domain?: string;
 }
+
+// Get favicon size based on component size
+const getFaviconSize = (size: 'small' | 'medium' | 'large'): number => {
+  switch (size) {
+    case 'small': return 32;
+    case 'medium': return 64;
+    case 'large': return 128;
+    default: return 64;
+  }
+};
 
 const CompanyLogo: React.FC<CompanyLogoProps> = ({
   logoUrl,
   companyName = 'Company',
   size = 'medium',
   className = '',
-  showFallback = false
+  showFallback = false,
+  domain
 }) => {
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [usingFaviconFallback, setUsingFaviconFallback] = useState(false);
+  const [faviconError, setFaviconError] = useState(false);
+
+  // Reset states when logoUrl changes
+  useEffect(() => {
+    setImageError(false);
+    setImageLoaded(false);
+    setUsingFaviconFallback(false);
+    setFaviconError(false);
+  }, [logoUrl]);
 
   // Size configurations
   const sizeConfig = {
@@ -26,8 +49,34 @@ const CompanyLogo: React.FC<CompanyLogoProps> = ({
     large: 'w-24 h-24'
   };
 
-  // Don't render if no logo URL or image failed to load
-  if (!logoUrl || imageError) {
+  // Build Google favicon URL
+  const faviconSize = getFaviconSize(size);
+  const faviconUrl = domain 
+    ? `https://www.google.com/s2/favicons?sz=${faviconSize}&domain_url=${encodeURIComponent(domain)}`
+    : null;
+
+  // Handle primary image error - try favicon fallback
+  const handleImageError = () => {
+    if (faviconUrl && !usingFaviconFallback) {
+      // Try Google favicon as fallback
+      setUsingFaviconFallback(true);
+      setImageLoaded(false);
+    } else {
+      setImageError(true);
+    }
+  };
+
+  // Handle favicon fallback error
+  const handleFaviconError = () => {
+    setFaviconError(true);
+    setImageError(true);
+  };
+
+  // Determine current image source
+  const currentSrc = usingFaviconFallback ? faviconUrl : logoUrl;
+
+  // Don't render if no logo URL and no favicon fallback, or all sources failed
+  if ((!logoUrl && !faviconUrl) || (imageError && (faviconError || !faviconUrl))) {
     if (showFallback) {
       return (
         <div className={`${sizeConfig[size]} ${className} bg-gray-700/50 rounded-lg flex items-center justify-center`}>
@@ -40,6 +89,34 @@ const CompanyLogo: React.FC<CompanyLogoProps> = ({
     return null;
   }
 
+  // If we have no logoUrl but have a domain, try favicon directly
+  if (!logoUrl && faviconUrl && !faviconError) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: imageLoaded ? 1 : 0, scale: imageLoaded ? 1 : 0.8 }}
+        transition={{ duration: 0.3 }}
+        className={`${sizeConfig[size]} ${className} relative`}
+      >
+        <img
+          src={faviconUrl}
+          alt={`${companyName} logo`}
+          className="w-full h-full object-contain rounded-lg"
+          onLoad={() => setImageLoaded(true)}
+          onError={handleFaviconError}
+          loading="lazy"
+        />
+        
+        {/* Loading placeholder */}
+        {!imageLoaded && !faviconError && (
+          <div className="absolute inset-0 bg-gray-700/50 rounded-lg animate-pulse flex items-center justify-center">
+            <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        )}
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.8 }}
@@ -48,11 +125,11 @@ const CompanyLogo: React.FC<CompanyLogoProps> = ({
       className={`${sizeConfig[size]} ${className} relative`}
     >
       <img
-        src={logoUrl}
+        src={currentSrc || ''}
         alt={`${companyName} logo`}
         className="w-full h-full object-contain rounded-lg"
         onLoad={() => setImageLoaded(true)}
-        onError={() => setImageError(true)}
+        onError={usingFaviconFallback ? handleFaviconError : handleImageError}
         loading="lazy"
       />
       

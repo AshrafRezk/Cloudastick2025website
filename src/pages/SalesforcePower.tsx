@@ -356,6 +356,7 @@ const SalesforcePower = () => {
   const [isScrolling, setIsScrolling] = useState(false);
   const [companyName, setCompanyName] = useState<string>('');
   const [companyWebsite, setCompanyWebsite] = useState<string>('');
+  const [companyDomain, setCompanyDomain] = useState<string>('');
   const [companyLogo, setCompanyLogo] = useState<string | null>(null);
   const [logoLoading, setLogoLoading] = useState<boolean>(false);
   const [logoError, setLogoError] = useState<boolean>(false);
@@ -500,6 +501,9 @@ const SalesforcePower = () => {
       setLogoLoading(false);
       return;
     }
+    
+    // Store domain for fallback favicon usage
+    setCompanyDomain(domain);
     
     console.log('Fetching logo for domain:', domain);
     
@@ -1250,7 +1254,7 @@ const SalesforcePower = () => {
               <div className="mb-8">
                 <div className="flex items-center justify-center gap-4 mb-6">
                   {/* Company Logo */}
-                  {companyLogo && (
+                  {(companyLogo || companyDomain) && (
                     <motion.div
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
@@ -1261,12 +1265,13 @@ const SalesforcePower = () => {
                         companyName={companyName || 'Company'} 
                         size="large"
                         className="w-24 h-24"
+                        domain={companyDomain}
                       />
                     </motion.div>
                   )}
                   
                   {/* Plus sign when both logos are present */}
-                  {companyLogo && (
+                  {(companyLogo || companyDomain) && (
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
@@ -2014,12 +2019,13 @@ const SalesforcePower = () => {
               transition={{ duration: 0.8 }}
             >
               <div className="flex items-center justify-center gap-4 mb-6">
-                {companyLogo && (
+                {(companyLogo || companyDomain) && (
                   <CompanyLogo 
                     logoUrl={companyLogo} 
                     companyName={companyName || 'Company'} 
                     size="medium"
                     className="w-12 h-12"
+                    domain={companyDomain}
                   />
                 )}
                 <h2 className="text-4xl md:text-5xl font-bold text-white">
@@ -2177,12 +2183,13 @@ const SalesforcePower = () => {
               transition={{ duration: 0.8 }}
             >
               <div className="flex items-center justify-center gap-4 mb-6">
-                {companyLogo && (
+                {(companyLogo || companyDomain) && (
                   <CompanyLogo 
                     logoUrl={companyLogo} 
                     companyName={companyName || 'Company'} 
                     size="medium"
                     className="w-12 h-12"
+                    domain={companyDomain}
                   />
                 )}
                 <h2 className="text-4xl md:text-5xl font-bold text-white">
