@@ -1314,6 +1314,37 @@ const SalesforcePower = () => {
                 </motion.div>
               )}
 
+              {/* 3D Model Showcase - Only show for Real Estate */}
+              {selectedIndustry === 'real-estate' && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.4 }}
+                  className="mb-8"
+                >
+                  <div className="bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/50 max-w-2xl mx-auto">
+                    <h3 className="text-lg font-semibold text-cyan-400 mb-4 text-center">
+                      Interactive 3D Property Showcase
+                    </h3>
+                    <div className="flex justify-center rounded-xl overflow-hidden shadow-xl">
+                      <iframe 
+                        src="https://3dwarehouse.sketchup.com/embed/796431a0-c0d1-4046-afad-24937e815134?token=t0dGLB7xv8E=&binaryName=s21" 
+                        frameBorder="0" 
+                        scrolling="no" 
+                        width="580" 
+                        height="326" 
+                        allowFullScreen
+                        title="3D Property Model"
+                        className="max-w-full"
+                      />
+                    </div>
+                    <p className="text-gray-400 text-sm mt-3 text-center">
+                      Explore properties in stunning 3D - powered by SketchUp
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+
               {/* Company Inputs - Only show if not pre-filled from URL */}
               {!hasPrefilledParams && (
                 <motion.div
