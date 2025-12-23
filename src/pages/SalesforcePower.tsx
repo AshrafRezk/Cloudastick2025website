@@ -1314,37 +1314,6 @@ const SalesforcePower = () => {
                 </motion.div>
               )}
 
-              {/* 3D Model Showcase - Only show for Real Estate */}
-              {selectedIndustry === 'real-estate' && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.4 }}
-                  className="mb-8"
-                >
-                  <div className="bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/50 max-w-2xl mx-auto">
-                    <h3 className="text-lg font-semibold text-cyan-400 mb-4 text-center">
-                      Interactive 3D Property Showcase
-                    </h3>
-                    <div className="flex justify-center rounded-xl overflow-hidden shadow-xl">
-                      <iframe 
-                        src="https://3dwarehouse.sketchup.com/embed/796431a0-c0d1-4046-afad-24937e815134?token=t0dGLB7xv8E=&binaryName=s21" 
-                        frameBorder="0" 
-                        scrolling="no" 
-                        width="580" 
-                        height="326" 
-                        allowFullScreen
-                        title="3D Property Model"
-                        className="max-w-full"
-                      />
-                    </div>
-                    <p className="text-gray-400 text-sm mt-3 text-center">
-                      Explore properties in stunning 3D - powered by SketchUp
-                    </p>
-                  </div>
-                </motion.div>
-              )}
-
               {/* Company Inputs - Only show if not pre-filled from URL */}
               {!hasPrefilledParams && (
                 <motion.div
@@ -2028,6 +1997,137 @@ const SalesforcePower = () => {
           </motion.div>
         </div>
       </section>
+
+      {/* 3D Property Visualization Section - Only for Real Estate */}
+      {selectedIndustry === 'real-estate' && (
+        <section className="py-20 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-emerald-900/30 to-cyan-900/20"></div>
+          
+          {/* Animated background elements */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute top-20 left-10 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-20 right-10 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+          </div>
+          
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <AnimatedSection className="text-center mb-12">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+              >
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/20 rounded-full text-emerald-400 text-sm font-medium mb-6 border border-emerald-500/30">
+                  <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+                  Real Estate Innovation
+                </div>
+                <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+                  Salesforce 3D Model Viewer
+                </h2>
+                <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+                  Empower your customers to visualize their future units in stunning 3D. 
+                  Integrated directly into Salesforce, this immersive experience helps buyers 
+                  explore properties, customize finishes, and make confident purchasing decisions.
+                </p>
+              </motion.div>
+            </AnimatedSection>
+
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              {/* Interactive 3D Model */}
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="order-2 lg:order-1"
+              >
+                <div className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-xl rounded-3xl p-6 border border-emerald-500/20 shadow-2xl shadow-emerald-500/10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                    <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                    <span className="text-gray-400 text-sm ml-2">Interactive 3D Viewer</span>
+                  </div>
+                  <div className="rounded-2xl overflow-hidden bg-black/50">
+                    <iframe 
+                      src="https://3dwarehouse.sketchup.com/embed/796431a0-c0d1-4046-afad-24937e815134?token=t0dGLB7xv8E=&binaryName=s21" 
+                      frameBorder="0" 
+                      scrolling="no" 
+                      width="100%" 
+                      height="400" 
+                      allowFullScreen
+                      title="3D Property Model - Interactive Viewer"
+                      className="w-full"
+                      style={{ minHeight: '400px' }}
+                    />
+                  </div>
+                  <div className="flex items-center justify-center gap-6 mt-4 text-sm text-gray-400">
+                    <span className="flex items-center gap-2">
+                      <span className="w-6 h-6 bg-emerald-500/20 rounded-lg flex items-center justify-center text-emerald-400">↻</span>
+                      Rotate
+                    </span>
+                    <span className="flex items-center gap-2">
+                      <span className="w-6 h-6 bg-cyan-500/20 rounded-lg flex items-center justify-center text-cyan-400">⊕</span>
+                      Zoom
+                    </span>
+                    <span className="flex items-center gap-2">
+                      <span className="w-6 h-6 bg-purple-500/20 rounded-lg flex items-center justify-center text-purple-400">⇔</span>
+                      Pan
+                    </span>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Features List */}
+              <motion.div
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+                className="order-1 lg:order-2"
+              >
+                <div className="space-y-6">
+                  {[
+                    {
+                      icon: '🏠',
+                      title: 'Virtual Property Tours',
+                      description: 'Let customers explore every corner of their future home from anywhere in the world, 24/7.'
+                    },
+                    {
+                      icon: '🎨',
+                      title: 'Real-Time Customization',
+                      description: 'Visualize different finishes, layouts, and configurations to match customer preferences instantly.'
+                    },
+                    {
+                      icon: '📊',
+                      title: 'Salesforce Integration',
+                      description: 'Track engagement metrics, unit preferences, and automatically sync customer interactions to CRM records.'
+                    },
+                    {
+                      icon: '🚀',
+                      title: 'Accelerate Sales Cycles',
+                      description: 'Reduce decision time by 40% with immersive visualization that builds buyer confidence.'
+                    }
+                  ].map((feature, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
+                      className="flex gap-4 p-4 bg-gradient-to-r from-gray-800/50 to-transparent rounded-xl border border-gray-700/50 hover:border-emerald-500/30 transition-all duration-300 group"
+                    >
+                      <div className="w-12 h-12 bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                        {feature.icon}
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-white mb-1">{feature.title}</h3>
+                        <p className="text-gray-400 text-sm leading-relaxed">{feature.description}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ERP Integration Section */}
       <section ref={erpRef} className="py-20 relative overflow-hidden">
