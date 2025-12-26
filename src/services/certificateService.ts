@@ -163,6 +163,43 @@ export const getCertificateUrl = (certificateId: string): string => {
 };
 
 /**
+ * Generate retroactive certificates for already-completed courses
+ * Called when a user has zero certificates but has completed parent courses
+ */
+export const generateRetroactiveCertificates = async (
+  contactId: string,
+  authData: { access_token: string; instance_url: string }
+): Promise<{ generated: number; message: string }> => {
+  try {
+    const response = await fetch('/.netlify/functions/generateRetroactiveCertificates', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contactId,
+        access_token: authData.access_token,
+        instance_url: authData.instance_url,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `Failed to generate retroactive certificates: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return {
+      generated: data.generated || 0,
+      message: data.message || 'Retroactive certificate generation completed',
+    };
+  } catch (error) {
+    console.error('Generate retroactive certificates error:', error);
+    throw error;
+  }
+};
+
+/**
  * Get verification URL
  */
 export const getVerificationUrl = (certificateId?: string, verificationCode?: string): string => {

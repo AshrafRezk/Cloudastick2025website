@@ -17,7 +17,7 @@ import {
   type UpdateTrailheadResponse,
   type Certificate,
 } from '../services/learningService';
-import { fetchCertificates } from '../services/certificateService';
+import { fetchCertificates, generateRetroactiveCertificates } from '../services/certificateService';
 
 interface PortalUserContextType {
   user: Contact | null;
@@ -229,6 +229,8 @@ export const PortalUserProvider = ({ children }: PortalUserProviderProps) => {
 
   /**
    * Refresh certificates for the logged-in user
+   * If user has zero certificates but completed parent courses exist, 
+   * automatically generate retroactive certificates
    */
   const refreshCertificates = async (): Promise<void> => {
     if (!user || !authData) {
@@ -236,12 +238,55 @@ export const PortalUserProvider = ({ children }: PortalUserProviderProps) => {
     }
 
     try {
+      // First, fetch existing certificates
       const response = await fetchCertificates(user.id, {
         access_token: authData.access_token,
         instance_url: authData.instance_url,
       });
 
       setCertificates(response.certificates);
+
+      // If user has zero certificates, check if they have completed parent courses
+      // If yes, generate retroactive certificates
+      if (response.certificates.length === 0) {
+        // Check if user has any completed parent courses
+        const completedParentCourses = completed.filter(
+          instance => !instance.material?.isChild && instance.status === 'Completed'
+        );
+
+        if (completedParentCourses.length > 0) {
+          console.log(`🔄 User has ${completedParentCourses.length} completed parent courses but no certificates. Generating retroactive certificates...`);
+          
+          try {
+            const retroactiveResult = await generateRetroactiveCertificates(user.id, {
+              access_token: authData.access_token,
+              instance_url: authData.instance_url,
+            });
+
+            if (retroactiveResult.generated > 0) {
+              console.log(`✅ Generated ${retroactiveResult.generated} retroactive certificate(s)`);
+              
+              // Refresh certificates again to show the newly generated ones
+              const updatedResponse = await fetchCertificates(user.id, {
+                access_token: authData.access_token,
+                instance_url: authData.instance_url,
+              });
+              
+              setCertificates(updatedResponse.certificates);
+            } else {
+              console.log('ℹ️ No certificates were generated (courses may not meet eligibility requirements)');
+            }
+          } catch (retroError) {
+            console.error('Error generating retroactive certificates:', retroError);
+            // Don't block UI if retroactive generation fails
+          }
+        } else {
+          console.log('ℹ️ User has no completed parent courses, skipping retroactive certificate generation');
+        }
+      } else {
+        // User already has certificates, skip retroactive generation
+        console.log(`ℹ️ User already has ${response.certificates.length} certificate(s), skipping retroactive generation`);
+      }
     } catch (err) {
       console.error('Error fetching certificates:', err);
       // Don't set error state for certificates as it's not critical
