@@ -1,181 +1,206 @@
-# Salesforce Certificate Object Setup Guide
+# LMS Certificate System Setup Guide
 
-This guide outlines the Salesforce custom objects and fields needed for the LMS Certificate System.
+This guide outlines how the certificate system uses **existing Salesforce objects** - no new objects need to be created!
 
-## 1. Create Certificate__c Custom Object
+## Overview
 
-Create a new custom object in Salesforce Setup:
+The certificate system uses the existing `Learning_Material_Instance__c` object to store certificate data. When a parent course is completed (all child materials completed and all quizzes passed), certificate information is automatically stored on the instance record itself.
 
-**Object Settings:**
-- Object Label: `Certificate`
-- Object Name: `Certificate`
-- Plural Label: `Certificates`
-- Record Name: `Certificate Number` (Auto Number, format: CERT-{00000})
-- Allow Search: Yes
-- Track Field History: Yes (optional)
-- Allow Reports: Yes
-- Allow Activities: No
-- Allow Sharing: Yes
+## How It Works
 
-## 2. Certificate__c Fields
+### Certificate Data Storage
 
-Create the following fields on the Certificate__c object:
+Certificates are stored directly on `Learning_Material_Instance__c` records:
 
-### Lookup Fields
-1. **Contact__c** (Lookup to Contact)
-   - Field Label: `Contact`
-   - Field Name: `Contact__c`
-   - Required: Yes
-   - Description: The contact who earned this certificate
+- **Certificate ID**: Format `CERT-{InstanceId}` (derived from the instance ID)
+- **Verification Code**: Stored in the `Name` field along with certificate ID
+- **Name Field Format**: `CERT-{InstanceId}|{VerificationCode}`
+  - Example: `CERT-a1b2c3d4e5f6g7h8|ABC123XY`
+- **Issued Date**: Uses existing `Completed_On__c` field
+- **Status**: Uses existing `Status__c` field (must be 'Completed')
 
-2. **Learning_Material__c** (Lookup to Learning_Material__c)
-   - Field Label: `Learning Material`
-   - Field Name: `Learning_Material__c`
-   - Required: Yes
-   - Description: The parent course/material this certificate is for
+### Certificate Identification
 
-3. **Learning_Material_Instance__c** (Lookup to Learning_Material_Instance__c)
-   - Field Label: `Learning Material Instance`
-   - Field Name: `Learning_Material_Instance__c`
-   - Required: Yes
-   - Description: The specific instance record tied to this certificate
+- Certificates are identified by `Name` field starting with `CERT-`
+- Only parent course instances (not child materials) can have certificates
+- Certificate is automatically generated when:
+  1. All child materials are completed
+  2. All quizzes passed (if any quizzes exist)
+  3. `Issue_Certificate__c` is enabled on the parent material
 
-### Text Fields
-4. **Certificate_ID__c** (Text(255), Unique)
-   - Field Label: `Certificate ID`
-   - Field Name: `Certificate_ID__c`
-   - Required: Yes
-   - Unique: Yes
-   - External ID: Yes
-   - Description: Unique identifier for public certificate links
+## Required Fields on Existing Objects
 
-5. **Verification_Code__c** (Text(20), Unique)
-   - Field Label: `Verification Code`
-   - Field Name: `Verification_Code__c`
-   - Required: Yes
-   - Unique: Yes
-   - Description: 8-character code for certificate verification
+### Learning_Material__c (Optional Enhancements)
 
-### Date Fields
-6. **Issued_Date__c** (Date)
-   - Field Label: `Issued Date`
-   - Field Name: `Issued_Date__c`
-   - Required: Yes
-   - Description: Date the certificate was issued
+These fields are **optional** but recommended for better certificate functionality:
 
-### URL Fields
-7. **Certificate_URL__c** (URL(255))
-   - Field Label: `Certificate URL`
-   - Field Name: `Certificate_URL__c`
-   - Required: No
-   - Description: Public URL to view the certificate
-
-8. **PDF_File_URL__c** (URL(255))
-   - Field Label: `PDF File URL`
-   - Field Name: `PDF_File_URL__c`
-   - Required: No
-   - Description: URL to the PDF version of the certificate
-
-### Picklist Fields
-9. **Status__c** (Picklist)
-   - Field Label: `Status`
-   - Field Name: `Status__c`
-   - Required: Yes
-   - Default Value: `Active`
-   - Values:
-     - Active
-     - Revoked
-   - Description: Certificate status
-
-### Long Text Area Fields
-10. **Metadata__c** (Long Text Area(131072))
-    - Field Label: `Metadata`
-    - Field Name: `Metadata__c`
-    - Required: No
-    - Description: JSON string containing additional certificate data (scores, completion details, etc.)
-
-## 3. Learning_Material__c Field Enhancements
-
-Add the following fields to the existing Learning_Material__c object:
-
-### Checkbox Fields
+#### Checkbox Fields
 1. **Issue_Certificate__c** (Checkbox)
    - Field Label: `Issue Certificate`
    - Field Name: `Issue_Certificate__c`
    - Default Value: `false`
    - Description: Enable certificate generation for this course
+   - **Note**: If this field doesn't exist, certificates will be generated for all completed courses
 
-### Rich Text Area Fields
-2. **Certificate_Template__c** (Rich Text Area(131072))
-   - Field Label: `Certificate Template`
-   - Field Name: `Certificate_Template__c`
-   - Required: No
-   - Description: Optional custom HTML template for certificate display
-
-### URL Fields
-3. **Certificate_Logo_URL__c** (URL(255))
+#### URL Fields (Optional)
+2. **Certificate_Logo_URL__c** (URL(255))
    - Field Label: `Certificate Logo URL`
    - Field Name: `Certificate_Logo_URL__c`
    - Required: No
    - Description: URL to course-specific logo for certificate branding
 
-## 4. Field-Level Security & Sharing
+#### Rich Text Area Fields (Optional)
+3. **Certificate_Template__c** (Rich Text Area(131072))
+   - Field Label: `Certificate Template`
+   - Field Name: `Certificate_Template__c`
+   - Required: No
+   - Description: Optional custom HTML template for certificate display
 
-### Field-Level Security
-- Ensure all Certificate__c fields are visible to:
-  - System Administrators
-  - Portal Users (if using Community/Experience Cloud)
-  - Custom profiles as needed
+### Learning_Material_Instance__c (Uses Existing Fields)
 
-### Object Permissions
-- Grant Read access to Certificate__c for:
-  - Portal Users (for viewing their own certificates)
-  - Public (for public certificate verification - read-only on Certificate_ID__c and Verification_Code__c)
+**No new fields needed!** The system uses:
+- `Name` - Stores certificate ID and verification code
+- `Status__c` - Must be 'Completed' for certificate
+- `Completed_On__c` - Used as issued date
+- `Learner__c` - Contact who earned the certificate
+- `Material__c` - The course/material
 
-### Sharing Rules (if needed)
-- Create sharing rules to allow public read access to Certificate__c records via Certificate_ID__c
+## Certificate Generation Flow
 
-## 5. Validation Rules (Optional)
+1. User completes all child materials in a parent course
+2. System checks if all quizzes passed (if any exist)
+3. System checks if `Issue_Certificate__c` is enabled (if field exists)
+4. If eligible, system updates the instance `Name` field with certificate data
+5. Certificate becomes accessible via public link: `/certificate/CERT-{InstanceId}`
 
-Consider adding validation rules:
+## Certificate Lookup Queries
 
-1. **Certificate ID Format Validation**
-   - Ensure Certificate_ID__c follows expected format (UUID or base64)
+### Find Certificate by Certificate ID
+```sql
+SELECT Id, Name, Learner__c, Learner__r.Name, Learner__r.Email, 
+       Material__c, Material__r.Title__c, Material__r.Description__c,
+       Status__c, Completed_On__c
+FROM Learning_Material_Instance__c 
+WHERE Id = '{instanceId}' 
+  AND Status__c = 'Completed' 
+  AND Name LIKE 'CERT-%'
+```
 
-2. **Verification Code Format Validation**
-   - Ensure Verification_Code__c is exactly 8 alphanumeric characters
+### Find Certificate by Verification Code
+```sql
+SELECT Id, Name, Learner__c, Learner__r.Name, Learner__r.Email,
+       Material__c, Material__r.Title__c, Material__r.Description__c,
+       Status__c, Completed_On__c
+FROM Learning_Material_Instance__c 
+WHERE Status__c = 'Completed' 
+  AND Name LIKE '%|{verificationCode}'
+```
 
-3. **Status Validation**
-   - Prevent deletion of Active certificates (use Status = Revoked instead)
+### Find All Certificates for a Contact
+```sql
+SELECT Id, Name, Learner__c, Material__c, Material__r.Title__c,
+       Status__c, Completed_On__c, Material__r.Parent_Material__c
+FROM Learning_Material_Instance__c 
+WHERE Learner__c = '{contactId}' 
+  AND Status__c = 'Completed' 
+  AND Name LIKE 'CERT-%'
+  AND Material__r.Parent_Material__c = null
+ORDER BY Completed_On__c DESC
+```
 
-## 6. Indexes
+## Field Requirements
 
-Create indexes on:
-- Certificate_ID__c (already indexed as External ID)
-- Verification_Code__c (for fast lookups)
-- Contact__c + Learning_Material__c (composite index for querying user certificates)
+### Name Field on Learning_Material_Instance__c
 
-## 7. Apex Triggers (Optional)
+The `Name` field must be:
+- **Editable** - The system needs to update it to store certificate data
+- **Text field** - To store the format `CERT-{InstanceId}|{VerificationCode}`
 
-Consider creating triggers for:
-- Auto-generating Certificate_ID__c if not provided
-- Auto-generating Verification_Code__c if not provided
-- Auto-populating Certificate_URL__c based on Certificate_ID__c
-- Preventing duplicate certificates for same Contact + Learning_Material combination
+**Important**: If the `Name` field is auto-number or read-only, you may need to:
+1. Check if it's editable via API (some auto-number fields can be updated)
+2. Or use an alternative text field if available
 
-## 8. Testing
+## Setup Steps
 
-After setup, verify:
-1. Can create Certificate__c records via API
-2. Certificate_ID__c uniqueness is enforced
-3. Verification_Code__c uniqueness is enforced
-4. Lookup relationships work correctly
-5. Field-level security allows appropriate access
+### Minimal Setup (No New Fields Required)
+
+1. **Verify Name Field is Editable**
+   - Go to `Learning_Material_Instance__c` object setup
+   - Check that `Name` field can be updated via API
+   - If not editable, the system will attempt to update it (may fail silently)
+
+2. **Test Certificate Generation**
+   - Complete a parent course (all children completed)
+   - Check that the instance `Name` field is updated with `CERT-` prefix
+   - Verify certificate is accessible via public link
+
+### Recommended Setup (Optional Fields)
+
+1. **Add Issue_Certificate__c to Learning_Material__c** (Optional)
+   - Allows selective certificate generation per course
+   - If not added, certificates generate for all completed courses
+
+2. **Add Certificate_Logo_URL__c to Learning_Material__c** (Optional)
+   - Enables course-specific branding on certificates
+
+3. **Add Certificate_Template__c to Learning_Material__c** (Optional)
+   - Allows custom certificate templates per course
+
+## Certificate URL Format
+
+- Public Certificate URL: `https://yourdomain.com/certificate/CERT-{InstanceId}`
+- Verification URL: `https://yourdomain.com/verify-certificate?certificateId=CERT-{InstanceId}`
+
+## Verification Code Format
+
+- 8-character alphanumeric code
+- Stored in `Name` field after the `|` separator
+- Example: `CERT-a1b2c3d4e5f6g7h8|ABC123XY`
+
+## Security Considerations
+
+1. **Public Access**: Certificate endpoints use system authentication (client credentials)
+2. **Data Privacy**: Only public information is exposed (name, course, date)
+3. **Verification**: Verification codes provide additional security layer
+4. **Status Check**: Only 'Completed' instances with `CERT-` prefix are considered valid certificates
+
+## Troubleshooting
+
+### Certificates Not Generating
+
+1. Check that all child materials are completed
+2. Verify all quizzes passed (if any exist)
+3. Check if `Issue_Certificate__c` is enabled (if field exists)
+4. Verify `Name` field is editable on `Learning_Material_Instance__c`
+5. Check system logs for certificate generation errors
+
+### Certificate Not Found
+
+1. Verify certificate ID format: `CERT-{InstanceId}`
+2. Check that instance `Status__c = 'Completed'`
+3. Verify `Name` field starts with `CERT-`
+4. Ensure instance is for a parent course (not child material)
+
+### Name Field Update Fails
+
+- If `Name` is auto-number, it may not be updatable
+- Check field-level security permissions
+- Verify API access to update the field
+- Consider using an alternative text field if available
+
+## Benefits of This Approach
+
+✅ **No new objects needed** - Uses existing `Learning_Material_Instance__c`  
+✅ **No additional lookups** - Certificate data is on the completion record  
+✅ **Simpler data model** - Certificate tied directly to completion  
+✅ **Automatic generation** - No manual certificate creation needed  
+✅ **Minimal setup** - Works with existing fields  
 
 ## Notes
 
-- The Certificate_ID__c should be generated as a UUID or base64-encoded string
-- The Verification_Code__c should be an 8-character alphanumeric code
-- Consider using Salesforce Flow or Process Builder to auto-generate these values
-- For public access, you may need to create a Guest User profile with limited read access
-
+- The certificate system automatically generates certificates when courses are completed
+- Certificate data is stored in the `Name` field: `CERT-{InstanceId}|{VerificationCode}`
+- Certificate ID is derived from instance ID: `CERT-{InstanceId}`
+- Verification code is a random 8-character alphanumeric string
+- All certificate data can be derived from the instance record and related objects
+- No additional Salesforce configuration needed beyond ensuring `Name` field is editable

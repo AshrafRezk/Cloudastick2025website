@@ -235,7 +235,7 @@ exports.handler = async (event, context) => {
     // Helper function to check certificate eligibility and generate certificate
     const checkAndGenerateCertificate = async (parentMaterialId, parentInstanceId, contactId) => {
       try {
-        // Check if certificate generation is enabled for this material
+        // Check if certificate generation is enabled for this material (optional field)
         const materialQuery = `SELECT Id, Title__c, Issue_Certificate__c FROM Learning_Material__c WHERE Id = '${parentMaterialId.replace(/'/g, "\\'")}' LIMIT 1`;
         const encodedMaterialQuery = encodeURIComponent(materialQuery);
         const materialQueryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedMaterialQuery}`;
@@ -256,17 +256,23 @@ exports.handler = async (event, context) => {
         const materialData = await materialResponse.json();
         const parentMaterial = materialData.records?.[0];
         
-        if (!parentMaterial || !parentMaterial.Issue_Certificate__c) {
+        if (!parentMaterial) {
+          console.log('⚠️ Could not find parent material');
+          return;
+        }
+        
+        // Check if certificate generation is enabled (optional field - if it doesn't exist, allow certificates)
+        if (parentMaterial.Issue_Certificate__c === false) {
           console.log('ℹ️ Certificate generation not enabled for this course');
           return;
         }
         
-        // Check if certificate already exists
-        const existingCertQuery = `SELECT Id FROM Certificate__c WHERE Contact__c = '${contactId.replace(/'/g, "\\'")}' AND Learning_Material__c = '${parentMaterialId.replace(/'/g, "\\'")}' AND Status__c = 'Active' LIMIT 1`;
-        const encodedExistingCertQuery = encodeURIComponent(existingCertQuery);
-        const existingCertQueryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedExistingCertQuery}`;
+        // Check if certificate already exists (check if instance Name field starts with 'CERT-')
+        const instanceCheckQuery = `SELECT Id, Name FROM Learning_Material_Instance__c WHERE Id = '${parentInstanceId.replace(/'/g, "\\'")}' LIMIT 1`;
+        const encodedInstanceCheckQuery = encodeURIComponent(instanceCheckQuery);
+        const instanceCheckQueryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedInstanceCheckQuery}`;
         
-        const existingCertResponse = await fetch(existingCertQueryUrl, {
+        const instanceCheckResponse = await fetch(instanceCheckQueryUrl, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${access_token}`,
@@ -274,9 +280,10 @@ exports.handler = async (event, context) => {
           },
         });
         
-        if (existingCertResponse.ok) {
-          const existingCertData = await existingCertResponse.json();
-          if (existingCertData.records && existingCertData.records.length > 0) {
+        if (instanceCheckResponse.ok) {
+          const instanceCheckData = await instanceCheckResponse.json();
+          const existingInstance = instanceCheckData.records?.[0];
+          if (existingInstance && existingInstance.Name && existingInstance.Name.startsWith('CERT-')) {
             console.log('ℹ️ Certificate already exists for this course');
             return;
           }
@@ -380,15 +387,10 @@ exports.handler = async (event, context) => {
         // All requirements met, generate certificate
         console.log('🎓 Certificate eligibility confirmed, generating certificate...');
         
-        // Generate certificate ID and verification code
-        const generateCertificateId = () => {
-          return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-            const r = (Math.random() * 16) | 0;
-            const v = c === 'x' ? r : (r & 0x3) | 0x8;
-            return v.toString(16);
-          });
-        };
+        // Generate certificate ID from instance ID (format: CERT-{InstanceId})
+        const certificateId = `CERT-${parentInstanceId}`;
         
+        // Generate verification code (8-character alphanumeric)
         const generateVerificationCode = () => {
           const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
           let code = '';
@@ -398,39 +400,36 @@ exports.handler = async (event, context) => {
           return code;
         };
         
-        const certificateId = generateCertificateId();
         const verificationCode = generateVerificationCode();
-        const issuedDate = new Date().toISOString().split('T')[0];
         const baseUrl = process.env.CERTIFICATE_BASE_URL || 'https://cloudastick.com';
         const certificateUrl = `${baseUrl}/certificate/${certificateId}`;
         
-        // Create certificate record
-        const certificateData = {
-          Contact__c: contactId,
-          Learning_Material__c: parentMaterialId,
-          Learning_Material_Instance__c: parentInstanceId,
-          Certificate_ID__c: certificateId,
-          Verification_Code__c: verificationCode,
-          Issued_Date__c: issuedDate,
-          Certificate_URL__c: certificateUrl,
-          Status__c: 'Active',
+        // Store certificate data in the instance's Name field
+        // Format: CERT-{InstanceId}|{VerificationCode}
+        // This allows us to identify certificates and retrieve verification codes
+        const certificateName = `${certificateId}|${verificationCode}`;
+        
+        // Update the instance record with certificate information
+        const updateInstanceData = {
+          Name: certificateName,
         };
         
-        const createCertUrl = `${instance_url}/services/data/v58.0/sobjects/Certificate__c`;
-        const createCertResponse = await fetch(createCertUrl, {
-          method: 'POST',
+        const updateInstanceUrl = `${instance_url}/services/data/v58.0/sobjects/Learning_Material_Instance__c/${parentInstanceId}`;
+        const updateInstanceResponse = await fetch(updateInstanceUrl, {
+          method: 'PATCH',
           headers: {
             'Authorization': `Bearer ${access_token}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(certificateData),
+          body: JSON.stringify(updateInstanceData),
         });
         
-        if (createCertResponse.ok) {
-          const createdCert = await createCertResponse.json();
-          console.log('✅ Certificate generated successfully:', createdCert.id);
+        if (updateInstanceResponse.ok) {
+          console.log('✅ Certificate generated successfully on instance:', parentInstanceId);
+          console.log('   Certificate ID:', certificateId);
+          console.log('   Verification Code:', verificationCode);
         } else {
-          const errorText = await createCertResponse.text();
+          const errorText = await updateInstanceResponse.text();
           console.error('⚠️ Failed to generate certificate:', errorText);
         }
       } catch (e) {

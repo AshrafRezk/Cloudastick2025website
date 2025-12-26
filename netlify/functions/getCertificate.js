@@ -133,9 +133,19 @@ exports.handler = async (event, context) => {
 
 async function getCertificateWithAuth(certificateId, access_token, instance_url) {
   try {
-    // Query certificate by Certificate_ID__c
-    const escapedCertId = certificateId.replace(/'/g, "\\'");
-    const query = `SELECT Id, Certificate_ID__c, Verification_Code__c, Contact__c, Contact__r.Name, Contact__r.Email, Learning_Material__c, Learning_Material__r.Title__c, Learning_Material__r.Description__c, Learning_Material_Instance__c, Issued_Date__c, Certificate_URL__c, PDF_File_URL__c, Status__c, Metadata__c, Learning_Material__r.Certificate_Logo_URL__c, Learning_Material__r.Certificate_Template__c FROM Certificate__c WHERE Certificate_ID__c = '${escapedCertId}' AND Status__c = 'Active' LIMIT 1`;
+    // Extract instance ID from certificate ID (format: CERT-{InstanceId})
+    let instanceId;
+    if (certificateId.startsWith('CERT-')) {
+      instanceId = certificateId.substring(5); // Remove 'CERT-' prefix
+    } else {
+      // If it's not in CERT- format, assume it's the instance ID itself
+      instanceId = certificateId;
+    }
+    
+    // Query Learning_Material_Instance__c by ID
+    // Certificate is identified by Name field starting with 'CERT-'
+    const escapedInstanceId = instanceId.replace(/'/g, "\\'");
+    const query = `SELECT Id, Name, Learner__c, Learner__r.Name, Learner__r.Email, Material__c, Material__r.Id, Material__r.Title__c, Material__r.Description__c, Material__r.Certificate_Logo_URL__c, Material__r.Certificate_Template__c, Status__c, Completed_On__c FROM Learning_Material_Instance__c WHERE Id = '${escapedInstanceId}' AND Status__c = 'Completed' AND Name LIKE 'CERT-%' LIMIT 1`;
     
     const encodedQuery = encodeURIComponent(query);
     const queryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedQuery}`;
@@ -180,19 +190,23 @@ async function getCertificateWithAuth(certificateId, access_token, instance_url)
       };
     }
 
-    const cert = data.records[0];
+    const instance = data.records[0];
 
-    // Parse metadata if present
-    let metadata = {};
-    if (cert.Metadata__c) {
-      try {
-        metadata = JSON.parse(cert.Metadata__c);
-      } catch (e) {
-        console.warn('Failed to parse certificate metadata:', e);
+    // Parse certificate data from Name field (format: CERT-{InstanceId}|{VerificationCode})
+    let verificationCode = '';
+    if (instance.Name && instance.Name.includes('|')) {
+      const parts = instance.Name.split('|');
+      if (parts.length >= 2) {
+        verificationCode = parts[1];
       }
     }
 
-    console.log('✅ Certificate retrieved successfully:', cert.Certificate_ID__c);
+    const certificateIdFormatted = `CERT-${instance.Id}`;
+    const baseUrl = process.env.CERTIFICATE_BASE_URL || 'https://cloudastick.com';
+    const certificateUrl = `${baseUrl}/certificate/${certificateIdFormatted}`;
+    const issuedDate = instance.Completed_On__c ? instance.Completed_On__c.split('T')[0] : new Date().toISOString().split('T')[0];
+
+    console.log('✅ Certificate retrieved successfully:', certificateIdFormatted);
 
     return {
       statusCode: 200,
@@ -203,23 +217,23 @@ async function getCertificateWithAuth(certificateId, access_token, instance_url)
       body: JSON.stringify({
         success: true,
         certificate: {
-          id: cert.Id,
-          certificateId: cert.Certificate_ID__c,
-          verificationCode: cert.Verification_Code__c,
-          contactId: cert.Contact__c,
-          contactName: cert.Contact__r?.Name || '',
-          contactEmail: cert.Contact__r?.Email || '',
-          learningMaterialId: cert.Learning_Material__c,
-          learningMaterialTitle: cert.Learning_Material__r?.Title__c || '',
-          learningMaterialDescription: cert.Learning_Material__r?.Description__c || null,
-          learningMaterialInstanceId: cert.Learning_Material_Instance__c,
-          issuedDate: cert.Issued_Date__c,
-          certificateUrl: cert.Certificate_URL__c || null,
-          pdfFileUrl: cert.PDF_File_URL__c || null,
-          status: cert.Status__c,
-          metadata: metadata,
-          certificateLogoUrl: cert.Learning_Material__r?.Certificate_Logo_URL__c || null,
-          certificateTemplate: cert.Learning_Material__r?.Certificate_Template__c || null,
+          id: instance.Id,
+          certificateId: certificateIdFormatted,
+          verificationCode: verificationCode,
+          contactId: instance.Learner__c,
+          contactName: instance.Learner__r?.Name || '',
+          contactEmail: instance.Learner__r?.Email || '',
+          learningMaterialId: instance.Material__c,
+          learningMaterialTitle: instance.Material__r?.Title__c || '',
+          learningMaterialDescription: instance.Material__r?.Description__c || null,
+          learningMaterialInstanceId: instance.Id,
+          issuedDate: issuedDate,
+          certificateUrl: certificateUrl,
+          pdfFileUrl: null,
+          status: 'Active',
+          metadata: {},
+          certificateLogoUrl: instance.Material__r?.Certificate_Logo_URL__c || null,
+          certificateTemplate: instance.Material__r?.Certificate_Template__c || null,
         },
       }),
     };
