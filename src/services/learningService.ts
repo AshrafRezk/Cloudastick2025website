@@ -124,6 +124,50 @@ export interface QuizResult {
   timeTakenMinutes: number;
 }
 
+// Certificate-related interfaces
+export interface Certificate {
+  id: string;
+  certificateId: string; // Certificate_ID__c - unique identifier for public links
+  verificationCode: string; // Verification_Code__c
+  contactId: string;
+  contactName: string;
+  learningMaterialId: string;
+  learningMaterialTitle: string;
+  learningMaterialInstanceId: string;
+  issuedDate: string; // ISO date string
+  certificateUrl: string | null;
+  pdfFileUrl: string | null;
+  status: 'Active' | 'Revoked';
+  metadata?: Record<string, any>; // Parsed from Metadata__c JSON
+  // Additional fields from related objects
+  certificateLogoUrl?: string | null; // From Learning_Material__c.Certificate_Logo_URL__c
+  certificateTemplate?: string | null; // From Learning_Material__c.Certificate_Template__c
+}
+
+export interface CertificateGenerationRequest {
+  contactId: string;
+  learningMaterialId: string;
+  learningMaterialInstanceId: string;
+  metadata?: Record<string, any>;
+}
+
+export interface CertificateGenerationResponse {
+  success: boolean;
+  certificate: Certificate | null;
+  message?: string;
+}
+
+export interface CertificateVerificationResponse {
+  valid: boolean;
+  certificate: Certificate | null;
+  message?: string;
+}
+
+export interface FetchCertificatesResponse {
+  certificates: Certificate[];
+  total: number;
+}
+
 /**
  * Login with portal credentials
  */

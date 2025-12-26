@@ -15,7 +15,9 @@ import {
   type FetchInstancesResponse,
   type UpdateProgressResponse,
   type UpdateTrailheadResponse,
+  type Certificate,
 } from '../services/learningService';
+import { fetchCertificates } from '../services/certificateService';
 
 interface PortalUserContextType {
   user: Contact | null;
@@ -23,11 +25,13 @@ interface PortalUserContextType {
   notStarted: LearningMaterialInstance[];
   inProgress: LearningMaterialInstance[];
   completed: LearningMaterialInstance[];
+  certificates: Certificate[];
   isLoading: boolean;
   error: string | null;
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
   refreshInstances: () => Promise<void>;
+  refreshCertificates: () => Promise<void>;
   updateProgress: (params: {
     instanceId?: string;
     contactId?: string;
@@ -89,6 +93,7 @@ export const PortalUserProvider = ({ children }: PortalUserProviderProps) => {
   const [notStarted, setNotStarted] = useState<LearningMaterialInstance[]>([]);
   const [inProgress, setInProgress] = useState<LearningMaterialInstance[]>([]);
   const [completed, setCompleted] = useState<LearningMaterialInstance[]>([]);
+  const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -103,11 +108,12 @@ export const PortalUserProvider = ({ children }: PortalUserProviderProps) => {
   }, []);
 
   /**
-   * Fetch instances when user is logged in and auth is ready
+   * Fetch instances and certificates when user is logged in and auth is ready
    */
   useEffect(() => {
     if (user && authData) {
       refreshInstances();
+      refreshCertificates();
     }
   }, [user, authData]);
 
@@ -147,6 +153,7 @@ export const PortalUserProvider = ({ children }: PortalUserProviderProps) => {
     setNotStarted([]);
     setInProgress([]);
     setCompleted([]);
+    setCertificates([]);
     saveStoredUser(null);
     setError(null);
   };
@@ -221,6 +228,27 @@ export const PortalUserProvider = ({ children }: PortalUserProviderProps) => {
   };
 
   /**
+   * Refresh certificates for the logged-in user
+   */
+  const refreshCertificates = async (): Promise<void> => {
+    if (!user || !authData) {
+      return;
+    }
+
+    try {
+      const response = await fetchCertificates(user.id, {
+        access_token: authData.access_token,
+        instance_url: authData.instance_url,
+      });
+
+      setCertificates(response.certificates);
+    } catch (err) {
+      console.error('Error fetching certificates:', err);
+      // Don't set error state for certificates as it's not critical
+    }
+  };
+
+  /**
    * Update Trailhead Profile URL
    */
   const updateTrailheadUrlHandler = async (trailheadUrl: string): Promise<UpdateTrailheadResponse> => {
@@ -259,11 +287,13 @@ export const PortalUserProvider = ({ children }: PortalUserProviderProps) => {
         notStarted,
         inProgress,
         completed,
+        certificates,
         isLoading,
         error,
         login,
         logout,
         refreshInstances,
+        refreshCertificates,
         updateProgress,
         updateTrailheadUrl: updateTrailheadUrlHandler,
       }}

@@ -13,6 +13,8 @@ import {
   Badge as BadgeIcon
 } from '@mui/icons-material';
 import { usePortalUser } from '../contexts/PortalUserContext';
+import { useNavigate } from 'react-router-dom';
+import { getCertificateUrl } from '../services/certificateService';
 import Button from './Button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
@@ -39,8 +41,10 @@ const getRandomAvatar = (userId: string): React.ComponentType<any> => {
 };
 
 const PortalProfile = () => {
-  const { user, logout, completed, updateTrailheadUrl } = usePortalUser();
+  const { user, logout, completed, certificates, updateTrailheadUrl } = usePortalUser();
+  const navigate = useNavigate();
   const [isCertificationsOpen, setIsCertificationsOpen] = useState(false);
+  const [isLmsCertificatesOpen, setIsLmsCertificatesOpen] = useState(false);
   const [isTrailheadModalOpen, setIsTrailheadModalOpen] = useState(false);
   const [trailheadUrlInput, setTrailheadUrlInput] = useState('');
   const [isUpdatingTrailhead, setIsUpdatingTrailhead] = useState(false);
@@ -208,6 +212,19 @@ const PortalProfile = () => {
             </div>
           </div>
 
+          {/* LMS Certificates Count */}
+          {certificates.length > 0 && (
+            <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border border-border">
+              <div className="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center">
+                <Award className="w-5 h-5 text-white" />
+              </div>
+              <div className="flex-1">
+                <div className="text-sm text-muted-foreground">Course Certificates</div>
+                <div className="text-2xl font-bold text-foreground">{certificates.length}</div>
+              </div>
+            </div>
+          )}
+
           {/* Salesforce Certifications Count */}
           {user.numberOfCertifications > 0 && (
             <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border border-border">
@@ -276,6 +293,77 @@ const PortalProfile = () => {
                           </div>
                         </div>
                       </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            </CollapsibleContent>
+          </Collapsible>
+        )}
+
+        {/* LMS Certificates List */}
+        {certificates.length > 0 && (
+          <Collapsible 
+            open={isLmsCertificatesOpen} 
+            onOpenChange={setIsLmsCertificatesOpen}
+            className="mt-6"
+          >
+            <CollapsibleTrigger asChild>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-border hover:border-brand-primary/30 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <Award className="w-5 h-5 text-yellow-500" />
+                  <span className="text-sm font-medium text-foreground">
+                    Course Certificates ({certificates.length})
+                  </span>
+                </div>
+                {isLmsCertificatesOpen ? (
+                  <ChevronUp className="w-5 h-5 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                )}
+              </motion.button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-4">
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ 
+                  opacity: isLmsCertificatesOpen ? 1 : 0,
+                  height: isLmsCertificatesOpen ? 'auto' : 0
+                }}
+                transition={{ duration: 0.3 }}
+                className="overflow-hidden"
+              >
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {certificates.map((certificate, index) => (
+                    <motion.div
+                      key={certificate.id}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: index * 0.05 }}
+                    >
+                      <motion.button
+                        onClick={() => navigate(`/certificate/${certificate.certificateId}`)}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="w-full flex items-center gap-3 p-3 bg-gradient-to-br from-green-500/10 to-green-600/10 border border-green-500/20 rounded-lg hover:border-green-500/40 transition-colors text-left"
+                      >
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center flex-shrink-0">
+                          <Award className="w-5 h-5 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium text-foreground line-clamp-2 mb-1">
+                            {certificate.learningMaterialTitle}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {new Date(certificate.issuedDate).toLocaleDateString()}
+                          </div>
+                        </div>
+                        <ExternalLink className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                      </motion.button>
                     </motion.div>
                   ))}
                 </div>

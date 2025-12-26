@@ -218,12 +218,223 @@ exports.handler = async (event, context) => {
         
         if (parentUpdateResponse.ok) {
           console.log(`✅ Recalculated parent progress: ${calculatedProgress}%${allChildrenCompleted ? ' (auto-completed)' : ''}`);
+          
+          // Check certificate eligibility if parent was just completed
+          if (allChildrenCompleted && contactId) {
+            await checkAndGenerateCertificate(parentMaterialId, parentInstance.Id, contactId);
+          }
         } else {
           const errorText = await parentUpdateResponse.text();
           console.log('⚠️ Failed to update parent progress:', errorText);
         }
       } catch (e) {
         console.log('⚠️ Error recalculating parent progress:', e);
+      }
+    };
+
+    // Helper function to check certificate eligibility and generate certificate
+    const checkAndGenerateCertificate = async (parentMaterialId, parentInstanceId, contactId) => {
+      try {
+        // Check if certificate generation is enabled for this material
+        const materialQuery = `SELECT Id, Title__c, Issue_Certificate__c FROM Learning_Material__c WHERE Id = '${parentMaterialId.replace(/'/g, "\\'")}' LIMIT 1`;
+        const encodedMaterialQuery = encodeURIComponent(materialQuery);
+        const materialQueryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedMaterialQuery}`;
+        
+        const materialResponse = await fetch(materialQueryUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${access_token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (!materialResponse.ok) {
+          console.log('⚠️ Could not fetch parent material for certificate check');
+          return;
+        }
+        
+        const materialData = await materialResponse.json();
+        const parentMaterial = materialData.records?.[0];
+        
+        if (!parentMaterial || !parentMaterial.Issue_Certificate__c) {
+          console.log('ℹ️ Certificate generation not enabled for this course');
+          return;
+        }
+        
+        // Check if certificate already exists
+        const existingCertQuery = `SELECT Id FROM Certificate__c WHERE Contact__c = '${contactId.replace(/'/g, "\\'")}' AND Learning_Material__c = '${parentMaterialId.replace(/'/g, "\\'")}' AND Status__c = 'Active' LIMIT 1`;
+        const encodedExistingCertQuery = encodeURIComponent(existingCertQuery);
+        const existingCertQueryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedExistingCertQuery}`;
+        
+        const existingCertResponse = await fetch(existingCertQueryUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${access_token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (existingCertResponse.ok) {
+          const existingCertData = await existingCertResponse.json();
+          if (existingCertData.records && existingCertData.records.length > 0) {
+            console.log('ℹ️ Certificate already exists for this course');
+            return;
+          }
+        }
+        
+        // Fetch all child materials with quiz information
+        const childQuery = `SELECT Id, Title__c, Quiz_Questions__c, Passing_Score__c FROM Learning_Material__c WHERE Parent_Material__c = '${parentMaterialId.replace(/'/g, "\\'")}' AND Active__c = true`;
+        const encodedChildQuery = encodeURIComponent(childQuery);
+        const childQueryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedChildQuery}`;
+        
+        const childResponse = await fetch(childQueryUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${access_token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (!childResponse.ok) {
+          console.log('⚠️ Could not fetch child materials for certificate check');
+          return;
+        }
+        
+        const childData = await childResponse.json();
+        const childMaterials = childData.records || [];
+        
+        if (childMaterials.length === 0) {
+          console.log('ℹ️ No child materials found, skipping certificate generation');
+          return;
+        }
+        
+        const childIds = childMaterials.map(c => c.Id).map(id => `'${id.replace(/'/g, "\\'")}'`).join(',');
+        const escapedContactId = contactId.replace(/'/g, "\\'");
+        
+        // Fetch all child instances
+        const childInstanceQuery = `SELECT Id, Material__c, Status__c, Score__c FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' AND Material__c IN (${childIds})`;
+        const encodedChildInstanceQuery = encodeURIComponent(childInstanceQuery);
+        const childInstanceQueryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedChildInstanceQuery}`;
+        
+        const childInstanceResponse = await fetch(childInstanceQueryUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${access_token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (!childInstanceResponse.ok) {
+          console.log('⚠️ Could not fetch child instances for certificate check');
+          return;
+        }
+        
+        const childInstanceData = await childInstanceResponse.json();
+        const childInstances = childInstanceData.records || [];
+        
+        // Check if all children are completed
+        const allChildrenCompleted = childMaterials.every((child) => {
+          const childInstance = childInstances.find(ci => ci.Material__c === child.Id);
+          return childInstance && childInstance.Status__c === 'Completed';
+        });
+        
+        if (!allChildrenCompleted) {
+          console.log('ℹ️ Not all child materials are completed, certificate not eligible');
+          return;
+        }
+        
+        // Check if all quizzes passed (if any child has a quiz)
+        const hasQuizzes = childMaterials.some(child => child.Quiz_Questions__c);
+        if (hasQuizzes) {
+          const allQuizzesPassed = childMaterials.every((child) => {
+            if (!child.Quiz_Questions__c) return true; // Not a quiz, skip
+            
+            const childInstance = childInstances.find(ci => ci.Material__c === child.Id);
+            if (!childInstance || childInstance.Status__c !== 'Completed') {
+              return false;
+            }
+            
+            // Check if quiz passed
+            const score = childInstance.Score__c;
+            const passingScore = child.Passing_Score__c;
+            
+            if (passingScore === null || passingScore === undefined) {
+              return true; // No passing score requirement
+            }
+            
+            // Normalize passing score (handle both percentage and decimal)
+            let passingScorePercent = passingScore;
+            if (passingScore > 0 && passingScore <= 1) {
+              passingScorePercent = passingScore * 100;
+            }
+            
+            return score !== null && score !== undefined && score >= passingScorePercent;
+          });
+          
+          if (!allQuizzesPassed) {
+            console.log('ℹ️ Not all quizzes passed, certificate not eligible');
+            return;
+          }
+        }
+        
+        // All requirements met, generate certificate
+        console.log('🎓 Certificate eligibility confirmed, generating certificate...');
+        
+        // Generate certificate ID and verification code
+        const generateCertificateId = () => {
+          return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+            const r = (Math.random() * 16) | 0;
+            const v = c === 'x' ? r : (r & 0x3) | 0x8;
+            return v.toString(16);
+          });
+        };
+        
+        const generateVerificationCode = () => {
+          const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+          let code = '';
+          for (let i = 0; i < 8; i++) {
+            code += chars.charAt(Math.floor(Math.random() * chars.length));
+          }
+          return code;
+        };
+        
+        const certificateId = generateCertificateId();
+        const verificationCode = generateVerificationCode();
+        const issuedDate = new Date().toISOString().split('T')[0];
+        const baseUrl = process.env.CERTIFICATE_BASE_URL || 'https://cloudastick.com';
+        const certificateUrl = `${baseUrl}/certificate/${certificateId}`;
+        
+        // Create certificate record
+        const certificateData = {
+          Contact__c: contactId,
+          Learning_Material__c: parentMaterialId,
+          Learning_Material_Instance__c: parentInstanceId,
+          Certificate_ID__c: certificateId,
+          Verification_Code__c: verificationCode,
+          Issued_Date__c: issuedDate,
+          Certificate_URL__c: certificateUrl,
+          Status__c: 'Active',
+        };
+        
+        const createCertUrl = `${instance_url}/services/data/v58.0/sobjects/Certificate__c`;
+        const createCertResponse = await fetch(createCertUrl, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${access_token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(certificateData),
+        });
+        
+        if (createCertResponse.ok) {
+          const createdCert = await createCertResponse.json();
+          console.log('✅ Certificate generated successfully:', createdCert.id);
+        } else {
+          const errorText = await createCertResponse.text();
+          console.error('⚠️ Failed to generate certificate:', errorText);
+        }
+      } catch (e) {
+        console.error('⚠️ Error checking/generating certificate:', e);
       }
     };
 

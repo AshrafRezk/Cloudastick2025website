@@ -1,27 +1,44 @@
 import { motion } from 'framer-motion';
-import { Award, CheckCircle2 } from 'lucide-react';
+import { Award, CheckCircle2, ExternalLink } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { usePortalUser } from '../contexts/PortalUserContext';
 import { Card, CardContent } from './ui/card';
 
 const CompletedBadges = () => {
-  const { completed } = usePortalUser();
+  const { completed, certificates } = usePortalUser();
+  const navigate = useNavigate();
 
   // Filter to show only completed child materials (not parent modules)
   const completedChildren = completed.filter(instance => 
     instance.material?.isChild === true
   );
 
-  if (completedChildren.length === 0) {
+  // Also show completed parent courses that have certificates
+  const completedParentsWithCertificates = completed
+    .filter(instance => 
+      !instance.material?.isChild && 
+      instance.status === 'Completed' &&
+      certificates.some(cert => cert.learningMaterialId === instance.learningMaterialId)
+    )
+    .map(instance => ({
+      ...instance,
+      certificate: certificates.find(cert => cert.learningMaterialId === instance.learningMaterialId),
+    }));
+
+  if (completedChildren.length === 0 && completedParentsWithCertificates.length === 0) {
     return null;
   }
+
+  const totalCount = completedChildren.length + completedParentsWithCertificates.length;
 
   return (
     <div>
       <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
         <Award className="w-6 h-6 text-yellow-500" />
-        Completed Badges ({completedChildren.length})
+        Completed Badges ({totalCount})
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+        {/* Completed child materials */}
         {completedChildren.map((instance, index) => (
           <motion.div
             key={instance.id}
@@ -49,6 +66,43 @@ const CompletedBadges = () => {
                         Score: {instance.score}%
                       </p>
                     )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+
+        {/* Completed parent courses with certificates */}
+        {completedParentsWithCertificates.map((item, index) => (
+          <motion.div
+            key={item.instance.id}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: (completedChildren.length + index) * 0.05 }}
+          >
+            <Card 
+              className="bg-gradient-to-br from-yellow-500/10 to-yellow-600/10 border-yellow-500/20 hover:border-yellow-500/40 transition-colors cursor-pointer"
+              onClick={() => item.certificate && navigate(`/certificate/${item.certificate.certificateId}`)}
+            >
+              <CardContent className="p-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-500 to-yellow-600 flex items-center justify-center flex-shrink-0">
+                    <Award className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-foreground mb-1 line-clamp-2">
+                      {item.instance.material?.title || 'Completed Course'}
+                    </h3>
+                    {item.instance.completedOn && (
+                      <p className="text-xs text-muted-foreground">
+                        Completed {new Date(item.instance.completedOn).toLocaleDateString()}
+                      </p>
+                    )}
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="text-xs font-medium text-yellow-600">Certificate Available</span>
+                      <ExternalLink className="w-3 h-3 text-yellow-600" />
+                    </div>
                   </div>
                 </div>
               </CardContent>
