@@ -17,7 +17,12 @@ import {
   ArrowLeft,
   CreditCard,
   MapPin,
-  CheckCircle2
+  CheckCircle2,
+  Target,
+  Sparkles,
+  Loader2,
+  Cloud,
+  Building2
 } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 
@@ -101,6 +106,10 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [walletBalance] = useState(1250.50);
+  const [selectedPaymentGateway, setSelectedPaymentGateway] = useState<'gidea' | 'paymob' | null>(null);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [isSyncingSalesforce, setIsSyncingSalesforce] = useState(false);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
   
   const products = useMemo(() => generateProducts(companyName), [companyName]);
   
@@ -238,9 +247,30 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
       </div>
 
       {/* Hero Banner */}
-      <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-6 mx-4 mt-4 rounded-xl">
-        <h2 className="text-xl font-bold mb-2">Special Offer!</h2>
-        <p className="text-sm opacity-90">Get 20% off on selected items</p>
+      <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-6 mx-4 mt-4 rounded-xl relative overflow-hidden">
+        <div className="relative z-10">
+          <div className="flex items-center gap-3 mb-2">
+            {companyLogo && (
+              <img 
+                src={companyLogo} 
+                alt={companyName} 
+                className="w-10 h-10 rounded-lg bg-white/20 p-1 object-contain"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            )}
+            <div>
+              <h2 className="text-xl font-bold">Special Offer from {companyName || 'Store'}!</h2>
+              <p className="text-sm opacity-90 mt-1">Get 20% off on selected items</p>
+            </div>
+          </div>
+        </div>
+        {/* Decorative background pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full -mr-16 -mt-16"></div>
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-white rounded-full -ml-12 -mb-12"></div>
+        </div>
       </div>
 
       {/* Featured Products */}
@@ -299,7 +329,9 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
             onClick={() => setCurrentScreen('recommendations')}
             className="bg-white p-4 rounded-lg border border-gray-200 text-left"
           >
-            <div className="text-2xl mb-2">🎯</div>
+            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mb-2">
+              <Target className="w-5 h-5 text-orange-500" />
+            </div>
             <p className="font-semibold text-sm text-gray-900">Recommendations</p>
             <p className="text-xs text-gray-500 mt-1">For you</p>
           </button>
@@ -307,7 +339,9 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
             onClick={() => setCurrentScreen('bundles')}
             className="bg-white p-4 rounded-lg border border-gray-200 text-left"
           >
-            <div className="text-2xl mb-2">📦</div>
+            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mb-2">
+              <Package className="w-5 h-5 text-orange-500" />
+            </div>
             <p className="font-semibold text-sm text-gray-900">Bundles</p>
             <p className="text-xs text-gray-500 mt-1">Save more</p>
           </button>
@@ -661,70 +695,240 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
     </div>
   );
 
-  const renderCheckoutScreen = () => (
-    <div className="h-full overflow-y-auto bg-gray-50">
-      <div className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-10">
-        <div className="flex items-center gap-3">
-          <button onClick={() => setCurrentScreen('cart')} className="p-1">
-            <ArrowLeft className="w-5 h-5 text-gray-700" />
+  const handlePayment = async () => {
+    if (!selectedPaymentGateway) {
+      alert('Please select a payment gateway');
+      return;
+    }
+
+    setIsProcessingPayment(true);
+    
+    // Simulate payment processing
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    setIsProcessingPayment(false);
+    setIsSyncingSalesforce(true);
+    
+    // Simulate Salesforce CRM sync
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    setIsSyncingSalesforce(false);
+    setPaymentSuccess(true);
+    
+    // After showing success, reset and go to orders
+    setTimeout(() => {
+      setCartItems([]);
+      setSelectedPaymentGateway(null);
+      setPaymentSuccess(false);
+      setCurrentScreen('orders');
+    }, 2000);
+  };
+
+  const renderCheckoutScreen = () => {
+    if (paymentSuccess) {
+      return (
+        <div className="h-full overflow-y-auto bg-gray-50 flex items-center justify-center">
+          <div className="text-center px-4">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", duration: 0.5 }}
+              className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4"
+            >
+              <CheckCircle2 className="w-10 h-10 text-white" />
+            </motion.div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment Successful!</h2>
+            <p className="text-gray-600 mb-4">Your order has been placed</p>
+            <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
+              <Cloud className="w-4 h-4 text-blue-500" />
+              <span>Synced to Salesforce CRM</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="h-full overflow-y-auto bg-gray-50">
+        <div className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-10">
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => {
+                setSelectedPaymentGateway(null);
+                setCurrentScreen('cart');
+              }} 
+              className="p-1"
+              disabled={isProcessingPayment || isSyncingSalesforce}
+            >
+              <ArrowLeft className="w-5 h-5 text-gray-700" />
+            </button>
+            <h2 className="text-lg font-bold text-gray-900">Checkout</h2>
+          </div>
+        </div>
+
+        <div className="px-4 py-4">
+          <div className="bg-white rounded-lg p-4 mb-4 border border-gray-200">
+            <div className="flex items-center gap-2 mb-3">
+              <MapPin className="w-5 h-5 text-gray-600" />
+              <h3 className="font-semibold text-gray-900">Shipping Address</h3>
+            </div>
+            <p className="text-sm text-gray-900">{USER_NAME}</p>
+            <p className="text-sm text-gray-600">123 Main Street</p>
+            <p className="text-sm text-gray-600">New York, NY 10001</p>
+          </div>
+
+          <div className="bg-white rounded-lg p-4 mb-4 border border-gray-200">
+            <div className="flex items-center gap-2 mb-3">
+              <CreditCard className="w-5 h-5 text-gray-600" />
+              <h3 className="font-semibold text-gray-900">Payment Gateway</h3>
+            </div>
+            <div className="space-y-2">
+              <button
+                onClick={() => setSelectedPaymentGateway('gidea')}
+                disabled={isProcessingPayment || isSyncingSalesforce}
+                className={`w-full p-3 rounded-lg border-2 transition-all ${
+                  selectedPaymentGateway === 'gidea'
+                    ? 'border-orange-500 bg-orange-50'
+                    : 'border-gray-200 bg-white hover:border-gray-300'
+                } ${isProcessingPayment || isSyncingSalesforce ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <CreditCard className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className="font-semibold text-gray-900">Gidea</p>
+                    <p className="text-xs text-gray-500">Visa, Mastercard, Meeza</p>
+                  </div>
+                  {selectedPaymentGateway === 'gidea' && (
+                    <CheckCircle2 className="w-5 h-5 text-orange-500" />
+                  )}
+                </div>
+              </button>
+              
+              <button
+                onClick={() => setSelectedPaymentGateway('paymob')}
+                disabled={isProcessingPayment || isSyncingSalesforce}
+                className={`w-full p-3 rounded-lg border-2 transition-all ${
+                  selectedPaymentGateway === 'paymob'
+                    ? 'border-orange-500 bg-orange-50'
+                    : 'border-gray-200 bg-white hover:border-gray-300'
+                } ${isProcessingPayment || isSyncingSalesforce ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                    <CreditCard className="w-5 h-5 text-green-600" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className="font-semibold text-gray-900">Paymob</p>
+                    <p className="text-xs text-gray-500">Credit & Debit Cards</p>
+                  </div>
+                  {selectedPaymentGateway === 'paymob' && (
+                    <CheckCircle2 className="w-5 h-5 text-orange-500" />
+                  )}
+                </div>
+              </button>
+            </div>
+          </div>
+
+          {selectedPaymentGateway && (
+            <div className="bg-white rounded-lg p-4 mb-4 border border-gray-200">
+              <div className="flex items-center gap-2 mb-3">
+                <CreditCard className="w-5 h-5 text-gray-600" />
+                <h3 className="font-semibold text-gray-900">Card Details</h3>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Card Number"
+                    defaultValue="4242 4242 4242 4242"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    disabled={isProcessingPayment || isSyncingSalesforce}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <input
+                    type="text"
+                    placeholder="MM/YY"
+                    defaultValue="12/25"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    disabled={isProcessingPayment || isSyncingSalesforce}
+                  />
+                  <input
+                    type="text"
+                    placeholder="CVV"
+                    defaultValue="123"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    disabled={isProcessingPayment || isSyncingSalesforce}
+                  />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Cardholder Name"
+                  defaultValue={USER_NAME}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  disabled={isProcessingPayment || isSyncingSalesforce}
+                />
+              </div>
+            </div>
+          )}
+
+          <div className="bg-white rounded-lg p-4 mb-4 border border-gray-200">
+            <h3 className="font-semibold text-gray-900 mb-3">Order Summary</h3>
+            {cartItems.map((item) => (
+              <div key={item.id} className="flex items-center justify-between mb-2">
+                <span className="text-sm text-gray-600">{item.name} x{item.quantity}</span>
+                <span className="text-sm font-semibold text-gray-900">${(item.price * item.quantity).toFixed(2)}</span>
+              </div>
+            ))}
+            <div className="border-t border-gray-200 pt-3 mt-3">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-gray-900">Total</span>
+                <span className="text-xl font-bold text-gray-900">${cartTotal.toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={handlePayment}
+            disabled={!selectedPaymentGateway || isProcessingPayment || isSyncingSalesforce}
+            className={`w-full py-3 rounded-lg font-semibold flex items-center justify-center gap-2 ${
+              !selectedPaymentGateway || isProcessingPayment || isSyncingSalesforce
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-orange-500 text-white hover:bg-orange-600'
+            }`}
+          >
+            {isProcessingPayment ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span>Processing Payment...</span>
+              </>
+            ) : isSyncingSalesforce ? (
+              <>
+                <Cloud className="w-5 h-5 animate-pulse" />
+                <span>Syncing to Salesforce CRM...</span>
+              </>
+            ) : (
+              <>
+                <CreditCard className="w-5 h-5" />
+                <span>Pay ${cartTotal.toFixed(2)}</span>
+              </>
+            )}
           </button>
-          <h2 className="text-lg font-bold text-gray-900">Checkout</h2>
+
+          {isSyncingSalesforce && (
+            <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center gap-2">
+              <Building2 className="w-4 h-4 text-blue-600" />
+              <p className="text-xs text-blue-800">
+                Creating order record in Salesforce CRM...
+              </p>
+            </div>
+          )}
         </div>
       </div>
-
-      <div className="px-4 py-4">
-        <div className="bg-white rounded-lg p-4 mb-4 border border-gray-200">
-          <div className="flex items-center gap-2 mb-3">
-            <MapPin className="w-5 h-5 text-gray-600" />
-            <h3 className="font-semibold text-gray-900">Shipping Address</h3>
-          </div>
-          <p className="text-sm text-gray-900">{USER_NAME}</p>
-          <p className="text-sm text-gray-600">123 Main Street</p>
-          <p className="text-sm text-gray-600">New York, NY 10001</p>
-        </div>
-
-        <div className="bg-white rounded-lg p-4 mb-4 border border-gray-200">
-          <div className="flex items-center gap-2 mb-3">
-            <CreditCard className="w-5 h-5 text-gray-600" />
-            <h3 className="font-semibold text-gray-900">Payment Method</h3>
-          </div>
-          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-            <CreditCard className="w-5 h-5 text-gray-600" />
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-gray-900">•••• •••• •••• 4242</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg p-4 mb-4 border border-gray-200">
-          <h3 className="font-semibold text-gray-900 mb-3">Order Summary</h3>
-          {cartItems.map((item) => (
-            <div key={item.id} className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-600">{item.name} x{item.quantity}</span>
-              <span className="text-sm font-semibold text-gray-900">${(item.price * item.quantity).toFixed(2)}</span>
-            </div>
-          ))}
-          <div className="border-t border-gray-200 pt-3 mt-3">
-            <div className="flex items-center justify-between">
-              <span className="font-semibold text-gray-900">Total</span>
-              <span className="text-xl font-bold text-gray-900">${cartTotal.toFixed(2)}</span>
-            </div>
-          </div>
-        </div>
-
-        <button
-          onClick={() => {
-            alert('Order placed successfully!');
-            setCartItems([]);
-            setCurrentScreen('home');
-          }}
-          className="w-full bg-orange-500 text-white py-3 rounded-lg font-semibold"
-        >
-          Place Order
-        </button>
-      </div>
-    </div>
-  );
+    );
+  };
 
   const renderProductDetailScreen = () => {
     if (!selectedProduct) return null;
