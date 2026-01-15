@@ -46,7 +46,10 @@ import {
   Building2,
   Award,
   GraduationCap,
-  Headset
+  Headset,
+  Tag,
+  UserCheck,
+  Layers
 } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import AnimatedSection from '../components/AnimatedSection';
@@ -2125,6 +2128,338 @@ const SalesforcePower = () => {
                 </div>
               </motion.div>
             </div>
+          </div>
+        </section>
+      )}
+
+      {/* Commerce Cloud Storefront Section - Only for Retail */}
+      {selectedIndustry === 'retail' && (
+        <section className="py-20 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-orange-900/30 to-red-900/20"></div>
+          
+          {/* Animated background elements */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute top-20 left-10 w-72 h-72 bg-orange-500/10 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-20 right-10 w-96 h-96 bg-red-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+          </div>
+          
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <AnimatedSection className="text-center mb-12">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+              >
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500/20 rounded-full text-orange-400 text-sm font-medium mb-6 border border-orange-500/30">
+                  <span className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></span>
+                  Commerce Cloud Innovation
+                </div>
+                <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+                  Salesforce Commerce Cloud Storefront
+                </h2>
+                <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+                  Experience the power of Commerce Cloud with a real-world storefront. 
+                  Built on Salesforce, this platform delivers personalized shopping experiences, 
+                  intelligent product recommendations, and seamless omnichannel commerce.
+                </p>
+              </motion.div>
+            </AnimatedSection>
+
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              {/* Storefront Iframe */}
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="order-2 lg:order-1"
+              >
+                <div className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-xl rounded-3xl p-6 border border-orange-500/20 shadow-2xl shadow-orange-500/10">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                    <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                    <span className="text-gray-400 text-sm ml-2">Live Storefront Demo</span>
+                  </div>
+                  <div className="rounded-2xl overflow-hidden bg-black/50">
+                    <iframe 
+                      src="https://www.boots.com/?srsltid=AfmBOoqS5sb1YgoJUEz3n5THjx6qNlCNBnMdQcfcOheyKfnDVEYz4y0s" 
+                      frameBorder="0" 
+                      scrolling="yes" 
+                      width="100%" 
+                      height="600" 
+                      allowFullScreen
+                      title="Commerce Cloud Storefront - Boots.com Demo"
+                      className="w-full h-[400px] md:h-[500px] lg:h-[600px]"
+                      sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
+                      loading="lazy"
+                    />
+                  </div>
+                  <div className="flex items-center justify-center gap-3 md:gap-6 mt-4 text-xs md:text-sm text-gray-400 flex-wrap">
+                    <span className="flex items-center gap-2">
+                      <span className="w-5 h-5 md:w-6 md:h-6 bg-orange-500/20 rounded-lg flex items-center justify-center text-orange-400">🛒</span>
+                      <span className="hidden sm:inline">Shopping Cart</span>
+                      <span className="sm:hidden">Cart</span>
+                    </span>
+                    <span className="flex items-center gap-2">
+                      <span className="w-5 h-5 md:w-6 md:h-6 bg-red-500/20 rounded-lg flex items-center justify-center text-red-400">⭐</span>
+                      <span className="hidden sm:inline">Recommendations</span>
+                      <span className="sm:hidden">Recs</span>
+                    </span>
+                    <span className="flex items-center gap-2">
+                      <span className="w-5 h-5 md:w-6 md:h-6 bg-yellow-500/20 rounded-lg flex items-center justify-center text-yellow-400">🎯</span>
+                      <span className="hidden sm:inline">Personalization</span>
+                      <span className="sm:hidden">Personal</span>
+                    </span>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Features List */}
+              <motion.div
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+                className="order-1 lg:order-2"
+              >
+                <div className="space-y-6">
+                  {[
+                    {
+                      icon: '🛒',
+                      title: 'Smart Shopping Cart',
+                      description: 'Advanced cart functionality with saved items, wishlists, and seamless checkout flow powered by Commerce Cloud.'
+                    },
+                    {
+                      icon: '🎯',
+                      title: 'AI-Powered Recommendations',
+                      description: 'Einstein Commerce AI analyzes browsing behavior to deliver personalized product recommendations that increase conversion rates.'
+                    },
+                    {
+                      icon: '🎨',
+                      title: 'Dynamic Hero Sections',
+                      description: 'Engaging promotional banners and hero sections that adapt to customer segments and drive engagement.'
+                    },
+                    {
+                      icon: '📱',
+                      title: 'Mobile-First Design',
+                      description: 'Fully responsive storefront optimized for mobile, tablet, and desktop with consistent experiences across all devices.'
+                    },
+                    {
+                      icon: '🔍',
+                      title: 'Advanced Search & Filters',
+                      description: 'Intelligent product search with filtering, sorting, and faceted navigation to help customers find exactly what they need.'
+                    },
+                    {
+                      icon: '💳',
+                      title: 'Seamless Checkout',
+                      description: 'Streamlined checkout process with multiple payment options, guest checkout, and saved payment methods for returning customers.'
+                    }
+                  ].map((feature, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
+                      className="flex gap-4 p-4 bg-gradient-to-r from-gray-800/50 to-transparent rounded-xl border border-gray-700/50 hover:border-orange-500/30 transition-all duration-300 group"
+                    >
+                      <div className="w-12 h-12 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                        {feature.icon}
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-white mb-1">{feature.title}</h3>
+                        <p className="text-gray-400 text-sm leading-relaxed">{feature.description}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Customer Segmentation & Ratings Section - Only for Retail */}
+      {selectedIndustry === 'retail' && (
+        <section className="py-20 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-900/20 via-gray-900 to-red-900/20"></div>
+          
+          {/* Animated background elements */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute top-20 right-10 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-20 left-10 w-72 h-72 bg-red-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }}></div>
+          </div>
+          
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <AnimatedSection className="text-center mb-16">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+              >
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500/20 rounded-full text-orange-400 text-sm font-medium mb-6 border border-orange-500/30">
+                  <span className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></span>
+                  Customer Intelligence
+                </div>
+                <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+                  Customer Segmentation & Ratings Calculation
+                </h2>
+                <p className="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed mb-4">
+                  Our advanced segmentation system, implemented for many of our customers, 
+                  provides comprehensive customer insights through multi-dimensional analysis. 
+                  This intelligent approach enables targeted marketing, personalized experiences, 
+                  and data-driven decision making.
+                </p>
+                <p className="text-lg text-gray-400 max-w-3xl mx-auto">
+                  Each customer is evaluated across four key dimensions to create a calculated segmentation 
+                  that drives strategic business actions.
+                </p>
+              </motion.div>
+            </AnimatedSection>
+
+            {/* Segmentation Dimensions Grid */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+              {[
+                {
+                  icon: TrendingUp,
+                  title: 'Adoption Rating',
+                  levels: ['High', 'Medium', 'Low'],
+                  description: 'Measures customer engagement with platform features, usage patterns, and feature adoption rates. High adoption indicates active users maximizing platform value.',
+                  color: 'from-blue-500/20 to-cyan-500/20',
+                  borderColor: 'border-blue-500/30',
+                  iconColor: 'text-blue-400'
+                },
+                {
+                  icon: Sparkles,
+                  title: 'Potentiality Rating',
+                  levels: ['High', 'Medium', 'Low'],
+                  description: 'Assesses growth potential and future value based on business size, growth trajectory, expansion plans, and market position.',
+                  color: 'from-purple-500/20 to-pink-500/20',
+                  borderColor: 'border-purple-500/30',
+                  iconColor: 'text-purple-400'
+                },
+                {
+                  icon: DollarSign,
+                  title: 'Purchasing Power',
+                  levels: ['Class A', 'Class B', 'Class C'],
+                  description: 'Categorizes customers by purchasing capacity. Class A represents high-value customers, Class B mid-market, and Class C entry-level needs.',
+                  color: 'from-green-500/20 to-emerald-500/20',
+                  borderColor: 'border-green-500/30',
+                  iconColor: 'text-green-400'
+                },
+                {
+                  icon: Heart,
+                  title: 'Brand Loyalty',
+                  levels: ['High', 'Medium', 'Low'],
+                  description: 'Measures customer loyalty and retention likelihood based on purchase history, repeat business patterns, and contract length.',
+                  color: 'from-red-500/20 to-orange-500/20',
+                  borderColor: 'border-red-500/30',
+                  iconColor: 'text-red-400'
+                }
+              ].map((dimension, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.2 + index * 0.1 }}
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  className={`bg-gradient-to-br ${dimension.color} rounded-2xl p-6 border ${dimension.borderColor} backdrop-blur-sm hover:shadow-2xl transition-all duration-300 group`}
+                >
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className={`w-12 h-12 bg-gradient-to-br ${dimension.color} rounded-xl flex items-center justify-center ${dimension.borderColor} border`}>
+                      <dimension.icon className={`w-6 h-6 ${dimension.iconColor}`} />
+                    </div>
+                    <h3 className="text-lg font-bold text-white">{dimension.title}</h3>
+                  </div>
+                  
+                  <div className="mb-4">
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {dimension.levels.map((level, idx) => (
+                        <span
+                          key={idx}
+                          className="px-3 py-1 bg-white/10 rounded-full text-xs font-medium text-white/90 border border-white/20"
+                        >
+                          {level}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <p className="text-gray-300 text-sm leading-relaxed">{dimension.description}</p>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Calculated Segmentation Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className="bg-gradient-to-br from-orange-500/10 to-red-500/10 rounded-3xl p-8 border border-orange-500/30 backdrop-blur-sm"
+            >
+              <div className="flex items-start gap-6">
+                <div className="w-16 h-16 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-2xl flex items-center justify-center flex-shrink-0 border border-orange-500/30">
+                  <Brain className="w-8 h-8 text-orange-400" />
+                </div>
+                <div className="flex-grow">
+                  <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
+                    Calculated Segmentation
+                    <span className="px-3 py-1 bg-orange-500/20 rounded-full text-sm font-medium text-orange-400 border border-orange-500/30">
+                      AI-Powered
+                    </span>
+                  </h3>
+                  <p className="text-gray-300 text-base leading-relaxed mb-6">
+                    Our intelligent system combines all four dimensions—Adoption, Potentiality, Purchasing Power, 
+                    and Brand Loyalty—to generate a comprehensive calculated segmentation. This multi-dimensional 
+                    analysis creates distinct customer segments that enable:
+                  </p>
+                  
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {[
+                      {
+                        icon: Target,
+                        title: 'Targeted Marketing',
+                        description: 'Deliver personalized campaigns based on customer segment characteristics'
+                      },
+                      {
+                        icon: Zap,
+                        title: 'Sales Prioritization',
+                        description: 'Focus resources on high-value segments with greatest growth potential'
+                      },
+                      {
+                        icon: BarChart3,
+                        title: 'Predictive Analytics',
+                        description: 'Forecast customer behavior and optimize engagement strategies'
+                      },
+                      {
+                        icon: Users,
+                        title: 'Customer Success',
+                        description: 'Tailor support and onboarding based on adoption and loyalty patterns'
+                      }
+                    ].map((benefit, idx) => (
+                      <div
+                        key={idx}
+                        className="flex gap-3 p-4 bg-gray-800/30 rounded-xl border border-gray-700/50 hover:border-orange-500/30 transition-all duration-300"
+                      >
+                        <div className="w-10 h-10 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <benefit.icon className="w-5 h-5 text-orange-400" />
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-semibold text-white mb-1">{benefit.title}</h4>
+                          <p className="text-gray-400 text-xs leading-relaxed">{benefit.description}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="mt-6 p-4 bg-gradient-to-r from-orange-500/10 to-red-500/10 rounded-xl border border-orange-500/20">
+                    <p className="text-sm text-gray-300 leading-relaxed">
+                      <span className="font-semibold text-orange-400">Implementation Status:</span> This segmentation 
+                      methodology has been successfully implemented for many of our customers, delivering measurable 
+                      improvements in customer engagement, conversion rates, and revenue growth.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </section>
       )}
