@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Home,
@@ -79,26 +79,80 @@ const generateProducts = (companyName: string): Product[] => {
     { id: '13', name: 'Dumbbell Set', price: 149.99, image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400', category: 'Sports', rating: 4.8, reviews: 156, inStock: true, description: 'Adjustable weight dumbbell set' },
   ];
 
-  // Infer products based on company name
+  // Enhanced inference based on company name keywords
   const companyLower = companyName.toLowerCase();
   const inferredProducts: Product[] = [];
   
-  if (companyLower.includes('ceramic') || companyLower.includes('porcelain') || companyLower.includes('tile')) {
+  // Pharmacy/Pharmaceutical products
+  if (companyLower.includes('pharmacy') || companyLower.includes('pharma') || companyLower.includes('drug') || companyLower.includes('medicine') || companyLower.includes('medical')) {
     inferredProducts.push(
-      { id: 'inf1', name: 'Ceramic Dinner Set', price: 79.99, image: 'https://images.unsplash.com/photo-1556910096-6f5e72db6803?w=400', category: 'Home', rating: 4.7, reviews: 189, inStock: true, description: 'Elegant ceramic dinner set for 6' },
-      { id: 'inf2', name: 'Porcelain Vase Collection', price: 129.99, image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400', category: 'Home', rating: 4.5, reviews: 145, inStock: true, description: 'Handcrafted porcelain vases' },
-      { id: 'inf3', name: 'Ceramic Tile Samples', price: 24.99, image: 'https://images.unsplash.com/photo-1581539250439-c96689b516dd?w=400', category: 'Home', rating: 4.6, reviews: 98, inStock: true, description: 'Premium ceramic tile sample pack' }
+      { id: 'inf-ph1', name: 'Prescription Medications', price: 45.99, image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400', category: 'Health', rating: 4.8, reviews: 892, inStock: true, description: 'FDA-approved prescription medications' },
+      { id: 'inf-ph2', name: 'Vitamins & Supplements', price: 29.99, image: 'https://images.unsplash.com/photo-1550572017-edd951b55104?w=400', category: 'Health', rating: 4.6, reviews: 567, inStock: true, description: 'Premium vitamins and dietary supplements' },
+      { id: 'inf-ph3', name: 'First Aid Kit', price: 24.99, image: 'https://images.unsplash.com/photo-1559757148-5c350d0d0c6d?w=400', category: 'Health', rating: 4.7, reviews: 234, inStock: true, description: 'Complete first aid kit for home and travel' },
+      { id: 'inf-ph4', name: 'Health Monitoring Devices', price: 89.99, image: 'https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=400', category: 'Health', rating: 4.5, reviews: 345, inStock: true, description: 'Digital health monitoring equipment' }
     );
   }
   
-  if (companyLower.includes('fashion') || companyLower.includes('apparel') || companyLower.includes('clothing')) {
+  // Ceramics/Porcelain products
+  if (companyLower.includes('ceramic') || companyLower.includes('porcelain') || companyLower.includes('tile') || companyLower.includes('pottery')) {
     inferredProducts.push(
-      { id: 'inf4', name: 'Designer Collection', price: 299.99, image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=400', category: 'Fashion', rating: 4.8, reviews: 267, inStock: true, description: 'Exclusive designer clothing collection' },
-      { id: 'inf5', name: 'Premium Accessories', price: 89.99, image: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=400', category: 'Fashion', rating: 4.6, reviews: 198, inStock: true, description: 'Luxury fashion accessories set' }
+      { id: 'inf-cer1', name: 'Ceramic Dinner Set', price: 79.99, image: 'https://images.unsplash.com/photo-1556910096-6f5e72db6803?w=400', category: 'Home', rating: 4.7, reviews: 189, inStock: true, description: 'Elegant ceramic dinner set for 6' },
+      { id: 'inf-cer2', name: 'Porcelain Vase Collection', price: 129.99, image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400', category: 'Home', rating: 4.5, reviews: 145, inStock: true, description: 'Handcrafted porcelain vases' },
+      { id: 'inf-cer3', name: 'Ceramic Tile Samples', price: 24.99, image: 'https://images.unsplash.com/photo-1581539250439-c96689b516dd?w=400', category: 'Home', rating: 4.6, reviews: 98, inStock: true, description: 'Premium ceramic tile sample pack' },
+      { id: 'inf-cer4', name: 'Decorative Ceramic Bowls', price: 39.99, image: 'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=400', category: 'Home', rating: 4.4, reviews: 167, inStock: true, description: 'Hand-painted decorative ceramic bowls' }
+    );
+  }
+  
+  // Cosmetics/Beauty products
+  if (companyLower.includes('cosmetic') || companyLower.includes('beauty') || companyLower.includes('makeup') || companyLower.includes('skincare') || companyLower.includes('perfume')) {
+    inferredProducts.push(
+      { id: 'inf-cos1', name: 'Luxury Makeup Collection', price: 149.99, image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400', category: 'Beauty', rating: 4.8, reviews: 1234, inStock: true, description: 'Premium makeup collection with all essentials' },
+      { id: 'inf-cos2', name: 'Anti-Aging Skincare Set', price: 89.99, image: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400', category: 'Beauty', rating: 4.7, reviews: 892, inStock: true, description: 'Complete anti-aging skincare routine' },
+      { id: 'inf-cos3', name: 'Designer Perfume Collection', price: 119.99, image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=400', category: 'Beauty', rating: 4.6, reviews: 567, inStock: true, description: 'Luxury fragrance collection' },
+      { id: 'inf-cos4', name: 'Hair Care Essentials', price: 49.99, image: 'https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?w=400', category: 'Beauty', rating: 4.5, reviews: 456, inStock: true, description: 'Professional hair care products' }
+    );
+  }
+  
+  // Fashion/Apparel products
+  if (companyLower.includes('fashion') || companyLower.includes('apparel') || companyLower.includes('clothing') || companyLower.includes('garment') || companyLower.includes('textile')) {
+    inferredProducts.push(
+      { id: 'inf-fash1', name: 'Designer Collection', price: 299.99, image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=400', category: 'Fashion', rating: 4.8, reviews: 267, inStock: true, description: 'Exclusive designer clothing collection' },
+      { id: 'inf-fash2', name: 'Premium Accessories', price: 89.99, image: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=400', category: 'Fashion', rating: 4.6, reviews: 198, inStock: true, description: 'Luxury fashion accessories set' },
+      { id: 'inf-fash3', name: 'Seasonal Fashion Line', price: 199.99, image: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=400', category: 'Fashion', rating: 4.7, reviews: 345, inStock: true, description: 'Latest seasonal fashion collection' }
+    );
+  }
+  
+  // Electronics/Tech products
+  if (companyLower.includes('electronic') || companyLower.includes('tech') || companyLower.includes('computer') || companyLower.includes('software') || companyLower.includes('digital')) {
+    inferredProducts.push(
+      { id: 'inf-elec1', name: 'Smart Devices Bundle', price: 349.99, image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400', category: 'Electronics', rating: 4.7, reviews: 456, inStock: true, description: 'Complete smart home device bundle' },
+      { id: 'inf-elec2', name: 'Wireless Tech Accessories', price: 79.99, image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400', category: 'Electronics', rating: 4.6, reviews: 289, inStock: true, description: 'Premium wireless accessories' }
+    );
+  }
+  
+  // Food/Beverage products
+  if (companyLower.includes('food') || companyLower.includes('beverage') || companyLower.includes('restaurant') || companyLower.includes('cafe') || companyLower.includes('bakery')) {
+    inferredProducts.push(
+      { id: 'inf-food1', name: 'Gourmet Food Basket', price: 59.99, image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400', category: 'Food', rating: 4.8, reviews: 234, inStock: true, description: 'Premium gourmet food selection' },
+      { id: 'inf-food2', name: 'Artisan Coffee Collection', price: 39.99, image: 'https://images.unsplash.com/photo-1511920170033-83939d9d5e41?w=400', category: 'Food', rating: 4.7, reviews: 567, inStock: true, description: 'Premium artisan coffee beans' }
+    );
+  }
+  
+  // Furniture/Home products
+  if (companyLower.includes('furniture') || companyLower.includes('home') || companyLower.includes('interior') || companyLower.includes('decor')) {
+    inferredProducts.push(
+      { id: 'inf-furn1', name: 'Modern Furniture Set', price: 899.99, image: 'https://images.unsplash.com/photo-1532372320572-cda25653a26d?w=400', category: 'Home', rating: 4.8, reviews: 189, inStock: true, description: 'Contemporary furniture collection' },
+      { id: 'inf-furn2', name: 'Home Decor Collection', price: 149.99, image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400', category: 'Home', rating: 4.6, reviews: 234, inStock: true, description: 'Elegant home decoration items' }
     );
   }
 
-  return [...baseProducts, ...inferredProducts];
+  // If no specific products inferred, return base products
+  // Otherwise, prioritize inferred products and add some base products for variety
+  if (inferredProducts.length > 0) {
+    return [...inferredProducts, ...baseProducts.slice(0, 6)];
+  }
+
+  return baseProducts;
 };
 
 const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ companyName, companyLogo }) => {
@@ -110,8 +164,88 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [isSyncingSalesforce, setIsSyncingSalesforce] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [fetchedProducts, setFetchedProducts] = useState<Product[]>([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
   
-  const products = useMemo(() => generateProducts(companyName), [companyName]);
+  // Fetch products from API based on company name
+  useEffect(() => {
+    const fetchCompanyProducts = async () => {
+      if (!companyName || companyName.trim().length < 3) {
+        setFetchedProducts([]);
+        return;
+      }
+
+      setIsLoadingProducts(true);
+      try {
+        // Try to fetch products using DuckDuckGo Instant Answer API (free, no key needed)
+        const searchQuery = encodeURIComponent(`${companyName} products`);
+        const response = await fetch(`https://api.duckduckgo.com/?q=${searchQuery}&format=json&no_html=1&skip_disambig=1`, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          // DuckDuckGo API returns abstract text which might contain product info
+          // We'll parse it and create products from it
+          if (data.AbstractText) {
+            const abstract = data.AbstractText.toLowerCase();
+            const productHints: string[] = [];
+            
+            // Extract potential product names from abstract
+            const productKeywords = ['product', 'sells', 'offers', 'provides', 'manufactures', 'produces'];
+            const sentences = data.AbstractText.split(/[.!?]/);
+            
+            sentences.forEach(sentence => {
+              const lower = sentence.toLowerCase();
+              productKeywords.forEach(keyword => {
+                if (lower.includes(keyword)) {
+                  // Try to extract product names (simple heuristic)
+                  const words = sentence.split(',').map(w => w.trim());
+                  words.forEach(word => {
+                    if (word.length > 3 && word.length < 30 && !word.includes('company') && !word.includes('business')) {
+                      productHints.push(word);
+                    }
+                  });
+                }
+              });
+            });
+
+            // Create products from hints if we found any
+            if (productHints.length > 0) {
+              const apiProducts: Product[] = productHints.slice(0, 5).map((hint, idx) => ({
+                id: `api-${idx}`,
+                name: hint.charAt(0).toUpperCase() + hint.slice(1),
+                price: Math.round((Math.random() * 200 + 20) * 100) / 100,
+                image: `https://images.unsplash.com/photo-${1500000000000 + idx}?w=400&q=80`,
+                category: 'General',
+                rating: Math.round((Math.random() * 1.5 + 3.5) * 10) / 10,
+                reviews: Math.floor(Math.random() * 500 + 50),
+                inStock: true,
+                description: `Premium ${hint} from ${companyName}`
+              }));
+              setFetchedProducts(apiProducts);
+            }
+          }
+        }
+      } catch (error) {
+        console.log('Could not fetch products from API, using inferred products');
+        setFetchedProducts([]);
+      } finally {
+        setIsLoadingProducts(false);
+      }
+    };
+
+    fetchCompanyProducts();
+  }, [companyName]);
+  
+  const products = useMemo(() => {
+    const generated = generateProducts(companyName);
+    // Prioritize fetched products, then add generated ones
+    return fetchedProducts.length > 0 ? [...fetchedProducts, ...generated] : generated;
+  }, [companyName, fetchedProducts]);
   
   const cartTotal = useMemo(() => {
     return cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
