@@ -1090,6 +1090,24 @@ const SalesforcePower = () => {
     ? getIndustryById(selectedIndustry) 
     : genericIndustryData || null;
 
+  // Check if current industry is retail/commerce related
+  const isRetailOrCommerce = useMemo(() => {
+    const industryParam = searchParams.get('industry');
+    const industryName = selectedIndustryData?.name?.toLowerCase() || '';
+    const industryId = selectedIndustry || '';
+    const paramLower = (industryParam || '').toLowerCase();
+    
+    return (
+      industryId === 'commerce-cloud' ||
+      industryName.includes('retail') ||
+      industryName.includes('commerce') ||
+      paramLower.includes('retail') ||
+      paramLower.includes('commerce') ||
+      paramLower.includes('e-commerce') ||
+      paramLower.includes('ecommerce')
+    );
+  }, [selectedIndustry, selectedIndustryData, searchParams]);
+
   // Prepare industries for grid display
   // If the selected industry is not in the first 8, replace Telecom with it
   const displayIndustries = useMemo(() => {
@@ -2132,8 +2150,8 @@ const SalesforcePower = () => {
         </section>
       )}
 
-      {/* Commerce Cloud Storefront Section - Only for Retail */}
-      {selectedIndustry === 'retail' && (
+      {/* Commerce Cloud Storefront Section - Only for Retail/Commerce */}
+      {isRetailOrCommerce && (
         <section className="py-20 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-orange-900/30 to-red-900/20"></div>
           
@@ -2277,8 +2295,8 @@ const SalesforcePower = () => {
         </section>
       )}
 
-      {/* Customer Segmentation & Ratings Section - Only for Retail */}
-      {selectedIndustry === 'retail' && (
+      {/* Customer Segmentation & Ratings Section - Only for Retail/Commerce */}
+      {isRetailOrCommerce && (
         <section className="py-20 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-orange-900/20 via-gray-900 to-red-900/20"></div>
           
