@@ -49,7 +49,9 @@ import {
   Headset,
   Tag,
   UserCheck,
-  Layers
+  Layers,
+  Paintbrush,
+  Search as SearchIcon
 } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import AnimatedSection from '../components/AnimatedSection';
@@ -2108,42 +2110,45 @@ const SalesforcePower = () => {
                 <div className="space-y-6">
                   {[
                     {
-                      icon: '🏠',
+                      icon: Building2,
                       title: 'Virtual Property Tours',
                       description: 'Let customers explore every corner of their future home from anywhere in the world, 24/7.'
                     },
                     {
-                      icon: '🎨',
+                      icon: Paintbrush,
                       title: 'Real-Time Customization',
                       description: 'Visualize different finishes, layouts, and configurations to match customer preferences instantly.'
                     },
                     {
-                      icon: '📊',
+                      icon: BarChart3,
                       title: 'Salesforce Integration',
                       description: 'Track engagement metrics, unit preferences, and automatically sync customer interactions to CRM records.'
                     },
                     {
-                      icon: '🚀',
+                      icon: Zap,
                       title: 'Accelerate Sales Cycles',
                       description: 'Reduce decision time by 40% with immersive visualization that builds buyer confidence.'
                     }
-                  ].map((feature, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
-                      className="flex gap-4 p-4 bg-gradient-to-r from-gray-800/50 to-transparent rounded-xl border border-gray-700/50 hover:border-emerald-500/30 transition-all duration-300 group"
-                    >
-                      <div className="w-12 h-12 bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
-                        {feature.icon}
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-white mb-1">{feature.title}</h3>
-                        <p className="text-gray-400 text-sm leading-relaxed">{feature.description}</p>
-                      </div>
-                    </motion.div>
-                  ))}
+                  ].map((feature, index) => {
+                    const IconComponent = feature.icon;
+                    return (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
+                        className="flex gap-4 p-4 bg-gradient-to-r from-gray-800/50 to-transparent rounded-xl border border-gray-700/50 hover:border-emerald-500/30 transition-all duration-300 group"
+                      >
+                        <div className="w-12 h-12 bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                          <IconComponent className="w-6 h-6 text-emerald-400" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-white mb-1">{feature.title}</h3>
+                          <p className="text-gray-400 text-sm leading-relaxed">{feature.description}</p>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
                 </div>
               </motion.div>
             </div>
@@ -2207,17 +2212,23 @@ const SalesforcePower = () => {
                   </div>
                   <div className="flex items-center justify-center gap-3 md:gap-6 mt-4 text-xs md:text-sm text-gray-400 flex-wrap">
                     <span className="flex items-center gap-2">
-                      <span className="w-5 h-5 md:w-6 md:h-6 bg-orange-500/20 rounded-lg flex items-center justify-center text-orange-400">🛒</span>
+                      <span className="w-5 h-5 md:w-6 md:h-6 bg-orange-500/20 rounded-lg flex items-center justify-center text-orange-400">
+                        <ShoppingCart className="w-3 h-3 md:w-4 md:h-4" />
+                      </span>
                       <span className="hidden sm:inline">Shopping Cart</span>
                       <span className="sm:hidden">Cart</span>
                     </span>
                     <span className="flex items-center gap-2">
-                      <span className="w-5 h-5 md:w-6 md:h-6 bg-red-500/20 rounded-lg flex items-center justify-center text-red-400">⭐</span>
+                      <span className="w-5 h-5 md:w-6 md:h-6 bg-red-500/20 rounded-lg flex items-center justify-center text-red-400">
+                        <Star className="w-3 h-3 md:w-4 md:h-4" />
+                      </span>
                       <span className="hidden sm:inline">Recommendations</span>
                       <span className="sm:hidden">Recs</span>
                     </span>
                     <span className="flex items-center gap-2">
-                      <span className="w-5 h-5 md:w-6 md:h-6 bg-yellow-500/20 rounded-lg flex items-center justify-center text-yellow-400">🎯</span>
+                      <span className="w-5 h-5 md:w-6 md:h-6 bg-yellow-500/20 rounded-lg flex items-center justify-center text-yellow-400">
+                        <Target className="w-3 h-3 md:w-4 md:h-4" />
+                      </span>
                       <span className="hidden sm:inline">Personalization</span>
                       <span className="sm:hidden">Personal</span>
                     </span>
@@ -2235,52 +2246,55 @@ const SalesforcePower = () => {
                 <div className="space-y-6">
                   {[
                     {
-                      icon: '🛒',
+                      icon: ShoppingCart,
                       title: 'Smart Shopping Cart',
                       description: 'Advanced cart functionality with saved items, wishlists, and seamless checkout flow powered by Commerce Cloud.'
                     },
                     {
-                      icon: '🎯',
+                      icon: Target,
                       title: 'AI-Powered Recommendations',
                       description: 'Einstein Commerce AI analyzes browsing behavior to deliver personalized product recommendations that increase conversion rates.'
                     },
                     {
-                      icon: '🎨',
+                      icon: Paintbrush,
                       title: 'Dynamic Hero Sections',
                       description: 'Engaging promotional banners and hero sections that adapt to customer segments and drive engagement.'
                     },
                     {
-                      icon: '📱',
+                      icon: Phone,
                       title: 'Mobile-First Design',
                       description: 'Fully responsive storefront optimized for mobile, tablet, and desktop with consistent experiences across all devices.'
                     },
                     {
-                      icon: '🔍',
+                      icon: SearchIcon,
                       title: 'Advanced Search & Filters',
                       description: 'Intelligent product search with filtering, sorting, and faceted navigation to help customers find exactly what they need.'
                     },
                     {
-                      icon: '💳',
+                      icon: CreditCard,
                       title: 'Seamless Checkout',
                       description: 'Streamlined checkout process with multiple payment options, guest checkout, and saved payment methods for returning customers.'
                     }
-                  ].map((feature, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
-                      className="flex gap-4 p-4 bg-gradient-to-r from-gray-800/50 to-transparent rounded-xl border border-gray-700/50 hover:border-orange-500/30 transition-all duration-300 group"
-                    >
-                      <div className="w-12 h-12 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
-                        {feature.icon}
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-white mb-1">{feature.title}</h3>
-                        <p className="text-gray-400 text-sm leading-relaxed">{feature.description}</p>
-                      </div>
-                    </motion.div>
-                  ))}
+                  ].map((feature, index) => {
+                    const IconComponent = feature.icon;
+                    return (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
+                        className="flex gap-4 p-4 bg-gradient-to-r from-gray-800/50 to-transparent rounded-xl border border-gray-700/50 hover:border-orange-500/30 transition-all duration-300 group"
+                      >
+                        <div className="w-12 h-12 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+                          <IconComponent className="w-6 h-6 text-orange-400" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-white mb-1">{feature.title}</h3>
+                          <p className="text-gray-400 text-sm leading-relaxed">{feature.description}</p>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
                 </div>
               </motion.div>
             </div>
