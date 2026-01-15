@@ -70,6 +70,7 @@ import { getClientLogoPath } from '../utils/clientLogoHelper';
 import ClientModal from '../components/ClientModal';
 import { ClientInfo } from '../data/clientsData';
 import FigmaDemoModal from '../components/FigmaDemoModal';
+import InteractiveStorefrontDemo from '../components/InteractiveStorefrontDemo';
 
 // Modern Carousel Hub and Spoke Component
 const HubAndSpokeVisualization = React.memo(({ 
@@ -2196,20 +2197,12 @@ const SalesforcePower = () => {
                     <div className="w-3 h-3 bg-red-500 rounded-full"></div>
                     <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
                     <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                    <span className="text-gray-400 text-sm ml-2">Live Storefront Demo</span>
+                    <span className="text-gray-400 text-sm ml-2">Interactive Storefront Demo</span>
                   </div>
-                  <div className="rounded-2xl overflow-hidden bg-black/50">
-                    <iframe 
-                      src="https://www.boots.com/?srsltid=AfmBOoqS5sb1YgoJUEz3n5THjx6qNlCNBnMdQcfcOheyKfnDVEYz4y0s" 
-                      frameBorder="0" 
-                      scrolling="yes" 
-                      width="100%" 
-                      height="600" 
-                      allowFullScreen
-                      title="Commerce Cloud Storefront - Boots.com Demo"
-                      className="w-full h-[400px] md:h-[500px] lg:h-[600px]"
-                      sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
-                      loading="lazy"
+                  <div className="rounded-2xl overflow-hidden bg-transparent">
+                    <InteractiveStorefrontDemo 
+                      companyName={companyName || 'Store'}
+                      companyLogo={companyLogo}
                     />
                   </div>
                   <div className="flex items-center justify-center gap-3 md:gap-6 mt-4 text-xs md:text-sm text-gray-400 flex-wrap">
