@@ -283,7 +283,11 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [walletBalance] = useState(1250.50);
-  const [selectedPaymentGateway, setSelectedPaymentGateway] = useState<'gidea' | 'paymob' | null>(null);
+  const [selectedCard, setSelectedCard] = useState<string>('card1');
+  const [savedCards, setSavedCards] = useState([
+    { id: 'card1', type: 'Visa', number: '•••• •••• •••• 4242', expiry: '12/25', holder: USER_NAME },
+    { id: 'card2', type: 'Mastercard', number: '•••• •••• •••• 8888', expiry: '09/24', holder: USER_NAME }
+  ]);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [isSyncingSalesforce, setIsSyncingSalesforce] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
@@ -596,24 +600,22 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
     ];
   }, [products]);
 
-  const orders = useMemo(() => {
-    return [
-      {
-        id: 'order1',
-        date: '2024-01-15',
-        items: [products[0], products[1]],
-        total: 339.98,
-        status: 'Delivered'
-      },
-      {
-        id: 'order2',
-        date: '2024-01-10',
-        items: [products[3]],
-        total: 199.99,
-        status: 'Delivered'
-      }
-    ];
-  }, [products]);
+  const [orders, setOrders] = useState([
+    {
+      id: 'order1',
+      date: '2024-01-15',
+      items: [products[0], products[1]],
+      total: 339.98,
+      status: 'Delivered'
+    },
+    {
+      id: 'order2',
+      date: '2024-01-10',
+      items: [products[3]],
+      total: 199.99,
+      status: 'Delivered'
+    }
+  ]);
 
   const handleAddToCart = (product: Product) => {
     setCartItems(prev => {
@@ -1148,8 +1150,8 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
   );
 
   const handlePayment = async () => {
-    if (!selectedPaymentGateway) {
-      alert('Please select a payment gateway');
+    if (!selectedCard) {
+      alert('Please select a payment card');
       return;
     }
 
@@ -1164,14 +1166,23 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
     // Simulate Salesforce CRM sync
     await new Promise(resolve => setTimeout(resolve, 1500));
 
+    // Create new order
+    const newOrder = {
+      id: `order${Date.now()}`,
+      date: new Date().toISOString().split('T')[0],
+      items: [...cartItems],
+      total: cartTotal,
+      status: 'In Progress'
+    };
+
+    setOrders(prev => [newOrder, ...prev]);
+
     setIsSyncingSalesforce(false);
     setPaymentSuccess(true);
 
-    // After showing success, reset and go to orders
+    // After showing success, reset and go to tracking
     setTimeout(() => {
       setCartItems([]);
-      setSelectedPaymentGateway(null);
-      setPaymentSuccess(false);
       setPaymentSuccess(false);
       setCurrentScreen('tracking');
     }, 2000);
@@ -1207,7 +1218,7 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
           <div className="flex items-center gap-3">
             <button
               onClick={() => {
-                setSelectedPaymentGateway(null);
+                // setSelectedCard(null); // Optional: clear selection if navigating back
                 setCurrentScreen('cart');
               }}
               className="p-1"
@@ -1231,111 +1242,59 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
           </div>
 
           <div className="bg-white rounded-lg p-4 mb-4 border border-gray-200">
-            <div className="flex items-center gap-2 mb-3">
-              <CreditCard className="w-5 h-5 text-gray-600" />
-              <h3 className="font-semibold text-gray-900">Payment Gateway</h3>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <CreditCard className="w-5 h-5 text-gray-600" />
+                <h3 className="font-semibold text-gray-900">Payment Method</h3>
+              </div>
+              <button className="text-sm text-orange-500 font-semibold flex items-center gap-1">
+                <Plus className="w-3 h-3" /> Add New
+              </button>
             </div>
-            <div className="space-y-2">
-              <button
-                onClick={() => setSelectedPaymentGateway('gidea')}
-                disabled={isProcessingPayment || isSyncingSalesforce}
-                className={`w-full p-3 rounded-lg border-2 transition-all ${selectedPaymentGateway === 'gidea'
-                  ? 'border-orange-500 bg-orange-50'
-                  : 'border-gray-200 bg-white hover:border-gray-300'
-                  } ${isProcessingPayment || isSyncingSalesforce ? 'opacity-50 cursor-not-allowed' : ''}`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center p-1">
-                    <span className="font-black text-blue-600">Gidea</span>
-                  </div>
-                  <div className="flex-1 text-left">
-                    <p className="font-semibold text-gray-900">Gidea Payment</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <div className="flex -space-x-1">
-                        <div className="w-6 h-4 bg-blue-600 rounded flex items-center justify-center text-[6px] text-white font-bold">VISA</div>
-                        <div className="w-6 h-4 bg-red-500 rounded flex items-center justify-center text-[6px] text-white font-bold z-10">MC</div>
-                      </div>
-                      <span className="text-xs text-gray-500">Credit / Debit</span>
-                    </div>
-                  </div>
-                  {selectedPaymentGateway === 'gidea' && (
-                    <CheckCircle2 className="w-5 h-5 text-orange-500" />
-                  )}
-                </div>
-              </button>
 
-              <button
-                onClick={() => setSelectedPaymentGateway('paymob')}
-                disabled={isProcessingPayment || isSyncingSalesforce}
-                className={`w-full p-3 rounded-lg border-2 transition-all ${selectedPaymentGateway === 'paymob'
-                  ? 'border-orange-500 bg-orange-50'
-                  : 'border-gray-200 bg-white hover:border-gray-300'
-                  } ${isProcessingPayment || isSyncingSalesforce ? 'opacity-50 cursor-not-allowed' : ''}`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center p-1">
-                    <span className="font-bold text-white text-xs">Paymob</span>
-                  </div>
-                  <div className="flex-1 text-left">
-                    <p className="font-semibold text-gray-900">Paymob</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <div className="flex -space-x-1">
-                        <div className="w-6 h-4 bg-blue-600 rounded flex items-center justify-center text-[6px] text-white font-bold">VISA</div>
-                        <div className="w-6 h-4 bg-red-500 rounded flex items-center justify-center text-[6px] text-white font-bold z-10">MC</div>
-                      </div>
-                      <span className="text-xs text-gray-500">Fast Checkout</span>
+            <div className="space-y-3">
+              {savedCards.map(card => (
+                <div
+                  key={card.id}
+                  onClick={() => setSelectedCard(card.id)}
+                  className={`p-3 rounded-lg border-2 cursor-pointer transition-all flex items-center justify-between ${selectedCard === card.id
+                    ? 'border-orange-500 bg-orange-50'
+                    : 'border-gray-100 hover:border-gray-200'
+                    }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center">
+                      {card.type === 'Visa' && (
+                        <div className="w-8 h-5 bg-blue-600 rounded flex items-center justify-center text-[8px] text-white font-bold italic">VISA</div>
+                      )}
+                      {card.type === 'Mastercard' && (
+                        <div className="w-8 h-5 bg-gray-800 rounded flex items-center justify-center text-[8px] text-white font-bold relative overflow-hidden">
+                          <div className="absolute left-0 w-5 h-5 bg-red-500 rounded-full opacity-80"></div>
+                          <div className="absolute right-0 w-5 h-5 bg-yellow-500 rounded-full opacity-80"></div>
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">{card.type} •••• {card.number.slice(-4)}</p>
+                      <p className="text-xs text-gray-500">Exp {card.expiry}</p>
                     </div>
                   </div>
-                  {selectedPaymentGateway === 'paymob' && (
+                  {selectedCard === card.id && (
                     <CheckCircle2 className="w-5 h-5 text-orange-500" />
                   )}
                 </div>
-              </button>
+              ))}
+            </div>
+
+            <div className="mt-4 flex items-center justify-center gap-2 py-2 bg-gray-50 rounded-lg border border-gray-100">
+              <span className="text-xs text-gray-400 font-medium">Secure Payment Powered by</span>
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-gray-500 text-xs">Paymob</span>
+                <span className="text-gray-300">|</span>
+                <span className="font-black text-gray-500 text-xs">Gidea</span>
+              </div>
             </div>
           </div>
-
-          {selectedPaymentGateway && (
-            <div className="bg-white rounded-lg p-4 mb-4 border border-gray-200">
-              <div className="flex items-center gap-2 mb-3">
-                <CreditCard className="w-5 h-5 text-gray-600" />
-                <h3 className="font-semibold text-gray-900">Card Details</h3>
-              </div>
-              <div className="space-y-3">
-                <div>
-                  <input
-                    type="text"
-                    placeholder="Card Number"
-                    defaultValue="4242 4242 4242 4242"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                    disabled={isProcessingPayment || isSyncingSalesforce}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <input
-                    type="text"
-                    placeholder="MM/YY"
-                    defaultValue="12/25"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                    disabled={isProcessingPayment || isSyncingSalesforce}
-                  />
-                  <input
-                    type="text"
-                    placeholder="CVV"
-                    defaultValue="123"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                    disabled={isProcessingPayment || isSyncingSalesforce}
-                  />
-                </div>
-                <input
-                  type="text"
-                  placeholder="Cardholder Name"
-                  defaultValue={USER_NAME}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                  disabled={isProcessingPayment || isSyncingSalesforce}
-                />
-              </div>
-            </div>
-          )}
 
           <div className="bg-white rounded-lg p-4 mb-4 border border-gray-200">
             <h3 className="font-semibold text-gray-900 mb-3">Order Summary</h3>
@@ -1355,8 +1314,8 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
 
           <button
             onClick={handlePayment}
-            disabled={!selectedPaymentGateway || isProcessingPayment || isSyncingSalesforce}
-            className={`w-full py-3 rounded-lg font-semibold flex items-center justify-center gap-2 ${!selectedPaymentGateway || isProcessingPayment || isSyncingSalesforce
+            disabled={!selectedCard || isProcessingPayment || isSyncingSalesforce}
+            className={`w-full py-3 rounded-lg font-semibold flex items-center justify-center gap-2 ${!selectedCard || isProcessingPayment || isSyncingSalesforce
               ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
               : 'bg-orange-500 text-white hover:bg-orange-600'
               }`}
@@ -1459,7 +1418,7 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
               </div>
               <div>
                 <h3 className="font-bold text-gray-900">Order On The Way</h3>
-                <p className="text-sm text-gray-500">Arriving in 15-20 mins</p>
+                <p className="text-sm text-gray-500">Arriving in <span className="text-green-600 font-bold">15 mins</span></p>
               </div>
             </div>
 
