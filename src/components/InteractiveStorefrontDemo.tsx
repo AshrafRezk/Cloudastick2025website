@@ -123,24 +123,24 @@ const generateProducts = (companyName: string): Product[] => {
     inferredProducts.push(
       // Medicines
       { id: 'inf-ph1', name: 'Panadol Advance 500mg', price: 8.50, image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400', category: 'Medicines', rating: 4.9, reviews: 1520, inStock: true, description: `Effective pain relief medication. Gentle on the stomach.` },
-      { id: 'inf-ph2', name: 'Brufen 400mg Tablets', price: 12.99, image: 'https://images.unsplash.com/photo-1550572017-edd951b55104?w=400', category: 'Medicines', rating: 4.8, reviews: 890, inStock: true, description: `Anti-inflammatory pain relief for muscle aches and fever.` },
+      { id: 'inf-ph2', name: 'Brufen 400mg Tablets', price: 12.99, image: 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=400', category: 'Medicines', rating: 4.8, reviews: 890, inStock: true, description: `Anti-inflammatory pain relief for muscle aches and fever.` },
       { id: 'inf-ph3', name: 'Centrum Multivitamins', price: 28.99, image: 'https://images.unsplash.com/photo-1544367563-12123d8965cd?w=400', category: 'Medicines', rating: 4.7, reviews: 2100, inStock: true, description: `Complete multivitamin supplement for daily health support.` },
 
       // Medical Devices
       { id: 'inf-ph4', name: 'Accu-Chek Instant Glucometer', price: 45.00, image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=400', category: 'Medical Devices', rating: 4.8, reviews: 540, inStock: true, description: `Wireless blood glucose monitoring system with instant clarity.` },
-      { id: 'inf-ph5', name: 'Omron Blood Pressure Monitor', price: 89.99, image: 'https://images.unsplash.com/photo-1584036561566-b937441273e9?w=400', category: 'Medical Devices', rating: 4.9, reviews: 1205, inStock: true, description: `Clinical accuracy for home blood pressure monitoring.` },
+      { id: 'inf-ph5', name: 'Omron Blood Pressure Monitor', price: 89.99, image: 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=400', category: 'Medical Devices', rating: 4.9, reviews: 1205, inStock: true, description: `Clinical accuracy for home blood pressure monitoring.` },
 
       // Wellness Electronics
       { id: 'inf-ph6', name: 'Oral-B iO Series Electric Toothbrush', price: 149.99, image: 'https://images.unsplash.com/photo-1559599101-f09722fb4948?w=400', category: 'Wellness', rating: 4.8, reviews: 670, inStock: true, description: `Revolutionary magnetic technology for a professional clean feel.` },
-      { id: 'inf-ph7', name: 'Beurer Massage Gun', price: 119.00, image: 'https://images.unsplash.com/photo-1600336153113-d34dd09f2808?w=400', category: 'Wellness', rating: 4.6, reviews: 320, inStock: true, description: `Deep tissue muscle recovery and relaxation device.` },
+      { id: 'inf-ph7', name: 'Beurer Massage Gun', price: 119.00, image: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=400', category: 'Wellness', rating: 4.6, reviews: 320, inStock: true, description: `Deep tissue muscle recovery and relaxation device.` },
 
       // Cosmetic Products
-      { id: 'inf-ph8', name: 'Vichy Minéral 89 Booster', price: 35.00, image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400', category: 'Cosmetics', rating: 4.9, reviews: 2800, inStock: true, description: `Hyaluronic acid booster for strengthening skin barrier.` },
-      { id: 'inf-ph9', name: 'La Roche-Posay Effaclar Gel', price: 24.50, image: 'https://images.unsplash.com/photo-1556228720-1987ba429995?w=400', category: 'Cosmetics', rating: 4.8, reviews: 1560, inStock: true, description: `Purifying foaming gel for oily and sensitive skin.` },
+      { id: 'inf-ph8', name: 'Vichy Minéral 89 Booster', price: 35.00, image: 'https://images.unsplash.com/photo-1556228720-1987ba429995?w=400', category: 'Cosmetics', rating: 4.9, reviews: 2800, inStock: true, description: `Hyaluronic acid booster for strengthening skin barrier.` },
+      { id: 'inf-ph9', name: 'La Roche-Posay Effaclar Gel', price: 24.50, image: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400', category: 'Cosmetics', rating: 4.8, reviews: 1560, inStock: true, description: `Purifying foaming gel for oily and sensitive skin.` },
 
       // Luxury Perfumes
-      { id: 'inf-ph10', name: 'Sauvage Eau de Parfum', price: 135.00, image: 'https://images.unsplash.com/photo-1594035910387-fea4779426e9?w=400', category: 'Fragrances', rating: 4.9, reviews: 3400, inStock: true, description: `A noble composition with fresh and woody notes.` },
-      { id: 'inf-ph11', name: 'Coco Mademoiselle Intense', price: 155.00, image: 'https://images.unsplash.com/photo-1523293188086-b435067f9a05?w=400', category: 'Fragrances', rating: 4.9, reviews: 2900, inStock: true, description: `An intense and sensual amber woody fragrance.` }
+      { id: 'inf-ph10', name: 'Sauvage Eau de Parfum', price: 135.00, image: 'https://images.unsplash.com/photo-1523293188086-b435067f9a05?w=400', category: 'Fragrances', rating: 4.9, reviews: 3400, inStock: true, description: `A noble composition with fresh and woody notes.` },
+      { id: 'inf-ph11', name: 'Coco Mademoiselle Intense', price: 155.00, image: 'https://images.unsplash.com/photo-1594035910387-fea4779426e9?w=400', category: 'Fragrances', rating: 4.9, reviews: 2900, inStock: true, description: `An intense and sensual amber woody fragrance.` }
     );
   }
 
@@ -803,7 +803,7 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
   );
 
   const renderProductsScreen = () => (
-    <div className="h-full overflow-y-auto bg-gray-50">
+    <div className="h-full overflow-y-auto bg-gray-50 pb-24">
       <div className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-10">
         <div className="flex items-center gap-3 mb-3">
           <button onClick={() => setCurrentScreen('home')} className="p-1">
@@ -874,7 +874,7 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
   );
 
   const renderCartScreen = () => (
-    <div className="h-full overflow-y-auto bg-gray-50 flex flex-col">
+    <div className="h-full overflow-y-auto bg-gray-50 flex flex-col pb-24">
       <div className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-10">
         <div className="flex items-center gap-3">
           <button onClick={() => setCurrentScreen('home')} className="p-1">
@@ -957,7 +957,7 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
   );
 
   const renderOrdersScreen = () => (
-    <div className="h-full overflow-y-auto bg-gray-50">
+    <div className="h-full overflow-y-auto bg-gray-50 pb-24">
       <div className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-10">
         <div className="flex items-center gap-3">
           <button onClick={() => setCurrentScreen('home')} className="p-1">
@@ -996,7 +996,7 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
   );
 
   const renderWalletScreen = () => (
-    <div className="h-full overflow-y-auto bg-gray-50">
+    <div className="h-full overflow-y-auto bg-gray-50 pb-24">
       <div className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-10">
         <div className="flex items-center gap-3">
           <button onClick={() => setCurrentScreen('home')} className="p-1">
@@ -1440,7 +1440,7 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
 
   const renderTrackingScreen = () => {
     return (
-      <div className="h-full overflow-y-auto bg-gray-50 flex flex-col">
+      <div className="h-full overflow-y-auto bg-gray-50 flex flex-col pb-24">
         <div className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-10">
           <div className="flex items-center gap-3">
             <button onClick={() => setCurrentScreen('home')} className="p-1">
