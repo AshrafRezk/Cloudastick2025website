@@ -22,7 +22,8 @@ import {
   Sparkles,
   Loader2,
   Cloud,
-  Building2
+  Building2,
+  Phone
 } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
 
@@ -48,7 +49,7 @@ interface InteractiveStorefrontDemoProps {
   companyLogo: string | null;
 }
 
-type Screen = 'home' | 'products' | 'cart' | 'orders' | 'wallet' | 'recommendations' | 'bundles' | 'checkout' | 'product-detail';
+type Screen = 'home' | 'products' | 'cart' | 'orders' | 'wallet' | 'recommendations' | 'bundles' | 'checkout' | 'product-detail' | 'tracking';
 
 const USER_NAME = 'Aamer Galaal';
 
@@ -667,6 +668,8 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
         return renderCheckoutScreen();
       case 'product-detail':
         return renderProductDetailScreen();
+      case 'tracking':
+        return renderTrackingScreen();
       default:
         return renderHomeScreen();
     }
@@ -1169,7 +1172,8 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
       setCartItems([]);
       setSelectedPaymentGateway(null);
       setPaymentSuccess(false);
-      setCurrentScreen('orders');
+      setPaymentSuccess(false);
+      setCurrentScreen('tracking');
     }, 2000);
   };
 
@@ -1241,12 +1245,18 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
                   } ${isProcessingPayment || isSyncingSalesforce ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <CreditCard className="w-5 h-5 text-blue-600" />
+                  <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center p-1">
+                    <span className="font-black text-blue-600">Gidea</span>
                   </div>
                   <div className="flex-1 text-left">
-                    <p className="font-semibold text-gray-900">Gidea</p>
-                    <p className="text-xs text-gray-500">Visa, Mastercard, Meeza</p>
+                    <p className="font-semibold text-gray-900">Gidea Payment</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <div className="flex -space-x-1">
+                        <div className="w-6 h-4 bg-blue-600 rounded flex items-center justify-center text-[6px] text-white font-bold">VISA</div>
+                        <div className="w-6 h-4 bg-red-500 rounded flex items-center justify-center text-[6px] text-white font-bold z-10">MC</div>
+                      </div>
+                      <span className="text-xs text-gray-500">Credit / Debit</span>
+                    </div>
                   </div>
                   {selectedPaymentGateway === 'gidea' && (
                     <CheckCircle2 className="w-5 h-5 text-orange-500" />
@@ -1263,12 +1273,18 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
                   } ${isProcessingPayment || isSyncingSalesforce ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                    <CreditCard className="w-5 h-5 text-green-600" />
+                  <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center p-1">
+                    <span className="font-bold text-white text-xs">Paymob</span>
                   </div>
                   <div className="flex-1 text-left">
                     <p className="font-semibold text-gray-900">Paymob</p>
-                    <p className="text-xs text-gray-500">Credit & Debit Cards</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <div className="flex -space-x-1">
+                        <div className="w-6 h-4 bg-blue-600 rounded flex items-center justify-center text-[6px] text-white font-bold">VISA</div>
+                        <div className="w-6 h-4 bg-red-500 rounded flex items-center justify-center text-[6px] text-white font-bold z-10">MC</div>
+                      </div>
+                      <span className="text-xs text-gray-500">Fast Checkout</span>
+                    </div>
                   </div>
                   {selectedPaymentGateway === 'paymob' && (
                     <CheckCircle2 className="w-5 h-5 text-orange-500" />
@@ -1415,6 +1431,118 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
               className="w-full bg-orange-500 text-white py-3 rounded-lg font-semibold"
             >
               Add to Cart
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderTrackingScreen = () => {
+    return (
+      <div className="h-full overflow-y-auto bg-gray-50 flex flex-col">
+        <div className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-10">
+          <div className="flex items-center gap-3">
+            <button onClick={() => setCurrentScreen('home')} className="p-1">
+              <ArrowLeft className="w-5 h-5 text-gray-700" />
+            </button>
+            <h2 className="text-lg font-bold text-gray-900">Order Tracking</h2>
+          </div>
+        </div>
+
+        {/* Status Card */}
+        <div className="px-4 py-4">
+          <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 mb-4">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                <Package className="w-6 h-6 text-green-600" />
+              </div>
+              <div>
+                <h3 className="font-bold text-gray-900">Order On The Way</h3>
+                <p className="text-sm text-gray-500">Arriving in 15-20 mins</p>
+              </div>
+            </div>
+
+            {/* Progress Steps */}
+            <div className="relative pl-4 border-l-2 border-gray-200 space-y-4 ml-2">
+              <div className="relative">
+                <div className="absolute -left-[21px] top-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white ring-2 ring-green-100"></div>
+                <p className="text-sm font-semibold text-gray-900">Courier Picked Up Order</p>
+                <p className="text-xs text-gray-500">10:30 AM</p>
+              </div>
+              <div className="relative">
+                <div className="absolute -left-[21px] top-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white ring-2 ring-green-100"></div>
+                <p className="text-sm font-semibold text-gray-900">Order Processed</p>
+                <p className="text-xs text-gray-500">10:15 AM</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Map Simulation */}
+          <div className="bg-gray-200 rounded-xl overflow-hidden h-64 relative border border-gray-300">
+            {/* Map Background Pattern */}
+            <div className="absolute inset-0 opacity-10" style={{
+              backgroundImage: 'radial-gradient(#888 1px, transparent 1px)',
+              backgroundSize: '20px 20px'
+            }}></div>
+
+            <div className="absolute inset-0">
+              {/* Roads */}
+              <div className="absolute top-1/2 left-0 right-0 h-4 bg-white/60 transform -translate-y-1/2"></div>
+              <div className="absolute top-0 bottom-0 left-1/3 w-4 bg-white/60"></div>
+            </div>
+
+            {/* User Location Pin */}
+            <div className="absolute top-1/2 left-1/3 transform -translate-x-1/2 -translate-y-1/2 z-10">
+              <div className="w-8 h-8 bg-blue-500 rounded-full border-4 border-white shadow-lg flex items-center justify-center">
+                <Home className="w-4 h-4 text-white" />
+              </div>
+              <div className="w-20 bg-white/90 backdrop-blur rounded px-2 py-1 text-[10px] font-bold text-center absolute -top-8 left-1/2 transform -translate-x-1/2 shadow-sm">
+                Delivery Location
+              </div>
+            </div>
+
+            {/* Courier Animation */}
+            <motion.div
+              initial={{ left: '100%', top: '50%' }}
+              animate={{ left: '40%' }}
+              transition={{ duration: 10, ease: "linear", repeat: Infinity }}
+              className="absolute top-1/2 transform -translate-y-1/2 z-20"
+            >
+              <div className="w-10 h-10 bg-orange-500 rounded-full border-4 border-white shadow-lg flex items-center justify-center relative">
+                <Package className="w-5 h-5 text-white" />
+                <div className="absolute -right-1 -top-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+              </div>
+              <div className="w-16 bg-white/90 backdrop-blur rounded px-2 py-1 text-[10px] font-bold text-center absolute -top-8 left-1/2 transform -translate-x-1/2 shadow-sm">
+                Courier
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Courier Info */}
+          <div className="mt-4 bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gray-200 rounded-full overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=100" alt="Courier" className="w-full h-full object-cover" />
+              </div>
+              <div>
+                <h4 className="font-bold text-sm text-gray-900">Ahmed Hassan</h4>
+                <p className="text-xs text-gray-500">Salesforce Delivery Partner</p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <button className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600">
+                <Phone className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <button
+              onClick={() => setCurrentScreen('home')}
+              className="w-full bg-gray-900 text-white py-3 rounded-lg font-semibold"
+            >
+              Back to Home
             </button>
           </div>
         </div>
