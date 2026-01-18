@@ -1151,7 +1151,12 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
 
   const handlePayment = async () => {
     if (!selectedCard) {
-      alert('Please select a payment card');
+      alert('Please select a payment method');
+      return;
+    }
+
+    if (selectedCard === 'wallet' && walletBalance < cartTotal) {
+      alert('Insufficient wallet balance');
       return;
     }
 
@@ -1253,6 +1258,33 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
             </div>
 
             <div className="space-y-3">
+              {/* Wallet Option */}
+              <div
+                onClick={() => setSelectedCard('wallet')}
+                className={`p-3 rounded-lg border-2 cursor-pointer transition-all flex items-center justify-between ${selectedCard === 'wallet'
+                  ? 'border-orange-500 bg-orange-50'
+                  : 'border-gray-100 hover:border-gray-200'
+                  }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-orange-100 rounded flex items-center justify-center">
+                    <Wallet className="w-5 h-5 text-orange-600" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-semibold text-gray-900">Wallet Balance</p>
+                      {walletBalance < cartTotal && (
+                        <span className="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-medium">Low Balance</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-500">${walletBalance.toFixed(2)} Available</p>
+                  </div>
+                </div>
+                {selectedCard === 'wallet' && (
+                  <CheckCircle2 className="w-5 h-5 text-orange-500" />
+                )}
+              </div>
+
               {savedCards.map(card => (
                 <div
                   key={card.id}
