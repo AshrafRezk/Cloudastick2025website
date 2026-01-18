@@ -52,57 +52,107 @@ type Screen = 'home' | 'products' | 'cart' | 'orders' | 'wallet' | 'recommendati
 
 const USER_NAME = 'Aamer Galaal';
 
+// Helper function to get category-specific image
+const getCategoryImage = (category: string, index: number): string => {
+  const categoryImages: { [key: string]: string[] } = {
+    Electronics: [
+      'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400',
+      'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400',
+      'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=400'
+    ],
+    Fashion: [
+      'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400',
+      'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400',
+      'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400'
+    ],
+    Home: [
+      'https://images.unsplash.com/photo-1532372320572-cda25653a26d?w=400',
+      'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400',
+      'https://images.unsplash.com/photo-1513151233558-d860c5398176?w=400'
+    ],
+    Beauty: [
+      'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400',
+      'https://images.unsplash.com/photo-1541643600914-78b084683601?w=400',
+      'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400'
+    ],
+    Sports: [
+      'https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=400',
+      'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400',
+      'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400'
+    ]
+  };
+
+  const images = categoryImages[category] || categoryImages.Electronics;
+  return images[index % images.length];
+};
+
 // Product data - mix of generic, inferred, and configurable categories
 const generateProducts = (companyName: string): Product[] => {
   const baseProducts: Product[] = [
     // Electronics
-    { id: '1', name: 'Wireless Headphones', price: 89.99, originalPrice: 129.99, image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400', category: 'Electronics', rating: 4.5, reviews: 234, inStock: true, description: 'Premium noise-cancelling wireless headphones' },
-    { id: '2', name: 'Smart Watch', price: 249.99, image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400', category: 'Electronics', rating: 4.7, reviews: 189, inStock: true, description: 'Advanced fitness tracking smartwatch' },
-    { id: '3', name: 'Laptop Stand', price: 39.99, image: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=400', category: 'Electronics', rating: 4.3, reviews: 156, inStock: true, description: 'Ergonomic aluminum laptop stand' },
-    
+    { id: '1', name: 'Wireless Headphones', price: 89.99, originalPrice: 129.99, image: getCategoryImage('Electronics', 0), category: 'Electronics', rating: 4.5, reviews: 234, inStock: true, description: 'Premium noise-cancelling wireless headphones with advanced audio technology' },
+    { id: '2', name: 'Smart Watch', price: 249.99, image: getCategoryImage('Electronics', 1), category: 'Electronics', rating: 4.7, reviews: 189, inStock: true, description: 'Advanced fitness tracking smartwatch with health monitoring features' },
+    { id: '3', name: 'Laptop Stand', price: 39.99, image: getCategoryImage('Electronics', 2), category: 'Electronics', rating: 4.3, reviews: 156, inStock: true, description: 'Ergonomic aluminum laptop stand for improved workspace comfort' },
+
     // Fashion
-    { id: '4', name: 'Classic Leather Jacket', price: 199.99, originalPrice: 299.99, image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400', category: 'Fashion', rating: 4.6, reviews: 312, inStock: true, description: 'Premium genuine leather jacket' },
-    { id: '5', name: 'Running Shoes', price: 129.99, image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400', category: 'Fashion', rating: 4.4, reviews: 278, inStock: true, description: 'Comfortable athletic running shoes' },
-    { id: '6', name: 'Designer Sunglasses', price: 149.99, image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400', category: 'Fashion', rating: 4.5, reviews: 145, inStock: true, description: 'UV protection designer sunglasses' },
-    
+    { id: '4', name: 'Classic Leather Jacket', price: 199.99, originalPrice: 299.99, image: getCategoryImage('Fashion', 0), category: 'Fashion', rating: 4.6, reviews: 312, inStock: true, description: 'Premium genuine leather jacket with timeless design' },
+    { id: '5', name: 'Running Shoes', price: 129.99, image: getCategoryImage('Fashion', 1), category: 'Fashion', rating: 4.4, reviews: 278, inStock: true, description: 'Comfortable athletic running shoes with superior cushioning' },
+    { id: '6', name: 'Designer Sunglasses', price: 149.99, image: getCategoryImage('Fashion', 2), category: 'Fashion', rating: 4.5, reviews: 145, inStock: true, description: 'UV protection designer sunglasses with polarized lenses' },
+
     // Home & Garden
-    { id: '7', name: 'Modern Coffee Table', price: 349.99, image: 'https://images.unsplash.com/photo-1532372320572-cda25653a26d?w=400', category: 'Home', rating: 4.8, reviews: 89, inStock: true, description: 'Sleek modern coffee table design' },
-    { id: '8', name: 'Indoor Plant Set', price: 49.99, image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400', category: 'Home', rating: 4.6, reviews: 167, inStock: true, description: 'Set of 3 indoor plants with pots' },
-    { id: '9', name: 'Smart LED Lights', price: 79.99, image: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?w=400', category: 'Home', rating: 4.4, reviews: 203, inStock: true, description: 'Color-changing smart LED light strips' },
-    
+    { id: '7', name: 'Modern Coffee Table', price: 349.99, image: getCategoryImage('Home', 0), category: 'Home', rating: 4.8, reviews: 89, inStock: true, description: 'Sleek modern coffee table design perfect for contemporary living spaces' },
+    { id: '8', name: 'Indoor Plant Set', price: 49.99, image: getCategoryImage('Home', 1), category: 'Home', rating: 4.6, reviews: 167, inStock: true, description: 'Set of 3 indoor plants with decorative pots for home decoration' },
+    { id: '9', name: 'Smart LED Lights', price: 79.99, image: getCategoryImage('Home', 2), category: 'Home', rating: 4.4, reviews: 203, inStock: true, description: 'Color-changing smart LED light strips with app control' },
+
     // Health & Beauty
-    { id: '10', name: 'Skincare Set', price: 89.99, originalPrice: 129.99, image: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400', category: 'Beauty', rating: 4.7, reviews: 445, inStock: true, description: 'Complete daily skincare routine set' },
-    { id: '11', name: 'Perfume Collection', price: 119.99, image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=400', category: 'Beauty', rating: 4.5, reviews: 298, inStock: true, description: 'Luxury fragrance collection' },
-    
+    { id: '10', name: 'Skincare Set', price: 89.99, originalPrice: 129.99, image: getCategoryImage('Beauty', 0), category: 'Beauty', rating: 4.7, reviews: 445, inStock: true, description: 'Complete daily skincare routine set with anti-aging properties' },
+    { id: '11', name: 'Perfume Collection', price: 119.99, image: getCategoryImage('Beauty', 1), category: 'Beauty', rating: 4.5, reviews: 298, inStock: true, description: 'Luxury fragrance collection with long-lasting scents' },
+
     // Sports
-    { id: '12', name: 'Yoga Mat Premium', price: 39.99, image: 'https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=400', category: 'Sports', rating: 4.6, reviews: 234, inStock: true, description: 'Non-slip premium yoga mat' },
-    { id: '13', name: 'Dumbbell Set', price: 149.99, image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400', category: 'Sports', rating: 4.8, reviews: 156, inStock: true, description: 'Adjustable weight dumbbell set' },
+    { id: '12', name: 'Yoga Mat Premium', price: 39.99, image: getCategoryImage('Sports', 0), category: 'Sports', rating: 4.6, reviews: 234, inStock: true, description: 'Non-slip premium yoga mat with extra thickness for comfort' },
+    { id: '13', name: 'Dumbbell Set', price: 149.99, image: getCategoryImage('Sports', 1), category: 'Sports', rating: 4.8, reviews: 156, inStock: true, description: 'Adjustable weight dumbbell set for home fitness training' },
   ];
 
   // Enhanced inference based on company name keywords
   const companyLower = companyName.toLowerCase();
   const inferredProducts: Product[] = [];
-  
-  // Pharmacy/Pharmaceutical products
-  if (companyLower.includes('pharmacy') || companyLower.includes('pharma') || companyLower.includes('drug') || companyLower.includes('medicine') || companyLower.includes('medical')) {
+
+  // Pharmacy/Pharmaceutical products (Enhanced)
+  if (companyLower.includes('pharmacy') || companyLower.includes('pharmacies') || companyLower.includes('pharma') || companyLower.includes('drug') || companyLower.includes('medicine') || companyLower.includes('medical')) {
     inferredProducts.push(
-      { id: 'inf-ph1', name: 'Prescription Medications', price: 45.99, image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400', category: 'Health', rating: 4.8, reviews: 892, inStock: true, description: 'FDA-approved prescription medications' },
-      { id: 'inf-ph2', name: 'Vitamins & Supplements', price: 29.99, image: 'https://images.unsplash.com/photo-1550572017-edd951b55104?w=400', category: 'Health', rating: 4.6, reviews: 567, inStock: true, description: 'Premium vitamins and dietary supplements' },
-      { id: 'inf-ph3', name: 'First Aid Kit', price: 24.99, image: 'https://images.unsplash.com/photo-1559757148-5c350d0d0c6d?w=400', category: 'Health', rating: 4.7, reviews: 234, inStock: true, description: 'Complete first aid kit for home and travel' },
-      { id: 'inf-ph4', name: 'Health Monitoring Devices', price: 89.99, image: 'https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=400', category: 'Health', rating: 4.5, reviews: 345, inStock: true, description: 'Digital health monitoring equipment' }
+      // Medicines
+      { id: 'inf-ph1', name: 'Panadol Advance 500mg', price: 8.50, image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400', category: 'Medicines', rating: 4.9, reviews: 1520, inStock: true, description: `Effective pain relief medication. Gentle on the stomach.` },
+      { id: 'inf-ph2', name: 'Brufen 400mg Tablets', price: 12.99, image: 'https://images.unsplash.com/photo-1550572017-edd951b55104?w=400', category: 'Medicines', rating: 4.8, reviews: 890, inStock: true, description: `Anti-inflammatory pain relief for muscle aches and fever.` },
+      { id: 'inf-ph3', name: 'Centrum Multivitamins', price: 28.99, image: 'https://images.unsplash.com/photo-1544367563-12123d8965cd?w=400', category: 'Medicines', rating: 4.7, reviews: 2100, inStock: true, description: `Complete multivitamin supplement for daily health support.` },
+
+      // Medical Devices
+      { id: 'inf-ph4', name: 'Accu-Chek Instant Glucometer', price: 45.00, image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=400', category: 'Medical Devices', rating: 4.8, reviews: 540, inStock: true, description: `Wireless blood glucose monitoring system with instant clarity.` },
+      { id: 'inf-ph5', name: 'Omron Blood Pressure Monitor', price: 89.99, image: 'https://images.unsplash.com/photo-1584036561566-b937441273e9?w=400', category: 'Medical Devices', rating: 4.9, reviews: 1205, inStock: true, description: `Clinical accuracy for home blood pressure monitoring.` },
+
+      // Wellness Electronics
+      { id: 'inf-ph6', name: 'Oral-B iO Series Electric Toothbrush', price: 149.99, image: 'https://images.unsplash.com/photo-1559599101-f09722fb4948?w=400', category: 'Wellness', rating: 4.8, reviews: 670, inStock: true, description: `Revolutionary magnetic technology for a professional clean feel.` },
+      { id: 'inf-ph7', name: 'Beurer Massage Gun', price: 119.00, image: 'https://images.unsplash.com/photo-1600336153113-d34dd09f2808?w=400', category: 'Wellness', rating: 4.6, reviews: 320, inStock: true, description: `Deep tissue muscle recovery and relaxation device.` },
+
+      // Cosmetic Products
+      { id: 'inf-ph8', name: 'Vichy Minéral 89 Booster', price: 35.00, image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400', category: 'Cosmetics', rating: 4.9, reviews: 2800, inStock: true, description: `Hyaluronic acid booster for strengthening skin barrier.` },
+      { id: 'inf-ph9', name: 'La Roche-Posay Effaclar Gel', price: 24.50, image: 'https://images.unsplash.com/photo-1556228720-1987ba429995?w=400', category: 'Cosmetics', rating: 4.8, reviews: 1560, inStock: true, description: `Purifying foaming gel for oily and sensitive skin.` },
+
+      // Luxury Perfumes
+      { id: 'inf-ph10', name: 'Sauvage Eau de Parfum', price: 135.00, image: 'https://images.unsplash.com/photo-1594035910387-fea4779426e9?w=400', category: 'Fragrances', rating: 4.9, reviews: 3400, inStock: true, description: `A noble composition with fresh and woody notes.` },
+      { id: 'inf-ph11', name: 'Coco Mademoiselle Intense', price: 155.00, image: 'https://images.unsplash.com/photo-1523293188086-b435067f9a05?w=400', category: 'Fragrances', rating: 4.9, reviews: 2900, inStock: true, description: `An intense and sensual amber woody fragrance.` }
     );
   }
-  
+
   // Ceramics/Porcelain products
   if (companyLower.includes('ceramic') || companyLower.includes('porcelain') || companyLower.includes('tile') || companyLower.includes('pottery')) {
     inferredProducts.push(
-      { id: 'inf-cer1', name: 'Ceramic Dinner Set', price: 79.99, image: 'https://images.unsplash.com/photo-1556910096-6f5e72db6803?w=400', category: 'Home', rating: 4.7, reviews: 189, inStock: true, description: 'Elegant ceramic dinner set for 6' },
-      { id: 'inf-cer2', name: 'Porcelain Vase Collection', price: 129.99, image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400', category: 'Home', rating: 4.5, reviews: 145, inStock: true, description: 'Handcrafted porcelain vases' },
-      { id: 'inf-cer3', name: 'Ceramic Tile Samples', price: 24.99, image: 'https://images.unsplash.com/photo-1581539250439-c96689b516dd?w=400', category: 'Home', rating: 4.6, reviews: 98, inStock: true, description: 'Premium ceramic tile sample pack' },
-      { id: 'inf-cer4', name: 'Decorative Ceramic Bowls', price: 39.99, image: 'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=400', category: 'Home', rating: 4.4, reviews: 167, inStock: true, description: 'Hand-painted decorative ceramic bowls' }
+      { id: 'inf-cer1', name: 'Ceramic Dinner Set', price: 79.99, image: 'https://images.unsplash.com/photo-1556910096-6f5e72db6803?w=400', category: 'Home', rating: 4.7, reviews: 189, inStock: true, description: `Elegant ceramic dinner set for 6 from ${companyName}` },
+      { id: 'inf-cer2', name: 'Porcelain Vase Collection', price: 129.99, image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400', category: 'Home', rating: 4.5, reviews: 145, inStock: true, description: `Handcrafted porcelain vases by ${companyName}` },
+      { id: 'inf-cer3', name: 'Ceramic Tile Samples', price: 24.99, image: 'https://images.unsplash.com/photo-1581539250439-c96689b516dd?w=400', category: 'Home', rating: 4.6, reviews: 98, inStock: true, description: `Premium ceramic tile sample pack from ${companyName}` },
+      { id: 'inf-cer4', name: 'Decorative Ceramic Bowls', price: 39.99, image: 'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=400', category: 'Home', rating: 4.4, reviews: 167, inStock: true, description: `Hand-painted decorative ceramic bowls by ${companyName}` }
     );
   }
-  
+
   // Cosmetics/Beauty products
   if (companyLower.includes('cosmetic') || companyLower.includes('beauty') || companyLower.includes('makeup') || companyLower.includes('skincare') || companyLower.includes('perfume')) {
     inferredProducts.push(
@@ -112,7 +162,7 @@ const generateProducts = (companyName: string): Product[] => {
       { id: 'inf-cos4', name: 'Hair Care Essentials', price: 49.99, image: 'https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?w=400', category: 'Beauty', rating: 4.5, reviews: 456, inStock: true, description: 'Professional hair care products' }
     );
   }
-  
+
   // Fashion/Apparel products
   if (companyLower.includes('fashion') || companyLower.includes('apparel') || companyLower.includes('clothing') || companyLower.includes('garment') || companyLower.includes('textile')) {
     inferredProducts.push(
@@ -121,7 +171,7 @@ const generateProducts = (companyName: string): Product[] => {
       { id: 'inf-fash3', name: 'Seasonal Fashion Line', price: 199.99, image: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=400', category: 'Fashion', rating: 4.7, reviews: 345, inStock: true, description: 'Latest seasonal fashion collection' }
     );
   }
-  
+
   // Electronics/Tech products
   if (companyLower.includes('electronic') || companyLower.includes('tech') || companyLower.includes('computer') || companyLower.includes('software') || companyLower.includes('digital')) {
     inferredProducts.push(
@@ -129,7 +179,7 @@ const generateProducts = (companyName: string): Product[] => {
       { id: 'inf-elec2', name: 'Wireless Tech Accessories', price: 79.99, image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400', category: 'Electronics', rating: 4.6, reviews: 289, inStock: true, description: 'Premium wireless accessories' }
     );
   }
-  
+
   // Food/Beverage products
   if (companyLower.includes('food') || companyLower.includes('beverage') || companyLower.includes('restaurant') || companyLower.includes('cafe') || companyLower.includes('bakery')) {
     inferredProducts.push(
@@ -137,12 +187,84 @@ const generateProducts = (companyName: string): Product[] => {
       { id: 'inf-food2', name: 'Artisan Coffee Collection', price: 39.99, image: 'https://images.unsplash.com/photo-1511920170033-83939d9d5e41?w=400', category: 'Food', rating: 4.7, reviews: 567, inStock: true, description: 'Premium artisan coffee beans' }
     );
   }
-  
+
   // Furniture/Home products
   if (companyLower.includes('furniture') || companyLower.includes('home') || companyLower.includes('interior') || companyLower.includes('decor')) {
     inferredProducts.push(
       { id: 'inf-furn1', name: 'Modern Furniture Set', price: 899.99, image: 'https://images.unsplash.com/photo-1532372320572-cda25653a26d?w=400', category: 'Home', rating: 4.8, reviews: 189, inStock: true, description: 'Contemporary furniture collection' },
       { id: 'inf-furn2', name: 'Home Decor Collection', price: 149.99, image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400', category: 'Home', rating: 4.6, reviews: 234, inStock: true, description: 'Elegant home decoration items' }
+    );
+  }
+
+  // Automotive products
+  if (companyLower.includes('car') || companyLower.includes('vehicle') || companyLower.includes('auto') || companyLower.includes('motor') || companyLower.includes('tire') || companyLower.includes('parts')) {
+    inferredProducts.push(
+      { id: 'inf-auto1', name: 'Car Accessories Bundle', price: 199.99, image: 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=400', category: 'Automotive', rating: 4.7, reviews: 456, inStock: true, description: 'Premium car accessories and parts' },
+      { id: 'inf-auto2', name: 'Tire Set (4 Pack)', price: 449.99, image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400', category: 'Automotive', rating: 4.8, reviews: 234, inStock: true, description: 'High-performance tire set' },
+      { id: 'inf-auto3', name: 'Car Care Kit', price: 49.99, image: 'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=400', category: 'Automotive', rating: 4.6, reviews: 189, inStock: true, description: 'Complete car cleaning and maintenance kit' }
+    );
+  }
+
+  // Jewelry products
+  if (companyLower.includes('jewelry') || companyLower.includes('jewellery') || companyLower.includes('gold') || companyLower.includes('silver') || companyLower.includes('diamond') || companyLower.includes('watch')) {
+    inferredProducts.push(
+      { id: 'inf-jew1', name: 'Gold Necklace Collection', price: 599.99, image: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400', category: 'Jewelry', rating: 4.9, reviews: 567, inStock: true, description: 'Elegant gold necklace designs' },
+      { id: 'inf-jew2', name: 'Diamond Ring Set', price: 1299.99, image: 'https://images.unsplash.com/photo-1603561591411-07134e71a2a9?w=400', category: 'Jewelry', rating: 4.8, reviews: 234, inStock: true, description: 'Premium diamond engagement rings' },
+      { id: 'inf-jew3', name: 'Luxury Watch Collection', price: 899.99, image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400', category: 'Jewelry', rating: 4.7, reviews: 345, inStock: true, description: 'Swiss-made luxury timepieces' }
+    );
+  }
+
+  // Books/Education products
+  if (companyLower.includes('book') || companyLower.includes('education') || companyLower.includes('learning') || companyLower.includes('course') || companyLower.includes('training')) {
+    inferredProducts.push(
+      { id: 'inf-book1', name: 'Educational Course Bundle', price: 149.99, image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400', category: 'Education', rating: 4.7, reviews: 892, inStock: true, description: 'Comprehensive online learning courses' },
+      { id: 'inf-book2', name: 'Professional Training Materials', price: 79.99, image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400', category: 'Education', rating: 4.6, reviews: 456, inStock: true, description: 'Expert training resources and materials' },
+      { id: 'inf-book3', name: 'E-Book Collection', price: 29.99, image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400', category: 'Education', rating: 4.5, reviews: 1234, inStock: true, description: 'Digital library of educational books' }
+    );
+  }
+
+  // Sports/Outdoor products
+  if (companyLower.includes('sport') || companyLower.includes('fitness') || companyLower.includes('gym') || companyLower.includes('outdoor') || companyLower.includes('equipment')) {
+    inferredProducts.push(
+      { id: 'inf-sport1', name: 'Fitness Equipment Set', price: 299.99, image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400', category: 'Sports', rating: 4.8, reviews: 567, inStock: true, description: 'Complete home gym equipment' },
+      { id: 'inf-sport2', name: 'Outdoor Adventure Gear', price: 199.99, image: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400', category: 'Sports', rating: 4.7, reviews: 345, inStock: true, description: 'Premium outdoor sports equipment' },
+      { id: 'inf-sport3', name: 'Athletic Apparel Collection', price: 89.99, image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400', category: 'Sports', rating: 4.6, reviews: 678, inStock: true, description: 'Professional athletic wear' }
+    );
+  }
+
+  // Toys/Games products
+  if (companyLower.includes('toy') || companyLower.includes('game') || companyLower.includes('play') || companyLower.includes('children') || companyLower.includes('kids')) {
+    inferredProducts.push(
+      { id: 'inf-toy1', name: 'Educational Toy Set', price: 49.99, image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400', category: 'Toys', rating: 4.8, reviews: 1234, inStock: true, description: 'Interactive learning toys for children' },
+      { id: 'inf-toy2', name: 'Board Game Collection', price: 39.99, image: 'https://images.unsplash.com/photo-1606092195730-5d7b9af1efc5?w=400', category: 'Toys', rating: 4.7, reviews: 567, inStock: true, description: 'Classic and modern board games' },
+      { id: 'inf-toy3', name: 'Building Blocks Set', price: 59.99, image: 'https://images.unsplash.com/photo-1556912172-45b7abe8b7e4?w=400', category: 'Toys', rating: 4.9, reviews: 890, inStock: true, description: 'Creative building and construction toys' }
+    );
+  }
+
+  // Pet Supplies products
+  if (companyLower.includes('pet') || companyLower.includes('animal') || companyLower.includes('dog') || companyLower.includes('cat') || companyLower.includes('veterinary')) {
+    inferredProducts.push(
+      { id: 'inf-pet1', name: 'Premium Pet Food', price: 34.99, image: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400', category: 'Pets', rating: 4.8, reviews: 1234, inStock: true, description: 'High-quality nutrition for pets' },
+      { id: 'inf-pet2', name: 'Pet Accessories Bundle', price: 49.99, image: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=400', category: 'Pets', rating: 4.7, reviews: 567, inStock: true, description: 'Essential pet care accessories' },
+      { id: 'inf-pet3', name: 'Pet Toys Collection', price: 24.99, image: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=400', category: 'Pets', rating: 4.6, reviews: 890, inStock: true, description: 'Interactive toys for dogs and cats' }
+    );
+  }
+
+  // Office Supplies products
+  if (companyLower.includes('office') || companyLower.includes('stationery') || companyLower.includes('paper') || companyLower.includes('pen') || companyLower.includes('business')) {
+    inferredProducts.push(
+      { id: 'inf-off1', name: 'Professional Stationery Set', price: 29.99, image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400', category: 'Office', rating: 4.6, reviews: 456, inStock: true, description: 'Premium office stationery collection' },
+      { id: 'inf-off2', name: 'Business Supplies Bundle', price: 79.99, image: 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=400', category: 'Office', rating: 4.7, reviews: 234, inStock: true, description: 'Complete office supplies package' },
+      { id: 'inf-off3', name: 'Organizational Products', price: 49.99, image: 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=400', category: 'Office', rating: 4.5, reviews: 345, inStock: true, description: 'Desk organizers and filing solutions' }
+    );
+  }
+
+  // Construction/Building products
+  if (companyLower.includes('construction') || companyLower.includes('building') || companyLower.includes('material') || companyLower.includes('tool') || companyLower.includes('hardware')) {
+    inferredProducts.push(
+      { id: 'inf-cons1', name: 'Building Materials Kit', price: 299.99, image: 'https://images.unsplash.com/photo-1504307651254-35680f2df4d7?w=400', category: 'Construction', rating: 4.7, reviews: 234, inStock: true, description: 'Essential construction materials' },
+      { id: 'inf-cons2', name: 'Professional Tool Set', price: 199.99, image: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?w=400', category: 'Construction', rating: 4.8, reviews: 456, inStock: true, description: 'Complete professional tool collection' },
+      { id: 'inf-cons3', name: 'Hardware Supplies', price: 89.99, image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400', category: 'Construction', rating: 4.6, reviews: 189, inStock: true, description: 'Quality hardware and fasteners' }
     );
   }
 
@@ -166,8 +288,8 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [fetchedProducts, setFetchedProducts] = useState<Product[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
-  
-  // Fetch products from API based on company name
+
+  // Enhanced product fetching from multiple APIs
   useEffect(() => {
     const fetchCompanyProducts = async () => {
       if (!companyName || companyName.trim().length < 3) {
@@ -176,77 +298,270 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
       }
 
       setIsLoadingProducts(true);
-      try {
-        // Try to fetch products using DuckDuckGo Instant Answer API (free, no key needed)
-        const searchQuery = encodeURIComponent(`${companyName} products`);
-        const response = await fetch(`https://api.duckduckgo.com/?q=${searchQuery}&format=json&no_html=1&skip_disambig=1`, {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-          },
-        });
+      const productHints: string[] = [];
+      let foundProducts = false;
 
-        if (response.ok) {
-          const data = await response.json();
-          // DuckDuckGo API returns abstract text which might contain product info
-          // We'll parse it and create products from it
-          if (data.AbstractText) {
-            const abstract = data.AbstractText.toLowerCase();
-            const productHints: string[] = [];
-            
-            // Extract potential product names from abstract
-            const productKeywords = ['product', 'sells', 'offers', 'provides', 'manufactures', 'produces'];
-            const sentences = data.AbstractText.split(/[.!?]/);
-            
-            sentences.forEach(sentence => {
-              const lower = sentence.toLowerCase();
-              productKeywords.forEach(keyword => {
-                if (lower.includes(keyword)) {
-                  // Try to extract product names (simple heuristic)
-                  const words = sentence.split(',').map(w => w.trim());
-                  words.forEach(word => {
-                    if (word.length > 3 && word.length < 30 && !word.includes('company') && !word.includes('business')) {
-                      productHints.push(word);
-                    }
-                  });
+      try {
+        // Strategy 1: Try Wikipedia API (free, no key needed)
+        try {
+          const wikiQuery = encodeURIComponent(companyName);
+          const wikiController = new AbortController();
+          const wikiTimeout = setTimeout(() => wikiController.abort(), 5000);
+
+          const wikiResponse = await fetch(
+            `https://en.wikipedia.org/api/rest_v1/page/summary/${wikiQuery}`,
+            {
+              method: 'GET',
+              headers: { 'Accept': 'application/json' },
+              signal: wikiController.signal,
+            }
+          );
+
+          clearTimeout(wikiTimeout);
+
+          if (wikiResponse.ok) {
+            const wikiData = await wikiResponse.json();
+            if (wikiData.extract) {
+              // Enhanced parsing of Wikipedia extract
+              const extract = wikiData.extract;
+
+              // Look for product-related sentences
+              const productPatterns = [
+                /(?:sells|offers|produces|manufactures|provides|specializes in|known for)[\s:]+([^.!?]+)/gi,
+                /(?:products?|services?|offerings?)[\s:]+([^.!?]+)/gi,
+                /(?:including|such as|like)[\s]+([^.!?]+)/gi,
+              ];
+
+              productPatterns.forEach(pattern => {
+                const matches = extract.matchAll(pattern);
+                for (const match of matches) {
+                  if (match[1]) {
+                    // Extract product names from the match
+                    const products = match[1]
+                      .split(/[,;and&]/)
+                      .map(p => p.trim())
+                      .filter(p => {
+                        const clean = p.toLowerCase();
+                        return (
+                          p.length > 3 &&
+                          p.length < 50 &&
+                          !clean.includes('company') &&
+                          !clean.includes('business') &&
+                          !clean.includes('organization') &&
+                          !clean.includes('founded') &&
+                          !clean.includes('established')
+                        );
+                      });
+                    productHints.push(...products);
+                  }
                 }
               });
-            });
 
-            // Create products from hints if we found any
-            if (productHints.length > 0) {
-              const apiProducts: Product[] = productHints.slice(0, 5).map((hint, idx) => ({
-                id: `api-${idx}`,
-                name: hint.charAt(0).toUpperCase() + hint.slice(1),
-                price: Math.round((Math.random() * 200 + 20) * 100) / 100,
-                image: `https://images.unsplash.com/photo-${1500000000000 + idx}?w=400&q=80`,
-                category: 'General',
-                rating: Math.round((Math.random() * 1.5 + 3.5) * 10) / 10,
-                reviews: Math.floor(Math.random() * 500 + 50),
-                inStock: true,
-                description: `Premium ${hint} from ${companyName}`
-              }));
-              setFetchedProducts(apiProducts);
+              // Also extract from first paragraph if it contains product info
+              const firstPara = extract.split('.')[0];
+              if (firstPara.toLowerCase().includes('product') || firstPara.toLowerCase().includes('sell')) {
+                const words = firstPara.split(',').map(w => w.trim());
+                words.forEach(word => {
+                  if (word.length > 4 && word.length < 40) {
+                    const lower = word.toLowerCase();
+                    if (!lower.includes('company') && !lower.includes('business')) {
+                      productHints.push(word);
+                    }
+                  }
+                });
+              }
+
+              if (productHints.length > 0) {
+                foundProducts = true;
+              }
+            }
+          }
+        } catch (wikiError: any) {
+          if (wikiError.name !== 'AbortError') {
+            console.log('Wikipedia API failed, trying other sources');
+          }
+        }
+
+        // Strategy 2: Try DuckDuckGo with improved parsing (if Wikipedia didn't work)
+        if (!foundProducts) {
+          try {
+            const searchQuery = encodeURIComponent(`${companyName} products services`);
+            const ddgController = new AbortController();
+            const ddgTimeout = setTimeout(() => ddgController.abort(), 5000);
+
+            const ddgResponse = await fetch(
+              `https://api.duckduckgo.com/?q=${searchQuery}&format=json&no_html=1&skip_disambig=1`,
+              {
+                method: 'GET',
+                headers: { 'Accept': 'application/json' },
+                signal: ddgController.signal,
+              }
+            );
+
+            clearTimeout(ddgTimeout);
+
+            if (ddgResponse.ok) {
+              const ddgData = await ddgResponse.json();
+              if (ddgData.AbstractText) {
+                // Improved NLP-style extraction
+                const abstract = ddgData.AbstractText;
+                const sentences = abstract.split(/[.!?]/);
+
+                sentences.forEach(sentence => {
+                  const lower = sentence.toLowerCase();
+                  // Look for product indicators
+                  if (
+                    lower.includes('product') ||
+                    lower.includes('sell') ||
+                    lower.includes('offer') ||
+                    lower.includes('manufacture') ||
+                    lower.includes('provide')
+                  ) {
+                    // Extract nouns/phrases after product indicators
+                    const productRegex = /(?:products?|sells?|offers?|manufactures?|provides?)[\s:]+([^.!?]+)/gi;
+                    const matches = sentence.matchAll(productRegex);
+                    for (const match of matches) {
+                      if (match[1]) {
+                        const products = match[1]
+                          .split(/[,;and&]/)
+                          .map(p => p.trim())
+                          .filter(p => {
+                            const clean = p.toLowerCase();
+                            return (
+                              p.length > 3 &&
+                              p.length < 40 &&
+                              !clean.includes('company') &&
+                              !clean.includes('business')
+                            );
+                          });
+                        productHints.push(...products);
+                      }
+                    }
+                  }
+                });
+              }
+            }
+          } catch (ddgError: any) {
+            if (ddgError.name !== 'AbortError') {
+              console.log('DuckDuckGo API failed');
             }
           }
         }
+
+        // Strategy 3: Try companyIntelligence service (if available)
+        if (!foundProducts && productHints.length === 0) {
+          try {
+            // Use a simplified version that doesn't require full CompanyData
+            const intelController = new AbortController();
+            const intelTimeout = setTimeout(() => intelController.abort(), 5000);
+
+            const intelligenceResponse = await fetch('/.netlify/functions/cloudiator', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                prompt: `List 3-5 main products or services that ${companyName} sells or offers. Format as comma-separated list only, no explanations.`
+              }),
+              signal: intelController.signal,
+            });
+
+            clearTimeout(intelTimeout);
+
+            if (intelligenceResponse.ok) {
+              const intelData = await intelligenceResponse.json();
+              if (intelData.response && intelData.response !== 'UNKNOWN') {
+                const products = intelData.response
+                  .split(',')
+                  .map((p: string) => p.trim())
+                  .filter((p: string) => {
+                    const lower = p.toLowerCase();
+                    return (
+                      p.length > 3 &&
+                      p.length < 50 &&
+                      !lower.includes('based on') &&
+                      !lower.includes('unknown') &&
+                      !lower.includes('sorry')
+                    );
+                  })
+                  .slice(0, 5);
+                productHints.push(...products);
+              }
+            }
+          } catch (intelError: any) {
+            if (intelError.name !== 'AbortError') {
+              console.log('Company intelligence service unavailable');
+            }
+          }
+        }
+
+        // Create products from collected hints
+        if (productHints.length > 0) {
+          // Remove duplicates and clean up
+          const uniqueHints = Array.from(
+            new Set(
+              productHints
+                .map(h => h.trim())
+                .filter(h => h.length > 3 && h.length < 50)
+            )
+          ).slice(0, 8);
+
+          const apiProducts: Product[] = uniqueHints.map((hint, idx) => {
+            // Determine category from hint
+            const hintLower = hint.toLowerCase();
+            let category = 'General';
+            if (hintLower.includes('medicine') || hintLower.includes('drug') || hintLower.includes('pharma')) category = 'Health';
+            else if (hintLower.includes('ceramic') || hintLower.includes('tile') || hintLower.includes('porcelain')) category = 'Home';
+            else if (hintLower.includes('cosmetic') || hintLower.includes('beauty') || hintLower.includes('makeup')) category = 'Beauty';
+            else if (hintLower.includes('cloth') || hintLower.includes('fashion') || hintLower.includes('apparel')) category = 'Fashion';
+            else if (hintLower.includes('electronic') || hintLower.includes('tech') || hintLower.includes('software')) category = 'Electronics';
+            else if (hintLower.includes('food') || hintLower.includes('beverage')) category = 'Food';
+
+            // Generate realistic pricing based on category
+            let basePrice = 50;
+            if (category === 'Health') basePrice = 30;
+            else if (category === 'Beauty') basePrice = 60;
+            else if (category === 'Fashion') basePrice = 80;
+            else if (category === 'Electronics') basePrice = 150;
+            else if (category === 'Home') basePrice = 100;
+
+            return {
+              id: `api-${idx}`,
+              name: hint.charAt(0).toUpperCase() + hint.slice(1),
+              price: Math.round((Math.random() * basePrice * 2 + basePrice * 0.5) * 100) / 100,
+              image: `https://images.unsplash.com/photo-${1500000000000 + idx}?w=400&q=80`,
+              category,
+              rating: Math.round((Math.random() * 1.5 + 3.5) * 10) / 10,
+              reviews: Math.floor(Math.random() * 500 + 50),
+              inStock: true,
+              description: `Premium ${hint} from ${companyName}`
+            };
+          });
+
+          setFetchedProducts(apiProducts);
+        } else {
+          setFetchedProducts([]);
+        }
       } catch (error) {
-        console.log('Could not fetch products from API, using inferred products');
+        console.log('Could not fetch products from APIs, using inferred products');
         setFetchedProducts([]);
       } finally {
         setIsLoadingProducts(false);
       }
     };
 
-    fetchCompanyProducts();
+    // Debounce API calls
+    const timeoutId = setTimeout(() => {
+      fetchCompanyProducts();
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
   }, [companyName]);
-  
+
   const products = useMemo(() => {
     const generated = generateProducts(companyName);
     // Prioritize fetched products, then add generated ones
     return fetchedProducts.length > 0 ? [...fetchedProducts, ...generated] : generated;
   }, [companyName, fetchedProducts]);
-  
+
   const cartTotal = useMemo(() => {
     return cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   }, [cartItems]);
@@ -385,9 +700,9 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-2">
             {companyLogo && (
-              <img 
-                src={companyLogo} 
-                alt={companyName} 
+              <img
+                src={companyLogo}
+                alt={companyName}
                 className="w-10 h-10 rounded-lg bg-white/20 p-1 object-contain"
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = 'none';
@@ -836,19 +1151,19 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
     }
 
     setIsProcessingPayment(true);
-    
+
     // Simulate payment processing
     await new Promise(resolve => setTimeout(resolve, 2000));
-    
+
     setIsProcessingPayment(false);
     setIsSyncingSalesforce(true);
-    
+
     // Simulate Salesforce CRM sync
     await new Promise(resolve => setTimeout(resolve, 1500));
-    
+
     setIsSyncingSalesforce(false);
     setPaymentSuccess(true);
-    
+
     // After showing success, reset and go to orders
     setTimeout(() => {
       setCartItems([]);
@@ -886,11 +1201,11 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
       <div className="h-full overflow-y-auto bg-gray-50">
         <div className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-10">
           <div className="flex items-center gap-3">
-            <button 
+            <button
               onClick={() => {
                 setSelectedPaymentGateway(null);
                 setCurrentScreen('cart');
-              }} 
+              }}
               className="p-1"
               disabled={isProcessingPayment || isSyncingSalesforce}
             >
@@ -920,11 +1235,10 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
               <button
                 onClick={() => setSelectedPaymentGateway('gidea')}
                 disabled={isProcessingPayment || isSyncingSalesforce}
-                className={`w-full p-3 rounded-lg border-2 transition-all ${
-                  selectedPaymentGateway === 'gidea'
-                    ? 'border-orange-500 bg-orange-50'
-                    : 'border-gray-200 bg-white hover:border-gray-300'
-                } ${isProcessingPayment || isSyncingSalesforce ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`w-full p-3 rounded-lg border-2 transition-all ${selectedPaymentGateway === 'gidea'
+                  ? 'border-orange-500 bg-orange-50'
+                  : 'border-gray-200 bg-white hover:border-gray-300'
+                  } ${isProcessingPayment || isSyncingSalesforce ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -939,15 +1253,14 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
                   )}
                 </div>
               </button>
-              
+
               <button
                 onClick={() => setSelectedPaymentGateway('paymob')}
                 disabled={isProcessingPayment || isSyncingSalesforce}
-                className={`w-full p-3 rounded-lg border-2 transition-all ${
-                  selectedPaymentGateway === 'paymob'
-                    ? 'border-orange-500 bg-orange-50'
-                    : 'border-gray-200 bg-white hover:border-gray-300'
-                } ${isProcessingPayment || isSyncingSalesforce ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`w-full p-3 rounded-lg border-2 transition-all ${selectedPaymentGateway === 'paymob'
+                  ? 'border-orange-500 bg-orange-50'
+                  : 'border-gray-200 bg-white hover:border-gray-300'
+                  } ${isProcessingPayment || isSyncingSalesforce ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
@@ -1027,11 +1340,10 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
           <button
             onClick={handlePayment}
             disabled={!selectedPaymentGateway || isProcessingPayment || isSyncingSalesforce}
-            className={`w-full py-3 rounded-lg font-semibold flex items-center justify-center gap-2 ${
-              !selectedPaymentGateway || isProcessingPayment || isSyncingSalesforce
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-orange-500 text-white hover:bg-orange-600'
-            }`}
+            className={`w-full py-3 rounded-lg font-semibold flex items-center justify-center gap-2 ${!selectedPaymentGateway || isProcessingPayment || isSyncingSalesforce
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : 'bg-orange-500 text-white hover:bg-orange-600'
+              }`}
           >
             {isProcessingPayment ? (
               <>
@@ -1116,7 +1428,7 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
       <div className="relative bg-gray-900 rounded-[2.5rem] p-2 shadow-2xl">
         {/* Notch */}
         <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 h-6 bg-gray-900 rounded-b-2xl z-20"></div>
-        
+
         {/* Status Bar */}
         <div className="absolute top-2 left-0 right-0 flex items-center justify-between px-6 text-white text-xs z-10">
           <span>9:41</span>
