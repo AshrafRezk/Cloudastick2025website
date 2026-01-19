@@ -48,11 +48,24 @@ const TechSaSection = () => {
                         </div>
 
                         <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                            Cloudastick's Sister Company: <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">TechSa</span>
+                            Cloudastick's Sister Company: <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">techsa</span>
                         </h2>
 
+                        <div className="flex justify-center">
+                            <div className="rounded-3xl bg-gradient-to-r from-blue-400/30 via-cyan-300/30 to-indigo-400/30 p-[1px] shadow-[0_30px_90px_-40px_rgba(59,130,246,0.9)]">
+                                <div className="rounded-3xl border border-white/10 bg-white/5 px-8 py-5 backdrop-blur-sm">
+                                    <img
+                                        src="https://techsa.io/wp-content/uploads/2022/07/Original-on-Transparent-1-1536x281.png"
+                                        alt="techsa logo"
+                                        className="h-14 md:h-16 w-auto drop-shadow-[0_18px_36px_rgba(56,189,248,0.5)]"
+                                        loading="lazy"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
                         <p className="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
-                            Expanding our ecosystem with deep expertise in Distribution Management Systems (DMS) through our sister company, TechSa, and their flagship solution, Merge.
+                            Expanding our ecosystem with deep expertise in Distribution Management Systems (DMS) through our sister company, techsa, and their flagship solution, Merge.
                         </p>
                     </motion.div>
                 </AnimatedSection>
@@ -69,7 +82,7 @@ const TechSaSection = () => {
                             <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:border-blue-500/30 transition-all duration-300">
                                 <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
                                     <LayoutTemplate className="w-8 h-8 text-blue-400" />
-                                    Merge by TechSa
+                                    Merge by techsa
                                 </h3>
                                 <p className="text-gray-300 leading-relaxed mb-6">
                                     A comprehensive Distribution Management System designed to streamline operations for distributors and manufacturers.
@@ -100,7 +113,7 @@ const TechSaSection = () => {
                             <div className="flex flex-col sm:flex-row gap-4">
                                 <a href="https://techsa.io" target="_blank" rel="noopener noreferrer">
                                     <Button variant="primary" className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
-                                        Visit TechSa <ExternalLink className="ml-2 w-4 h-4" />
+                                        Visit techsa <ExternalLink className="ml-2 w-4 h-4" />
                                     </Button>
                                 </a>
                                 <a href="https://merge.techsa.io" target="_blank" rel="noopener noreferrer">
@@ -125,7 +138,7 @@ const TechSaSection = () => {
                                     <motion.img
                                         key={currentImageIndex}
                                         src={images[currentImageIndex]}
-                                        alt={`TechSa Merge Platform Preview ${currentImageIndex + 1}`}
+                                        alt={`techsa Merge Platform Preview ${currentImageIndex + 1}`}
                                         className="w-full h-full object-cover"
                                         initial={{ opacity: 0, scale: 1.1 }}
                                         animate={{ opacity: 1, scale: 1 }}
