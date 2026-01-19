@@ -73,16 +73,17 @@ import ClientModal from '../components/ClientModal';
 import { ClientInfo } from '../data/clientsData';
 import FigmaDemoModal from '../components/FigmaDemoModal';
 import InteractiveStorefrontDemo from '../components/InteractiveStorefrontDemo';
+import TechSaSection from '../components/TechSaSection';
 
 // Modern Carousel Hub and Spoke Component
-const HubAndSpokeVisualization = React.memo(({ 
-  products, 
-  onProductHover, 
-  hoveredProduct 
-}: { 
-  products: any[], 
-  onProductHover: (id: string | null) => void, 
-  hoveredProduct: string | null 
+const HubAndSpokeVisualization = React.memo(({
+  products,
+  onProductHover,
+  hoveredProduct
+}: {
+  products: any[],
+  onProductHover: (id: string | null) => void,
+  hoveredProduct: string | null
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
@@ -93,7 +94,7 @@ const HubAndSpokeVisualization = React.memo(({
   // Auto-play functionality
   useEffect(() => {
     if (!isAutoPlaying) return;
-    
+
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % products.length);
     }, 3000);
@@ -113,7 +114,7 @@ const HubAndSpokeVisualization = React.memo(({
 
   const handleTouchEnd = () => {
     if (!touchStart || !touchEnd) return;
-    
+
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > 50;
     const isRightSwipe = distance < -50;
@@ -152,7 +153,7 @@ const HubAndSpokeVisualization = React.memo(({
   return (
     <div className="relative w-full max-w-4xl mx-auto">
       {/* Main Carousel Container */}
-      <div 
+      <div
         ref={carouselRef}
         className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900/50 to-gray-800/50 backdrop-blur-sm border border-gray-700/50"
         onTouchStart={handleTouchStart}
@@ -173,7 +174,7 @@ const HubAndSpokeVisualization = React.memo(({
             <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-2xl border-4 border-white/20">
               <Cloud className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
             </div>
-            
+
             {/* Pulsing Ring */}
             <motion.div
               animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0, 0.5] }}
@@ -253,11 +254,10 @@ const HubAndSpokeVisualization = React.memo(({
                 setCurrentIndex(index);
                 setIsAutoPlaying(false);
               }}
-              className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${
-                index === currentIndex 
-                  ? 'bg-blue-500 scale-125' 
-                  : 'bg-gray-500 hover:bg-gray-400'
-              }`}
+              className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${index === currentIndex
+                ? 'bg-blue-500 scale-125'
+                : 'bg-gray-500 hover:bg-gray-400'
+                }`}
             />
           ))}
         </div>
@@ -272,7 +272,7 @@ const HubAndSpokeVisualization = React.memo(({
         >
           <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
-        
+
         <button
           onClick={() => {
             setCurrentIndex((currentIndex + 1) % products.length);
@@ -310,7 +310,7 @@ const HubAndSpokeVisualization = React.memo(({
               {(() => {
                 const product = products.find(p => p.id === hoveredProduct);
                 if (!product) return null;
-                
+
                 return (
                   <>
                     <div className="flex items-center gap-3 mb-3">
@@ -371,9 +371,9 @@ const SalesforcePower = () => {
   const [expandedMetrics, setExpandedMetrics] = useState<Set<string>>(new Set());
   const [showLeadModal, setShowLeadModal] = useState<boolean>(false);
   const [isDirectAccess, setIsDirectAccess] = useState<boolean>(false);
-  const [hubDimensions, setHubDimensions] = useState({ 
+  const [hubDimensions, setHubDimensions] = useState({
     width: typeof window !== 'undefined' && window.innerWidth < 768 ? Math.min(window.innerWidth - 48, 350) : 800,
-    height: typeof window !== 'undefined' && window.innerWidth < 768 ? 350 : 600 
+    height: typeof window !== 'undefined' && window.innerWidth < 768 ? 350 : 600
   });
   const [companyIntelligence, setCompanyIntelligence] = useState<CompanyIntelligence | null>(null);
   const [loadingIntelligence, setLoadingIntelligence] = useState<boolean>(false);
@@ -410,25 +410,25 @@ const SalesforcePower = () => {
   const copyTableLink = () => {
     // Haptic feedback with sound
     triggerHaptic([5, 3, 5], '/Assets/woosh1new.mp3');
-    
+
     // Build URL parameters (simple, no encoding)
     const params = new URLSearchParams();
     params.set('lang', language);
-    
+
     if (selectedIndustry) {
       params.set('industry', selectedIndustry);
     }
-    
+
     if (companyName) {
       params.set('cn', companyName);
     }
-    
+
     if (companyWebsite) {
       params.set('cw', companyWebsite);
     }
-    
+
     const url = `${window.location.origin}/salesforce-power?${params.toString()}#comparison-table`;
-    
+
     navigator.clipboard.writeText(url).then(() => {
       setCopied(true);
       toast({
@@ -448,7 +448,7 @@ const SalesforcePower = () => {
       textArea.select();
       document.execCommand('copy');
       textArea.remove();
-      
+
       setCopied(true);
       toast({
         title: "Link Copied!",
@@ -464,12 +464,12 @@ const SalesforcePower = () => {
     setSelectedIndustry(data.industry);
     setShowLeadModal(false);
     setIsDirectAccess(false);
-    
+
     // Scroll to comparison table after a short delay
     setTimeout(() => {
       const tableElement = document.getElementById('comparison-table');
       if (tableElement) {
-        tableElement.scrollIntoView({ 
+        tableElement.scrollIntoView({
           behavior: 'smooth',
           block: 'start'
         });
@@ -492,23 +492,23 @@ const SalesforcePower = () => {
       console.warn('No website provided for logo fetch');
       return;
     }
-    
+
     setLogoLoading(true);
     setLogoError(false);
-    
+
     // Normalize the website to get clean domain
     const normalized = normalizeWebsiteUrl(website.trim());
     const domain = normalized.domain || normalized.display || website.trim();
-    
+
     if (!domain) {
       console.warn('Could not extract domain from website:', website);
       setLogoError(true);
       setLogoLoading(false);
       return;
     }
-    
+
     console.log('Fetching logo for domain:', domain);
-    
+
     try {
       // Method 1: Try Netlify function (uses Clearbit + favicon)
       const response = await fetch('/.netlify/functions/fetchLogo', {
@@ -521,7 +521,7 @@ const SalesforcePower = () => {
 
       if (response.ok) {
         const data = await response.json();
-        
+
         if (data.logoUrl) {
           console.log('Logo found via Netlify function:', data.source);
           setCompanyLogo(data.logoUrl);
@@ -530,7 +530,7 @@ const SalesforcePower = () => {
           return;
         }
       }
-      
+
       // Method 2: Try Clearbit directly as fallback
       console.log('Netlify function did not return logo, trying Clearbit directly...');
       const clearbitUrl = `https://logo.clearbit.com/${domain}`;
@@ -549,7 +549,7 @@ const SalesforcePower = () => {
       } catch (clearbitError) {
         console.warn('Clearbit direct fetch failed:', clearbitError);
       }
-      
+
       // Method 3: Try Google favicon as last resort
       console.log('Clearbit failed, trying Google favicon...');
       const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
@@ -568,7 +568,7 @@ const SalesforcePower = () => {
       } catch (faviconError) {
         console.warn('Google favicon fetch failed:', faviconError);
       }
-      
+
       // No logo found from any method
       console.warn('No logo found for domain:', domain);
       setCompanyLogo(null);
@@ -592,19 +592,19 @@ const SalesforcePower = () => {
   // Handle manual analyze button click
   const handleAnalyzeCompany = () => {
     if (!companyWebsite.trim()) return;
-    
+
     // Haptic feedback with sound
     triggerHaptic([15, 10, 15], '/Assets/selection3new.mp3');
-    
+
     // Clear previous company data to refetch fresh
     setCompanyName('');
     setCompanyIntelligence(null);
     setSelectedIndustry(null);
-    
+
     // Normalize the URL
     const normalized = normalizeWebsiteUrl(companyWebsite);
     setCompanyWebsite(normalized.display);
-    
+
     // Trigger logo and enrichment
     if (normalized.domain) {
       fetchCompanyLogo(normalized.domain);
@@ -615,17 +615,17 @@ const SalesforcePower = () => {
   // Enrich company data function
   const enrichCompanyData = useCallback(async (website: string) => {
     if (!website.trim() || loadingIntelligence) return;
-    
+
     setLoadingIntelligence(true);
     try {
       const intelligence = await enrichCompanyService(website);
       setCompanyIntelligence(intelligence);
-      
+
       // Auto-fill company name if not already set
       if (!companyName && intelligence.companyData.companyName) {
         setCompanyName(intelligence.companyData.companyName);
       }
-      
+
       // Auto-select industry based on detection (only if not already set from URL)
       if (intelligence.companyData.normalizedIndustry && !selectedIndustry && !genericIndustryData) {
         // Map normalized industry to our industry card IDs (closest matches)
@@ -642,18 +642,18 @@ const SalesforcePower = () => {
           'technology': 'professional-services', // Technology → Professional Services (IT consulting)
           'other': 'professional-services' // Default → Professional Services
         };
-        
+
         const industryId = industryMapping[intelligence.companyData.normalizedIndustry];
         if (industryId) {
           setSelectedIndustry(industryId);
         }
       }
-      
+
       // Show product recommendation if available
       if (intelligence.recommendedProduct) {
         setShowProductRecommendation(true);
       }
-      
+
       // Only show success message if not preloading (to avoid duplicate toasts)
       if (!isPreloading) {
         toast({
@@ -680,17 +680,17 @@ const SalesforcePower = () => {
     const companyNameParam = searchParams.get('cn') || searchParams.get('companyName');
     const companyWebsiteParam = searchParams.get('cw') || searchParams.get('companyWebsite');
     const industryParam = searchParams.get('industry');
-    
+
     // Check if we need to preload (have URL params)
     const needsPreload = companyNameParam || companyWebsiteParam || industryParam;
-    
+
     if (!needsPreload) {
       return; // No URL params, no preloading needed
     }
-    
+
     // Set preloading state
     setIsPreloading(true);
-    
+
     // Process industry parameter with matching
     if (industryParam) {
       const matchedIndustry = matchIndustryFromUrl(industryParam);
@@ -706,12 +706,12 @@ const SalesforcePower = () => {
         setSelectedIndustry(null);
       }
     }
-    
+
     // Process company name
     if (companyNameParam) {
       setCompanyName(decodeURIComponent(companyNameParam));
     }
-    
+
     // Process company website and preload data
     const preloadData = async () => {
       try {
@@ -720,7 +720,7 @@ const SalesforcePower = () => {
           // Normalize the URL
           const normalized = normalizeWebsiteUrl(decodedWebsite);
           setCompanyWebsite(normalized.display);
-          
+
           // Fetch logo - ensure we always try to fetch it
           // Use the normalized domain (which is clean and ready for logo APIs)
           const logoPromise = fetchCompanyLogo(normalized.domain || normalized.display || decodedWebsite).catch((error) => {
@@ -729,19 +729,19 @@ const SalesforcePower = () => {
             setLogoError(true);
             setCompanyLogo(null);
           });
-          
+
           // Enrich company data directly (avoid dependency on enrichCompanyData callback)
           if (normalized.domain && !loadingIntelligence) {
             setLoadingIntelligence(true);
             try {
               const intelligence = await enrichCompanyService(normalized.domain);
               setCompanyIntelligence(intelligence);
-              
+
               // Auto-fill company name if not already set
               if (!companyNameParam && intelligence.companyData.companyName) {
                 setCompanyName(intelligence.companyData.companyName);
               }
-              
+
               // Auto-select industry based on detection (only if not already set from URL)
               if (intelligence.companyData.normalizedIndustry && !industryParam && !selectedIndustry && !genericIndustryData) {
                 const industryMapping: { [key: string]: string } = {
@@ -757,13 +757,13 @@ const SalesforcePower = () => {
                   'technology': 'professional-services',
                   'other': 'professional-services'
                 };
-                
+
                 const industryId = industryMapping[intelligence.companyData.normalizedIndustry];
                 if (industryId) {
                   setSelectedIndustry(industryId);
                 }
               }
-              
+
               // Show product recommendation if available
               if (intelligence.recommendedProduct) {
                 setShowProductRecommendation(true);
@@ -774,11 +774,11 @@ const SalesforcePower = () => {
               setLoadingIntelligence(false);
             }
           }
-          
+
           // Wait for logo to complete
           await logoPromise;
         }
-        
+
         // Check if both company name and website are pre-filled from URL
         if (companyNameParam && companyWebsiteParam) {
           setHasPrefilledParams(true);
@@ -791,7 +791,7 @@ const SalesforcePower = () => {
         setIsPreloading(false);
       }
     };
-    
+
     preloadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, fetchCompanyLogo]);
@@ -867,7 +867,7 @@ const SalesforcePower = () => {
 
     const industryName = selectedIndustryData?.name || 'General CRM';
     const date = new Date().toLocaleDateString();
-    
+
     // CSV header
     const headers = [
       'Metric',
@@ -963,7 +963,7 @@ const SalesforcePower = () => {
     if (!companyName) return text;
     return text.replace(/\{company\}/g, companyName).replace(/\{industry\}/g, industryName || fallback);
   }, [companyName]);
-  
+
   const heroRef = useRef<HTMLDivElement>(null);
   const platformRef = useRef<HTMLDivElement>(null);
   const erpRef = useRef<HTMLDivElement>(null);
@@ -979,11 +979,11 @@ const SalesforcePower = () => {
     if ('vibrate' in navigator) {
       navigator.vibrate(pattern);
     }
-    
+
     // Play sound
     const sound = new Audio(soundFile);
     sound.volume = 0.3;
-    sound.play().catch(() => {}); // Ignore errors if sound fails
+    sound.play().catch(() => { }); // Ignore errors if sound fails
   };
 
   // Handle industry selection
@@ -992,14 +992,14 @@ const SalesforcePower = () => {
       triggerHaptic([20, 10, 20], '/Assets/selection2new.mp3');
       setSelectedIndustry(industryId);
       setCurrentSection(1);
-      
+
       // Add smooth slide animation
       setIsScrolling(true);
-      
+
       // Smooth scroll to platform overview with slide effect
       setTimeout(() => {
         if (platformRef.current) {
-          platformRef.current.scrollIntoView({ 
+          platformRef.current.scrollIntoView({
             behavior: 'smooth',
             block: 'start'
           });
@@ -1017,25 +1017,25 @@ const SalesforcePower = () => {
     setIsScrolling(true);
     triggerHaptic([15, 5, 15]);
     setCurrentSection(sectionIndex);
-    
-    sectionRef.current?.scrollIntoView({ 
+
+    sectionRef.current?.scrollIntoView({
       behavior: 'smooth',
       block: 'start'
     });
-    
+
     setTimeout(() => setIsScrolling(false), 1000);
   };
 
   // Handle hash navigation to comparison table
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    
+
     const handleHashChange = () => {
       if (window.location.hash === '#comparison-table') {
         // Check if company info exists in state or URL params (support both short and long params)
-        const hasCompanyInParams = searchParams.get('cn') || searchParams.get('companyName') || 
-                                    searchParams.get('cw') || searchParams.get('companyWebsite');
-        
+        const hasCompanyInParams = searchParams.get('cn') || searchParams.get('companyName') ||
+          searchParams.get('cw') || searchParams.get('companyWebsite');
+
         // Check if this is a direct access (no company name set and no params)
         if (!companyName && !hasCompanyInParams) {
           setIsDirectAccess(true);
@@ -1044,7 +1044,7 @@ const SalesforcePower = () => {
           // If company name is already set or provided via params, just scroll to the table
           const tableElement = document.getElementById('comparison-table');
           if (tableElement) {
-            tableElement.scrollIntoView({ 
+            tableElement.scrollIntoView({
               behavior: 'smooth',
               block: 'start'
             });
@@ -1067,7 +1067,7 @@ const SalesforcePower = () => {
   // Handle hub dimensions resize
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    
+
     const handleResize = () => {
       const isMobile = window.innerWidth < 768;
       setHubDimensions({
@@ -1089,8 +1089,8 @@ const SalesforcePower = () => {
 
   // Get industry-specific products
   const industryProducts = selectedIndustry ? getProductsByIndustry(selectedIndustry) : [];
-  const selectedIndustryData = selectedIndustry 
-    ? getIndustryById(selectedIndustry) 
+  const selectedIndustryData = selectedIndustry
+    ? getIndustryById(selectedIndustry)
     : genericIndustryData || null;
 
   // Check if current industry is retail/commerce related
@@ -1099,7 +1099,7 @@ const SalesforcePower = () => {
     const industryName = selectedIndustryData?.name?.toLowerCase() || '';
     const industryId = selectedIndustry || '';
     const paramLower = (industryParam || '').toLowerCase();
-    
+
     return (
       industryId === 'commerce-cloud' ||
       industryName.includes('retail') ||
@@ -1115,17 +1115,17 @@ const SalesforcePower = () => {
   // If the selected industry is not in the first 8, replace Telecom with it
   const displayIndustries = useMemo(() => {
     const firstEight = industries.slice(0, 8);
-    
+
     // Determine which industry to show (selectedIndustry or genericIndustryData)
-    const industryToShow = selectedIndustry 
+    const industryToShow = selectedIndustry
       ? getIndustryById(selectedIndustry)
       : genericIndustryData;
-    
+
     // Check if the industry to show is in the first 8
-    const isInFirstEight = industryToShow 
+    const isInFirstEight = industryToShow
       ? firstEight.some(ind => ind.id === industryToShow.id)
       : false;
-    
+
     // If we have an industry to show and it's not in the first 8, replace Telecom
     if (industryToShow && !isInFirstEight) {
       // Find Telecom index (should be index 3, but let's find it dynamically)
@@ -1137,7 +1137,7 @@ const SalesforcePower = () => {
         return updated;
       }
     }
-    
+
     return firstEight;
   }, [industries, selectedIndustry, genericIndustryData]);
 
@@ -1181,35 +1181,35 @@ const SalesforcePower = () => {
 
       <Helmet>
         <title>
-          {selectedIndustryData 
+          {selectedIndustryData
             ? `${selectedIndustryData.name} CRM Comparison: Salesforce vs Competitors | Cloudastick`
             : 'Salesforce vs Competitors: Complete CRM Comparison | Cloudastick'
           }
         </title>
-        <meta 
-          name="description" 
+        <meta
+          name="description"
           content={
-            selectedIndustryData 
+            selectedIndustryData
               ? `Objective ${selectedIndustryData.name} CRM comparison study. Compare Salesforce, HubSpot, Zoho, Freshworks, and Odoo for ${selectedIndustryData.name.toLowerCase()} businesses. Download detailed analysis for board members.`
               : 'Comprehensive CRM comparison: Salesforce vs HubSpot, Zoho, Freshworks, Odoo. Objective analysis for CTOs, CFOs, and board members. Download detailed comparison study.'
           }
         />
-        <meta 
-          name="keywords" 
+        <meta
+          name="keywords"
           content={
-            selectedIndustryData 
+            selectedIndustryData
               ? `${selectedIndustryData.name} CRM comparison, ${selectedIndustryData.name} Salesforce vs competitors, ${selectedIndustryData.name} CRM analysis, board member CRM study, ${selectedIndustryData.name} CRM evaluation, objective CRM comparison`
               : 'Salesforce comparison, CRM comparison, Salesforce vs HubSpot, Salesforce vs Zoho, CRM analysis, board member study, CTO evaluation, CFO analysis, objective CRM study'
           }
         />
         <meta name="robots" content="index, follow" />
         <meta property="og:title" content={
-          selectedIndustryData 
+          selectedIndustryData
             ? `${selectedIndustryData.name} CRM Comparison: Salesforce vs Competitors`
             : 'Salesforce vs Competitors: Complete CRM Comparison'
         } />
         <meta property="og:description" content={
-          selectedIndustryData 
+          selectedIndustryData
             ? `Download our comprehensive ${selectedIndustryData.name} CRM comparison study. Compare Salesforce, HubSpot, Zoho, Freshworks, and Odoo with objective metrics for board members.`
             : 'Download our comprehensive CRM comparison study. Compare Salesforce, HubSpot, Zoho, Freshworks, and Odoo with objective metrics for board members.'
         } />
@@ -1217,12 +1217,12 @@ const SalesforcePower = () => {
         <meta property="og:url" content={`${window.location.origin}/salesforce-power${selectedIndustry ? `?industry=${selectedIndustry}` : ''}`} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={
-          selectedIndustryData 
+          selectedIndustryData
             ? `${selectedIndustryData.name} CRM Comparison: Salesforce vs Competitors`
             : 'Salesforce vs Competitors: Complete CRM Comparison'
         } />
         <meta name="twitter:description" content={
-          selectedIndustryData 
+          selectedIndustryData
             ? `Objective ${selectedIndustryData.name} CRM comparison for board members. Download detailed analysis.`
             : 'Objective CRM comparison for board members. Download detailed analysis.'
         } />
@@ -1233,7 +1233,7 @@ const SalesforcePower = () => {
         {/* Background Effects */}
         <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900"></div>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-cyan-500/20 via-transparent to-transparent"></div>
-        
+
         {/* Animated Background Elements */}
         <div className="absolute inset-0">
           {[...Array(window.innerWidth < 768 ? 10 : 20)].map((_, i) => (
@@ -1269,7 +1269,7 @@ const SalesforcePower = () => {
                 <Sparkles className="w-5 h-5 mr-2" />
                 {t('power.hero.badge')}
               </span>
-              
+
               {/* Logos */}
               <div className="mb-8">
                 <div className="flex items-center justify-center gap-4 mb-6">
@@ -1279,14 +1279,14 @@ const SalesforcePower = () => {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.5 }}
                   >
-                    <CompanyLogo 
-                      logoUrl={companyLogo} 
-                      companyName={companyName || 'Company'} 
+                    <CompanyLogo
+                      logoUrl={companyLogo}
+                      companyName={companyName || 'Company'}
                       size="large"
                       className="w-24 h-24"
                     />
                   </motion.div>
-                  
+
                   {/* Plus sign */}
                   <motion.div
                     initial={{ opacity: 0 }}
@@ -1296,25 +1296,25 @@ const SalesforcePower = () => {
                   >
                     +
                   </motion.div>
-                  
+
                   {/* Salesforce Logo */}
-                  <img 
-                    src="/Assets/Product Logos/salesforce.png" 
-                    alt="Salesforce" 
+                  <img
+                    src="/Assets/Product Logos/salesforce.png"
+                    alt="Salesforce"
                     className="w-24 h-24 object-contain"
                   />
                 </div>
               </div>
-              
+
               <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-8 leading-tight">
-                {companyName 
+                {companyName
                   ? personalizeText(t('power.hero.title.personalized'), 'your company', selectedIndustryData?.name)
                   : personalizeText(t('power.hero.title'))
                 }
               </h1>
-              
+
               <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-300 max-w-4xl mx-auto mb-8 leading-relaxed">
-                {companyName 
+                {companyName
                   ? personalizeText(t('power.hero.subtitle.personalized'), 'your company', selectedIndustryData?.name)
                   : personalizeText(t('power.hero.subtitle'))
                 }
@@ -1364,7 +1364,7 @@ const SalesforcePower = () => {
                             className="w-full px-6 py-4 bg-gray-800/50 backdrop-blur-sm border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-300"
                           />
                         </div>
-                        
+
                         {/* Analyze Button */}
                         <button
                           onClick={handleAnalyzeCompany}
@@ -1390,7 +1390,7 @@ const SalesforcePower = () => {
                         </button>
                       </div>
                     </div>
-                    
+
                     {/* Company Name Input - Only shown after name is loaded */}
                     {companyName && (
                       <motion.div
@@ -1412,7 +1412,7 @@ const SalesforcePower = () => {
                       </motion.div>
                     )}
                   </div>
-                  
+
                   {/* Personalization Status */}
                   {(companyName || companyWebsite || loadingIntelligence) && (
                     <motion.div
@@ -1436,103 +1436,103 @@ const SalesforcePower = () => {
               )}
 
               {/* Company Intelligence Display */}
-                {companyIntelligence && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mt-8 space-y-6"
-                  >
-                    {/* Company Info Card */}
-                    <div className="bg-gradient-to-br from-blue-900/30 to-purple-900/30 rounded-2xl p-6 border border-cyan-500/30 backdrop-blur-sm">
-                      <div className="flex flex-wrap items-center gap-4">
-                        <div className="flex items-center gap-3">
-                          <span className="text-2xl">{companyIntelligence.recommendedProduct?.icon || '🏢'}</span>
-                          <div>
-                            <h4 className="text-xl font-bold text-white">{companyIntelligence.companyData.companyName}</h4>
-                            <p className="text-cyan-300 text-sm">{companyIntelligence.companyData.industry}</p>
-                          </div>
+              {companyIntelligence && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-8 space-y-6"
+                >
+                  {/* Company Info Card */}
+                  <div className="bg-gradient-to-br from-blue-900/30 to-purple-900/30 rounded-2xl p-6 border border-cyan-500/30 backdrop-blur-sm">
+                    <div className="flex flex-wrap items-center gap-4">
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">{companyIntelligence.recommendedProduct?.icon || '🏢'}</span>
+                        <div>
+                          <h4 className="text-xl font-bold text-white">{companyIntelligence.companyData.companyName}</h4>
+                          <p className="text-cyan-300 text-sm">{companyIntelligence.companyData.industry}</p>
                         </div>
-                        {companyIntelligence.companyData.location && (
-                          <span className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-xs">
-                            📍 {companyIntelligence.companyData.location}
-                          </span>
-                        )}
-                        {companyIntelligence.companyData.employeeCount && (
-                          <span className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-xs">
-                            👥 {companyIntelligence.companyData.employeeCount} employees
-                          </span>
-                        )}
                       </div>
-                    </div>
-
-                    {/* AI Insights & Products - Stacked Layout */}
-                    <div className="space-y-6">
-                      {/* AI Insights Panel - Full Width (only show if valid) */}
-                      {companyIntelligence.aiInsights && companyIntelligence.aiInsights.trim().length > 0 && (
-                        <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 rounded-2xl p-6 border border-purple-500/30 backdrop-blur-sm">
-                          <h4 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                            <Sparkles className="w-5 h-5 text-yellow-400" />
-                            How Salesforce Can Help
-                          </h4>
-                          <div className="text-gray-300 text-sm leading-relaxed whitespace-pre-line">
-                            {companyIntelligence.aiInsights}
-                          </div>
-                        </div>
+                      {companyIntelligence.companyData.location && (
+                        <span className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-xs">
+                          📍 {companyIntelligence.companyData.location}
+                        </span>
                       )}
-
-                      {/* Company Products Carousel - Full Width */}
-                      {companyIntelligence.companyProducts && companyIntelligence.companyProducts.length > 0 && (
-                        <div className="bg-gradient-to-br from-green-900/30 to-emerald-900/30 rounded-2xl p-6 border border-green-500/30 backdrop-blur-sm">
-                          <h4 className="text-base font-bold text-white mb-4">
-                            Manage, market, and sell {companyIntelligence.companyData.companyName}'s products better
-                          </h4>
-                          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-                            {companyIntelligence.companyProducts.map((product, index) => (
-                              <motion.div
-                                key={index}
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ duration: 0.3, delay: index * 0.1 }}
-                                className="flex-shrink-0"
-                              >
-                                <div className="px-5 py-3 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-400/30 rounded-full hover:from-green-500/30 hover:to-emerald-500/30 transition-all duration-200">
-                                  <span className="text-green-300 text-sm font-medium whitespace-nowrap">{product}</span>
-                                </div>
-                              </motion.div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Latest News - Full Width */}
-                      {companyIntelligence.news.length > 0 && (
-                        <div className="bg-gradient-to-br from-cyan-900/30 to-blue-900/30 rounded-2xl p-6 border border-cyan-500/30 backdrop-blur-sm">
-                          <h4 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                            📰 Latest News
-                          </h4>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            {companyIntelligence.news.slice(0, 3).map((article, index) => (
-                              <a
-                                key={index}
-                                href={article.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="block p-4 bg-white/5 hover:bg-white/10 rounded-lg transition-all duration-200 group"
-                              >
-                                <p className="text-cyan-300 font-semibold text-sm mb-2 group-hover:text-cyan-200 line-clamp-2">
-                                  {article.title}
-                                </p>
-                                <p className="text-gray-400 text-xs">
-                                  {article.source} • {new Date(article.publishedAt).toLocaleDateString()}
-                                </p>
-                              </a>
-                            ))}
-                          </div>
-                        </div>
+                      {companyIntelligence.companyData.employeeCount && (
+                        <span className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-xs">
+                          👥 {companyIntelligence.companyData.employeeCount} employees
+                        </span>
                       )}
                     </div>
-                  </motion.div>
-                )}
+                  </div>
+
+                  {/* AI Insights & Products - Stacked Layout */}
+                  <div className="space-y-6">
+                    {/* AI Insights Panel - Full Width (only show if valid) */}
+                    {companyIntelligence.aiInsights && companyIntelligence.aiInsights.trim().length > 0 && (
+                      <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 rounded-2xl p-6 border border-purple-500/30 backdrop-blur-sm">
+                        <h4 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                          <Sparkles className="w-5 h-5 text-yellow-400" />
+                          How Salesforce Can Help
+                        </h4>
+                        <div className="text-gray-300 text-sm leading-relaxed whitespace-pre-line">
+                          {companyIntelligence.aiInsights}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Company Products Carousel - Full Width */}
+                    {companyIntelligence.companyProducts && companyIntelligence.companyProducts.length > 0 && (
+                      <div className="bg-gradient-to-br from-green-900/30 to-emerald-900/30 rounded-2xl p-6 border border-green-500/30 backdrop-blur-sm">
+                        <h4 className="text-base font-bold text-white mb-4">
+                          Manage, market, and sell {companyIntelligence.companyData.companyName}'s products better
+                        </h4>
+                        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                          {companyIntelligence.companyProducts.map((product, index) => (
+                            <motion.div
+                              key={index}
+                              initial={{ opacity: 0, scale: 0.9 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{ duration: 0.3, delay: index * 0.1 }}
+                              className="flex-shrink-0"
+                            >
+                              <div className="px-5 py-3 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-400/30 rounded-full hover:from-green-500/30 hover:to-emerald-500/30 transition-all duration-200">
+                                <span className="text-green-300 text-sm font-medium whitespace-nowrap">{product}</span>
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Latest News - Full Width */}
+                    {companyIntelligence.news.length > 0 && (
+                      <div className="bg-gradient-to-br from-cyan-900/30 to-blue-900/30 rounded-2xl p-6 border border-cyan-500/30 backdrop-blur-sm">
+                        <h4 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                          📰 Latest News
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          {companyIntelligence.news.slice(0, 3).map((article, index) => (
+                            <a
+                              key={index}
+                              href={article.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="block p-4 bg-white/5 hover:bg-white/10 rounded-lg transition-all duration-200 group"
+                            >
+                              <p className="text-cyan-300 font-semibold text-sm mb-2 group-hover:text-cyan-200 line-clamp-2">
+                                {article.title}
+                              </p>
+                              <p className="text-gray-400 text-xs">
+                                {article.source} • {new Date(article.publishedAt).toLocaleDateString()}
+                              </p>
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
             </motion.div>
 
             {/* Industry Selection Cards */}
@@ -1546,20 +1546,20 @@ const SalesforcePower = () => {
                 // Check if this industry is selected
                 // For matched industry: check if selectedIndustry matches
                 // For generic industry: check if we have genericIndustryData and no selectedIndustry
-                const isSelected = selectedIndustry 
+                const isSelected = selectedIndustry
                   ? selectedIndustry === industry.id
                   : (genericIndustryData && industry.id === 'generic');
-                
+
                 // Check if another industry is selected (for dimming effect)
-                const isNotSelected = selectedIndustry 
+                const isNotSelected = selectedIndustry
                   ? selectedIndustry !== industry.id
                   : (genericIndustryData && industry.id !== 'generic');
-                
+
                 return (
                   <motion.div
                     key={industry.id}
                     initial={{ opacity: 0, y: 20 }}
-                    animate={{ 
+                    animate={{
                       opacity: isNotSelected ? 0.5 : 1,
                       y: 0,
                       scale: isSelected ? 1.02 : 1
@@ -1575,8 +1575,8 @@ const SalesforcePower = () => {
                       handleIndustrySelect(industry.id);
                     }}
                     className={`relative bg-gradient-to-br ${industry.gradient} rounded-2xl p-4 sm:p-6 md:p-8 cursor-pointer group transition-all duration-300 hover:shadow-2xl backdrop-blur-sm
-                      ${isSelected 
-                        ? 'border-2 border-yellow-400 shadow-[0_0_30px_rgba(251,191,36,0.5)] ring-2 ring-yellow-400/50' 
+                      ${isSelected
+                        ? 'border-2 border-yellow-400 shadow-[0_0_30px_rgba(251,191,36,0.5)] ring-2 ring-yellow-400/50'
                         : 'border border-white/20 hover:border-white/40'
                       }
                       ${isNotSelected ? 'hover:opacity-70' : ''}
@@ -1596,9 +1596,9 @@ const SalesforcePower = () => {
                         }}
                       />
                     )}
-                    
+
                     <div className={`absolute inset-0 bg-white/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${isSelected ? 'bg-yellow-400/10' : ''}`}></div>
-                    
+
                     <div className="relative z-10">
                       <div className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-white/20 rounded-xl mb-6 group-hover:bg-white/30 transition-colors duration-300">
                         <industry.icon className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white group-hover:scale-110 transition-transform duration-300" />
@@ -1614,7 +1614,7 @@ const SalesforcePower = () => {
                         <ArrowRight className={`w-3 h-3 ${isRTL ? 'mr-1' : 'ml-1'} group-hover:translate-x-1 transition-transform duration-300`} />
                       </div>
                     </div>
-                    
+
                     {/* Selection Indicator */}
                     {isSelected && (
                       <motion.div
@@ -1656,7 +1656,7 @@ const SalesforcePower = () => {
         const allClients = getAllClients();
         const relevantClients = selectedIndustry ? getClientsByIndustry(selectedIndustry) : [];
         const relevantClientIds = new Set(relevantClients.map(c => c.id));
-        
+
         // Helper function to check if client matches selected industry
         const isIndustryMatch = (client: ClientInfo) => {
           return selectedIndustry && relevantClientIds.has(client.id);
@@ -1671,21 +1671,21 @@ const SalesforcePower = () => {
 
           // Separate relevant and other clients
           const otherClients = allClients.filter(c => !relevantClientIds.has(c.id));
-          
+
           // Create carousel with relevant clients appearing 3x more frequently
           // Pattern: [relevant x3, other, relevant x3, other, ...]
           const carouselClients: ClientInfo[] = [];
-          
+
           // Add relevant clients 3 times
           carouselClients.push(...relevantClients);
           carouselClients.push(...relevantClients);
           carouselClients.push(...relevantClients);
-          
+
           // Interleave with other clients
           otherClients.forEach((client) => {
             carouselClients.push(client);
           });
-          
+
           // Duplicate the entire pattern for seamless loop
           return [...carouselClients, ...carouselClients];
         };
@@ -1702,8 +1702,8 @@ const SalesforcePower = () => {
                 className="text-center mb-10"
               >
                 <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">
-                  {selectedIndustry 
-                    ? `Trusted by Leading ${selectedIndustryData?.name} Companies` 
+                  {selectedIndustry
+                    ? `Trusted by Leading ${selectedIndustryData?.name} Companies`
                     : 'Trusted by Industry Leaders'}
                 </h3>
                 <p className="text-gray-400 text-sm">
@@ -1733,11 +1733,10 @@ const SalesforcePower = () => {
                         className="flex-shrink-0 group cursor-pointer"
                         onClick={() => handleClientClick(client)}
                       >
-                        <div className={`bg-gradient-to-br from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 backdrop-blur-sm rounded-xl p-6 border transition-all duration-300 w-56 h-32 flex items-center justify-center ${
-                          isHighlighted 
-                            ? 'border-yellow-400 shadow-lg shadow-yellow-500/30 hover:border-yellow-300 hover:shadow-yellow-400/40' 
-                            : 'border-gray-600 hover:border-cyan-400 hover:shadow-lg hover:shadow-cyan-500/30'
-                        }`}>
+                        <div className={`bg-gradient-to-br from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 backdrop-blur-sm rounded-xl p-6 border transition-all duration-300 w-56 h-32 flex items-center justify-center ${isHighlighted
+                          ? 'border-yellow-400 shadow-lg shadow-yellow-500/30 hover:border-yellow-300 hover:shadow-yellow-400/40'
+                          : 'border-gray-600 hover:border-cyan-400 hover:shadow-lg hover:shadow-cyan-500/30'
+                          }`}>
                           <img
                             src={getClientLogoPath(client.name, client.industry)}
                             alt={client.name}
@@ -1925,7 +1924,7 @@ const SalesforcePower = () => {
       {/* Platform Overview Section */}
       <section ref={platformRef} className="py-10 sm:py-16 md:py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-900 to-black"></div>
-        
+
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <AnimatedSection className="text-center mb-16">
             <motion.div
@@ -1934,24 +1933,24 @@ const SalesforcePower = () => {
               transition={{ duration: 0.8 }}
             >
               <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">
-                {companyName 
+                {companyName
                   ? personalizeText(t('power.platform.title.personalized'), 'your company', selectedIndustryData?.name)
-                  : personalizeText(selectedIndustryData 
+                  : personalizeText(selectedIndustryData
                     ? t('power.platform.title.industry', { industry: selectedIndustryData.name })
                     : t('power.platform.title'), 'your company', selectedIndustryData?.name
                   )
                 }
               </h2>
               <p className="text-base sm:text-lg md:text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
-                {companyName 
+                {companyName
                   ? personalizeText(t('power.platform.subtitle.personalized'), 'your company', selectedIndustryData?.name)
-                  : personalizeText(selectedIndustryData 
+                  : personalizeText(selectedIndustryData
                     ? t('power.platform.subtitle.industry', { industry: selectedIndustryData.name })
                     : t('power.platform.subtitle'), 'your company', selectedIndustryData?.name
                   )
                 }
               </p>
-              
+
               {/* AI Insight for CRM Section */}
               {companyIntelligence?.structuredInsights?.crm && (
                 <motion.div
@@ -1965,11 +1964,11 @@ const SalesforcePower = () => {
                   </p>
                 </motion.div>
               )}
-              
+
               {selectedIndustryData && (
                 <div className="mt-8 p-6 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-2xl border border-cyan-500/30 max-w-4xl mx-auto">
                   <h3 className="text-lg font-semibold text-cyan-400 mb-3">
-                    {companyName 
+                    {companyName
                       ? personalizeText(t('power.platform.challenges.personalized', { company: companyName, industry: selectedIndustryData.name }), 'your company', selectedIndustryData.name)
                       : personalizeText(t('power.platform.challenges', { industry: selectedIndustryData.name }), 'your company', selectedIndustryData.name)
                     }
@@ -2026,13 +2025,13 @@ const SalesforcePower = () => {
       {selectedIndustry === 'real-estate' && (
         <section className="py-20 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-emerald-900/30 to-cyan-900/20"></div>
-          
+
           {/* Animated background elements */}
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute top-20 left-10 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl animate-pulse"></div>
             <div className="absolute bottom-20 right-10 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
           </div>
-          
+
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <AnimatedSection className="text-center mb-12">
               <motion.div
@@ -2048,8 +2047,8 @@ const SalesforcePower = () => {
                   Salesforce 3D Model Viewer
                 </h2>
                 <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-                  Empower your customers to visualize their future units in stunning 3D. 
-                  Integrated directly into Salesforce, this immersive experience helps buyers 
+                  Empower your customers to visualize their future units in stunning 3D.
+                  Integrated directly into Salesforce, this immersive experience helps buyers
                   explore properties, customize finishes, and make confident purchasing decisions.
                 </p>
               </motion.div>
@@ -2071,12 +2070,12 @@ const SalesforcePower = () => {
                     <span className="text-gray-400 text-sm ml-2">Interactive 3D Viewer</span>
                   </div>
                   <div className="rounded-2xl overflow-hidden bg-black/50">
-                    <iframe 
-                      src="https://3dwarehouse.sketchup.com/embed/796431a0-c0d1-4046-afad-24937e815134?token=t0dGLB7xv8E=&binaryName=s21" 
-                      frameBorder="0" 
-                      scrolling="no" 
-                      width="100%" 
-                      height="400" 
+                    <iframe
+                      src="https://3dwarehouse.sketchup.com/embed/796431a0-c0d1-4046-afad-24937e815134?token=t0dGLB7xv8E=&binaryName=s21"
+                      frameBorder="0"
+                      scrolling="no"
+                      width="100%"
+                      height="400"
                       allowFullScreen
                       title="3D Property Model - Interactive Viewer"
                       className="w-full"
@@ -2160,13 +2159,13 @@ const SalesforcePower = () => {
       {isRetailOrCommerce && (
         <section className="py-20 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-orange-900/30 to-red-900/20"></div>
-          
+
           {/* Animated background elements */}
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute top-20 left-10 w-72 h-72 bg-orange-500/10 rounded-full blur-3xl animate-pulse"></div>
             <div className="absolute bottom-20 right-10 w-96 h-96 bg-red-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
           </div>
-          
+
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <AnimatedSection className="text-center mb-12">
               <motion.div
@@ -2182,8 +2181,8 @@ const SalesforcePower = () => {
                   Salesforce Commerce Cloud Storefront
                 </h2>
                 <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-                  Experience the power of Commerce Cloud with a real-world storefront. 
-                  Built on Salesforce, this platform delivers personalized shopping experiences, 
+                  Experience the power of Commerce Cloud with a real-world storefront.
+                  Built on Salesforce, this platform delivers personalized shopping experiences,
                   intelligent product recommendations, and seamless omnichannel commerce.
                 </p>
               </motion.div>
@@ -2205,7 +2204,7 @@ const SalesforcePower = () => {
                     <span className="text-gray-400 text-sm ml-2">Interactive Storefront Demo</span>
                   </div>
                   <div className="rounded-2xl overflow-hidden bg-transparent">
-                    <InteractiveStorefrontDemo 
+                    <InteractiveStorefrontDemo
                       companyName={companyName || 'Store'}
                       companyLogo={companyLogo}
                     />
@@ -2306,13 +2305,13 @@ const SalesforcePower = () => {
       {isRetailOrCommerce && (
         <section className="py-20 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-orange-900/20 via-gray-900 to-red-900/20"></div>
-          
+
           {/* Animated background elements */}
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute top-20 right-10 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl animate-pulse"></div>
             <div className="absolute bottom-20 left-10 w-72 h-72 bg-red-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }}></div>
           </div>
-          
+
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <AnimatedSection className="text-center mb-16">
               <motion.div
@@ -2328,13 +2327,13 @@ const SalesforcePower = () => {
                   Customer Segmentation & Ratings Calculation
                 </h2>
                 <p className="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed mb-4">
-                  Our advanced segmentation system, implemented for many of our customers, 
-                  provides comprehensive customer insights through multi-dimensional analysis. 
-                  This intelligent approach enables targeted marketing, personalized experiences, 
+                  Our advanced segmentation system, implemented for many of our customers,
+                  provides comprehensive customer insights through multi-dimensional analysis.
+                  This intelligent approach enables targeted marketing, personalized experiences,
                   and data-driven decision making.
                 </p>
                 <p className="text-lg text-gray-400 max-w-3xl mx-auto">
-                  Each customer is evaluated across four key dimensions to create a calculated segmentation 
+                  Each customer is evaluated across four key dimensions to create a calculated segmentation
                   that drives strategic business actions.
                 </p>
               </motion.div>
@@ -2394,7 +2393,7 @@ const SalesforcePower = () => {
                     </div>
                     <h3 className="text-lg font-bold text-white">{dimension.title}</h3>
                   </div>
-                  
+
                   <div className="mb-4">
                     <div className="flex flex-wrap gap-2 mb-3">
                       {dimension.levels.map((level, idx) => (
@@ -2407,7 +2406,7 @@ const SalesforcePower = () => {
                       ))}
                     </div>
                   </div>
-                  
+
                   <p className="text-gray-300 text-sm leading-relaxed">{dimension.description}</p>
                 </motion.div>
               ))}
@@ -2432,11 +2431,11 @@ const SalesforcePower = () => {
                     </span>
                   </h3>
                   <p className="text-gray-300 text-base leading-relaxed mb-6">
-                    Our intelligent system combines all four dimensions—Adoption, Potentiality, Purchasing Power, 
-                    and Brand Loyalty—to generate a comprehensive calculated segmentation. This multi-dimensional 
+                    Our intelligent system combines all four dimensions—Adoption, Potentiality, Purchasing Power,
+                    and Brand Loyalty—to generate a comprehensive calculated segmentation. This multi-dimensional
                     analysis creates distinct customer segments that enable:
                   </p>
-                  
+
                   <div className="grid md:grid-cols-2 gap-4">
                     {[
                       {
@@ -2474,11 +2473,11 @@ const SalesforcePower = () => {
                       </div>
                     ))}
                   </div>
-                  
+
                   <div className="mt-6 p-4 bg-gradient-to-r from-orange-500/10 to-red-500/10 rounded-xl border border-orange-500/20">
                     <p className="text-sm text-gray-300 leading-relaxed">
-                      <span className="font-semibold text-orange-400">Implementation Status:</span> This segmentation 
-                      methodology has been successfully implemented for many of our customers, delivering measurable 
+                      <span className="font-semibold text-orange-400">Implementation Status:</span> This segmentation
+                      methodology has been successfully implemented for many of our customers, delivering measurable
                       improvements in customer engagement, conversion rates, and revenue growth.
                     </p>
                   </div>
@@ -2489,10 +2488,15 @@ const SalesforcePower = () => {
         </section>
       )}
 
+      {/* TechSa Section - Only for Commerce, Manufacturing, and Healthcare */}
+      {selectedIndustry && ['commerce-cloud', 'healthcare-life-sciences', 'manufacturing'].includes(selectedIndustry) && (
+        <TechSaSection />
+      )}
+
       {/* ERP Integration Section */}
       <section ref={erpRef} className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900"></div>
-        
+
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <AnimatedSection className="text-center mb-16">
             <motion.div
@@ -2501,29 +2505,29 @@ const SalesforcePower = () => {
               transition={{ duration: 0.8 }}
             >
               <div className="flex items-center justify-center gap-4 mb-6">
-                <CompanyLogo 
-                  logoUrl={companyLogo} 
-                  companyName={companyName || 'Company'} 
+                <CompanyLogo
+                  logoUrl={companyLogo}
+                  companyName={companyName || 'Company'}
                   size="medium"
                   className="w-12 h-12"
                 />
                 <h2 className="text-4xl md:text-5xl font-bold text-white">
-                  {companyName 
+                  {companyName
                     ? personalizeText(t('power.erp.title.personalized'), 'your company', selectedIndustryData?.name)
                     : (selectedIndustryData ? `Seamlessly Connects to Your ${selectedIndustryData.name} Systems` : 'Seamlessly Connects to Your Existing Systems')
                   }
                 </h2>
               </div>
               <p className="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
-                {companyName 
+                {companyName
                   ? personalizeText(t('power.erp.subtitle.personalized'), 'your company', selectedIndustryData?.name)
-                  : (selectedIndustryData 
+                  : (selectedIndustryData
                     ? `Salesforce integrates with major ERP systems used in ${selectedIndustryData.name.toLowerCase()} to unify your data and streamline ${selectedIndustryData.name.toLowerCase()} workflows`
                     : 'Salesforce integrates with all major ERP systems for unified business operations'
                   )
                 }
               </p>
-              
+
               {/* AI Insight for Connect Section */}
               {companyIntelligence?.structuredInsights?.connect && (
                 <motion.div
@@ -2537,7 +2541,7 @@ const SalesforcePower = () => {
                   </p>
                 </motion.div>
               )}
-              
+
               {selectedIndustryData && selectedIndustryData.integrations && selectedIndustryData.integrations.length > 0 && (
                 <div className="mt-8 p-6 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-2xl border border-blue-500/30 max-w-4xl mx-auto">
                   <h3 className="text-lg font-semibold text-blue-400 mb-3">
@@ -2573,7 +2577,7 @@ const SalesforcePower = () => {
                   </div>
                   <h3 className="text-xl font-bold text-white mb-2">{erp.name}</h3>
                   <p className="text-white/80 text-sm mb-4">{erp.description}</p>
-                  
+
                   {/* Sync Indicators */}
                   <div className="space-y-2">
                     <div className="flex items-center justify-center gap-2 text-sm text-white/90">
@@ -2629,7 +2633,7 @@ const SalesforcePower = () => {
       {/* Data Cloud Section */}
       <section ref={dataCloudRef} className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-gray-900 to-indigo-900"></div>
-        
+
         {/* Particle Effects */}
         <div className="absolute inset-0">
           {[...Array(30)].map((_, i) => (
@@ -2653,7 +2657,7 @@ const SalesforcePower = () => {
             />
           ))}
         </div>
-        
+
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <AnimatedSection className="text-center mb-16">
             <motion.div
@@ -2662,29 +2666,29 @@ const SalesforcePower = () => {
               transition={{ duration: 0.8 }}
             >
               <div className="flex items-center justify-center gap-4 mb-6">
-                <CompanyLogo 
-                  logoUrl={companyLogo} 
-                  companyName={companyName || 'Company'} 
+                <CompanyLogo
+                  logoUrl={companyLogo}
+                  companyName={companyName || 'Company'}
                   size="medium"
                   className="w-12 h-12"
                 />
                 <h2 className="text-4xl md:text-5xl font-bold text-white">
-                  {companyName 
+                  {companyName
                     ? personalizeText(t('power.datacloud.title.personalized'), 'your company', selectedIndustryData?.name)
                     : (selectedIndustryData ? `Data Cloud: Connect Your ${selectedIndustryData.name} Data` : 'Data Cloud: Connect Everything')
                   }
                 </h2>
               </div>
               <p className="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
-                {companyName 
+                {companyName
                   ? personalizeText(t('power.datacloud.subtitle.personalized'), 'your company', selectedIndustryData?.name)
-                  : (selectedIndustryData 
+                  : (selectedIndustryData
                     ? `One unified view of your ${selectedIndustryData.name.toLowerCase()} customers and operations, regardless of where data lives across your systems`
                     : 'One unified view of your customer, regardless of where data lives'
                   )
                 }
               </p>
-              
+
               {/* AI Insight for Data Cloud Section */}
               {companyIntelligence?.structuredInsights?.dataCloud && (
                 <motion.div
@@ -2698,7 +2702,7 @@ const SalesforcePower = () => {
                   </p>
                 </motion.div>
               )}
-              
+
               {selectedIndustryData && selectedIndustryData.dataSources && selectedIndustryData.dataSources.length > 0 && (
                 <div className="mt-8 p-6 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-2xl border border-purple-500/30 max-w-4xl mx-auto">
                   <h3 className="text-lg font-semibold text-purple-400 mb-3">
@@ -2746,18 +2750,18 @@ const SalesforcePower = () => {
                 const radius = 180;
                 const x = Math.cos((angle * Math.PI) / 180) * radius;
                 const y = Math.sin((angle * Math.PI) / 180) * radius;
-                
+
                 return (
                   <motion.div
                     key={platform.name}
                     initial={{ opacity: 0, scale: 0 }}
-                    animate={{ 
-                      opacity: 1, 
+                    animate={{
+                      opacity: 1,
                       scale: 1,
                       rotate: 360,
                     }}
-                    transition={{ 
-                      duration: 0.5, 
+                    transition={{
+                      duration: 0.5,
                       delay: 0.8 + index * 0.1,
                       rotate: {
                         duration: 20,
@@ -2827,7 +2831,7 @@ const SalesforcePower = () => {
       {selectedIndustry && selectedIndustryData && (
         <section ref={industryRef} className="py-20 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-900 to-black"></div>
-          
+
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <AnimatedSection className="text-center mb-16">
               <motion.div
@@ -2836,7 +2840,7 @@ const SalesforcePower = () => {
                 transition={{ duration: 0.8 }}
               >
                 <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                  {companyName 
+                  {companyName
                     ? personalizeText(t('power.industry.title.personalized'), 'your company', selectedIndustryData?.name)
                     : `Tailored Solutions for ${selectedIndustryData.name}`
                   }
@@ -2844,7 +2848,7 @@ const SalesforcePower = () => {
                 <p className="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed mb-8">
                   {selectedIndustryData.description}
                 </p>
-                
+
                 {/* AI Insight for Tailored Solutions Section */}
                 {companyIntelligence?.structuredInsights?.tailored && (
                   <motion.div
@@ -2858,7 +2862,7 @@ const SalesforcePower = () => {
                     </p>
                   </motion.div>
                 )}
-                
+
                 {/* Industry Success Metrics */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
                   {selectedIndustryData.successMetrics?.slice(0, 3).map((metric, index) => (
@@ -2905,7 +2909,7 @@ const SalesforcePower = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Hover Effect */}
                   <div className="absolute inset-0 bg-white/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </motion.div>
@@ -2936,7 +2940,7 @@ const SalesforcePower = () => {
       {/* Competitive Analysis Comparison */}
       <section ref={comparisonRef} className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900"></div>
-        
+
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <AnimatedSection className="text-center mb-16">
             <motion.div
@@ -2945,18 +2949,18 @@ const SalesforcePower = () => {
               transition={{ duration: 0.8 }}
             >
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                {companyName 
+                {companyName
                   ? personalizeText(t('power.comparison.title.personalized'), 'your company', selectedIndustryData?.name)
-                  : (selectedIndustryData 
+                  : (selectedIndustryData
                     ? t('power.comparison.title.industry', { industry: selectedIndustryData.name })
                     : t('power.comparison.title')
                   )
                 }
               </h2>
               <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-4">
-                {companyName 
+                {companyName
                   ? personalizeText(t('power.comparison.subtitle.personalized'), 'your company', selectedIndustryData?.name)
-                  : (selectedIndustryData 
+                  : (selectedIndustryData
                     ? t('power.comparison.subtitle.industry', { industry: selectedIndustryData.name })
                     : t('power.comparison.subtitle')
                   )
@@ -2992,7 +2996,7 @@ const SalesforcePower = () => {
                 </>
               )}
             </button>
-            
+
             <button
               onClick={downloadComparisonCSV}
               className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 hover:from-cyan-500/30 hover:to-blue-500/30 rounded-full transition-all duration-200 border border-cyan-500/30 hover:border-cyan-500/50"
@@ -3085,336 +3089,333 @@ const SalesforcePower = () => {
                   </div>
                 </div>
 
-              {/* Comparison Rows */}
-              {(selectedIndustryData?.comparisonMetrics || [
-                {
-                  metric: 'Sales Cycle Time',
-                  salesforce: { score: 10, label: 'AI-Optimized', description: 'Einstein AI-powered sales acceleration and predictive lead scoring' },
-                  hubspot: { score: 6, label: 'Basic Automation', description: 'Simple automation with limited AI features' },
-                  zoho: { score: 6, label: 'Standard Process', description: 'Basic sales process management' },
-                  freshworks: { score: 5, label: 'Limited Features', description: 'Minimal sales automation capabilities' },
-                  odoo: { score: 4, label: 'Manual Setup', description: 'Requires extensive configuration for sales optimization' },
-                  salezbuzz: { score: 7, label: 'Good Automation', description: 'Good automation with pipeline tracking capabilities' }
-                },
-                {
-                  metric: 'Implementation Time',
-                  salesforce: { score: 8, label: 'Rapid Deployment', description: 'Pre-built industry templates and AI-powered setup assistance' },
-                  hubspot: { score: 9, label: 'Quick Setup', description: 'Simple setup but limited customization' },
-                  zoho: { score: 7, label: 'Moderate Setup', description: 'Standard implementation process' },
-                  freshworks: { score: 8, label: 'Fast Setup', description: 'Quick setup with basic features' },
-                  odoo: { score: 4, label: 'Complex Setup', description: 'Requires significant technical expertise' },
-                  salezbuzz: { score: 8, label: 'Quick Deployment', description: 'Quick deployment for SMBs with pre-configured templates' }
-                },
-                {
-                  metric: 'Customizability',
-                  salesforce: { score: 10, label: 'Unlimited', description: 'Complete platform customization with Einstein AI and AppExchange' },
-                  hubspot: { score: 5, label: 'Limited', description: 'Basic customization options only' },
-                  zoho: { score: 6, label: 'Moderate', description: 'Some customization within framework' },
-                  freshworks: { score: 4, label: 'Very Limited', description: 'Minimal customization capabilities' },
-                  odoo: { score: 5, label: 'Manual Development', description: 'Requires extensive coding for customization' },
-                  salezbuzz: { score: 5, label: 'Limited Options', description: 'Limited customization options within predefined framework' }
-                },
-                {
-                  metric: 'Ease of Use',
-                  salesforce: { score: 9, label: 'AI-Enhanced', description: 'Einstein AI guidance and intelligent automation reduce complexity' },
-                  hubspot: { score: 8, label: 'User-Friendly', description: 'Intuitive interface with good UX' },
-                  zoho: { score: 7, label: 'Moderate Learning', description: 'Some learning curve required' },
-                  freshworks: { score: 8, label: 'Simple Interface', description: 'Easy to use but limited functionality' },
-                  odoo: { score: 4, label: 'Technical Required', description: 'Requires technical knowledge for optimal use' },
-                  salezbuzz: { score: 8, label: 'Intuitive UI', description: 'Intuitive sales-focused interface designed for ease of use' }
-                },
-                {
-                  metric: 'Integration & Ecosystem',
-                  salesforce: { score: 10, label: '5,000+ Apps', description: 'Largest ecosystem with native AI integrations and MuleSoft connectivity' },
-                  hubspot: { score: 6, label: '1,000+ Apps', description: 'Good integration marketplace but limited AI features' },
-                  zoho: { score: 5, label: 'Zoho Suite', description: 'Good within Zoho ecosystem, limited external integrations' },
-                  freshworks: { score: 4, label: 'Growing', description: 'Limited integration options, basic connectivity' },
-                  odoo: { score: 4, label: 'Manual Integration', description: 'Requires custom development for most integrations' },
-                  salezbuzz: { score: 5, label: 'Basic Integrations', description: 'Basic integrations available with common business tools' }
-                },
-                {
-                  metric: 'Scalability',
-                  salesforce: { score: 10, label: 'Unlimited Scale', description: 'Enterprise-grade scalability with AI-powered performance optimization' },
-                  hubspot: { score: 6, label: 'Mid-Market', description: 'Good for mid-market, limited enterprise features' },
-                  zoho: { score: 6, label: 'Mid-Market', description: 'Suitable for mid-market companies' },
-                  freshworks: { score: 5, label: 'SMB-Mid', description: 'Limited scalability for large enterprises' },
-                  odoo: { score: 5, label: 'Custom Scale', description: 'Scalable but requires significant technical expertise' },
-                  salezbuzz: { score: 6, label: 'Mid-Market Focus', description: 'Suitable for mid-market companies, limited enterprise capabilities' }
-                },
-                {
-                  metric: 'Cost Effectiveness',
-                  salesforce: { score: 9, label: 'High Value', description: 'Premium pricing but 341% ROI (Forrester) and AI-powered efficiency gains' },
-                  hubspot: { score: 7, label: 'Moderate Value', description: 'Good value for basic needs' },
-                  zoho: { score: 8, label: 'Affordable', description: 'Good value for mid-market' },
-                  freshworks: { score: 7, label: 'Budget Option', description: 'Low cost but limited features' },
-                  odoo: { score: 5, label: 'Hidden Costs', description: 'Low base cost but high implementation and maintenance costs' },
-                  salezbuzz: { score: 7, label: 'Affordable Option', description: 'Affordable for smaller teams with decent feature set' }
-                },
-                {
-                  metric: 'ROI Potential',
-                  salesforce: { score: 10, label: '341% ROI', description: 'Industry-leading ROI with AI-powered automation (Forrester TEI Study)' },
-                  hubspot: { score: 6, label: '120% ROI', description: 'Moderate ROI with basic automation' },
-                  zoho: { score: 5, label: '100% ROI', description: 'Basic ROI with limited advanced features' },
-                  freshworks: { score: 4, label: '80% ROI', description: 'Limited ROI due to basic functionality' },
-                  odoo: { score: 4, label: '110% ROI', description: 'Moderate ROI but requires significant investment in customization' },
-                  salezbuzz: { score: 6, label: '130% ROI', description: 'Moderate ROI with basic features and pipeline automation' }
-                }
-              ]).map((row, index) => (
-                <motion.div
-                  key={row.metric}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
-                  className="border-b border-gray-700/50 last:border-b-0 hover:bg-gray-800/30 transition-colors duration-200"
-                >
-                  <div 
-                    className="grid grid-cols-7 gap-4 p-6 cursor-pointer"
-                    onClick={() => toggleMetricExpansion(row.metric)}
+                {/* Comparison Rows */}
+                {(selectedIndustryData?.comparisonMetrics || [
+                  {
+                    metric: 'Sales Cycle Time',
+                    salesforce: { score: 10, label: 'AI-Optimized', description: 'Einstein AI-powered sales acceleration and predictive lead scoring' },
+                    hubspot: { score: 6, label: 'Basic Automation', description: 'Simple automation with limited AI features' },
+                    zoho: { score: 6, label: 'Standard Process', description: 'Basic sales process management' },
+                    freshworks: { score: 5, label: 'Limited Features', description: 'Minimal sales automation capabilities' },
+                    odoo: { score: 4, label: 'Manual Setup', description: 'Requires extensive configuration for sales optimization' },
+                    salezbuzz: { score: 7, label: 'Good Automation', description: 'Good automation with pipeline tracking capabilities' }
+                  },
+                  {
+                    metric: 'Implementation Time',
+                    salesforce: { score: 8, label: 'Rapid Deployment', description: 'Pre-built industry templates and AI-powered setup assistance' },
+                    hubspot: { score: 9, label: 'Quick Setup', description: 'Simple setup but limited customization' },
+                    zoho: { score: 7, label: 'Moderate Setup', description: 'Standard implementation process' },
+                    freshworks: { score: 8, label: 'Fast Setup', description: 'Quick setup with basic features' },
+                    odoo: { score: 4, label: 'Complex Setup', description: 'Requires significant technical expertise' },
+                    salezbuzz: { score: 8, label: 'Quick Deployment', description: 'Quick deployment for SMBs with pre-configured templates' }
+                  },
+                  {
+                    metric: 'Customizability',
+                    salesforce: { score: 10, label: 'Unlimited', description: 'Complete platform customization with Einstein AI and AppExchange' },
+                    hubspot: { score: 5, label: 'Limited', description: 'Basic customization options only' },
+                    zoho: { score: 6, label: 'Moderate', description: 'Some customization within framework' },
+                    freshworks: { score: 4, label: 'Very Limited', description: 'Minimal customization capabilities' },
+                    odoo: { score: 5, label: 'Manual Development', description: 'Requires extensive coding for customization' },
+                    salezbuzz: { score: 5, label: 'Limited Options', description: 'Limited customization options within predefined framework' }
+                  },
+                  {
+                    metric: 'Ease of Use',
+                    salesforce: { score: 9, label: 'AI-Enhanced', description: 'Einstein AI guidance and intelligent automation reduce complexity' },
+                    hubspot: { score: 8, label: 'User-Friendly', description: 'Intuitive interface with good UX' },
+                    zoho: { score: 7, label: 'Moderate Learning', description: 'Some learning curve required' },
+                    freshworks: { score: 8, label: 'Simple Interface', description: 'Easy to use but limited functionality' },
+                    odoo: { score: 4, label: 'Technical Required', description: 'Requires technical knowledge for optimal use' },
+                    salezbuzz: { score: 8, label: 'Intuitive UI', description: 'Intuitive sales-focused interface designed for ease of use' }
+                  },
+                  {
+                    metric: 'Integration & Ecosystem',
+                    salesforce: { score: 10, label: '5,000+ Apps', description: 'Largest ecosystem with native AI integrations and MuleSoft connectivity' },
+                    hubspot: { score: 6, label: '1,000+ Apps', description: 'Good integration marketplace but limited AI features' },
+                    zoho: { score: 5, label: 'Zoho Suite', description: 'Good within Zoho ecosystem, limited external integrations' },
+                    freshworks: { score: 4, label: 'Growing', description: 'Limited integration options, basic connectivity' },
+                    odoo: { score: 4, label: 'Manual Integration', description: 'Requires custom development for most integrations' },
+                    salezbuzz: { score: 5, label: 'Basic Integrations', description: 'Basic integrations available with common business tools' }
+                  },
+                  {
+                    metric: 'Scalability',
+                    salesforce: { score: 10, label: 'Unlimited Scale', description: 'Enterprise-grade scalability with AI-powered performance optimization' },
+                    hubspot: { score: 6, label: 'Mid-Market', description: 'Good for mid-market, limited enterprise features' },
+                    zoho: { score: 6, label: 'Mid-Market', description: 'Suitable for mid-market companies' },
+                    freshworks: { score: 5, label: 'SMB-Mid', description: 'Limited scalability for large enterprises' },
+                    odoo: { score: 5, label: 'Custom Scale', description: 'Scalable but requires significant technical expertise' },
+                    salezbuzz: { score: 6, label: 'Mid-Market Focus', description: 'Suitable for mid-market companies, limited enterprise capabilities' }
+                  },
+                  {
+                    metric: 'Cost Effectiveness',
+                    salesforce: { score: 9, label: 'High Value', description: 'Premium pricing but 341% ROI (Forrester) and AI-powered efficiency gains' },
+                    hubspot: { score: 7, label: 'Moderate Value', description: 'Good value for basic needs' },
+                    zoho: { score: 8, label: 'Affordable', description: 'Good value for mid-market' },
+                    freshworks: { score: 7, label: 'Budget Option', description: 'Low cost but limited features' },
+                    odoo: { score: 5, label: 'Hidden Costs', description: 'Low base cost but high implementation and maintenance costs' },
+                    salezbuzz: { score: 7, label: 'Affordable Option', description: 'Affordable for smaller teams with decent feature set' }
+                  },
+                  {
+                    metric: 'ROI Potential',
+                    salesforce: { score: 10, label: '341% ROI', description: 'Industry-leading ROI with AI-powered automation (Forrester TEI Study)' },
+                    hubspot: { score: 6, label: '120% ROI', description: 'Moderate ROI with basic automation' },
+                    zoho: { score: 5, label: '100% ROI', description: 'Basic ROI with limited advanced features' },
+                    freshworks: { score: 4, label: '80% ROI', description: 'Limited ROI due to basic functionality' },
+                    odoo: { score: 4, label: '110% ROI', description: 'Moderate ROI but requires significant investment in customization' },
+                    salezbuzz: { score: 6, label: '130% ROI', description: 'Moderate ROI with basic features and pipeline automation' }
+                  }
+                ]).map((row, index) => (
+                  <motion.div
+                    key={row.metric}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
+                    className="border-b border-gray-700/50 last:border-b-0 hover:bg-gray-800/30 transition-colors duration-200"
                   >
-                    <div className="col-span-1 flex items-center gap-2">
-                      <div className="flex items-center gap-2">
-                        {/* Business Impact Icon */}
-                        {row.metric.toLowerCase().includes('roi') || row.metric.toLowerCase().includes('revenue') ? (
-                          <DollarSign className="w-4 h-4 text-green-400" title="Revenue Impact" />
-                        ) : row.metric.toLowerCase().includes('time') || row.metric.toLowerCase().includes('cycle') ? (
-                          <Clock className="w-4 h-4 text-blue-400" title="Efficiency Impact" />
-                        ) : row.metric.toLowerCase().includes('security') || row.metric.toLowerCase().includes('compliance') ? (
-                          <Shield className="w-4 h-4 text-red-400" title="Risk & Compliance" />
-                        ) : row.metric.toLowerCase().includes('integration') || row.metric.toLowerCase().includes('ecosystem') ? (
-                          <Zap className="w-4 h-4 text-yellow-400" title="Technical Integration" />
-                        ) : (
-                          <Target className="w-4 h-4 text-purple-400" title="Business Capability" />
-                        )}
-                        <span className="text-white font-medium">{row.metric}</span>
+                    <div
+                      className="grid grid-cols-7 gap-4 p-6 cursor-pointer"
+                      onClick={() => toggleMetricExpansion(row.metric)}
+                    >
+                      <div className="col-span-1 flex items-center gap-2">
+                        <div className="flex items-center gap-2">
+                          {/* Business Impact Icon */}
+                          {row.metric.toLowerCase().includes('roi') || row.metric.toLowerCase().includes('revenue') ? (
+                            <DollarSign className="w-4 h-4 text-green-400" title="Revenue Impact" />
+                          ) : row.metric.toLowerCase().includes('time') || row.metric.toLowerCase().includes('cycle') ? (
+                            <Clock className="w-4 h-4 text-blue-400" title="Efficiency Impact" />
+                          ) : row.metric.toLowerCase().includes('security') || row.metric.toLowerCase().includes('compliance') ? (
+                            <Shield className="w-4 h-4 text-red-400" title="Risk & Compliance" />
+                          ) : row.metric.toLowerCase().includes('integration') || row.metric.toLowerCase().includes('ecosystem') ? (
+                            <Zap className="w-4 h-4 text-yellow-400" title="Technical Integration" />
+                          ) : (
+                            <Target className="w-4 h-4 text-purple-400" title="Business Capability" />
+                          )}
+                          <span className="text-white font-medium">{row.metric}</span>
+                        </div>
+                        <Info className="w-4 h-4 text-gray-400 hover:text-cyan-400 transition-colors" />
                       </div>
-                      <Info className="w-4 h-4 text-gray-400 hover:text-cyan-400 transition-colors" />
-                    </div>
-                    {[row.salesforce, row.hubspot, row.zoho, row.freshworks, row.odoo, row.salezbuzz].map((item, idx) => (
-                      <div key={idx} className="col-span-1 flex flex-col items-center justify-center group">
-                        {/* Score Visualization */}
-                        <div className="mb-2">
-                          <div 
-                            className="w-16 h-16 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-200"
-                            style={{
-                              background: `conic-gradient(
+                      {[row.salesforce, row.hubspot, row.zoho, row.freshworks, row.odoo, row.salezbuzz].map((item, idx) => (
+                        <div key={idx} className="col-span-1 flex flex-col items-center justify-center group">
+                          {/* Score Visualization */}
+                          <div className="mb-2">
+                            <div
+                              className="w-16 h-16 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-200"
+                              style={{
+                                background: `conic-gradient(
                                 from -90deg,
                                 ${idx === 0 ? '#22d3ee' : '#facc15'} 0%,
                                 ${idx === 0 ? '#22d3ee' : '#facc15'} ${(item.score / 10) * 100}%,
                                 #4b5563 ${(item.score / 10) * 100}%,
                                 #4b5563 100%
                               )`
-                            }}
-                          >
-                            <div className="w-14 h-14 rounded-full bg-gray-900 flex items-center justify-center">
-                              <div className={`text-lg font-bold ${idx === 0 ? 'text-cyan-400' : 'text-gray-300'}`}>
-                                {item.score}
+                              }}
+                            >
+                              <div className="w-14 h-14 rounded-full bg-gray-900 flex items-center justify-center">
+                                <div className={`text-lg font-bold ${idx === 0 ? 'text-cyan-400' : 'text-gray-300'}`}>
+                                  {item.score}
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                        
-                        {/* Score Dots */}
-                        <div className="flex items-center gap-1 mb-2">
-                          {[...Array(5)].map((_, i) => (
-                            <div
-                              key={i}
-                              className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                                i < Math.floor(item.score / 2) 
+
+                          {/* Score Dots */}
+                          <div className="flex items-center gap-1 mb-2">
+                            {[...Array(5)].map((_, i) => (
+                              <div
+                                key={i}
+                                className={`w-2 h-2 rounded-full transition-all duration-200 ${i < Math.floor(item.score / 2)
                                   ? idx === 0 ? 'bg-cyan-400' : 'bg-yellow-400'
                                   : 'bg-gray-600'
-                              }`}
-                            />
-                          ))}
-                        </div>
-                        
-                        {/* Label with Executive Context */}
-                        <div className={`text-xs font-semibold ${idx === 0 ? 'text-cyan-400' : 'text-gray-300'} text-center`}>
-                          {item.label}
-                        </div>
-                        
-                        {/* Business Impact Indicator */}
-                        <div className={`text-xs font-medium mt-1 text-center ${
-                          item.score >= 9 ? 'text-green-400' : 
-                          item.score >= 7 ? 'text-yellow-400' : 
-                          item.score >= 5 ? 'text-orange-400' : 'text-red-400'
-                        }`}>
-                          {item.score >= 9 ? 'Exceptional' : 
-                           item.score >= 7 ? 'Strong' : 
-                           item.score >= 5 ? 'Moderate' : 'Limited'}
-                        </div>
-                        
-                        {/* Executive Recommendation */}
-                        {idx === 0 && item.score >= 8 && (
-                          <div className="text-xs text-cyan-400 font-semibold mt-1 text-center">
-                            Recommended
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                  
-                  {/* Expandable Details */}
-                  <AnimatePresence>
-                    {expandedMetrics.has(row.metric) && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="overflow-hidden"
-                      >
-                        <div className="px-6 pb-4 bg-gray-800/20">
-                          <div className="grid grid-cols-7 gap-4 text-sm">
-                            <div className="col-span-1 text-gray-400 font-medium">Details</div>
-                            {[
-                              { name: 'Salesforce', data: row.salesforce, color: 'text-cyan-400' },
-                              { name: 'HubSpot', data: row.hubspot, color: 'text-gray-300' },
-                              { name: 'Zoho', data: row.zoho, color: 'text-gray-300' },
-                              { name: 'Freshworks', data: row.freshworks, color: 'text-gray-300' },
-                              { name: 'Odoo', data: row.odoo, color: 'text-gray-300' },
-                              { name: 'SalezBuzz', data: row.salezbuzz, color: 'text-gray-300' }
-                            ].map((item, idx) => (
-                              <div key={idx} className={`col-span-1 ${item.color}`}>
-                                <div className="font-medium mb-1">{item.name}</div>
-                                <div className="text-xs text-gray-400 leading-relaxed">
-                                  {item.data.description || 'No additional details available'}
-                                </div>
-                              </div>
+                                  }`}
+                              />
                             ))}
                           </div>
+
+                          {/* Label with Executive Context */}
+                          <div className={`text-xs font-semibold ${idx === 0 ? 'text-cyan-400' : 'text-gray-300'} text-center`}>
+                            {item.label}
+                          </div>
+
+                          {/* Business Impact Indicator */}
+                          <div className={`text-xs font-medium mt-1 text-center ${item.score >= 9 ? 'text-green-400' :
+                            item.score >= 7 ? 'text-yellow-400' :
+                              item.score >= 5 ? 'text-orange-400' : 'text-red-400'
+                            }`}>
+                            {item.score >= 9 ? 'Exceptional' :
+                              item.score >= 7 ? 'Strong' :
+                                item.score >= 5 ? 'Moderate' : 'Limited'}
+                          </div>
+
+                          {/* Executive Recommendation */}
+                          {idx === 0 && item.score >= 8 && (
+                            <div className="text-xs text-cyan-400 font-semibold mt-1 text-center">
+                              Recommended
+                            </div>
+                          )}
                         </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-              ))}
+                      ))}
+                    </div>
+
+                    {/* Expandable Details */}
+                    <AnimatePresence>
+                      {expandedMetrics.has(row.metric) && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="px-6 pb-4 bg-gray-800/20">
+                            <div className="grid grid-cols-7 gap-4 text-sm">
+                              <div className="col-span-1 text-gray-400 font-medium">Details</div>
+                              {[
+                                { name: 'Salesforce', data: row.salesforce, color: 'text-cyan-400' },
+                                { name: 'HubSpot', data: row.hubspot, color: 'text-gray-300' },
+                                { name: 'Zoho', data: row.zoho, color: 'text-gray-300' },
+                                { name: 'Freshworks', data: row.freshworks, color: 'text-gray-300' },
+                                { name: 'Odoo', data: row.odoo, color: 'text-gray-300' },
+                                { name: 'SalezBuzz', data: row.salezbuzz, color: 'text-gray-300' }
+                              ].map((item, idx) => (
+                                <div key={idx} className={`col-span-1 ${item.color}`}>
+                                  <div className="font-medium mb-1">{item.name}</div>
+                                  <div className="text-xs text-gray-400 leading-relaxed">
+                                    {item.data.description || 'No additional details available'}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                ))}
               </div>
             </div>
 
             {/* Mobile Accordion */}
             <div className="md:hidden">
               <div className="space-y-4">
-              {(selectedIndustryData?.comparisonMetrics || [
-                {
-                  metric: 'Sales Cycle Time',
-                  salesforce: { score: 10, label: 'AI-Optimized', description: 'Einstein AI-powered sales acceleration and predictive lead scoring' },
-                  hubspot: { score: 6, label: 'Basic Automation', description: 'Simple automation with limited AI features' },
-                  zoho: { score: 6, label: 'Standard Process', description: 'Basic sales process management' },
-                  freshworks: { score: 5, label: 'Limited Features', description: 'Minimal sales automation capabilities' },
-                  odoo: { score: 4, label: 'Manual Setup', description: 'Requires extensive configuration for sales optimization' },
-                  salezbuzz: { score: 7, label: 'Good Automation', description: 'Good automation with pipeline tracking capabilities' }
-                },
-                {
-                  metric: 'Customization',
-                  salesforce: { score: 10, label: 'Unlimited', description: 'Complete platform customization with Einstein AI and AppExchange' },
-                  hubspot: { score: 5, label: 'Limited', description: 'Basic customization options only' },
-                  zoho: { score: 6, label: 'Moderate', description: 'Some customization within framework' },
-                  freshworks: { score: 4, label: 'Very Limited', description: 'Minimal customization capabilities' },
-                  odoo: { score: 5, label: 'Manual Development', description: 'Requires extensive coding for customization' },
-                  salezbuzz: { score: 5, label: 'Limited Options', description: 'Limited customization options within predefined framework' }
-                },
-                {
-                  metric: 'Integration Capabilities',
-                  salesforce: { score: 10, label: '5,000+ Apps', description: 'Largest ecosystem with native AI integrations and MuleSoft connectivity' },
-                  hubspot: { score: 6, label: '1,000+ Apps', description: 'Good integration marketplace but limited AI features' },
-                  zoho: { score: 5, label: 'Zoho Suite', description: 'Good within Zoho ecosystem, limited external integrations' },
-                  freshworks: { score: 4, label: 'Growing', description: 'Limited integration options, basic connectivity' },
-                  odoo: { score: 4, label: 'Manual Integration', description: 'Requires custom development for most integrations' },
-                  salezbuzz: { score: 5, label: 'Basic Integrations', description: 'Basic integrations available with common business tools' }
-                },
-                {
-                  metric: 'AI & Analytics',
-                  salesforce: { score: 10, label: 'Einstein AI Suite', description: 'Industry-leading AI with predictive analytics, automation, and intelligent insights' },
-                  hubspot: { score: 5, label: 'Basic AI', description: 'Limited AI features, basic automation only' },
-                  zoho: { score: 4, label: 'Minimal AI', description: 'Very basic AI capabilities' },
-                  freshworks: { score: 3, label: 'No AI', description: 'No significant AI features' },
-                  odoo: { score: 3, label: 'Manual Analytics', description: 'Basic reporting, no AI-powered insights' },
-                  salezbuzz: { score: 5, label: 'Basic Analytics', description: 'Basic analytics with pipeline reporting capabilities' }
-                },
-                {
-                  metric: 'Scalability',
-                  salesforce: { score: 10, label: 'Unlimited Scale', description: 'Enterprise-grade scalability with AI-powered performance optimization' },
-                  hubspot: { score: 6, label: 'Mid-Market', description: 'Good for mid-market, limited enterprise features' },
-                  zoho: { score: 6, label: 'Mid-Market', description: 'Suitable for mid-market companies' },
-                  freshworks: { score: 5, label: 'SMB-Mid', description: 'Limited scalability for large enterprises' },
-                  odoo: { score: 5, label: 'Custom Scale', description: 'Scalable but requires significant technical expertise' },
-                  salezbuzz: { score: 6, label: 'Mid-Market Focus', description: 'Suitable for mid-market companies, limited enterprise capabilities' }
-                }
-              ]).slice(0, 5).map((row, index) => (
-                <motion.div 
-                  key={index} 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="bg-gray-800/50 rounded-xl overflow-hidden"
-                >
-                  <div 
-                    className="p-4 cursor-pointer"
-                    onClick={() => toggleMetricExpansion(`mobile-${row.metric}`)}
+                {(selectedIndustryData?.comparisonMetrics || [
+                  {
+                    metric: 'Sales Cycle Time',
+                    salesforce: { score: 10, label: 'AI-Optimized', description: 'Einstein AI-powered sales acceleration and predictive lead scoring' },
+                    hubspot: { score: 6, label: 'Basic Automation', description: 'Simple automation with limited AI features' },
+                    zoho: { score: 6, label: 'Standard Process', description: 'Basic sales process management' },
+                    freshworks: { score: 5, label: 'Limited Features', description: 'Minimal sales automation capabilities' },
+                    odoo: { score: 4, label: 'Manual Setup', description: 'Requires extensive configuration for sales optimization' },
+                    salezbuzz: { score: 7, label: 'Good Automation', description: 'Good automation with pipeline tracking capabilities' }
+                  },
+                  {
+                    metric: 'Customization',
+                    salesforce: { score: 10, label: 'Unlimited', description: 'Complete platform customization with Einstein AI and AppExchange' },
+                    hubspot: { score: 5, label: 'Limited', description: 'Basic customization options only' },
+                    zoho: { score: 6, label: 'Moderate', description: 'Some customization within framework' },
+                    freshworks: { score: 4, label: 'Very Limited', description: 'Minimal customization capabilities' },
+                    odoo: { score: 5, label: 'Manual Development', description: 'Requires extensive coding for customization' },
+                    salezbuzz: { score: 5, label: 'Limited Options', description: 'Limited customization options within predefined framework' }
+                  },
+                  {
+                    metric: 'Integration Capabilities',
+                    salesforce: { score: 10, label: '5,000+ Apps', description: 'Largest ecosystem with native AI integrations and MuleSoft connectivity' },
+                    hubspot: { score: 6, label: '1,000+ Apps', description: 'Good integration marketplace but limited AI features' },
+                    zoho: { score: 5, label: 'Zoho Suite', description: 'Good within Zoho ecosystem, limited external integrations' },
+                    freshworks: { score: 4, label: 'Growing', description: 'Limited integration options, basic connectivity' },
+                    odoo: { score: 4, label: 'Manual Integration', description: 'Requires custom development for most integrations' },
+                    salezbuzz: { score: 5, label: 'Basic Integrations', description: 'Basic integrations available with common business tools' }
+                  },
+                  {
+                    metric: 'AI & Analytics',
+                    salesforce: { score: 10, label: 'Einstein AI Suite', description: 'Industry-leading AI with predictive analytics, automation, and intelligent insights' },
+                    hubspot: { score: 5, label: 'Basic AI', description: 'Limited AI features, basic automation only' },
+                    zoho: { score: 4, label: 'Minimal AI', description: 'Very basic AI capabilities' },
+                    freshworks: { score: 3, label: 'No AI', description: 'No significant AI features' },
+                    odoo: { score: 3, label: 'Manual Analytics', description: 'Basic reporting, no AI-powered insights' },
+                    salezbuzz: { score: 5, label: 'Basic Analytics', description: 'Basic analytics with pipeline reporting capabilities' }
+                  },
+                  {
+                    metric: 'Scalability',
+                    salesforce: { score: 10, label: 'Unlimited Scale', description: 'Enterprise-grade scalability with AI-powered performance optimization' },
+                    hubspot: { score: 6, label: 'Mid-Market', description: 'Good for mid-market, limited enterprise features' },
+                    zoho: { score: 6, label: 'Mid-Market', description: 'Suitable for mid-market companies' },
+                    freshworks: { score: 5, label: 'SMB-Mid', description: 'Limited scalability for large enterprises' },
+                    odoo: { score: 5, label: 'Custom Scale', description: 'Scalable but requires significant technical expertise' },
+                    salezbuzz: { score: 6, label: 'Mid-Market Focus', description: 'Suitable for mid-market companies, limited enterprise capabilities' }
+                  }
+                ]).slice(0, 5).map((row, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    className="bg-gray-800/50 rounded-xl overflow-hidden"
                   >
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-white font-semibold">{row.metric}</h4>
-                      <ChevronDown 
-                        className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
-                          expandedMetrics.has(`mobile-${row.metric}`) ? 'rotate-180' : ''
-                        }`}
-                      />
-                    </div>
-                    <div className="space-y-2 mt-3">
-                      {[
-                        { name: 'Salesforce', data: row.salesforce, highlight: true },
-                        { name: 'HubSpot', data: row.hubspot },
-                        { name: 'Zoho', data: row.zoho },
-                        { name: 'Freshworks', data: row.freshworks },
-                        { name: 'Odoo', data: row.odoo },
-                        { name: 'SalezBuzz', data: row.salezbuzz }
-                      ].map((item, idx) => (
-                        <div key={idx} className={`flex justify-between items-center p-2 rounded ${item.highlight ? 'bg-cyan-500/10' : ''}`}>
-                          <span className={item.highlight ? 'text-cyan-400 font-semibold' : 'text-gray-300'}>{item.name}</span>
-                          <div className="flex items-center gap-2">
-                            <span className={`text-sm font-bold ${item.highlight ? 'text-cyan-400' : 'text-gray-300'}`}>
-                              {item.data.score}/10
-                            </span>
-                            <span className="text-xs text-gray-500">{item.data.label}</span>
+                    <div
+                      className="p-4 cursor-pointer"
+                      onClick={() => toggleMetricExpansion(`mobile-${row.metric}`)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-white font-semibold">{row.metric}</h4>
+                        <ChevronDown
+                          className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${expandedMetrics.has(`mobile-${row.metric}`) ? 'rotate-180' : ''
+                            }`}
+                        />
+                      </div>
+                      <div className="space-y-2 mt-3">
+                        {[
+                          { name: 'Salesforce', data: row.salesforce, highlight: true },
+                          { name: 'HubSpot', data: row.hubspot },
+                          { name: 'Zoho', data: row.zoho },
+                          { name: 'Freshworks', data: row.freshworks },
+                          { name: 'Odoo', data: row.odoo },
+                          { name: 'SalezBuzz', data: row.salezbuzz }
+                        ].map((item, idx) => (
+                          <div key={idx} className={`flex justify-between items-center p-2 rounded ${item.highlight ? 'bg-cyan-500/10' : ''}`}>
+                            <span className={item.highlight ? 'text-cyan-400 font-semibold' : 'text-gray-300'}>{item.name}</span>
+                            <div className="flex items-center gap-2">
+                              <span className={`text-sm font-bold ${item.highlight ? 'text-cyan-400' : 'text-gray-300'}`}>
+                                {item.data.score}/10
+                              </span>
+                              <span className="text-xs text-gray-500">{item.data.label}</span>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                  
-                  {/* Expandable Details for Mobile */}
-                  <AnimatePresence>
-                    {expandedMetrics.has(`mobile-${row.metric}`) && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="overflow-hidden"
-                      >
-                        <div className="px-4 pb-4 bg-gray-800/30">
-                          <div className="space-y-3 text-sm">
-                            {[
-                              { name: 'Salesforce', data: row.salesforce, color: 'text-cyan-400' },
-                              { name: 'HubSpot', data: row.hubspot, color: 'text-gray-300' },
-                              { name: 'Zoho', data: row.zoho, color: 'text-gray-300' },
-                              { name: 'Freshworks', data: row.freshworks, color: 'text-gray-300' },
-                              { name: 'Odoo', data: row.odoo, color: 'text-gray-300' }
-                            ].map((item, idx) => (
-                              <div key={idx} className={`${item.color}`}>
-                                <div className="font-medium mb-1">{item.name}</div>
-                                <div className="text-xs text-gray-400 leading-relaxed">
-                                  {item.data.description || 'No additional details available'}
+
+                    {/* Expandable Details for Mobile */}
+                    <AnimatePresence>
+                      {expandedMetrics.has(`mobile-${row.metric}`) && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="px-4 pb-4 bg-gray-800/30">
+                            <div className="space-y-3 text-sm">
+                              {[
+                                { name: 'Salesforce', data: row.salesforce, color: 'text-cyan-400' },
+                                { name: 'HubSpot', data: row.hubspot, color: 'text-gray-300' },
+                                { name: 'Zoho', data: row.zoho, color: 'text-gray-300' },
+                                { name: 'Freshworks', data: row.freshworks, color: 'text-gray-300' },
+                                { name: 'Odoo', data: row.odoo, color: 'text-gray-300' }
+                              ].map((item, idx) => (
+                                <div key={idx} className={`${item.color}`}>
+                                  <div className="font-medium mb-1">{item.name}</div>
+                                  <div className="text-xs text-gray-400 leading-relaxed">
+                                    {item.data.description || 'No additional details available'}
+                                  </div>
                                 </div>
-                              </div>
-                            ))}
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-              ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                ))}
               </div>
             </div>
           </motion.div>
@@ -3512,7 +3513,7 @@ const SalesforcePower = () => {
       {/* Forrester TEI Study Section */}
       <section ref={forresterRef} className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-cyan-900"></div>
-        
+
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <AnimatedSection className="text-center mb-16">
             <motion.div
@@ -3529,15 +3530,15 @@ const SalesforcePower = () => {
                   </div>
                 </div>
               </div>
-              
+
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
                 Proven ROI: Independent Study Results
               </h2>
               <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
-                Forrester Consulting's Total Economic Impact™ study provides objective analysis of 
+                Forrester Consulting's Total Economic Impact™ study provides objective analysis of
                 Salesforce Lightning's business value for decision-makers
               </p>
-              
+
               {/* Hero ROI Stat */}
               <motion.div
                 initial={{ scale: 0.9, opacity: 0 }}
@@ -3653,18 +3654,18 @@ const SalesforcePower = () => {
                 Read the Full Study
               </h3>
               <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
-                Download the complete Forrester Consulting Total Economic Impact™ study for detailed 
+                Download the complete Forrester Consulting Total Economic Impact™ study for detailed
                 methodology, composite organization analysis, and comprehensive financial modeling
               </p>
-              <a 
-                href="/Assets/forrester-tei-of-salesforce-lightning.pdf" 
-                target="_blank" 
+              <a
+                href="/Assets/forrester-tei-of-salesforce-lightning.pdf"
+                target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => triggerHaptic([10, 5, 10], '/Assets/woosh1new.mp3')}
               >
-                <Button 
-                  variant="primary" 
-                  size="lg" 
+                <Button
+                  variant="primary"
+                  size="lg"
                   className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700"
                 >
                   <Download className="h-5 w-5 mr-2" />
@@ -3672,7 +3673,7 @@ const SalesforcePower = () => {
                 </Button>
               </a>
               <p className="text-xs text-gray-500 mt-6">
-                Source: The Total Economic Impact™ of Salesforce Lightning, a commissioned study conducted by 
+                Source: The Total Economic Impact™ of Salesforce Lightning, a commissioned study conducted by
                 Forrester Consulting on behalf of Salesforce, 2018
               </p>
             </motion.div>
@@ -3684,7 +3685,7 @@ const SalesforcePower = () => {
       <section ref={ctaRef} className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-cyan-600/20 via-blue-600/20 to-purple-600/20"></div>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-cyan-500/20 via-transparent to-transparent"></div>
-        
+
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <AnimatedSection>
             <motion.div
@@ -3693,24 +3694,24 @@ const SalesforcePower = () => {
               transition={{ duration: 0.8 }}
             >
               <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                {companyName 
+                {companyName
                   ? personalizeText(t('power.cta.title.personalized'), 'your company', selectedIndustryData?.name)
-                  : (selectedIndustryData 
+                  : (selectedIndustryData
                     ? t('power.cta.title.industry', { industry: selectedIndustryData.name })
                     : t('power.cta.title')
                   )
                 }
               </h2>
               <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-                {companyName 
+                {companyName
                   ? personalizeText(t('power.cta.subtitle.personalized'), 'your company', selectedIndustryData?.name)
-                  : (selectedIndustryData 
+                  : (selectedIndustryData
                     ? t('power.cta.subtitle.industry', { industry: selectedIndustryData.name })
                     : t('power.cta.subtitle')
                   )
                 }
               </p>
-              
+
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link to="/salesforce-power-lead-capture">
                   <Button variant="primary" size="lg" className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700">
@@ -3718,9 +3719,9 @@ const SalesforcePower = () => {
                     <ArrowRight className={`h-5 w-5 ${isRTL ? 'mr-2' : 'ml-2'}`} />
                   </Button>
                 </Link>
-                
-                <Button 
-                  variant="secondary" 
+
+                <Button
+                  variant="secondary"
                   size="lg"
                   onClick={() => {
                     triggerHaptic();
@@ -3733,7 +3734,7 @@ const SalesforcePower = () => {
                   <RefreshCw className={`h-5 w-5 ${isRTL ? 'ml-2' : 'mr-2'}`} />
                   Start Over
                 </Button>
-                
+
               </div>
             </motion.div>
           </AnimatedSection>
@@ -3752,11 +3753,10 @@ const SalesforcePower = () => {
                   scrollToSection(refs[section], section);
                 }
               }}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                currentSection === section 
-                  ? 'bg-cyan-400 w-8' 
-                  : 'bg-gray-600 hover:bg-gray-500'
-              }`}
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${currentSection === section
+                ? 'bg-cyan-400 w-8'
+                : 'bg-gray-600 hover:bg-gray-500'
+                }`}
             />
           ))}
         </div>
