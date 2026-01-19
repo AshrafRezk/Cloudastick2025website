@@ -52,13 +52,15 @@ const TechSaSection = () => {
                         </h2>
 
                         <div className="flex justify-center">
-                            <div className="rounded-2xl border border-white/10 bg-white/5 px-6 py-4 shadow-[0_20px_60px_-30px_rgba(56,189,248,0.7)]">
-                                <img
-                                    src="https://techsa.io/wp-content/uploads/2022/07/Original-on-Transparent-1-1536x281.png"
-                                    alt="techsa logo"
-                                    className="h-12 md:h-14 w-auto drop-shadow-[0_10px_30px_rgba(56,189,248,0.35)]"
-                                    loading="lazy"
-                                />
+                            <div className="rounded-3xl bg-gradient-to-r from-blue-400/30 via-cyan-300/30 to-indigo-400/30 p-[1px] shadow-[0_30px_90px_-40px_rgba(59,130,246,0.9)]">
+                                <div className="rounded-3xl border border-white/10 bg-white/5 px-8 py-5 backdrop-blur-sm">
+                                    <img
+                                        src="https://techsa.io/wp-content/uploads/2022/07/Original-on-Transparent-1-1536x281.png"
+                                        alt="techsa logo"
+                                        className="h-14 md:h-16 w-auto drop-shadow-[0_18px_36px_rgba(56,189,248,0.5)]"
+                                        loading="lazy"
+                                    />
+                                </div>
                             </div>
                         </div>
 
