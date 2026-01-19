@@ -1870,7 +1870,7 @@ const SalesforcePower = () => {
                   { name: 'Andrew Osama', role: 'Salesforce Consultant', image: 'Andrew_Osama_Salesforce_Consultant.png', isAcademy: false },
                   { name: 'Maheen Imran', role: 'Salesforce Consultant', image: 'Maheen_Imran_Salesforce_Consultant.png', isAcademy: false },
                   { name: 'Carine Felix', role: 'Brand and People Experience Specialist', image: 'Carine_Felix_Brand_and_People_Experience_Specialist.png', isAcademy: false },
-                  { name: 'Marina Danial', role: 'CFO Cloudastick and COO of Techsa', image: 'Marina_Danial_CFO_Cloudastick_and_COO_of_Techsa.png', isAcademy: false },
+                  { name: 'Marina Danial', role: 'CFO Cloudastick and COO of TechSa', image: 'Marina_Danial_CFO_Cloudastick_and_COO_of_Techsa.png', isAcademy: false },
                   { name: 'Jenny Maged', role: 'Salesforce Consultant', image: 'Jenny_Maged_Salesforce_Consultant.png', isAcademy: false },
                   { name: 'John Shedoudy', role: 'Salesforce Consultant', image: 'John_Shedoudy_Salesforce_Consultant.png', isAcademy: false },
                   { name: 'Mariam Mahmoud', role: 'Salesforce Consultant', image: 'Mariam_Mahmoud_Salesforce_Consultant.png', isAcademy: false },
