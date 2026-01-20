@@ -51,7 +51,7 @@ const CompanyLogo: React.FC<CompanyLogoProps> = ({
     if (website) {
       const { domain } = normalizeWebsiteUrl(website);
       if (domain) {
-        candidates.push(`https://www.google.com/s2/favicons?domain=${domain}&sz=64`);
+        candidates.push(`https://www.google.com/s2/favicons?domain=${domain}&sz=128`);
       }
     }
 
