@@ -83,17 +83,22 @@ const CompanyLogo: React.FC<CompanyLogoProps> = ({
     >
       {!showTextFallback && currentSource ? (
         <>
-          <img
-            src={currentSource}
-            alt={`${companyName} logo`}
-            className={`w-full h-full object-contain rounded-lg ${!imageLoaded ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
-            onLoad={() => setImageLoaded(true)}
-            onError={() => {
-              setErrorCount(prev => prev + 1);
-              setImageLoaded(false);
-            }}
-            loading="lazy"
-          />
+          {/* Container to center and constrain content */}
+          <div className={`w-full h-full flex items-center justify-center ${!imageLoaded ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}>
+            <img
+              src={currentSource}
+              alt={`${companyName} logo`}
+              // If it's a google favicon, limit the size to avoid pixelation (e.g. 60% of container)
+              // Otherwise fill the container
+              className={`${currentSource.includes('google.com/s2/favicons') ? 'w-auto h-auto max-w-[60%] max-h-[60%]' : 'w-full h-full'} object-contain rounded-lg`}
+              onLoad={() => setImageLoaded(true)}
+              onError={() => {
+                setErrorCount(prev => prev + 1);
+                setImageLoaded(false);
+              }}
+              loading="lazy"
+            />
+          </div>
 
           {/* Loading placeholder */}
           {!imageLoaded && (
