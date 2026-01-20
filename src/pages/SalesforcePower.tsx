@@ -1282,6 +1282,7 @@ const SalesforcePower = () => {
                     <CompanyLogo
                       logoUrl={companyLogo}
                       companyName={companyName || 'Company'}
+                      website={companyWebsite}
                       size="large"
                       className="w-24 h-24"
                     />
@@ -2508,6 +2509,7 @@ const SalesforcePower = () => {
                 <CompanyLogo
                   logoUrl={companyLogo}
                   companyName={companyName || 'Company'}
+                  website={companyWebsite}
                   size="medium"
                   className="w-12 h-12"
                 />
@@ -2669,6 +2671,7 @@ const SalesforcePower = () => {
                 <CompanyLogo
                   logoUrl={companyLogo}
                   companyName={companyName || 'Company'}
+                  website={companyWebsite}
                   size="medium"
                   className="w-12 h-12"
                 />
