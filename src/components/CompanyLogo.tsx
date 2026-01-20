@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { normalizeWebsiteUrl } from '../utils/urlNormalizer';
 
@@ -11,15 +11,13 @@ interface CompanyLogoProps {
   showFallback?: boolean;
 }
 
-// Cloudastick logo as default fallback
-const CLOUDASTICK_LOGO = '/Assets/Company Logos/white-logo-dark.webp';
-
 const CompanyLogo: React.FC<CompanyLogoProps> = ({
   logoUrl,
   companyName = 'Company',
   website,
   size = 'medium',
   className = '',
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   showFallback = true
 }) => {
   const [errorCount, setErrorCount] = useState(0);
@@ -31,71 +29,83 @@ const CompanyLogo: React.FC<CompanyLogoProps> = ({
     setImageLoaded(false);
   }, [logoUrl, website]);
 
-  // Size configurations
+  // Size configurations adding text sizes for the fallback
   const sizeConfig = {
-    small: 'w-6 h-6',
-    medium: 'w-12 h-12',
-    large: 'w-24 h-24'
+    small: 'w-6 h-6 text-xs',
+    medium: 'w-12 h-12 text-lg',
+    large: 'w-24 h-24 text-3xl'
   };
 
   // Determine logo candidates
-  const getCandidates = () => {
-    const candidates: string[] = [];
+  const candidates = useMemo(() => {
+    const list: string[] = [];
 
     // 1. Provided logo URL (highest priority)
     if (logoUrl) {
-      candidates.push(logoUrl);
+      list.push(logoUrl);
     }
 
     // 2. Google Favicon (fallback if website provided)
     if (website) {
       const { domain } = normalizeWebsiteUrl(website);
       if (domain) {
-        candidates.push(`https://www.google.com/s2/favicons?domain=${domain}&sz=128`);
+        list.push(`https://www.google.com/s2/favicons?domain=${domain}&sz=128`);
       }
     }
 
-    // 3. Cloudastick Logo (ultimate fallback)
-    if (showFallback) {
-      candidates.push(CLOUDASTICK_LOGO);
-    }
+    return list;
+  }, [logoUrl, website]);
 
-    return candidates;
+  // Determine if we should show text fallback
+  // If we have no candidates, or if we've exhausted all candidates (errorCount >= candidates.length)
+  const showTextFallback = candidates.length === 0 || errorCount >= candidates.length;
+
+  // Get current source
+  const currentSource = candidates[errorCount];
+
+  // Helper to get initials
+  const getInitials = (name: string) => {
+    if (!name) return 'CO';
+    return name
+      .split(' ')
+      .map(part => part[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase() || name.slice(0, 2).toUpperCase();
   };
-
-  const candidates = getCandidates();
-  // Get current source based on error count. If we run out of candidates, use the last one (safe fallback)
-  const displayLogo = candidates[Math.min(errorCount, candidates.length - 1)] || CLOUDASTICK_LOGO;
-
-  // Check if we are showing the fallback (only relevant if we are at the last candidate and it's the cloudastick logo)
-  const isFallback = displayLogo === CLOUDASTICK_LOGO;
 
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.8 }}
-      animate={{ opacity: imageLoaded ? 1 : 0, scale: imageLoaded ? 1 : 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3 }}
-      className={`${sizeConfig[size]} ${className} relative`}
+      className={`${sizeConfig[size]} ${className} relative flex-shrink-0`}
     >
-      <img
-        src={displayLogo}
-        alt={`${companyName} logo`}
-        className="w-full h-full object-contain rounded-lg"
-        onLoad={() => setImageLoaded(true)}
-        onError={() => {
-          // Move to next candidate
-          if (errorCount < candidates.length - 1) {
-            setErrorCount(prev => prev + 1);
-            setImageLoaded(false); // Reset loaded state for new image
-          }
-        }}
-        loading="lazy"
-      />
+      {!showTextFallback && currentSource ? (
+        <>
+          <img
+            src={currentSource}
+            alt={`${companyName} logo`}
+            className={`w-full h-full object-contain rounded-lg ${!imageLoaded ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
+            onLoad={() => setImageLoaded(true)}
+            onError={() => {
+              setErrorCount(prev => prev + 1);
+              setImageLoaded(false);
+            }}
+            loading="lazy"
+          />
 
-      {/* Loading placeholder */}
-      {!imageLoaded && (
-        <div className="absolute inset-0 bg-gray-700/50 rounded-lg animate-pulse flex items-center justify-center">
-          <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+          {/* Loading placeholder */}
+          {!imageLoaded && (
+            <div className="absolute inset-0 bg-gray-700/50 rounded-lg animate-pulse flex items-center justify-center">
+              <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          )}
+        </>
+      ) : (
+        // Text Fallback
+        <div className="w-full h-full rounded-lg bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white font-bold shadow-lg border border-white/10 select-none">
+          {getInitials(companyName)}
         </div>
       )}
     </motion.div>
