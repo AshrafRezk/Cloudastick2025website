@@ -23,9 +23,11 @@ import {
   Loader2,
   Cloud,
   Building2,
-  Phone
+  Phone,
+  MessageSquare
 } from 'lucide-react';
 import CompanyLogo from './CompanyLogo';
+import { extractDominantColor } from '../utils/colorExtractor';
 
 interface Product {
   id: string;
@@ -47,6 +49,7 @@ interface CartItem extends Product {
 interface InteractiveStorefrontDemoProps {
   companyName: string;
   companyLogo: string | null;
+  website?: string;
 }
 
 type Screen = 'home' | 'products' | 'cart' | 'orders' | 'wallet' | 'recommendations' | 'bundles' | 'checkout' | 'product-detail' | 'tracking';
@@ -278,7 +281,7 @@ const generateProducts = (companyName: string): Product[] => {
   return baseProducts;
 };
 
-const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ companyName, companyLogo }) => {
+const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ companyName, companyLogo, website }) => {
   const [currentScreen, setCurrentScreen] = useState<Screen>('home');
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -293,6 +296,50 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [fetchedProducts, setFetchedProducts] = useState<Product[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+
+  // Brand color management
+  const [brandColor, setBrandColor] = useState<string>('#F97316'); // Default orange-500
+  const [hasCustomColor, setHasCustomColor] = useState(false);
+
+  // Extract brand color from logo
+  useEffect(() => {
+    let isMounted = true;
+
+    // Only try to extract if we have a logo
+    if (companyLogo) {
+      extractDominantColor(companyLogo).then(color => {
+        if (isMounted && color) {
+          setBrandColor(color);
+          setHasCustomColor(true);
+        }
+      });
+    } else {
+      // Reset to default if no logo
+      setBrandColor('#F97316');
+      setHasCustomColor(false);
+    }
+
+    return () => { isMounted = false; };
+  }, [companyLogo]);
+
+  // Dynamic styles helper
+  const brandStyle = {
+    bg: { backgroundColor: brandColor },
+    text: { color: brandColor },
+    border: { borderColor: brandColor },
+    fill: { fill: brandColor },
+    gradient: { background: `linear-gradient(to right, ${brandColor}, ${adjustColorBrightness(brandColor, -20)})` }
+  };
+
+  // Helper to darken color for gradients
+  function adjustColorBrightness(hex: string, percent: number) {
+    const num = parseInt(hex.replace('#', ''), 16);
+    const amt = Math.round(2.55 * percent);
+    const R = (num >> 16) + amt;
+    const G = (num >> 8 & 0x00FF) + amt;
+    const B = (num & 0x0000FF) + amt;
+    return '#' + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 + (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 + (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
+  }
 
   // Enhanced product fetching from multiple APIs
   useEffect(() => {
@@ -683,13 +730,21 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
       <div className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-10">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            {companyLogo && (
-              <img src={companyLogo} alt={companyName} className="w-8 h-8 rounded" />
-            )}
+            <CompanyLogo
+              logoUrl={companyLogo}
+              companyName={companyName}
+              website={website}
+              size="small"
+              className="w-8 h-8"
+              showFallback={true}
+            />
             <span className="font-bold text-lg text-gray-900">{companyName || 'Store'}</span>
           </div>
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white font-semibold text-sm">
+            <div
+              className="w-8 h-8 rounded-full flex items-center justify-center text-white font-semibold text-sm"
+              style={brandStyle.bg}
+            >
               {USER_NAME.split(' ').map(n => n[0]).join('')}
             </div>
           </div>
@@ -701,19 +756,20 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
       </div>
 
       {/* Hero Banner */}
-      <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-6 mx-4 mt-4 rounded-xl relative overflow-hidden">
+      <div
+        className="text-white px-4 py-6 mx-4 mt-4 rounded-xl relative overflow-hidden"
+        style={brandStyle.gradient}
+      >
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-2">
-            {companyLogo && (
-              <img
-                src={companyLogo}
-                alt={companyName}
-                className="w-10 h-10 rounded-lg bg-white/20 p-1 object-contain"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
-            )}
+            <CompanyLogo
+              logoUrl={companyLogo}
+              companyName={companyName}
+              website={website}
+              size="medium"
+              className="bg-white/20 p-1 rounded-lg"
+              showFallback={true}
+            />
             <div>
               <h2 className="text-xl font-bold">Special Offer from {companyName || 'Store'}!</h2>
               <p className="text-sm opacity-90 mt-1">Get 20% off on selected items</p>
@@ -733,7 +789,8 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
           <h3 className="text-lg font-bold text-gray-900">Featured Products</h3>
           <button
             onClick={() => setCurrentScreen('products')}
-            className="text-orange-500 text-sm font-semibold"
+            className="text-sm font-semibold"
+            style={brandStyle.text}
           >
             See All
           </button>
@@ -783,8 +840,11 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
             onClick={() => setCurrentScreen('recommendations')}
             className="bg-white p-4 rounded-lg border border-gray-200 text-left"
           >
-            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mb-2">
-              <Target className="w-5 h-5 text-orange-500" />
+            <div
+              className="w-10 h-10 rounded-lg flex items-center justify-center mb-2"
+              style={{ backgroundColor: `${brandColor}20` }} // 20% opacity
+            >
+              <Target className="w-5 h-5" style={brandStyle.text} />
             </div>
             <p className="font-semibold text-sm text-gray-900">Recommendations</p>
             <p className="text-xs text-gray-500 mt-1">For you</p>
@@ -793,8 +853,11 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
             onClick={() => setCurrentScreen('bundles')}
             className="bg-white p-4 rounded-lg border border-gray-200 text-left"
           >
-            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mb-2">
-              <Package className="w-5 h-5 text-orange-500" />
+            <div
+              className="w-10 h-10 rounded-lg flex items-center justify-center mb-2"
+              style={{ backgroundColor: `${brandColor}20` }}
+            >
+              <Package className="w-5 h-5" style={brandStyle.text} />
             </div>
             <p className="font-semibold text-sm text-gray-900">Bundles</p>
             <p className="text-xs text-gray-500 mt-1">Save more</p>
@@ -862,7 +925,8 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
                       e.stopPropagation();
                       handleAddToCart(product);
                     }}
-                    className="p-1.5 bg-orange-500 text-white rounded-full"
+                    className="p-1.5 text-white rounded-full"
+                    style={brandStyle.bg}
                   >
                     <Plus className="w-4 h-4" />
                   </button>
@@ -893,7 +957,8 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
             <p className="text-gray-500 font-semibold">Your cart is empty</p>
             <button
               onClick={() => setCurrentScreen('products')}
-              className="mt-4 px-6 py-2 bg-orange-500 text-white rounded-lg font-semibold"
+              className="mt-4 px-6 py-2 text-white rounded-lg font-semibold"
+              style={brandStyle.bg}
             >
               Start Shopping
             </button>
@@ -948,7 +1013,8 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
             </div>
             <button
               onClick={() => setCurrentScreen('checkout')}
-              className="w-full bg-orange-500 text-white py-3 rounded-lg font-semibold"
+              className="w-full text-white py-3 rounded-lg font-semibold"
+              style={brandStyle.bg}
             >
               Proceed to Checkout
             </button>
@@ -1009,7 +1075,10 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
       </div>
 
       <div className="px-4 py-4">
-        <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-xl p-6 text-white mb-4">
+        <div
+          className="rounded-xl p-6 text-white mb-4"
+          style={brandStyle.gradient}
+        >
           <p className="text-sm opacity-90 mb-2">Available Balance</p>
           <p className="text-3xl font-bold">${walletBalance.toFixed(2)}</p>
         </div>
@@ -1139,7 +1208,8 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
                 bundle.products.forEach(product => handleAddToCart(product));
                 setCurrentScreen('cart');
               }}
-              className="w-full bg-orange-500 text-white py-2 rounded-lg font-semibold"
+              className="w-full text-white py-2 rounded-lg font-semibold"
+              style={brandStyle.bg}
             >
               Add Bundle to Cart
             </button>
@@ -1262,13 +1332,17 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
               <div
                 onClick={() => setSelectedCard('wallet')}
                 className={`p-3 rounded-lg border-2 cursor-pointer transition-all flex items-center justify-between ${selectedCard === 'wallet'
-                  ? 'border-orange-500 bg-orange-50'
+                  ? '' // Active classes replaced by inline styles
                   : 'border-gray-100 hover:border-gray-200'
                   }`}
+                style={selectedCard === 'wallet' ? { borderColor: brandColor, backgroundColor: `${brandColor}10` } : {}}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-orange-100 rounded flex items-center justify-center">
-                    <Wallet className="w-5 h-5 text-orange-600" />
+                  <div
+                    className="w-10 h-10 rounded flex items-center justify-center"
+                    style={{ backgroundColor: `${brandColor}20` }}
+                  >
+                    <Wallet className="w-5 h-5" style={brandStyle.text} />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
@@ -1281,7 +1355,7 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
                   </div>
                 </div>
                 {selectedCard === 'wallet' && (
-                  <CheckCircle2 className="w-5 h-5 text-orange-500" />
+                  <CheckCircle2 className="w-5 h-5" style={brandStyle.text} />
                 )}
               </div>
 
@@ -1290,9 +1364,10 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
                   key={card.id}
                   onClick={() => setSelectedCard(card.id)}
                   className={`p-3 rounded-lg border-2 cursor-pointer transition-all flex items-center justify-between ${selectedCard === card.id
-                    ? 'border-orange-500 bg-orange-50'
+                    ? ''
                     : 'border-gray-100 hover:border-gray-200'
                     }`}
+                  style={selectedCard === card.id ? { borderColor: brandColor, backgroundColor: `${brandColor}10` } : {}}
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center">
@@ -1312,7 +1387,7 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
                     </div>
                   </div>
                   {selectedCard === card.id && (
-                    <CheckCircle2 className="w-5 h-5 text-orange-500" />
+                    <CheckCircle2 className="w-5 h-5" style={brandStyle.text} />
                   )}
                 </div>
               ))}
@@ -1347,10 +1422,11 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
           <button
             onClick={handlePayment}
             disabled={!selectedCard || isProcessingPayment || isSyncingSalesforce}
-            className={`w-full py-3 rounded-lg font-semibold flex items-center justify-center gap-2 ${!selectedCard || isProcessingPayment || isSyncingSalesforce
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : 'bg-orange-500 text-white hover:bg-orange-600'
+            className={`w-full py-3 rounded-lg font-semibold flex items-center justify-center gap-2 text-white ${!selectedCard || isProcessingPayment || isSyncingSalesforce
+              ? 'bg-gray-300 cursor-not-allowed'
+              : ''
               }`}
+            style={!selectedCard || isProcessingPayment || isSyncingSalesforce ? {} : brandStyle.bg}
           >
             {isProcessingPayment ? (
               <>
@@ -1419,7 +1495,8 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
                 handleAddToCart(selectedProduct);
                 setCurrentScreen('cart');
               }}
-              className="w-full bg-orange-500 text-white py-3 rounded-lg font-semibold"
+              className="w-full text-white py-3 rounded-lg font-semibold"
+              style={brandStyle.bg}
             >
               Add to Cart
             </button>
@@ -1500,7 +1577,10 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
               transition={{ duration: 10, ease: "linear", repeat: Infinity }}
               className="absolute top-1/2 transform -translate-y-1/2 z-20"
             >
-              <div className="w-10 h-10 bg-orange-500 rounded-full border-4 border-white shadow-lg flex items-center justify-center relative">
+              <div
+                className="w-10 h-10 rounded-full border-4 border-white shadow-lg flex items-center justify-center relative"
+                style={brandStyle.bg}
+              >
                 <Package className="w-5 h-5 text-white" />
                 <div className="absolute -right-1 -top-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
               </div>

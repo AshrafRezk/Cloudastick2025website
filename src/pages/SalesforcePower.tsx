@@ -2208,6 +2208,7 @@ const SalesforcePower = () => {
                     <InteractiveStorefrontDemo
                       companyName={companyName || 'Store'}
                       companyLogo={companyLogo}
+                      website={companyWebsite}
                     />
                   </div>
                   <div className="flex items-center justify-center gap-3 md:gap-6 mt-4 text-xs md:text-sm text-gray-400 flex-wrap">
