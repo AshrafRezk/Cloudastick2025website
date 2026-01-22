@@ -45,11 +45,13 @@ const CompanyLogo: React.FC<CompanyLogoProps> = ({
       list.push(logoUrl);
     }
 
-    // 2. Google Favicon (fallback if website provided)
+    // 2. Clearbit Logo API (fallback if website provided)
+    // Clearbit returns 404 if no logo found, which triggers onError -> Text Fallback
+    // This avoids the "pixelated globe" issue from Google Favicons
     if (website) {
       const { domain } = normalizeWebsiteUrl(website);
       if (domain) {
-        list.push(`https://www.google.com/s2/favicons?domain=${domain}&sz=128`);
+        list.push(`https://logo.clearbit.com/${domain}`);
       }
     }
 
@@ -57,7 +59,6 @@ const CompanyLogo: React.FC<CompanyLogoProps> = ({
   }, [logoUrl, website]);
 
   // Determine if we should show text fallback
-  // If we have no candidates, or if we've exhausted all candidates (errorCount >= candidates.length)
   const showTextFallback = candidates.length === 0 || errorCount >= candidates.length;
 
   // Get current source
@@ -88,9 +89,7 @@ const CompanyLogo: React.FC<CompanyLogoProps> = ({
             <img
               src={currentSource}
               alt={`${companyName} logo`}
-              // If it's a google favicon, limit the size to avoid pixelation (e.g. 60% of container)
-              // Otherwise fill the container
-              className={`${currentSource.includes('google.com/s2/favicons') ? 'w-auto h-auto max-w-[60%] max-h-[60%]' : 'w-full h-full'} object-contain rounded-lg`}
+              className="w-full h-full object-contain rounded-lg"
               onLoad={() => setImageLoaded(true)}
               onError={() => {
                 setErrorCount(prev => prev + 1);

@@ -74,6 +74,8 @@ import { ClientInfo } from '../data/clientsData';
 import FigmaDemoModal from '../components/FigmaDemoModal';
 import InteractiveStorefrontDemo from '../components/InteractiveStorefrontDemo';
 import TechSaSection from '../components/TechSaSection';
+import AmadeusSection from '../components/AmadeusSection';
+import FleetManagementSection from '../components/FleetManagementSection';
 
 // Modern Carousel Hub and Spoke Component
 const HubAndSpokeVisualization = React.memo(({
@@ -2156,6 +2158,14 @@ const SalesforcePower = () => {
         </section>
       )}
 
+      {/* Amadeus Integration Section - Only for Travel/Tourism */}
+      {(selectedIndustry === 'travel-tourism' || selectedIndustry === 'hospitality') && (
+        <>
+          <AmadeusSection />
+          <FleetManagementSection />
+        </>
+      )}
+
       {/* Commerce Cloud Storefront Section - Only for Retail/Commerce */}
       {isRetailOrCommerce && (
         <section className="py-20 relative overflow-hidden">
@@ -2489,6 +2499,142 @@ const SalesforcePower = () => {
           </div>
         </section>
       )}
+
+      {/* Salesforce Field Service Section - Only for Retail/Commerce */}
+      {isRetailOrCommerce && (
+        <section className="py-20 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-gray-900 to-green-900/20"></div>
+
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <AnimatedSection className="text-center mb-16">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+              >
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/20 rounded-full text-blue-400 text-sm font-medium mb-6 border border-blue-500/30">
+                  <span className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></span>
+                  Field Service Management
+                </div>
+                <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+                  Salesforce Field Service
+                </h2>
+                <p className="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed mb-4">
+                  Intelligent Mobile Workforce Management
+                </p>
+                <p className="text-lg text-gray-400 max-w-3xl mx-auto">
+                  Empower your technicians with a complete solution for managing work orders,
+                  dispatching tickets, and optimizing field operations in real-time.
+                </p>
+              </motion.div>
+            </AnimatedSection>
+
+            <div className="grid lg:grid-cols-2 gap-12 items-center mb-20">
+              <AnimatedSection delay={0.2}>
+                <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-gray-700/50 group">
+                  <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent z-10"></div>
+                  <img
+                    src="https://www.winfomi.com/services/Experience-Cloud-intro.png"
+                    alt="Salesforce Field Service Experience"
+                    className="w-full h-auto transform group-hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute bottom-0 left-0 right-0 p-8 z-20">
+                    <h3 className="text-2xl font-bold text-white mb-2">Connected Experience</h3>
+                    <p className="text-gray-300">Seamlessly connect your mobile workforce with back-office operations.</p>
+                  </div>
+                </div>
+              </AnimatedSection>
+
+              <div className="space-y-6">
+                {[
+                  {
+                    title: "Smart Dispatching",
+                    description: "Automatically assign the right technician with the right skills to the right job.",
+                    color: "blue"
+                  },
+                  {
+                    title: "Real-time Asset Management",
+                    description: "Track inventory, parts, and customer assets directly from the mobile app.",
+                    color: "green"
+                  },
+                  {
+                    title: "Optimized Routing",
+                    description: "Reduce travel time and fuel costs with AI-powered route optimization.",
+                    color: "purple"
+                  }
+                ].map((item, idx) => (
+                  <AnimatedSection key={idx} delay={0.4 + (idx * 0.1)}>
+                    <div className="flex gap-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                      <div className={`w-12 h-12 rounded-lg bg-${item.color}-500/20 flex items-center justify-center flex-shrink-0`}>
+                        <div className={`w-3 h-3 rounded-full bg-${item.color}-400`}></div>
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-semibold text-white mb-1">{item.title}</h4>
+                        <p className="text-gray-400">{item.description}</p>
+                      </div>
+                    </div>
+                  </AnimatedSection>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-3xl p-8 border border-gray-700/50 backdrop-blur-xl">
+              <div className="text-center mb-12">
+                <h3 className="text-3xl font-bold text-white mb-4">Intelligent Work Order Flow</h3>
+                <p className="text-gray-400">From ticket creation to skill-based assignment</p>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-8 relative">
+                {/* Arrow Connector for Desktop */}
+                <div className="hidden md:block absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+                  <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/20 animate-pulse">
+                    <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                  </div>
+                </div>
+
+                <AnimatedSection delay={0.2} className="relative group">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl blur opacity-20 group-hover:opacity-40 transitionduration-500"></div>
+                  <div className="relative rounded-xl overflow-hidden bg-gray-900 border border-gray-700">
+                    <img
+                      src="https://ablypro.com/wp-content/uploads/2023/03/create-work-order-min-scaled.jpg"
+                      alt="Create Work Order"
+                      className="w-full h-64 object-cover object-top hover:object-center transition-all duration-700"
+                    />
+                    <div className="p-6 bg-gray-900/95 backdrop-blur absolute bottom-0 w-full border-t border-gray-800">
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-xs font-bold text-white">1</span>
+                        <h4 className="text-lg font-bold text-white">Create Work Order</h4>
+                      </div>
+                      <p className="text-sm text-gray-400">Service requests are automatically converted into work orders with all necessary context.</p>
+                    </div>
+                  </div>
+                </AnimatedSection>
+
+                <AnimatedSection delay={0.4} className="relative group">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-green-500 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
+                  <div className="relative rounded-xl overflow-hidden bg-gray-900 border border-gray-700">
+                    <img
+                      src="https://ablypro.com/wp-content/uploads/2023/03/work-skills.jpg"
+                      alt="Skill-based Assignment"
+                      className="w-full h-64 object-cover object-top hover:object-center transition-all duration-700"
+                    />
+                    <div className="p-6 bg-gray-900/95 backdrop-blur absolute bottom-0 w-full border-t border-gray-800">
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center text-xs font-bold text-white">2</span>
+                        <h4 className="text-lg font-bold text-white">Skill-based Assignment</h4>
+                      </div>
+                      <p className="text-sm text-gray-400">AI matches the work order requirements with technician skills and availability.</p>
+                    </div>
+                  </div>
+                </AnimatedSection>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
 
       {/* TechSa Section - Only for Commerce, Manufacturing, and Healthcare */}
       {selectedIndustry && ['commerce-cloud', 'healthcare-life-sciences', 'manufacturing'].includes(selectedIndustry) && (

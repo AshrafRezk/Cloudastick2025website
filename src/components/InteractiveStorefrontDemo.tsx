@@ -575,11 +575,23 @@ const InteractiveStorefrontDemo: React.FC<InteractiveStorefrontDemoProps> = ({ c
             else if (category === 'Electronics') basePrice = 150;
             else if (category === 'Home') basePrice = 100;
 
+            // Reliable product images for fallbacks/generators
+            const productImages = [
+              'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400', // Watch
+              'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400', // Headphones
+              'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=400', // Watch
+              'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400', // Sunglasses
+              'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400', // Shoes
+              'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=400', // Camera
+              'https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=400', // Sneakers
+              'https://images.unsplash.com/photo-1572569028738-411a78e74336?w=400'  // Battery/Tech
+            ];
+
             return {
               id: `api-${idx}`,
               name: hint.charAt(0).toUpperCase() + hint.slice(1),
               price: Math.round((Math.random() * basePrice * 2 + basePrice * 0.5) * 100) / 100,
-              image: `https://images.unsplash.com/photo-${1500000000000 + idx}?w=400&q=80`,
+              image: productImages[idx % productImages.length],
               category,
               rating: Math.round((Math.random() * 1.5 + 3.5) * 10) / 10,
               reviews: Math.floor(Math.random() * 500 + 50),
