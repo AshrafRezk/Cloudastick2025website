@@ -76,6 +76,7 @@ import InteractiveStorefrontDemo from '../components/InteractiveStorefrontDemo';
 import TechSaSection from '../components/TechSaSection';
 import AmadeusSection from '../components/AmadeusSection';
 import FleetManagementSection from '../components/FleetManagementSection';
+import PharmaSections from '../components/PharmaSections';
 
 // Modern Carousel Hub and Spoke Component
 const HubAndSpokeVisualization = React.memo(({
@@ -3087,6 +3088,11 @@ const SalesforcePower = () => {
         </section>
       )}
 
+      {/* Pharma Specific Sections */}
+      {selectedIndustry === 'healthcare-life-sciences' && (
+        <PharmaSections />
+      )}
+
       {/* Competitive Analysis Comparison */}
       <section ref={comparisonRef} className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900"></div>
@@ -3329,15 +3335,15 @@ const SalesforcePower = () => {
                         <div className="flex items-center gap-2">
                           {/* Business Impact Icon */}
                           {row.metric.toLowerCase().includes('roi') || row.metric.toLowerCase().includes('revenue') ? (
-                            <DollarSign className="w-4 h-4 text-green-400" title="Revenue Impact" />
+                            <DollarSign className="w-4 h-4 text-green-400" />
                           ) : row.metric.toLowerCase().includes('time') || row.metric.toLowerCase().includes('cycle') ? (
-                            <Clock className="w-4 h-4 text-blue-400" title="Efficiency Impact" />
+                            <Clock className="w-4 h-4 text-blue-400" />
                           ) : row.metric.toLowerCase().includes('security') || row.metric.toLowerCase().includes('compliance') ? (
-                            <Shield className="w-4 h-4 text-red-400" title="Risk & Compliance" />
+                            <Shield className="w-4 h-4 text-red-400" />
                           ) : row.metric.toLowerCase().includes('integration') || row.metric.toLowerCase().includes('ecosystem') ? (
-                            <Zap className="w-4 h-4 text-yellow-400" title="Technical Integration" />
+                            <Zap className="w-4 h-4 text-yellow-400" />
                           ) : (
-                            <Target className="w-4 h-4 text-purple-400" title="Business Capability" />
+                            <Target className="w-4 h-4 text-purple-400" />
                           )}
                           <span className="text-white font-medium">{row.metric}</span>
                         </div>

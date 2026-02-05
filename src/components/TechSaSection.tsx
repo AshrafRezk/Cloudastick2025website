@@ -55,7 +55,7 @@ const TechSaSection = () => {
                             <div className="rounded-3xl bg-gradient-to-r from-blue-400/30 via-cyan-300/30 to-indigo-400/30 p-[1px] shadow-[0_30px_90px_-40px_rgba(59,130,246,0.9)]">
                                 <div className="rounded-3xl border border-white/10 bg-white/5 px-8 py-5 backdrop-blur-sm">
                                     <img
-                                        src="https://techsa.io/wp-content/uploads/2022/07/Original-on-Transparent-1-1536x281.png"
+                                        src="/Assets/Partners/techsa.png"
                                         alt="techsa logo"
                                         className="h-14 md:h-16 w-auto drop-shadow-[0_18px_36px_rgba(56,189,248,0.5)]"
                                         loading="lazy"
