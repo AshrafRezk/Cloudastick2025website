@@ -189,7 +189,7 @@ export const teamMembers: TeamMember[] = [
     id: "alyaa-hafez",
     name: "Alyaa Hafez",
     role: "Salesforce Consultant",
-    image: "/Assets/Company Members/Alyaa_Hafez_Salesforce_Consultant.png",
+    image: "/Assets/Team Avatars/Alyaa's Hafez.png",
     profileSlug: "alyaa-hafez",
     description: "GUC Graduate and Salesforce Consultant bringing fresh expertise to deliver innovative solutions and drive business transformation in the Salesforce ecosystem.",
     isAcademy: true
