@@ -210,6 +210,15 @@ export const teamMembers: TeamMember[] = [
     image: "/Assets/Company Members/Muhammed_Hesham_Senior_UX_UI_Designer.png",
     profileSlug: "muhammed-hesham",
     description: "Senior UX/UI Designer with extensive experience in creating intuitive and engaging user experiences across multiple industries and platforms."
+  },
+  {
+    id: "sandra-salama",
+    name: "Sandra Salama",
+    role: "Salesforce Consultant",
+    image: "/Assets/Team Avatars/sandra-salama.png",
+    profileSlug: "sandra-salama",
+    description: "Dedicated Salesforce Consultant with a focus on delivering high-quality solutions and driving client success through innovative Salesforce implementations.",
+    isAcademy: true
   }
 ];
 
