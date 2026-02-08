@@ -49,7 +49,7 @@ exports.handler = async (event, context) => {
 
     // Query for completed parent instances that don't have certificates yet
     const escapedContactId = contactId.replace(/'/g, "\\'");
-    const query = `SELECT Id, Name, Learner__c, Material__c, Material__r.Id, Material__r.Title__c, Material__r.Issue_Certificate__c, Material__r.Parent_Material__c, Status__c, Completed_On__c FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' AND Status__c = 'Completed' AND (Name NOT LIKE 'CERT-%' OR Name = null) AND Material__r.Parent_Material__c = null ORDER BY Completed_On__c DESC`;
+    const query = `SELECT Id, Name, Learner__c, Material__c, Material__r.Id, Material__r.Title__c, Material__r.Issue_Certificate__c, Material__r.Parent_Material__c, Status__c, Completed_On__c FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' AND (Name NOT LIKE 'CERT-%' OR Name = null) AND Material__r.Parent_Material__c = null ORDER BY Completed_On__c DESC`;
 
     const encodedQuery = encodeURIComponent(query);
     const queryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedQuery}`;
@@ -246,6 +246,24 @@ exports.handler = async (event, context) => {
             console.log(`⏭️ Skipping ${instance.Material__r?.Title__c || parentMaterialId}: Not all child materials completed`);
             skipped++;
             continue;
+          }
+
+          // If instance is not marked completed but children are, mark it completed!
+          if (instance.Status__c !== 'Completed') {
+            console.log(`🔄 Auto-completing parent instance ${instance.Id} as all children are completed`);
+            const updateParentUrl = `${instance_url}/services/data/v58.0/sobjects/Learning_Material_Instance__c/${parentInstanceId}`;
+            await fetch(updateParentUrl, {
+              method: 'PATCH',
+              headers: {
+                'Authorization': `Bearer ${access_token}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                Status__c: 'Completed',
+                Completed_On__c: new Date().toISOString(),
+                Progress__c: 100
+              }),
+            });
           }
 
           // Check if all quizzes passed (if any child has a quiz)
