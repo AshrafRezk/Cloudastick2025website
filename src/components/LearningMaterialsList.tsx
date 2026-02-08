@@ -49,7 +49,7 @@ const getStatusBgColor = (status: string) => {
 };
 
 const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) => {
-  const { instances, notStarted, inProgress, completed, isLoading, certificates } = usePortalUser();
+  const { instances, notStarted, inProgress, completed, isLoading } = usePortalUser();
 
   if (isLoading) {
     return (
@@ -282,21 +282,17 @@ const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) 
             {instance.completedOn && (
               <div className="mt-3 text-xs text-muted-foreground flex items-center justify-between">
                 <span>Completed on {new Date(instance.completedOn).toLocaleDateString()}</span>
-                {certificates.find(c => c.learningMaterialInstanceId === instance.id) && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const cert = certificates.find(c => c.learningMaterialInstanceId === instance.id);
-                      if (cert) {
-                        window.open(`/certificate/${cert.certificateId}`, '_blank');
-                      }
-                    }}
-                    className="flex items-center gap-1 text-brand-primary hover:underline font-medium"
-                  >
-                    <GraduationCap className="w-3 h-3" />
-                    View Certificate
-                  </button>
-                )}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const certificateId = `CERT-${instance.id}`;
+                    window.open(`/certificate/${certificateId}`, '_blank');
+                  }}
+                  className="flex items-center gap-1 text-brand-primary hover:underline font-medium"
+                >
+                  <GraduationCap className="w-3 h-3" />
+                  View Certificate
+                </button>
               </div>
             )}
             {instance.material?.materialType === 'Quiz' && instance.score !== null && (

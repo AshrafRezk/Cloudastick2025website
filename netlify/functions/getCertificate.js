@@ -34,7 +34,7 @@ exports.handler = async (event, context) => {
     console.log('📜 Get Certificate - Request received');
 
     let certificateId;
-    
+
     if (event.httpMethod === 'GET') {
       // Extract certificate ID from query string or path
       certificateId = event.queryStringParameters?.certificateId || event.path?.split('/').pop();
@@ -42,7 +42,7 @@ exports.handler = async (event, context) => {
       // POST request
       const { certificateId: certId, access_token, instance_url } = JSON.parse(event.body || '{}');
       certificateId = certId;
-      
+
       // If access_token is provided, use it (for authenticated requests)
       if (access_token && instance_url) {
         return await getCertificateWithAuth(certificateId, access_token, instance_url);
@@ -141,12 +141,12 @@ async function getCertificateWithAuth(certificateId, access_token, instance_url)
       // If it's not in CERT- format, assume it's the instance ID itself
       instanceId = certificateId;
     }
-    
+
     // Query Learning_Material_Instance__c by ID
     // Certificate is identified by Name field starting with 'CERT-'
     const escapedInstanceId = instanceId.replace(/'/g, "\\'");
-    const query = `SELECT Id, Name, Learner__c, Learner__r.Name, Learner__r.Email, Material__c, Material__r.Id, Material__r.Title__c, Material__r.Description__c, Material__r.Certificate_Logo_URL__c, Material__r.Certificate_Template__c, Status__c, Completed_On__c FROM Learning_Material_Instance__c WHERE Id = '${escapedInstanceId}' AND Status__c = 'Completed' AND Name LIKE 'CERT-%' LIMIT 1`;
-    
+    const query = `SELECT Id, Name, Learner__c, Learner__r.Name, Learner__r.Email, Material__c, Material__r.Id, Material__r.Title__c, Material__r.Description__c, Material__r.Certificate_Logo_URL__c, Material__r.Certificate_Template__c, Status__c, Completed_On__c FROM Learning_Material_Instance__c WHERE Id = '${escapedInstanceId}' AND Status__c = 'Completed' LIMIT 1`;
+
     const encodedQuery = encodeURIComponent(query);
     const queryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedQuery}`;
 
