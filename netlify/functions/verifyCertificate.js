@@ -34,7 +34,7 @@ exports.handler = async (event, context) => {
     console.log('🔍 Verify Certificate - Request received');
 
     let certificateId, verificationCode;
-    
+
     if (event.httpMethod === 'GET') {
       certificateId = event.queryStringParameters?.certificateId;
       verificationCode = event.queryStringParameters?.verificationCode;
@@ -118,7 +118,7 @@ exports.handler = async (event, context) => {
         instanceId = certificateId;
       }
       const escapedInstanceId = instanceId.replace(/'/g, "\\'");
-      query = `SELECT Id, Name, Learner__c, Learner__r.Name, Learner__r.Email, Material__c, Material__r.Id, Material__r.Title__c, Material__r.Description__c, Material__r.Certificate_Logo_URL__c, Material__r.Certificate_Template__c, Status__c, Completed_On__c FROM Learning_Material_Instance__c WHERE Id = '${escapedInstanceId}' AND Status__c = 'Completed' AND Name LIKE 'CERT-%' LIMIT 1`;
+      query = `SELECT Id, Name, Learner__c, Learner__r.Name, Learner__r.Email, Material__c, Material__r.Id, Material__r.Title__c, Material__r.Description__c, Material__r.Certificate_Logo_URL__c, Material__r.Certificate_Template__c, Status__c, Completed_On__c FROM Learning_Material_Instance__c WHERE Id = '${escapedInstanceId}' AND Status__c = 'Completed' LIMIT 1`;
     } else if (verificationCode) {
       // Query by verification code stored in Name field (format: CERT-{InstanceId}|{VerificationCode})
       const escapedCode = verificationCode.replace(/'/g, "\\'");
