@@ -172,11 +172,11 @@ exports.handler = async (event, context) => {
     const instance = data.records[0];
 
     // Parse certificate data from Name field (format: CERT-{InstanceId}|{VerificationCode})
-    let verificationCode = '';
+    let extractedVerificationCode = '';
     if (instance.Name && instance.Name.includes('|')) {
       const parts = instance.Name.split('|');
       if (parts.length >= 2) {
-        verificationCode = parts[1];
+        extractedVerificationCode = parts[1];
       }
     }
 
@@ -198,7 +198,7 @@ exports.handler = async (event, context) => {
         certificate: {
           id: instance.Id,
           certificateId: certificateIdFormatted,
-          verificationCode: verificationCode,
+          verificationCode: extractedVerificationCode,
           contactId: instance.Learner__c,
           contactName: instance.Learner__r?.Name || '',
           contactEmail: instance.Learner__r?.Email || '',
