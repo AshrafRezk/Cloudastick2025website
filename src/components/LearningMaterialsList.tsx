@@ -49,7 +49,7 @@ const getStatusBgColor = (status: string) => {
 };
 
 const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) => {
-  const { instances, notStarted, inProgress, completed, isLoading } = usePortalUser();
+  const { instances, notStarted, inProgress, completed, isLoading, certificates } = usePortalUser();
 
   if (isLoading) {
     return (
@@ -93,7 +93,7 @@ const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) 
     const childProgress = childInstance?.progress || 0;
     const childStatus = childInstance?.status || 'Not Started';
     const childStatusColor = getStatusColor(childStatus);
-    
+
     return (
       <motion.div
         key={child.id}
@@ -140,16 +140,16 @@ const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) 
                       {child.duration} min
                     </span>
                   )}
-                    <span className={`flex items-center gap-1 font-medium ${childStatusColor}`}>
-                      {childStatus === 'Completed' && <CheckCircle2 className="w-3 h-3" />}
-                      {childStatus === 'In Progress' && <Play className="w-3 h-3" />}
-                      {childStatus}
+                  <span className={`flex items-center gap-1 font-medium ${childStatusColor}`}>
+                    {childStatus === 'Completed' && <CheckCircle2 className="w-3 h-3" />}
+                    {childStatus === 'In Progress' && <Play className="w-3 h-3" />}
+                    {childStatus}
+                  </span>
+                  {child.materialType === 'Quiz' && (
+                    <span className="text-xs text-muted-foreground">
+                      {childInstance && (childInstance as any).attemptNumber ? `Attempt ${(childInstance as any).attemptNumber}` : ''}
                     </span>
-                    {child.materialType === 'Quiz' && (
-                      <span className="text-xs text-muted-foreground">
-                        {childInstance && (childInstance as any).attemptNumber ? `Attempt ${(childInstance as any).attemptNumber}` : ''}
-                      </span>
-                    )}
+                  )}
                 </div>
                 {childInstance && (
                   <div className="space-y-1">
@@ -162,18 +162,17 @@ const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) 
                 )}
                 {child.materialType === 'Quiz' && childInstance && childInstance.score !== null && childInstance.score !== undefined && (
                   <div className="mt-2 text-xs">
-                    <span className={`font-medium ${
-                      child.passingScore && checkPassingScore(childInstance.score, child.passingScore)
-                        ? 'text-green-500'
-                        : child.passingScore
+                    <span className={`font-medium ${child.passingScore && checkPassingScore(childInstance.score, child.passingScore)
+                      ? 'text-green-500'
+                      : child.passingScore
                         ? 'text-red-500'
                         : 'text-muted-foreground'
-                    }`}>
+                      }`}>
                       {child.passingScore && checkPassingScore(childInstance.score, child.passingScore)
                         ? `✓ Passed (${childInstance.score}%)`
                         : child.passingScore
-                        ? `✗ Failed (${childInstance.score}%)`
-                        : `Score: ${childInstance.score}%`}
+                          ? `✗ Failed (${childInstance.score}%)`
+                          : `Score: ${childInstance.score}%`}
                     </span>
                   </div>
                 )}
@@ -281,24 +280,38 @@ const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) 
               <Progress value={instance.progress} className="h-2" />
             </div>
             {instance.completedOn && (
-              <div className="mt-3 text-xs text-muted-foreground">
-                Completed on {new Date(instance.completedOn).toLocaleDateString()}
+              <div className="mt-3 text-xs text-muted-foreground flex items-center justify-between">
+                <span>Completed on {new Date(instance.completedOn).toLocaleDateString()}</span>
+                {certificates.find(c => c.learningMaterialInstanceId === instance.id) && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const cert = certificates.find(c => c.learningMaterialInstanceId === instance.id);
+                      if (cert) {
+                        window.open(`/certificate/${cert.certificateId}`, '_blank');
+                      }
+                    }}
+                    className="flex items-center gap-1 text-brand-primary hover:underline font-medium"
+                  >
+                    <GraduationCap className="w-3 h-3" />
+                    View Certificate
+                  </button>
+                )}
               </div>
             )}
             {instance.material?.materialType === 'Quiz' && instance.score !== null && (
               <div className="mt-2 text-xs">
-                <span className={`font-medium ${
-                  instance.material.passingScore && checkPassingScore(instance.score, instance.material.passingScore)
-                    ? 'text-green-500'
-                    : instance.material.passingScore
+                <span className={`font-medium ${instance.material.passingScore && checkPassingScore(instance.score, instance.material.passingScore)
+                  ? 'text-green-500'
+                  : instance.material.passingScore
                     ? 'text-red-500'
                     : 'text-muted-foreground'
-                }`}>
+                  }`}>
                   {instance.material.passingScore && checkPassingScore(instance.score, instance.material.passingScore)
                     ? `✓ Passed (${instance.score}%)`
                     : instance.material.passingScore
-                    ? `✗ Failed (${instance.score}%)`
-                    : `Score: ${instance.score}%`}
+                      ? `✗ Failed (${instance.score}%)`
+                      : `Score: ${instance.score}%`}
                 </span>
               </div>
             )}

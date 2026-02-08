@@ -50,7 +50,7 @@ exports.handler = async (event, context) => {
     // Query for completed parent instances that don't have certificates yet
     const escapedContactId = contactId.replace(/'/g, "\\'");
     const query = `SELECT Id, Name, Learner__c, Material__c, Material__r.Id, Material__r.Title__c, Material__r.Issue_Certificate__c, Material__r.Parent_Material__c, Status__c, Completed_On__c FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' AND Status__c = 'Completed' AND (Name NOT LIKE 'CERT-%' OR Name = null) AND Material__r.Parent_Material__c = null ORDER BY Completed_On__c DESC`;
-    
+
     const encodedQuery = encodeURIComponent(query);
     const queryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedQuery}`;
 
@@ -127,7 +127,7 @@ exports.handler = async (event, context) => {
         const childQuery = `SELECT Id, Title__c, Quiz_Questions__c, Passing_Score__c FROM Learning_Material__c WHERE Parent_Material__c = '${parentMaterialId.replace(/'/g, "\\'")}' AND Active__c = true`;
         const encodedChildQuery = encodeURIComponent(childQuery);
         const childQueryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedChildQuery}`;
-        
+
         const childResponse = await fetch(childQueryUrl, {
           method: 'GET',
           headers: {
@@ -145,78 +145,142 @@ exports.handler = async (event, context) => {
         const childMaterials = childData.records || [];
 
         if (childMaterials.length === 0) {
-          console.log(`⏭️ Skipping ${instance.Material__r?.Title__c || parentMaterialId}: No child materials found`);
-          skipped++;
-          continue;
-        }
+          // No child materials found, this is a standalone course
+          // Check if standalone criteria are met (completed and passed)
 
-        const childIds = childMaterials.map(c => c.Id).map(id => `'${id.replace(/'/g, "\\'")}'`).join(',');
+          // Since the main query already filters for Status__c = 'Completed', we just need to check the quiz score if applicable
+          if (instance.Material__r?.Quiz_Questions__c) {
+            // We need to fetch this instance's score
+            // The main query didn't include Score__c, let's fetch it or trust the completion?
+            // Actually, for consistency, let's fetch the score
 
-        // Fetch all child instances
-        const childInstanceQuery = `SELECT Id, Material__c, Status__c, Score__c FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' AND Material__c IN (${childIds})`;
-        const encodedChildInstanceQuery = encodeURIComponent(childInstanceQuery);
-        const childInstanceQueryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedChildInstanceQuery}`;
-        
-        const childInstanceResponse = await fetch(childInstanceQueryUrl, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${access_token}`,
-            'Content-Type': 'application/json',
-          },
-        });
+            const scoreQuery = `SELECT Score__c FROM Learning_Material_Instance__c WHERE Id = '${parentInstanceId}'`;
+            const encodedScoreQuery = encodeURIComponent(scoreQuery);
+            const scoreResponse = await fetch(`${instance_url}/services/data/v58.0/query/?q=${encodedScoreQuery}`, {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${access_token}`,
+                'Content-Type': 'application/json',
+              },
+            });
 
-        if (!childInstanceResponse.ok) {
-          errors.push({ instanceId: parentInstanceId, error: 'Failed to fetch child instances' });
-          continue;
-        }
-
-        const childInstanceData = await childInstanceResponse.json();
-        const childInstances = childInstanceData.records || [];
-
-        // Check if all children are completed
-        const allChildrenCompleted = childMaterials.every((child) => {
-          const childInstance = childInstances.find(ci => ci.Material__c === child.Id);
-          return childInstance && childInstance.Status__c === 'Completed';
-        });
-
-        if (!allChildrenCompleted) {
-          console.log(`⏭️ Skipping ${instance.Material__r?.Title__c || parentMaterialId}: Not all child materials completed`);
-          skipped++;
-          continue;
-        }
-
-        // Check if all quizzes passed (if any child has a quiz)
-        const hasQuizzes = childMaterials.some(child => child.Quiz_Questions__c);
-        if (hasQuizzes) {
-          const allQuizzesPassed = childMaterials.every((child) => {
-            if (!child.Quiz_Questions__c) return true; // Not a quiz, skip
-            
-            const childInstance = childInstances.find(ci => ci.Material__c === child.Id);
-            if (!childInstance || childInstance.Status__c !== 'Completed') {
-              return false;
+            if (!scoreResponse.ok) {
+              console.log(`⚠️ Could not fetch score for ${parentInstanceId}`);
+              errors.push({ instanceId: parentInstanceId, error: 'Failed to fetch score' });
+              continue;
             }
 
-            // Check if quiz passed
-            const score = childInstance.Score__c;
-            const passingScore = child.Passing_Score__c;
+            const scoreData = await scoreResponse.json();
+            const instanceWithScore = scoreData.records?.[0];
 
-            if (passingScore === null || passingScore === undefined) {
-              return true; // No passing score requirement
+            if (instanceWithScore) {
+              const score = instanceWithScore.Score__c;
+              // Fetch passing score from material (it wasn't in the main query either, we need to fetch it or update main query)
+              // Actually the child query fetched Quiz_Questions__c from child materials, but here we are checking the PARENT material
+              // We typically need to query the parent material details if it's standalone
+
+              // Let's query the material details
+              const materialQuery = `SELECT Quiz_Questions__c, Passing_Score__c FROM Learning_Material__c WHERE Id = '${parentMaterialId}'`;
+              const encodedMaterialQuery = encodeURIComponent(materialQuery);
+              const materialResponse = await fetch(`${instance_url}/services/data/v58.0/query/?q=${encodedMaterialQuery}`, {
+                method: 'GET',
+                headers: {
+                  'Authorization': `Bearer ${access_token}`,
+                  'Content-Type': 'application/json',
+                },
+              });
+
+              if (materialResponse.ok) {
+                const materialData = await materialResponse.json();
+                const material = materialData.records?.[0];
+
+                if (material && material.Passing_Score__c !== null && material.Passing_Score__c !== undefined) {
+                  let passingScorePercent = material.Passing_Score__c;
+                  if (passingScorePercent > 0 && passingScorePercent <= 1) {
+                    passingScorePercent = passingScorePercent * 100;
+                  }
+
+                  if (score === null || score === undefined || score < passingScorePercent) {
+                    console.log(`⏭️ Skipping ${instance.Material__r?.Title__c}: Quiz score below passing score`);
+                    skipped++;
+                    continue;
+                  }
+                }
+              }
             }
+          }
 
-            // Normalize passing score (handle both percentage and decimal)
-            let passingScorePercent = passingScore;
-            if (passingScore > 0 && passingScore <= 1) {
-              passingScorePercent = passingScore * 100;
-            }
+          // If we are here, it's eligible as a standalone course
+        } else {
+          // Existing logic for child materials
+          const childIds = childMaterials.map(c => c.Id).map(id => `'${id.replace(/'/g, "\\'")}'`).join(',');
 
-            return score !== null && score !== undefined && score >= passingScorePercent;
+          // Fetch all child instances
+          const childInstanceQuery = `SELECT Id, Material__c, Status__c, Score__c FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' AND Material__c IN (${childIds})`;
+          const encodedChildInstanceQuery = encodeURIComponent(childInstanceQuery);
+          const childInstanceQueryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedChildInstanceQuery}`;
+
+          const childInstanceResponse = await fetch(childInstanceQueryUrl, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${access_token}`,
+              'Content-Type': 'application/json',
+            },
           });
 
-          if (!allQuizzesPassed) {
-            console.log(`⏭️ Skipping ${instance.Material__r?.Title__c || parentMaterialId}: Not all quizzes passed`);
+          if (!childInstanceResponse.ok) {
+            errors.push({ instanceId: parentInstanceId, error: 'Failed to fetch child instances' });
+            continue;
+          }
+
+          const childInstanceData = await childInstanceResponse.json();
+          const childInstances = childInstanceData.records || [];
+
+          // Check if all children are completed
+          const allChildrenCompleted = childMaterials.every((child) => {
+            const childInstance = childInstances.find(ci => ci.Material__c === child.Id);
+            return childInstance && childInstance.Status__c === 'Completed';
+          });
+
+          if (!allChildrenCompleted) {
+            console.log(`⏭️ Skipping ${instance.Material__r?.Title__c || parentMaterialId}: Not all child materials completed`);
             skipped++;
             continue;
+          }
+
+          // Check if all quizzes passed (if any child has a quiz)
+          const hasQuizzes = childMaterials.some(child => child.Quiz_Questions__c);
+          if (hasQuizzes) {
+            const allQuizzesPassed = childMaterials.every((child) => {
+              if (!child.Quiz_Questions__c) return true; // Not a quiz, skip
+
+              const childInstance = childInstances.find(ci => ci.Material__c === child.Id);
+              if (!childInstance || childInstance.Status__c !== 'Completed') {
+                return false;
+              }
+
+              // Check if quiz passed
+              const score = childInstance.Score__c;
+              const passingScore = child.Passing_Score__c;
+
+              if (passingScore === null || passingScore === undefined) {
+                return true; // No passing score requirement
+              }
+
+              // Normalize passing score (handle both percentage and decimal)
+              let passingScorePercent = passingScore;
+              if (passingScore > 0 && passingScore <= 1) {
+                passingScorePercent = passingScore * 100;
+              }
+
+              return score !== null && score !== undefined && score >= passingScorePercent;
+            });
+
+            if (!allQuizzesPassed) {
+              console.log(`⏭️ Skipping ${instance.Material__r?.Title__c || parentMaterialId}: Not all quizzes passed`);
+              skipped++;
+              continue;
+            }
           }
         }
 
