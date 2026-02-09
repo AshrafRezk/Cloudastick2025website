@@ -122,7 +122,8 @@ exports.handler = async (event, context) => {
     } else if (recipientName) {
       // Query by recipient name
       const escapedName = recipientName.replace(/'/g, "\\'");
-      query = `SELECT Id, Name, Learner__c, Learner__r.Name, Learner__r.Email, Material__c, Material__r.Id, Material__r.Title__c, Material__r.Description__c, Material__r.Certificate_Logo_URL__c, Material__r.Certificate_Template__c, Status__c, Completed_On__c FROM Learning_Material_Instance__c WHERE Status__c = 'Completed' AND Learner__r.Name LIKE '%${escapedName}%' ORDER BY Completed_On__c DESC LIMIT 50`;
+      // Added Material__r.Material_Type__c to query and filter
+      query = `SELECT Id, Name, Learner__c, Learner__r.Name, Learner__r.Email, Material__c, Material__r.Id, Material__r.Title__c, Material__r.Description__c, Material__r.Certificate_Logo_URL__c, Material__r.Certificate_Template__c, Material__r.Material_Type__c, Status__c, Completed_On__c FROM Learning_Material_Instance__c WHERE Status__c = 'Completed' AND Learner__r.Name LIKE '%${escapedName}%' AND (Material__r.Material_Type__c = 'Course' OR Material__r.Material_Type__c = 'Module') ORDER BY Completed_On__c DESC LIMIT 50`;
     }
 
     const encodedQuery = encodeURIComponent(query);
