@@ -21,9 +21,9 @@ const CertificateViewer = ({ certificate, showVerificationCode = true }: Certifi
   };
 
   return (
-    <div className="certificate-container bg-white" style={{ 
-      width: '210mm', 
-      minHeight: '297mm', 
+    <div className="certificate-container bg-white" style={{
+      width: '210mm',
+      minHeight: '297mm',
       margin: '0 auto',
       padding: '40px',
       boxShadow: '0 0 20px rgba(0,0,0,0.1)',
@@ -33,21 +33,24 @@ const CertificateViewer = ({ certificate, showVerificationCode = true }: Certifi
       <div className="absolute inset-0 border-8 border-yellow-400" style={{
         borderImage: 'linear-gradient(45deg, #fbbf24, #f59e0b, #d97706) 1',
       }}></div>
-      
+
       {/* Header with logos */}
       <div className="flex justify-between items-center mb-8">
         {/* Cloudastick Logo */}
         <div className="flex-1">
-          <div className="text-2xl font-bold text-gray-800">Cloudastick</div>
-          <div className="text-sm text-gray-600">Learning Management System</div>
+          <img
+            src="/Assets/Company Logos/blue-logo.png"
+            alt="Cloudastick"
+            className="h-16 object-contain"
+          />
         </div>
-        
+
         {/* Course Logo (if available) */}
         {certificate.certificateLogoUrl && (
           <div className="flex-1 flex justify-end">
-            <img 
-              src={certificate.certificateLogoUrl} 
-              alt="Course Logo" 
+            <img
+              src={certificate.certificateLogoUrl}
+              alt="Course Logo"
               className="max-h-20 object-contain"
             />
           </div>
@@ -56,7 +59,7 @@ const CertificateViewer = ({ certificate, showVerificationCode = true }: Certifi
 
       {/* Certificate Title */}
       <div className="text-center mb-12">
-        <h1 className="text-5xl font-bold text-gray-900 mb-4" style={{ 
+        <h1 className="text-5xl font-bold text-gray-900 mb-4" style={{
           fontFamily: 'serif',
           letterSpacing: '2px',
         }}>
@@ -101,7 +104,7 @@ const CertificateViewer = ({ certificate, showVerificationCode = true }: Certifi
               <div className="mt-1">Verification Code: {certificate.verificationCode}</div>
             )}
           </div>
-          
+
           {/* Signature area (optional) */}
           <div className="text-center">
             <div className="border-t-2 border-gray-400 w-48 mt-2"></div>

@@ -177,20 +177,20 @@ const VerifyCertificate = () => {
 
                       <div className="space-y-2 text-sm mb-4">
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Recipient:</span>
-                          <span className="font-semibold">{certificate.contactName}</span>
+                          <span className="text-green-800/70 dark:text-green-200/70 font-medium">Recipient:</span>
+                          <span className="font-bold text-green-900 dark:text-green-100">{certificate.contactName}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Course:</span>
-                          <span className="font-semibold">{certificate.learningMaterialTitle}</span>
+                          <span className="text-green-800/70 dark:text-green-200/70 font-medium">Course:</span>
+                          <span className="font-bold text-green-900 dark:text-green-100">{certificate.learningMaterialTitle}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Issued Date:</span>
-                          <span>{new Date(certificate.issuedDate).toLocaleDateString()}</span>
+                          <span className="text-green-800/70 dark:text-green-200/70 font-medium">Date of Completion:</span>
+                          <span className="font-bold text-green-900 dark:text-green-100">{new Date(certificate.issuedDate).toLocaleDateString()}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Certificate ID:</span>
-                          <span className="font-mono text-xs">{certificate.certificateId}</span>
+                          <span className="text-green-800/70 dark:text-green-200/70 font-medium">Certificate ID:</span>
+                          <span className="font-mono text-xs font-bold text-green-900 dark:text-green-100">{certificate.certificateId}</span>
                         </div>
                       </div>
 
