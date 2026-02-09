@@ -100,9 +100,6 @@ const CertificateViewer = ({ certificate, showVerificationCode = true }: Certifi
           {/* Certificate ID */}
           <div className="text-xs text-gray-500">
             <div>Certificate ID: {certificate.certificateId}</div>
-            {showVerificationCode && (
-              <div className="mt-1">Verification Code: {certificate.verificationCode}</div>
-            )}
           </div>
 
           {/* Signature area (optional) */}

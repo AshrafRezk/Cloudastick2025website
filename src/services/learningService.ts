@@ -159,7 +159,7 @@ export interface CertificateGenerationResponse {
 
 export interface CertificateVerificationResponse {
   valid: boolean;
-  certificate: Certificate | null;
+  certificates: Certificate[]; // Changed from single certificate to array
   message?: string;
 }
 

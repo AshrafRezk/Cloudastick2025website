@@ -18,23 +18,23 @@ const VerifyCertificate = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [certificateId, setCertificateId] = useState(searchParams.get('certificateId') || '');
-  const [verificationCode, setVerificationCode] = useState(searchParams.get('verificationCode') || '');
-  const [certificate, setCertificate] = useState<Certificate | null>(null);
+  const [recipientName, setRecipientName] = useState(searchParams.get('recipientName') || '');
+  const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isVerified, setIsVerified] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Auto-verify if params are provided
   useEffect(() => {
-    if (certificateId || verificationCode) {
+    if (certificateId || recipientName) {
       handleVerify();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleVerify = async () => {
-    if (!certificateId && !verificationCode) {
-      setError('Please enter either a Certificate ID or Verification Code');
+    if (!certificateId && !recipientName) {
+      setError('Please enter either a Certificate ID or Recipient Name');
       return;
     }
 
@@ -42,19 +42,19 @@ const VerifyCertificate = () => {
       setIsVerifying(true);
       setError(null);
       setIsVerified(null);
-      setCertificate(null);
+      setCertificates([]);
 
       const result = await verifyCertificate(
         certificateId || undefined,
-        verificationCode || undefined
+        recipientName || undefined
       );
 
-      if (result.valid && result.certificate) {
+      if (result.valid && result.certificates && result.certificates.length > 0) {
         setIsVerified(true);
-        setCertificate(result.certificate);
+        setCertificates(result.certificates);
       } else {
         setIsVerified(false);
-        setError(result.message || 'Certificate not found or invalid');
+        setError(result.message || 'No certificates found for this criteria');
       }
     } catch (err) {
       setIsVerified(false);
@@ -64,10 +64,8 @@ const VerifyCertificate = () => {
     }
   };
 
-  const handleViewCertificate = () => {
-    if (certificate) {
-      navigate(`/certificate/${certificate.certificateId}`);
-    }
+  const handleViewCertificate = (certId: string) => {
+    navigate(`/certificate/${certId}`);
   };
 
   return (
@@ -78,17 +76,17 @@ const VerifyCertificate = () => {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8 text-center"
         >
-          <h1 className="text-4xl font-bold mb-2">Verify Certificate</h1>
+          <h1 className="text-4xl font-bold mb-2">Certificate Lookup</h1>
           <p className="text-muted-foreground">
-            Enter a certificate ID or verification code to verify authenticity
+            Enter a certificate ID or recipient name to find legitimate certificates
           </p>
         </motion.div>
 
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle>Certificate Verification</CardTitle>
+            <CardTitle>Search Certificates</CardTitle>
             <CardDescription>
-              Verify the authenticity of a certificate using its ID or verification code
+              Find and verify certificates issued by Cloudastick
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -98,7 +96,7 @@ const VerifyCertificate = () => {
                 <Input
                   id="certificateId"
                   type="text"
-                  placeholder="Enter certificate ID (e.g., xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)"
+                  placeholder="Enter certificate ID (e.g., CERT-xxxxxxxx...)"
                   value={certificateId}
                   onChange={(e) => setCertificateId(e.target.value)}
                   onKeyPress={(e) => {
@@ -119,14 +117,13 @@ const VerifyCertificate = () => {
               </div>
 
               <div>
-                <Label htmlFor="verificationCode">Verification Code</Label>
+                <Label htmlFor="recipientName">Recipient Name</Label>
                 <Input
-                  id="verificationCode"
+                  id="recipientName"
                   type="text"
-                  placeholder="Enter 8-character verification code (e.g., ABC123XY)"
-                  value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value.toUpperCase())}
-                  maxLength={8}
+                  placeholder="Enter recipient full name"
+                  value={recipientName}
+                  onChange={(e) => setRecipientName(e.target.value)}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
                       handleVerify();
@@ -137,18 +134,18 @@ const VerifyCertificate = () => {
 
               <Button
                 onClick={handleVerify}
-                disabled={isVerifying || (!certificateId && !verificationCode)}
+                disabled={isVerifying || (!certificateId && !recipientName)}
                 className="w-full"
               >
                 {isVerifying ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Verifying...
+                    Searching...
                   </>
                 ) : (
                   <>
                     <Search className="h-4 w-4 mr-2" />
-                    Verify Certificate
+                    Search Certificates
                   </>
                 )}
               </Button>
@@ -162,45 +159,46 @@ const VerifyCertificate = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            {isVerified && certificate ? (
-              <Card className="border-green-500 bg-green-50 dark:bg-green-950">
-                <CardContent className="pt-6">
-                  <div className="flex items-start gap-4">
-                    <CheckCircle2 className="h-8 w-8 text-green-500 flex-shrink-0 mt-1" />
-                    <div className="flex-1">
-                      <h3 className="text-xl font-semibold text-green-900 dark:text-green-100 mb-2">
-                        Certificate Verified
-                      </h3>
-                      <p className="text-green-800 dark:text-green-200 mb-4">
-                        This certificate is valid and authentic.
-                      </p>
-
-                      <div className="space-y-2 text-sm mb-4">
-                        <div className="flex justify-between">
-                          <span className="text-green-800/70 dark:text-green-200/70 font-medium">Recipient:</span>
-                          <span className="font-bold text-green-900 dark:text-green-100">{certificate.contactName}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-green-800/70 dark:text-green-200/70 font-medium">Course:</span>
-                          <span className="font-bold text-green-900 dark:text-green-100">{certificate.learningMaterialTitle}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-green-800/70 dark:text-green-200/70 font-medium">Date of Completion:</span>
-                          <span className="font-bold text-green-900 dark:text-green-100">{new Date(certificate.issuedDate).toLocaleDateString()}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-green-800/70 dark:text-green-200/70 font-medium">Certificate ID:</span>
-                          <span className="font-mono text-xs font-bold text-green-900 dark:text-green-100">{certificate.certificateId}</span>
-                        </div>
-                      </div>
-
-                      <Button onClick={handleViewCertificate} className="w-full">
-                        View Full Certificate
-                      </Button>
-                    </div>
+            {isVerified && certificates.length > 0 ? (
+              <div className="space-y-4">
+                <div className="text-center mb-4">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded-full">
+                    <CheckCircle2 className="h-5 w-5" />
+                    <span className="font-semibold">Found {certificates.length} valid certificate{certificates.length !== 1 ? 's' : ''}</span>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+
+                {certificates.map((cert) => (
+                  <Card key={cert.id} className="border-green-500/20 bg-green-50/50 dark:bg-green-950/20 hover:border-green-500 transition-colors">
+                    <CardContent className="pt-6">
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <span className="text-green-800/70 dark:text-green-200/70 font-medium text-sm block">Recipient</span>
+                            <span className="font-bold text-green-900 dark:text-green-100">{cert.contactName}</span>
+                          </div>
+                          <div>
+                            <span className="text-green-800/70 dark:text-green-200/70 font-medium text-sm block">Course</span>
+                            <span className="font-bold text-green-900 dark:text-green-100">{cert.learningMaterialTitle}</span>
+                          </div>
+                          <div>
+                            <span className="text-green-800/70 dark:text-green-200/70 font-medium text-sm block">Date of Completion</span>
+                            <span className="font-bold text-green-900 dark:text-green-100">{new Date(cert.issuedDate).toLocaleDateString()}</span>
+                          </div>
+                          <div>
+                            <span className="text-green-800/70 dark:text-green-200/70 font-medium text-sm block">Certificate ID</span>
+                            <span className="font-mono text-xs font-bold text-green-900 dark:text-green-100 break-all">{cert.certificateId}</span>
+                          </div>
+                        </div>
+
+                        <Button onClick={() => handleViewCertificate(cert.certificateId)} className="w-full" variant="outline">
+                          View Certificate
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             ) : (
               <Card className="border-red-500 bg-red-50 dark:bg-red-950">
                 <CardContent className="pt-6">
@@ -208,10 +206,10 @@ const VerifyCertificate = () => {
                     <XCircle className="h-8 w-8 text-red-500 flex-shrink-0 mt-1" />
                     <div className="flex-1">
                       <h3 className="text-xl font-semibold text-red-900 dark:text-red-100 mb-2">
-                        Certificate Not Verified
+                        No Certificates Found
                       </h3>
                       <p className="text-red-800 dark:text-red-200">
-                        {error || 'The certificate could not be verified. Please check the ID or verification code and try again.'}
+                        {error || 'We could not find any certificates matching your criteria. Please check the ID or name and try again.'}
                       </p>
                     </div>
                   </div>
@@ -234,10 +232,10 @@ const VerifyCertificate = () => {
                 <AlertCircle className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
                 <div className="text-sm text-muted-foreground">
                   <p className="mb-2">
-                    <strong>Certificate ID:</strong> A unique identifier found on the certificate (UUID format).
+                    <strong>Certificate ID:</strong> Unique identifier found on the certificate (e.g., CERT-...).
                   </p>
                   <p>
-                    <strong>Verification Code:</strong> An 8-character alphanumeric code that can be used to verify the certificate's authenticity.
+                    <strong>Recipient Name:</strong> Full name of the person who completed the course.
                   </p>
                 </div>
               </div>

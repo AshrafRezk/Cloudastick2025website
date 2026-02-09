@@ -33,18 +33,18 @@ exports.handler = async (event, context) => {
   try {
     console.log('🔍 Verify Certificate - Request received');
 
-    let certificateId, verificationCode;
+    let certificateId, recipientName;
 
     if (event.httpMethod === 'GET') {
       certificateId = event.queryStringParameters?.certificateId;
-      verificationCode = event.queryStringParameters?.verificationCode;
+      recipientName = event.queryStringParameters?.recipientName;
     } else {
       const body = JSON.parse(event.body || '{}');
       certificateId = body.certificateId;
-      verificationCode = body.verificationCode;
+      recipientName = body.recipientName;
     }
 
-    if (!certificateId && !verificationCode) {
+    if (!certificateId && !recipientName) {
       return {
         statusCode: 400,
         headers: {
@@ -53,7 +53,7 @@ exports.handler = async (event, context) => {
         },
         body: JSON.stringify({
           error: 'Missing parameters',
-          message: 'Either certificateId or verificationCode is required',
+          message: 'Either certificateId or recipientName is required',
         }),
       };
     }
@@ -119,10 +119,10 @@ exports.handler = async (event, context) => {
       }
       const escapedInstanceId = instanceId.replace(/'/g, "\\'");
       query = `SELECT Id, Name, Learner__c, Learner__r.Name, Learner__r.Email, Material__c, Material__r.Id, Material__r.Title__c, Material__r.Description__c, Material__r.Certificate_Logo_URL__c, Material__r.Certificate_Template__c, Status__c, Completed_On__c FROM Learning_Material_Instance__c WHERE Id = '${escapedInstanceId}' AND Status__c = 'Completed' LIMIT 1`;
-    } else if (verificationCode) {
-      // Query by verification code stored in Name field (format: CERT-{InstanceId}|{VerificationCode})
-      const escapedCode = verificationCode.replace(/'/g, "\\'");
-      query = `SELECT Id, Name, Learner__c, Learner__r.Name, Learner__r.Email, Material__c, Material__r.Id, Material__r.Title__c, Material__r.Description__c, Material__r.Certificate_Logo_URL__c, Material__r.Certificate_Template__c, Status__c, Completed_On__c FROM Learning_Material_Instance__c WHERE Status__c = 'Completed' AND Name LIKE '%|${escapedCode}' LIMIT 1`;
+    } else if (recipientName) {
+      // Query by recipient name
+      const escapedName = recipientName.replace(/'/g, "\\'");
+      query = `SELECT Id, Name, Learner__c, Learner__r.Name, Learner__r.Email, Material__c, Material__r.Id, Material__r.Title__c, Material__r.Description__c, Material__r.Certificate_Logo_URL__c, Material__r.Certificate_Template__c, Status__c, Completed_On__c FROM Learning_Material_Instance__c WHERE Status__c = 'Completed' AND Learner__r.Name LIKE '%${escapedName}%' ORDER BY Completed_On__c DESC LIMIT 50`;
     }
 
     const encodedQuery = encodeURIComponent(query);
@@ -163,29 +163,50 @@ exports.handler = async (event, context) => {
         },
         body: JSON.stringify({
           valid: false,
-          certificate: null,
-          message: 'Certificate not found or invalid',
+          certificates: [],
+          message: 'No certificates found',
         }),
       };
     }
 
-    const instance = data.records[0];
-
-    // Parse certificate data from Name field (format: CERT-{InstanceId}|{VerificationCode})
-    let extractedVerificationCode = '';
-    if (instance.Name && instance.Name.includes('|')) {
-      const parts = instance.Name.split('|');
-      if (parts.length >= 2) {
-        extractedVerificationCode = parts[1];
+    // Process all found records
+    const certificates = data.records.map(instance => {
+      // Parse certificate data from Name field (format: CERT-{InstanceId}|{VerificationCode})
+      let extractedVerificationCode = '';
+      if (instance.Name && instance.Name.includes('|')) {
+        const parts = instance.Name.split('|');
+        if (parts.length >= 2) {
+          extractedVerificationCode = parts[1];
+        }
       }
-    }
 
-    const certificateIdFormatted = `CERT-${instance.Id}`;
-    const baseUrl = process.env.CERTIFICATE_BASE_URL || 'https://cloudastick.com';
-    const certificateUrl = `${baseUrl}/certificate/${certificateIdFormatted}`;
-    const issuedDate = instance.Completed_On__c ? instance.Completed_On__c.split('T')[0] : new Date().toISOString().split('T')[0];
+      const certificateIdFormatted = `CERT-${instance.Id}`;
+      const baseUrl = process.env.CERTIFICATE_BASE_URL || 'https://cloudastick.com';
+      const certificateUrl = `${baseUrl}/certificate/${certificateIdFormatted}`;
+      const issuedDate = instance.Completed_On__c ? instance.Completed_On__c.split('T')[0] : new Date().toISOString().split('T')[0];
 
-    console.log('✅ Certificate verified successfully:', certificateIdFormatted);
+      return {
+        id: instance.Id,
+        certificateId: certificateIdFormatted,
+        verificationCode: extractedVerificationCode,
+        contactId: instance.Learner__c,
+        contactName: instance.Learner__r?.Name || '',
+        contactEmail: instance.Learner__r?.Email || '',
+        learningMaterialId: instance.Material__c,
+        learningMaterialTitle: instance.Material__r?.Title__c || '',
+        learningMaterialDescription: instance.Material__r?.Description__c || null,
+        learningMaterialInstanceId: instance.Id,
+        issuedDate: issuedDate,
+        certificateUrl: certificateUrl,
+        pdfFileUrl: null,
+        status: 'Active',
+        metadata: {},
+        certificateLogoUrl: instance.Material__r?.Certificate_Logo_URL__c || null,
+        certificateTemplate: instance.Material__r?.Certificate_Template__c || null,
+      };
+    });
+
+    console.log(`✅ Found ${certificates.length} certificates`);
 
     return {
       statusCode: 200,
@@ -195,26 +216,8 @@ exports.handler = async (event, context) => {
       },
       body: JSON.stringify({
         valid: true,
-        certificate: {
-          id: instance.Id,
-          certificateId: certificateIdFormatted,
-          verificationCode: extractedVerificationCode,
-          contactId: instance.Learner__c,
-          contactName: instance.Learner__r?.Name || '',
-          contactEmail: instance.Learner__r?.Email || '',
-          learningMaterialId: instance.Material__c,
-          learningMaterialTitle: instance.Material__r?.Title__c || '',
-          learningMaterialDescription: instance.Material__r?.Description__c || null,
-          learningMaterialInstanceId: instance.Id,
-          issuedDate: issuedDate,
-          certificateUrl: certificateUrl,
-          pdfFileUrl: null,
-          status: 'Active',
-          metadata: {},
-          certificateLogoUrl: instance.Material__r?.Certificate_Logo_URL__c || null,
-          certificateTemplate: instance.Material__r?.Certificate_Template__c || null,
-        },
-        message: 'Certificate is valid',
+        certificates: certificates,
+        message: 'Certificates found',
       }),
     };
   } catch (error) {
