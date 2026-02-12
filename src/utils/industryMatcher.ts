@@ -13,7 +13,7 @@ const INDUSTRY_MAPPING: { [key: string]: string } = {
   'architecture and planning': 'real-estate',
   'architecture': 'real-estate',
   'building materials': 'real-estate',
-  
+
   // Healthcare & Life Sciences
   'healthcare': 'healthcare-life-sciences',
   'hospitals and health care': 'healthcare-life-sciences',
@@ -22,7 +22,7 @@ const INDUSTRY_MAPPING: { [key: string]: string } = {
   'medical equipment': 'healthcare-life-sciences',
   'pharmaceutical': 'healthcare-life-sciences',
   'pharmaceutical manufacturing': 'healthcare-life-sciences',
-  
+
   // Manufacturing
   'manufacturing': 'manufacturing',
   'chemical manufacturing': 'manufacturing',
@@ -37,11 +37,11 @@ const INDUSTRY_MAPPING: { [key: string]: string } = {
   'garment': 'manufacturing',
   'motor vehicle manufacturing': 'manufacturing',
   'furniture': 'manufacturing',
-  
+
   // Telecommunications
   'telecommunications': 'telecommunications',
   'communications': 'telecommunications',
-  
+
   // Financial Services
   'banking/financial services/insurance': 'financial-services',
   'banking financial services insurance': 'financial-services',
@@ -50,14 +50,14 @@ const INDUSTRY_MAPPING: { [key: string]: string } = {
   'banking': 'financial-services',
   'insurance': 'financial-services',
   'investment management': 'financial-services',
-  
+
   // Commerce Cloud (Retail/E-commerce)
   'retail apparel and fashion': 'commerce-cloud',
   'retail': 'commerce-cloud',
   'e-commerce': 'commerce-cloud',
   'ecommerce': 'commerce-cloud',
   'consumer services': 'commerce-cloud',
-  
+
   // Professional Services
   'professional services': 'professional-services',
   'professional training and coaching': 'professional-services',
@@ -80,11 +80,11 @@ const INDUSTRY_MAPPING: { [key: string]: string } = {
   'marketing': 'professional-services',
   'law': 'professional-services',
   'law practice': 'professional-services',
-  
+
   // Automotive
   'automotive': 'automotive',
-  'motor vehicle manufacturing': 'automotive',
-  
+
+
   // Travel & Tourism
   'tourism': 'travel-tourism',
   'travel': 'travel-tourism',
@@ -93,25 +93,25 @@ const INDUSTRY_MAPPING: { [key: string]: string } = {
   'entertainment': 'travel-tourism',
   'spectator sports': 'travel-tourism',
   'sports': 'travel-tourism',
-  
+
   // Food & Beverage
   'food and beverage manufacturing': 'food-beverage',
   'food & beverage': 'food-beverage',
   'food and beverage': 'food-beverage',
   'food and beverage services': 'food-beverage',
   'food export': 'food-beverage',
-  
+
   // Utilities
   'utilities': 'utilities',
   'energy': 'utilities',
   'oil and gas': 'utilities',
   'oil & gas': 'utilities',
   'environmental': 'utilities',
-  
+
   // Government
   'government': 'government',
   'government administration': 'government',
-  
+
   // Other/Generic (industries that don't fit well into specific categories)
   'industry': null, // Too generic
   'other': null,
@@ -133,7 +133,7 @@ const INDUSTRY_MAPPING: { [key: string]: string } = {
   'education administration programs': null,
   'higher education': null,
   'engineering': null,
-  
+
   // Additional explicit mappings for better coverage
   'retail apparel': 'commerce-cloud',
   'apparel and fashion': 'commerce-cloud',
@@ -167,25 +167,25 @@ function normalizeIndustryString(industry: string): string {
  */
 export function matchIndustryFromUrl(industryParam: string | null): string | null {
   if (!industryParam) return null;
-  
+
   // Decode URL encoding
   const decoded = decodeURIComponent(industryParam);
-  
+
   // Normalize the string
   const normalized = normalizeIndustryString(decoded);
-  
+
   // Direct match
   if (INDUSTRY_MAPPING[normalized] !== undefined) {
     return INDUSTRY_MAPPING[normalized];
   }
-  
+
   // Fuzzy matching - check if any key contains the normalized string or vice versa
   for (const [key, value] of Object.entries(INDUSTRY_MAPPING)) {
     if (key.includes(normalized) || normalized.includes(key)) {
       return value;
     }
   }
-  
+
   // Keyword-based matching for partial matches
   const keywords: { [key: string]: string } = {
     'real estate': 'real-estate',
@@ -193,36 +193,36 @@ export function matchIndustryFromUrl(industryParam: string | null): string | nul
     'construction': 'real-estate',
     'architect': 'real-estate',
     'building': 'real-estate',
-    
+
     'health': 'healthcare-life-sciences',
     'medical': 'healthcare-life-sciences',
     'hospital': 'healthcare-life-sciences',
     'pharma': 'healthcare-life-sciences',
     'pharmaceutical': 'healthcare-life-sciences',
-    
+
     'manufactur': 'manufacturing',
     'chemical': 'manufacturing',
     'machinery': 'manufacturing',
     'electron': 'manufacturing',
     'textile': 'manufacturing',
     'furniture': 'manufacturing',
-    
+
     'telecom': 'telecommunications',
     'communication': 'telecommunications',
-    
+
     'bank': 'financial-services',
     'finance': 'financial-services',
     'financial': 'financial-services',
     'insurance': 'financial-services',
     'investment': 'financial-services',
-    
+
     'retail': 'commerce-cloud',
     'ecommerce': 'commerce-cloud',
     'e-commerce': 'commerce-cloud',
     'shopping': 'commerce-cloud',
     'fashion': 'commerce-cloud',
     'apparel': 'commerce-cloud',
-    
+
     'professional': 'professional-services',
     'consulting': 'professional-services',
     'software': 'professional-services',
@@ -235,11 +235,11 @@ export function matchIndustryFromUrl(industryParam: string | null): string | nul
     'marketing': 'professional-services',
     'law': 'professional-services',
     'legal': 'professional-services',
-    
+
     'automotive': 'automotive',
     'vehicle': 'automotive',
     'motor': 'automotive',
-    
+
     'travel': 'travel-tourism',
     'tourism': 'travel-tourism',
     'hospitality': 'travel-tourism',
@@ -247,27 +247,27 @@ export function matchIndustryFromUrl(industryParam: string | null): string | nul
     'recreation': 'travel-tourism',
     'entertainment': 'travel-tourism',
     'sport': 'travel-tourism',
-    
+
     'food': 'food-beverage',
     'beverage': 'food-beverage',
     'restaurant': 'food-beverage',
-    
+
     'utility': 'utilities',
     'energy': 'utilities',
     'oil': 'utilities',
     'gas': 'utilities',
     'environmental': 'utilities',
-    
+
     'government': 'government',
     'public sector': 'government',
   };
-  
+
   for (const [keyword, industryId] of Object.entries(keywords)) {
     if (normalized.includes(keyword)) {
       return industryId;
     }
   }
-  
+
   // No match found
   return null;
 }
