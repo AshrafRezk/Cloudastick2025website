@@ -78,6 +78,9 @@ import AmadeusSection from '../components/AmadeusSection';
 import FleetManagementSection from '../components/FleetManagementSection';
 import PharmaSections from '../components/PharmaSections';
 import InvestmentPlanSection from '../components/InvestmentPlanSection';
+import ModulesSection from '../components/ModulesSection';
+import { useSalesforce } from '../contexts/SalesforceContext';
+import { fetchAllVerticals, fetchVerticalById, type VerticalModule } from '../services/verticalService';
 
 // Modern Carousel Hub and Spoke Component
 const HubAndSpokeVisualization = React.memo(({
@@ -387,6 +390,12 @@ const SalesforcePower = () => {
   const [showDemoModal, setShowDemoModal] = useState<boolean>(false);
   const [isPreloading, setIsPreloading] = useState<boolean>(false);
   const [genericIndustryData, setGenericIndustryData] = useState<ReturnType<typeof createGenericIndustryData> | null>(null);
+
+  // Modules state
+  const { authData } = useSalesforce();
+  const showModulesSection = searchParams.get('modules') === 'true';
+  const [modules, setModules] = useState<VerticalModule[]>([]);
+  const [modulesLoading, setModulesLoading] = useState(false);
 
   // Memoized hover handler to prevent unnecessary re-renders
   const handleProductHover = useCallback((productId: string | null) => {
@@ -1096,6 +1105,66 @@ const SalesforcePower = () => {
   const selectedIndustryData = selectedIndustry
     ? getIndustryById(selectedIndustry)
     : genericIndustryData || null;
+
+  // Fetch modules when industry is selected and modules param is present
+  useEffect(() => {
+    const fetchModules = async () => {
+      if (!showModulesSection || !selectedIndustryData || !authData?.access_token || !authData?.instance_url) {
+        return;
+      }
+
+      try {
+        setModulesLoading(true);
+        // First fetch all verticals to find the ID matching the current industry name
+        const verticals = await fetchAllVerticals(authData.access_token, authData.instance_url);
+
+        // Find vertical by name match (case-insensitive)
+        const matchedVertical = verticals.find(v =>
+          v.name.toLowerCase() === selectedIndustryData.name.toLowerCase() ||
+          v.type?.toLowerCase() === selectedIndustryData.name.toLowerCase()
+        );
+
+        if (matchedVertical) {
+          // Fetch full vertical details with modules
+          const fullVertical = await fetchVerticalById(authData.access_token, authData.instance_url, matchedVertical.id);
+
+          if (fullVertical.modules) {
+            // Check for session storage selection
+            const storedSelection = sessionStorage.getItem(`vertical-modules-selection-${fullVertical.id}`);
+            if (storedSelection) {
+              try {
+                const selectedIds = new Set(JSON.parse(storedSelection));
+                // Filter modules to only show selected ones
+                const selectedModules = fullVertical.modules.filter(m => selectedIds.has(m.id));
+                setModules(selectedModules.length > 0 ? selectedModules : fullVertical.modules);
+              } catch (e) {
+                console.error('Error parsing stored selection', e);
+                setModules(fullVertical.modules);
+              }
+            } else {
+              setModules(fullVertical.modules);
+            }
+          } else {
+            setModules([]);
+          }
+        } else {
+          console.log(`No matching vertical found for industry: ${selectedIndustryData.name}`);
+          setModules([]);
+        }
+      } catch (error) {
+        console.error('Error fetching modules:', error);
+        toast({
+          title: 'Error loading modules',
+          description: 'Failed to load industry modules',
+          variant: 'destructive',
+        });
+      } finally {
+        setModulesLoading(false);
+      }
+    };
+
+    fetchModules();
+  }, [showModulesSection, selectedIndustryData, authData]);
 
   // Check if current industry is retail/commerce related
   const isRetailOrCommerce = useMemo(() => {
@@ -3837,6 +3906,15 @@ const SalesforcePower = () => {
           </AnimatedSection>
         </div>
       </section>
+
+      {/* Modules Section */}
+      {showModulesSection && (
+        <ModulesSection
+          modules={modules}
+          isLoading={modulesLoading}
+          industryName={selectedIndustryData?.name}
+        />
+      )}
 
       {/* Investment Plan Section */}
       <InvestmentPlanSection />
