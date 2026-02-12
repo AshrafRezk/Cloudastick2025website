@@ -45,7 +45,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   ];
 
   const isActive = (path: string) => location.pathname === path;
-  
+
   // Check if any "More" item is active
   const isMoreActive = moreNavItems.some(item => isActive(item.path));
 
@@ -61,13 +61,13 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 whileHover={{ scale: 1.05 }}
                 className="flex items-center space-x-3"
               >
-                <img 
-                  src="/Assets/Company Logos/white-logo-dark.webp" 
-                  alt="Cloudastick Logo" 
+                <img
+                  src="/Assets/Company Logos/white-logo-dark.webp"
+                  alt="Cloudastick Logo"
                   className="h-8 w-auto"
                 />
                 <div className="text-2xl font-bold italic text-foreground"
-                  style={{ 
+                  style={{
                     fontFamily: 'Helvetica, Arial, sans-serif'
                   }}
                 >
@@ -78,15 +78,14 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
-              {mainNavItems.map((item) => (
+              {mainNavItems.filter(item => !item.isIcon).map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`relative px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    isActive(item.path)
+                  className={`relative px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive(item.path)
                       ? "text-brand-primary"
                       : "text-muted-foreground hover:text-foreground"
-                  }`}
+                    }`}
                 >
                   {item.isIcon ? (
                     <Home className="w-5 h-5" />
@@ -103,15 +102,14 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                   )}
                 </Link>
               ))}
-              
+
               {/* More Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger
-                  className={`relative px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-1 ${
-                    isMoreActive
+                  className={`relative px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-1 ${isMoreActive
                       ? "text-brand-primary"
                       : "text-muted-foreground hover:text-foreground"
-                  }`}
+                    }`}
                 >
                   {t('nav.more') || 'More'}
                   <ChevronDown className="h-4 w-4" />
@@ -136,7 +134,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
-              
+
               <GlobalLogin />
               <LanguageSwitcher />
             </div>
@@ -168,11 +166,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center gap-3 px-3 py-2 rounded-md text-base font-medium ${
-                    isActive(item.path)
+                  className={`flex items-center gap-3 px-3 py-2 rounded-md text-base font-medium ${isActive(item.path)
                       ? "text-brand-primary bg-brand-primary/10"
                       : "text-muted-foreground hover:text-foreground hover:bg-accent"
-                  }`}
+                    }`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {item.isIcon ? (
