@@ -399,6 +399,7 @@ const SalesforcePower = () => {
   const [modules, setModules] = useState<VerticalModule[]>([]);
   const [modulesLoading, setModulesLoading] = useState(false);
   const [selectedModuleIds, setSelectedModuleIds] = useState<Set<string>>(new Set());
+  const [allVerticals, setAllVerticals] = useState<any[]>([]); // Store all verticals once fetched
 
 
 
@@ -1158,11 +1159,25 @@ const SalesforcePower = () => {
     ? getIndustryById(selectedIndustry)
     : genericIndustryData || null;
 
+  // Fetch all verticals once on mount/auth
+  useEffect(() => {
+    const loadVerticals = async () => {
+      if (!authData?.access_token || !authData?.instance_url || allVerticals.length > 0) return;
+
+      try {
+        const data = await fetchAllVerticals(authData.access_token, authData.instance_url);
+        setAllVerticals(data);
+      } catch (err) {
+        console.error("Error pre-loading verticals", err);
+      }
+    };
+    loadVerticals();
+  }, [authData, allVerticals.length]);
+
   // Initialize selected modules from session storage when modules change
   useEffect(() => {
     if (modules.length > 0) {
       if (selectedIndustryData) {
-        // Try to load selection for this industry
         const verticalId = modules[0]?.verticalId;
         if (verticalId) {
           const stored = sessionStorage.getItem(`vertical-modules-selection-${verticalId}`);
@@ -1171,7 +1186,12 @@ const SalesforcePower = () => {
               setSelectedModuleIds(new Set(JSON.parse(stored)));
             } catch (e) {
               console.error("Failed to parse stored selection", e);
+              // Fallback to all modules
+              setSelectedModuleIds(new Set(modules.map(m => m.id)));
             }
+          } else {
+            // Default to ALL modules selected if nothing stored
+            setSelectedModuleIds(new Set(modules.map(m => m.id)));
           }
         }
       }
@@ -1186,42 +1206,41 @@ const SalesforcePower = () => {
         return;
       }
 
+      // If we don't have verticals list yet, fetch it or wait
+      if (allVerticals.length === 0) {
+        if (!modulesLoading) {
+          try {
+            const data = await fetchAllVerticals(authData.access_token, authData.instance_url);
+            setAllVerticals(data);
+            findAndFetchVertical(data);
+          } catch (e) { console.error(e); }
+        }
+        return;
+      }
+
+      findAndFetchVertical(allVerticals);
+    };
+
+    const findAndFetchVertical = async (verticalsList: any[]) => {
       try {
         setModulesLoading(true);
-        // First fetch all verticals to find the ID matching the current industry name
-        const verticals = await fetchAllVerticals(authData.access_token, authData.instance_url);
 
         // Find vertical by name match (case-insensitive)
-        const matchedVertical = verticals.find(v =>
-          v.name.toLowerCase() === selectedIndustryData.name.toLowerCase() ||
-          v.type?.toLowerCase() === selectedIndustryData.name.toLowerCase()
+        const matchedVertical = verticalsList.find(v =>
+          v.name.toLowerCase() === selectedIndustryData?.name?.toLowerCase() ||
+          v.type?.toLowerCase() === selectedIndustryData?.name?.toLowerCase()
         );
 
         if (matchedVertical) {
-          // Fetch full vertical details with modules
           const fullVertical = await fetchVerticalById(authData.access_token, authData.instance_url, matchedVertical.id);
 
           if (fullVertical.modules) {
-            // Check for session storage selection
-            const storedSelection = sessionStorage.getItem(`vertical-modules-selection-${fullVertical.id}`);
-            if (storedSelection) {
-              try {
-                const selectedIds = new Set(JSON.parse(storedSelection));
-                // Filter modules to only show selected ones
-                const selectedModules = fullVertical.modules.filter(m => selectedIds.has(m.id));
-                setModules(selectedModules.length > 0 ? selectedModules : fullVertical.modules);
-              } catch (e) {
-                console.error('Error parsing stored selection', e);
-                setModules(fullVertical.modules);
-              }
-            } else {
-              setModules(fullVertical.modules);
-            }
+            setModules(fullVertical.modules);
           } else {
             setModules([]);
           }
         } else {
-          console.log(`No matching vertical found for industry: ${selectedIndustryData.name}`);
+          console.log(`No matching vertical found for industry: ${selectedIndustryData?.name}`);
           setModules([]);
         }
       } catch (error) {
@@ -1234,10 +1253,10 @@ const SalesforcePower = () => {
       } finally {
         setModulesLoading(false);
       }
-    };
+    }
 
     fetchModules();
-  }, [showModulesSection, selectedIndustryData, authData]);
+  }, [showModulesSection, selectedIndustryData, authData, allVerticals]);
 
   // Check if current industry is retail/commerce related
   const isRetailOrCommerce = useMemo(() => {
