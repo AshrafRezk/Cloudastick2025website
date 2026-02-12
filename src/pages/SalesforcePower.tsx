@@ -82,6 +82,8 @@ import ModulesSection from '../components/ModulesSection';
 import { useSalesforce } from '../contexts/SalesforceContext';
 import { fetchAllVerticals, fetchVerticalById, type VerticalModule } from '../services/verticalService';
 
+import ScopeBuilderFab from '../components/ScopeBuilderFab';
+
 // Modern Carousel Hub and Spoke Component
 const HubAndSpokeVisualization = React.memo(({
   products,
@@ -396,6 +398,56 @@ const SalesforcePower = () => {
   const showModulesSection = searchParams.get('modules') === 'true';
   const [modules, setModules] = useState<VerticalModule[]>([]);
   const [modulesLoading, setModulesLoading] = useState(false);
+  const [selectedModuleIds, setSelectedModuleIds] = useState<Set<string>>(new Set());
+
+
+
+  // Handle module toggle
+  const handleToggleModule = (moduleId: string) => {
+    triggerHaptic([5, 0, 0], '/Assets/selection4new.mp3');
+    const newSet = new Set(selectedModuleIds);
+    if (newSet.has(moduleId)) {
+      newSet.delete(moduleId);
+    } else {
+      newSet.add(moduleId);
+    }
+    setSelectedModuleIds(newSet);
+
+    // Persist to session storage
+    if (modules.length > 0) {
+      const verticalId = modules[0]?.verticalId;
+      if (verticalId) {
+        sessionStorage.setItem(`vertical-modules-selection-${verticalId}`, JSON.stringify(Array.from(newSet)));
+      }
+    }
+  };
+
+  // Handle vertical change from FAB
+  const handleVerticalChange = (verticalId: string) => {
+    triggerHaptic([10, 5, 10], '/Assets/selection3new.mp3');
+    setSelectedIndustry(verticalId);
+    // Optional: Clear or reset modules selection for new vertical if needed, 
+    // but useEffect above handles loading stored selection for the new vertical.
+
+    // Update URL to reflect change
+    const params = new URLSearchParams(searchParams);
+    params.set('industry', verticalId);
+    // params.set('modules', 'true'); // Ensure modules mode stays on
+    window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}${window.location.hash}`);
+
+    // Scroll to top or specific section if needed
+    if (heroRef.current) {
+      heroRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  // Handle scroll to modules section
+  const handleScrollToModules = () => {
+    const element = document.getElementById('modules-section');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   // Memoized hover handler to prevent unnecessary re-renders
   const handleProductHover = useCallback((productId: string | null) => {
@@ -1105,6 +1157,27 @@ const SalesforcePower = () => {
   const selectedIndustryData = selectedIndustry
     ? getIndustryById(selectedIndustry)
     : genericIndustryData || null;
+
+  // Initialize selected modules from session storage when modules change
+  useEffect(() => {
+    if (modules.length > 0) {
+      if (selectedIndustryData) {
+        // Try to load selection for this industry
+        const verticalId = modules[0]?.verticalId;
+        if (verticalId) {
+          const stored = sessionStorage.getItem(`vertical-modules-selection-${verticalId}`);
+          if (stored) {
+            try {
+              setSelectedModuleIds(new Set(JSON.parse(stored)));
+            } catch (e) {
+              console.error("Failed to parse stored selection", e);
+            }
+          }
+        }
+      }
+    }
+  }, [modules, selectedIndustryData]);
+
 
   // Fetch modules when industry is selected and modules param is present
   useEffect(() => {
@@ -3913,6 +3986,8 @@ const SalesforcePower = () => {
           modules={modules}
           isLoading={modulesLoading}
           industryName={selectedIndustryData?.name}
+          selectedModules={selectedModuleIds}
+          onToggleModule={handleToggleModule}
         />
       )}
 
@@ -4014,6 +4089,15 @@ const SalesforcePower = () => {
         isOpen={showDemoModal}
         onClose={handleCloseDemo}
       />
+      {/* Scope Builder FAB */}
+      {showModulesSection && (
+        <ScopeBuilderFab
+          selectedVerticalId={selectedIndustry}
+          selectedModuleCount={selectedModuleIds.size}
+          onVerticalChange={handleVerticalChange}
+          onScrollToModules={handleScrollToModules}
+        />
+      )}
     </div>
   );
 };

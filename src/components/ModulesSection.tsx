@@ -24,12 +24,20 @@ interface ModulesSectionProps {
     modules: VerticalModule[];
     isLoading: boolean;
     industryName?: string;
+    selectedModules?: Set<string>;
+    onToggleModule?: (moduleId: string) => void;
 }
 
-const ModulesSection = ({ modules, isLoading, industryName }: ModulesSectionProps) => {
+const ModulesSection = ({
+    modules,
+    isLoading,
+    industryName,
+    selectedModules,
+    onToggleModule
+}: ModulesSectionProps) => {
     if (isLoading) {
         return (
-            <section className="py-20 relative overflow-hidden bg-gray-900/50">
+            <section id="modules-section" className="py-20 relative overflow-hidden bg-gray-900/50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                     <Loader2 className="h-12 w-12 animate-spin text-cyan-400 mx-auto mb-4" />
                     <p className="text-gray-400">Loading industry modules...</p>
@@ -51,7 +59,7 @@ const ModulesSection = ({ modules, isLoading, industryName }: ModulesSectionProp
     });
 
     return (
-        <section className="py-24 relative overflow-hidden">
+        <section id="modules-section" className="py-24 relative overflow-hidden">
             {/* Background Elements */}
             <div className="absolute inset-0 bg-gray-900 pointer-events-none" />
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-cyan-900/20 via-gray-900 to-gray-900 pointer-events-none" />
@@ -85,67 +93,91 @@ const ModulesSection = ({ modules, isLoading, industryName }: ModulesSectionProp
                         transition={{ delay: 0.2 }}
                         className="text-xl text-gray-400 max-w-3xl mx-auto"
                     >
-                        Specialized components tailored for your industry needs.
+                        {onToggleModule
+                            ? "Select the modules you need to build your custom scope."
+                            : "Specialized components tailored for your industry needs."}
                     </motion.p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {sortedModules.map((module, index) => (
-                        <motion.div
-                            key={module.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: index * 0.05 }}
-                        >
-                            <Card className="h-full bg-gray-800/30 backdrop-blur-sm border-gray-700 hover:border-cyan-500/50 transition-all hover:shadow-lg hover:shadow-cyan-500/10 group">
-                                <CardHeader>
-                                    <div className="flex items-start justify-between mb-2">
-                                        <Badge variant="outline" className={`
-                      bg-gray-900/50 text-xs font-medium border-gray-700
-                      ${module.priority !== null && module.priority <= 3 ? 'text-amber-400 border-amber-500/30' : 'text-gray-400'}
-                    `}>
-                                            {module.priority !== null ? `Priority ${module.priority}` : 'Optional'}
-                                        </Badge>
-                                    </div>
-                                    <CardTitle className="text-xl font-bold text-white group-hover:text-cyan-400 transition-colors">
-                                        {module.name}
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-6">
-                                    {/* Features List */}
-                                    {module.featureList && (
-                                        <div className="space-y-3">
-                                            {module.featureList.split('\n').slice(0, 4).map((feature, idx) => (
-                                                <div key={idx} className="flex items-start gap-2.5">
-                                                    <CheckCircle2 className="w-5 h-5 text-gray-500 mt-0.5 shrink-0" />
-                                                    <span className="text-sm text-gray-300 leading-snug">{feature.replace(/^-\s*/, '')}</span>
-                                                </div>
-                                            ))}
-                                            {module.featureList.split('\n').length > 4 && (
-                                                <p className="text-xs text-gray-500 italic pl-7">
-                                                    + {module.featureList.split('\n').length - 4} more features
-                                                </p>
-                                            )}
+                    {sortedModules.map((module, index) => {
+                        const isSelected = selectedModules ? selectedModules.has(module.id) : false;
+                        const isInteractive = !!onToggleModule;
+
+                        return (
+                            <motion.div
+                                key={module.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: index * 0.05 }}
+                                onClick={() => isInteractive && onToggleModule && onToggleModule(module.id)}
+                            >
+                                <Card className={`h-full backdrop-blur-sm transition-all duration-300 group relative
+                                    ${isInteractive ? 'cursor-pointer' : ''}
+                                    ${isSelected
+                                        ? 'bg-cyan-900/20 border-cyan-500/50 shadow-lg shadow-cyan-500/10'
+                                        : 'bg-gray-800/30 border-gray-700 hover:border-gray-500/50'
+                                    }
+                                    ${isInteractive && !isSelected ? 'opacity-80 hover:opacity-100' : ''}
+                                `}>
+                                    {/* Selection Indicator */}
+                                    {isSelected && (
+                                        <div className="absolute top-4 right-4 z-10">
+                                            <div className="bg-cyan-500 rounded-full p-1">
+                                                <CheckCircle2 className="w-4 h-4 text-white" />
+                                            </div>
                                         </div>
                                     )}
 
-                                    {/* Cloudastick Edge */}
-                                    {module.cloudastickEdge && (
-                                        <div className="pt-4 mt-auto border-t border-gray-700/50">
-                                            <div className="flex items-center gap-2 mb-2 text-cyan-400">
-                                                <Sparkles className="w-4 h-4" />
-                                                <span className="text-xs font-bold uppercase tracking-wider">Cloudastick Edge</span>
-                                            </div>
-                                            <p className="text-sm text-gray-400 leading-relaxed italic">
-                                                "{module.cloudastickEdge}"
-                                            </p>
+                                    <CardHeader>
+                                        <div className="flex items-start justify-between mb-2">
+                                            <Badge variant="outline" className={`
+                                                bg-gray-900/50 text-xs font-medium border-gray-700
+                                                ${module.priority !== null && module.priority <= 3 ? 'text-amber-400 border-amber-500/30' : 'text-gray-400'}
+                                            `}>
+                                                {module.priority !== null ? `Priority ${module.priority}` : 'Optional'}
+                                            </Badge>
                                         </div>
-                                    )}
-                                </CardContent>
-                            </Card>
-                        </motion.div>
-                    ))}
+                                        <CardTitle className={`text-xl font-bold transition-colors ${isSelected ? 'text-cyan-400' : 'text-white group-hover:text-cyan-300'}`}>
+                                            {module.name}
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="space-y-6">
+                                        {/* Features List */}
+                                        {module.featureList && (
+                                            <div className="space-y-3">
+                                                {module.featureList.split('\n').slice(0, 4).map((feature, idx) => (
+                                                    <div key={idx} className="flex items-start gap-2.5">
+                                                        <CheckCircle2 className={`w-5 h-5 mt-0.5 shrink-0 transition-colors ${isSelected ? 'text-cyan-500' : 'text-gray-500'}`} />
+                                                        <span className={`text-sm leading-snug transition-colors ${isSelected ? 'text-gray-200' : 'text-gray-400'}`}>{feature.replace(/^-\s*/, '')}</span>
+                                                    </div>
+                                                ))}
+                                                {module.featureList.split('\n').length > 4 && (
+                                                    <p className="text-xs text-gray-500 italic pl-7">
+                                                        + {module.featureList.split('\n').length - 4} more features
+                                                    </p>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {/* Cloudastick Edge */}
+                                        {module.cloudastickEdge && (
+                                            <div className="pt-4 mt-auto border-t border-gray-700/50">
+                                                <div className="flex items-center gap-2 mb-2 text-cyan-400">
+                                                    <Sparkles className="w-4 h-4" />
+                                                    <span className="text-xs font-bold uppercase tracking-wider">Cloudastick Edge</span>
+                                                </div>
+                                                <p className="text-sm text-gray-400 leading-relaxed italic">
+                                                    "{module.cloudastickEdge}"
+                                                </p>
+                                            </div>
+                                        )}
+                                    </CardContent>
+                                </Card>
+                            </motion.div>
+                        );
+                    })}
                 </div>
             </div>
         </section>
