@@ -77,6 +77,7 @@ import TechSaSection from '../components/TechSaSection';
 import AmadeusSection from '../components/AmadeusSection';
 import FleetManagementSection from '../components/FleetManagementSection';
 import PharmaSections from '../components/PharmaSections';
+import InvestmentPlanSection from '../components/InvestmentPlanSection';
 
 // Modern Carousel Hub and Spoke Component
 const HubAndSpokeVisualization = React.memo(({
@@ -3836,6 +3837,9 @@ const SalesforcePower = () => {
           </AnimatedSection>
         </div>
       </section>
+
+      {/* Investment Plan Section */}
+      <InvestmentPlanSection />
 
       {/* CTA Section */}
       <section ref={ctaRef} className="py-20 relative overflow-hidden">
