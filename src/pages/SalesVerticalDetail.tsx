@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  Loader2, ArrowLeft, Building2, FileText, 
-  Sparkles, CheckCircle2, Presentation, 
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import {
+  Loader2, ArrowLeft, Building2, FileText,
+  Sparkles, CheckCircle2, Presentation,
   AlertCircle, LogOut, Layers, Edit, Save, X, Plus, Trash2, ExternalLink
 } from 'lucide-react';
+import { Checkbox } from '../components/ui/checkbox';
 import { useSalesforce } from '../contexts/SalesforceContext';
 import { usePortalUser } from '../contexts/PortalUserContext';
 import { fetchVerticalById, type Vertical, type VerticalModule } from '../services/verticalService';
@@ -24,16 +25,45 @@ const SalesVerticalDetail = () => {
   const { toast } = useToast();
   const { authData, isLoading: authLoading } = useSalesforce();
   const { user: portalUser } = usePortalUser();
-  
+
+  // URL Params directly
+  const [searchParams] = useSearchParams();
+  const showModuleSelection = searchParams.get('modules') === 'true';
+
   const [vertical, setVertical] = useState<Vertical | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [salesUser, setSalesUser] = useState<{ id: string; name: string; email: string } | null>(null);
+
+  // Module selection state
+  const [selectedModules, setSelectedModules] = useState<Set<string>>(() => {
+    if (!id) return new Set();
+    const stored = sessionStorage.getItem(`vertical-modules-selection-${id}`);
+    if (stored) {
+      try {
+        return new Set(JSON.parse(stored));
+      } catch (e) {
+        console.error('Error parsing stored selection', e);
+      }
+    }
+    return new Set();
+  });
+
+  // Persist module selection
+  useEffect(() => {
+    if (id && showModuleSelection) {
+      sessionStorage.setItem(
+        `vertical-modules-selection-${id}`,
+        JSON.stringify(Array.from(selectedModules))
+      );
+    }
+  }, [id, selectedModules, showModuleSelection]);
+
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingModule, setEditingModule] = useState<string | null>(null);
-  const [editValues, setEditValues] = useState<{ 
-    featureList?: string; 
-    cloudastickEdge?: string; 
+  const [editValues, setEditValues] = useState<{
+    featureList?: string;
+    cloudastickEdge?: string;
     priority?: number | null;
   }>({});
   const [isSaving, setIsSaving] = useState(false);
@@ -54,6 +84,20 @@ const SalesVerticalDetail = () => {
   const [companyProfileValue, setCompanyProfileValue] = useState('');
   const [iframeError, setIframeError] = useState(false);
   const [iframeLoaded, setIframeLoaded] = useState(false);
+
+  // Initialize all modules as selected if no previous selection exists
+  useEffect(() => {
+    if (vertical?.modules && showModuleSelection) {
+      const storageKey = `vertical-modules-selection-${id}`;
+      const stored = sessionStorage.getItem(storageKey);
+
+      // Only default to all if nothing is stored
+      if (!stored) {
+        const allIds = new Set(vertical.modules.map(m => m.id));
+        setSelectedModules(allIds);
+      }
+    }
+  }, [vertical, showModuleSelection, id]);
 
   // Check if user is authenticated
   // Note: Portal_Sales_Access__c is verified during login on /sales page
@@ -131,6 +175,28 @@ const SalesVerticalDetail = () => {
       title: 'Logged out',
       description: 'You have been logged out successfully.',
     });
+  };
+
+  // Toggle module selection
+  const toggleModuleSelection = (moduleId: string) => {
+    const newSelection = new Set(selectedModules);
+    if (newSelection.has(moduleId)) {
+      newSelection.delete(moduleId);
+    } else {
+      newSelection.add(moduleId);
+    }
+    setSelectedModules(newSelection);
+  };
+
+  const selectAllModules = () => {
+    if (vertical?.modules) {
+      const allIds = new Set(vertical.modules.map(m => m.id));
+      setSelectedModules(allIds);
+    }
+  };
+
+  const deselectAllModules = () => {
+    setSelectedModules(new Set());
   };
 
   // Show loading state
@@ -252,7 +318,7 @@ const SalesVerticalDetail = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div 
+                    <div
                       className="text-gray-300 prose prose-invert max-w-none"
                       dangerouslySetInnerHTML={{ __html: vertical.demoScriptSummary || '' }}
                     />
@@ -269,7 +335,7 @@ const SalesVerticalDetail = () => {
                 if (url.includes('drive.google.com/file/d/')) {
                   // Extract file ID from various Google Drive URL formats
                   let fileId = '';
-                  
+
                   // Format: https://drive.google.com/file/d/FILE_ID/view?usp=sharing
                   // Format: https://drive.google.com/file/d/FILE_ID/view
                   // Format: https://drive.google.com/file/d/FILE_ID
@@ -283,12 +349,12 @@ const SalesVerticalDetail = () => {
                       fileId = openIdMatch[1];
                     }
                   }
-                  
+
                   if (fileId) {
                     return `https://drive.google.com/file/d/${fileId}/preview`;
                   }
                 }
-                
+
                 // Canva links - check if it's already an embed URL or convert it
                 if (url.includes('canva.com/design/')) {
                   // If it's already a share/embed link, use it
@@ -301,17 +367,17 @@ const SalesVerticalDetail = () => {
                     }
                   }
                 }
-                
+
                 // Return original URL if no conversion needed
                 return url;
               };
 
               // Check if companyProfile is a URL
-              const isUrl = vertical.companyProfile.trim().startsWith('http://') || 
-                          vertical.companyProfile.trim().startsWith('https://');
+              const isUrl = vertical.companyProfile.trim().startsWith('http://') ||
+                vertical.companyProfile.trim().startsWith('https://');
               const profileUrl = isUrl ? vertical.companyProfile.trim() : null;
               const embeddableUrl = profileUrl ? getEmbeddableUrl(profileUrl) : null;
-              
+
               return (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -496,7 +562,7 @@ const SalesVerticalDetail = () => {
                           </Button>
                         </div>
                       ) : (
-                        <div 
+                        <div
                           className="text-gray-300 prose prose-invert max-w-none"
                           dangerouslySetInnerHTML={{ __html: vertical.companyProfile || '' }}
                         />
@@ -522,17 +588,39 @@ const SalesVerticalDetail = () => {
                         Modules {sortedModules.length > 0 && `(${sortedModules.length})`}
                       </CardTitle>
                     </div>
-                    {salesUser && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setIsCreatingModule(true)}
-                        className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10"
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Module
-                      </Button>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {showModuleSelection && (
+                        <>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={selectAllModules}
+                            className="text-xs border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10"
+                          >
+                            Select All
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={deselectAllModules}
+                            className="text-xs border-gray-600 text-gray-400 hover:text-white"
+                          >
+                            Deselect All
+                          </Button>
+                        </>
+                      )}
+                      {salesUser && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setIsCreatingModule(true)}
+                          className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10"
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Add Module
+                        </Button>
+                      )}
+                    </div>
                   </div>
                   <CardDescription className="text-gray-400">
                     Features and capabilities for this vertical
@@ -691,6 +779,13 @@ const SalesVerticalDetail = () => {
                               <div className="flex items-start justify-between gap-4">
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2 mb-2">
+                                    {showModuleSelection && (
+                                      <Checkbox
+                                        checked={selectedModules.has(module.id)}
+                                        onCheckedChange={() => toggleModuleSelection(module.id)}
+                                        className="mr-2 border-cyan-500 data-[state=checked]:bg-cyan-500 data-[state=checked]:text-white"
+                                      />
+                                    )}
                                     {module.priority !== null && (
                                       <span className="text-cyan-400 font-semibold text-lg">
                                         {module.priority}.
@@ -792,9 +887,9 @@ const SalesVerticalDetail = () => {
                                       <Input
                                         type="number"
                                         value={editValues.priority ?? ''}
-                                        onChange={(e) => setEditValues({ 
-                                          ...editValues, 
-                                          priority: e.target.value ? parseInt(e.target.value) : null 
+                                        onChange={(e) => setEditValues({
+                                          ...editValues,
+                                          priority: e.target.value ? parseInt(e.target.value) : null
                                         })}
                                         className="bg-gray-800 border-gray-600 text-white w-24"
                                         placeholder="Priority"
@@ -810,7 +905,7 @@ const SalesVerticalDetail = () => {
                                       className="mb-3"
                                     />
                                   ) : module.featureList && (
-                                    <div 
+                                    <div
                                       className="text-gray-400 mb-3 prose prose-invert max-w-none"
                                       dangerouslySetInnerHTML={{ __html: module.featureList || '' }}
                                     />
@@ -835,7 +930,7 @@ const SalesVerticalDetail = () => {
                                           className="mb-3"
                                         />
                                       ) : (
-                                        <div 
+                                        <div
                                           className="text-sm text-gray-300 prose prose-invert max-w-none"
                                           dangerouslySetInnerHTML={{ __html: module.cloudastickEdge || '' }}
                                         />
@@ -964,17 +1059,17 @@ const SalesVerticalDetail = () => {
                           form.method = 'POST';
                           form.action = 'https://login.salesforce.com';
                           form.target = '_blank';
-                          
+
                           const usernameField = document.createElement('input');
                           usernameField.type = 'hidden';
                           usernameField.name = 'username';
                           usernameField.value = vertical.orgUsername;
-                          
+
                           const passwordField = document.createElement('input');
                           passwordField.type = 'hidden';
                           passwordField.name = 'pw';
                           passwordField.value = vertical.orgPassword;
-                          
+
                           form.appendChild(usernameField);
                           form.appendChild(passwordField);
                           document.body.appendChild(form);

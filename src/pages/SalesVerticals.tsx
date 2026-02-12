@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Lock, Loader2, Search, Building2, 
+import {
+  Lock, Loader2, Search, Building2,
   ArrowRight, Presentation, FileText, Sparkles,
   AlertCircle, LogIn
 } from 'lucide-react';
@@ -26,45 +26,48 @@ const SalesVerticals = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { authData, isLoading: authLoading } = useSalesforce();
-  
+
   // Authentication state
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return !!sessionStorage.getItem('sales-portal-user');
+  });
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [salesUser, setSalesUser] = useState<SalesUser | null>(null);
+  const [salesUser, setSalesUser] = useState<SalesUser | null>(() => {
+    const stored = sessionStorage.getItem('sales-portal-user');
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch (error) {
+        console.error('Error loading stored user:', error);
+        sessionStorage.removeItem('sales-portal-user');
+        return null;
+      }
+    }
+    return null;
+  });
   const [loginError, setLoginError] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  
+
   // Data state
   const [verticals, setVerticals] = useState<Vertical[]>([]);
   const [filteredVerticals, setFilteredVerticals] = useState<Vertical[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Check if already authenticated
+  // Sync state and load data
   useEffect(() => {
-    const storedUser = sessionStorage.getItem('sales-portal-user');
-    if (storedUser) {
-      try {
-        const user = JSON.parse(storedUser);
-        setSalesUser(user);
-        setIsAuthenticated(true);
-        if (authData) {
-          loadVerticals();
-        }
-      } catch (error) {
-        console.error('Error loading stored user:', error);
-        sessionStorage.removeItem('sales-portal-user');
-      }
+    // If authenticated but no user data (e.g. storage parsing error), force logout
+    if (isAuthenticated && !salesUser) {
+      setIsAuthenticated(false);
+      return;
     }
-  }, [authData]);
 
-  // Load verticals when authenticated
-  useEffect(() => {
+    // Load data when authenticated and ready
     if (isAuthenticated && authData && !authLoading) {
       loadVerticals();
     }
-  }, [isAuthenticated, authData, authLoading]);
+  }, [isAuthenticated, authData, authLoading, salesUser]);
 
   // Filter verticals based on search term
   useEffect(() => {
@@ -74,7 +77,7 @@ const SalesVerticals = () => {
     }
 
     const term = searchTerm.toLowerCase();
-    const filtered = verticals.filter(vertical => 
+    const filtered = verticals.filter(vertical =>
       vertical.name.toLowerCase().includes(term) ||
       vertical.type?.toLowerCase().includes(term) ||
       vertical.demoScriptSummary?.toLowerCase().includes(term)
@@ -90,7 +93,7 @@ const SalesVerticals = () => {
 
     try {
       const response = await loginSalesContact(username.trim(), password);
-      
+
       if (response.success && response.contact) {
         // Portal_Sales_Access__c is checked in the salesLogin function
         // Only contacts with Portal_Sales_Access__c = true can access this portal
@@ -107,11 +110,11 @@ const SalesVerticals = () => {
         }));
         setUsername('');
         setPassword('');
-        
+
         if (authData) {
           await loadVerticals();
         }
-        
+
         toast({
           title: 'Login successful',
           description: `Welcome, ${response.contact.name}!`,
@@ -337,8 +340,8 @@ const SalesVerticals = () => {
               {searchTerm ? 'No verticals found' : 'No verticals available'}
             </h3>
             <p className="text-gray-500">
-              {searchTerm 
-                ? 'Try adjusting your search terms.' 
+              {searchTerm
+                ? 'Try adjusting your search terms.'
                 : 'There are no verticals available at this time.'}
             </p>
           </div>
@@ -351,7 +354,7 @@ const SalesVerticals = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card 
+                <Card
                   className="bg-gray-800/50 backdrop-blur-sm border-gray-700 hover:border-cyan-500/50 transition-all cursor-pointer h-full flex flex-col hover:shadow-lg hover:shadow-cyan-500/10"
                   onClick={() => navigate(`/sales/vertical/${vertical.id}`)}
                 >
@@ -374,7 +377,7 @@ const SalesVerticals = () => {
                       </CardTitle>
                     )}
                     {vertical.demoScriptSummary && (
-                      <div 
+                      <div
                         className="text-gray-400 line-clamp-2 prose prose-invert prose-sm max-w-none"
                         dangerouslySetInnerHTML={{ __html: vertical.demoScriptSummary }}
                       />
