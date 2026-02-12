@@ -126,7 +126,7 @@ export const PortalUserProvider = ({ children }: PortalUserProviderProps) => {
       setError(null);
 
       const response = await loginContact(username, password);
-      
+
       if (response.success && response.contact) {
         setUser(response.contact);
         saveStoredUser(response.contact);
@@ -178,10 +178,12 @@ export const PortalUserProvider = ({ children }: PortalUserProviderProps) => {
         }
       );
 
-      setInstances(response.instances);
-      setNotStarted(response.notStarted);
-      setInProgress(response.inProgress);
-      setCompleted(response.completed);
+      const validInstances = (response.instances || []).filter(instance => instance && instance.id);
+
+      setInstances(validInstances);
+      setNotStarted((response.notStarted || []).filter(instance => instance && instance.id));
+      setInProgress((response.inProgress || []).filter(instance => instance && instance.id));
+      setCompleted((response.completed || []).filter(instance => instance && instance.id));
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch instances';
       setError(errorMessage);
@@ -218,7 +220,7 @@ export const PortalUserProvider = ({ children }: PortalUserProviderProps) => {
 
       // Refresh instances after update
       await refreshInstances();
-      
+
       return result;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to update progress';
@@ -251,12 +253,12 @@ export const PortalUserProvider = ({ children }: PortalUserProviderProps) => {
       if (response.certificates.length === 0) {
         // Check if user has any completed parent courses
         const completedParentCourses = completed.filter(
-          instance => !instance.material?.isChild && instance.status === 'Completed'
+          instance => instance && instance.material && !instance.material.isChild && instance.status === 'Completed'
         );
 
         if (completedParentCourses.length > 0) {
           console.log(`🔄 User has ${completedParentCourses.length} completed parent courses but no certificates. Generating retroactive certificates...`);
-          
+
           try {
             const retroactiveResult = await generateRetroactiveCertificates(user.id, {
               access_token: authData.access_token,
@@ -265,13 +267,13 @@ export const PortalUserProvider = ({ children }: PortalUserProviderProps) => {
 
             if (retroactiveResult.generated > 0) {
               console.log(`✅ Generated ${retroactiveResult.generated} retroactive certificate(s)`);
-              
+
               // Refresh certificates again to show the newly generated ones
               const updatedResponse = await fetchCertificates(user.id, {
                 access_token: authData.access_token,
                 instance_url: authData.instance_url,
               });
-              
+
               setCertificates(updatedResponse.certificates);
             } else {
               console.log('ℹ️ No certificates were generated (courses may not meet eligibility requirements)');
@@ -315,7 +317,7 @@ export const PortalUserProvider = ({ children }: PortalUserProviderProps) => {
       const updatedUser = { ...user, trailheadUrl };
       setUser(updatedUser);
       saveStoredUser(updatedUser);
-      
+
       return result;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to update Trailhead URL';

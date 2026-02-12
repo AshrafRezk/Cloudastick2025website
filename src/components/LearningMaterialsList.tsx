@@ -88,6 +88,7 @@ const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) 
   };
 
   const renderChildMaterial = (child: LearningMaterial, parentInstance: LearningMaterialInstance, childIndex: number) => {
+    if (!child) return null;
     const ChildIcon = getMaterialIcon(child.materialType);
     const childInstance = child.instance;
     const childProgress = childInstance?.progress || 0;
@@ -185,7 +186,7 @@ const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) 
   };
 
   const renderMaterialCard = (instance: LearningMaterialInstance, index: number) => {
-    if (!instance.material) return null;
+    if (!instance || !instance.material) return null;
 
     const MaterialIcon = getMaterialIcon(instance.material.materialType);
     const statusColor = getStatusColor(instance.status);
