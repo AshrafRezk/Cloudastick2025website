@@ -222,25 +222,14 @@ const Careers = () => {
                                                 </div>
 
                                                 <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400 mb-4">
-                                                    {position.Location__c && (
-                                                        <div className="flex items-center gap-1.5">
-                                                            <MapPin className="h-4 w-4" style={{ color: primaryColor }} />
-                                                            {position.Location__c}
-                                                        </div>
-                                                    )}
+                                                    <div className="flex items-center gap-1.5">
+                                                        <MapPin className="h-4 w-4" style={{ color: primaryColor }} />
+                                                        Hybrid - Cairo, Egypt
+                                                    </div>
                                                     {position.Hire_By__c && (
                                                         <div className="flex items-center gap-1.5">
                                                             <Calendar className="h-4 w-4" style={{ color: primaryColor }} />
                                                             Apply by: {formatDate(position.Hire_By__c)}
-                                                        </div>
-                                                    )}
-                                                    {(position.Min_Pay__c || position.Max_Pay__c) && (
-                                                        <div className="flex items-center gap-1.5">
-                                                            <DollarSign className="h-4 w-4" style={{ color: primaryColor }} />
-                                                            {position.Min_Pay__c && position.Max_Pay__c
-                                                                ? `${position.Min_Pay__c.toLocaleString()} - ${position.Max_Pay__c.toLocaleString()}`
-                                                                : (position.Min_Pay__c ? `From ${position.Min_Pay__c.toLocaleString()}` : `Up to ${position.Max_Pay__c?.toLocaleString()}`)
-                                                            }
                                                         </div>
                                                     )}
                                                 </div>

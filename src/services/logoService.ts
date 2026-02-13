@@ -15,18 +15,18 @@ export const extractDomain = (website: string): string | null => {
   try {
     // Remove protocol if present
     let domain = website.replace(/^https?:\/\//, '');
-    
+
     // Remove www. if present
     domain = domain.replace(/^www\./, '');
-    
+
     // Remove trailing slash and path
     domain = domain.split('/')[0];
-    
+
     // Basic domain validation
     if (domain && domain.includes('.') && !domain.includes(' ')) {
       return domain;
     }
-    
+
     return null;
   } catch (error) {
     console.error('Error extracting domain:', error);
@@ -41,7 +41,7 @@ export const validateImageUrl = async (url: string): Promise<boolean> => {
   try {
     const response = await fetch(url, { method: 'HEAD' });
     const contentType = response.headers.get('content-type');
-    
+
     return response.ok && contentType?.startsWith('image/') === true;
   } catch (error) {
     console.error('Error validating image URL:', error);
@@ -54,7 +54,7 @@ export const validateImageUrl = async (url: string): Promise<boolean> => {
  */
 export const fetchCompanyLogo = async (website: string): Promise<LogoServiceResponse> => {
   const domain = extractDomain(website);
-  
+
   if (!domain) {
     return {
       logoUrl: null,
@@ -67,7 +67,7 @@ export const fetchCompanyLogo = async (website: string): Promise<LogoServiceResp
   try {
     const clearbitUrl = `https://logo.clearbit.com/${domain}`;
     const isValid = await validateImageUrl(clearbitUrl);
-    
+
     if (isValid) {
       return {
         logoUrl: clearbitUrl,
@@ -90,14 +90,12 @@ export const fetchCompanyLogo = async (website: string): Promise<LogoServiceResp
   // Try favicon as last resort
   try {
     const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
-    const isValid = await validateImageUrl(faviconUrl);
-    
-    if (isValid) {
-      return {
-        logoUrl: faviconUrl,
-        source: 'fallback'
-      };
-    }
+    // Skip validation for Google Favicon as it may block HEAD requests (CORS)
+    // and it usually always returns a valid image (default globe if not found)
+    return {
+      logoUrl: faviconUrl,
+      source: 'fallback'
+    };
   } catch (error) {
     console.warn('Favicon fetch failed:', error);
   }
@@ -114,11 +112,11 @@ export const fetchCompanyLogo = async (website: string): Promise<LogoServiceResp
  */
 export const formatWebsiteUrl = (website: string): string => {
   if (!website) return '';
-  
+
   // Add https:// if no protocol
   if (!website.startsWith('http://') && !website.startsWith('https://')) {
     return `https://${website}`;
   }
-  
+
   return website;
 };
