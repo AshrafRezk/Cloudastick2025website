@@ -132,7 +132,7 @@ const Careers = () => {
                                 <img
                                     src={companyLogo}
                                     alt="Company Logo"
-                                    className="h-10 w-auto object-contain bg-white/10 rounded-lg p-1"
+                                    className="h-20 w-auto object-contain bg-white/10 rounded-lg p-2"
                                 />
                             ) : (
                                 <div className="bg-white/10 p-2 rounded-lg" style={{ color: primaryColor }}>
