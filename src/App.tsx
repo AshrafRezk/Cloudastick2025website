@@ -39,6 +39,7 @@ import ProjectTeam from "./pages/ProjectTeam";
 import ProjectTeamAdmin from "./pages/ProjectTeamAdmin";
 import ProjectTeamView from "./pages/ProjectTeamView";
 import SalesVerticals from "./pages/SalesVerticals";
+import Careers from "./pages/Careers";
 import SalesVerticalDetail from "./pages/SalesVerticalDetail";
 import Profile from "./pages/Profile";
 import Certificate from "./pages/Certificate";
@@ -88,84 +89,85 @@ const App = () => {
                 <Toaster />
                 <Sonner />
                 <BrowserRouter>
-            <ScrollToTop />
-            <Routes>
-            {/* Special routes for Tarwtl - no standard startup or layout */}
-            <Route path="/tarwtl" element={<TarwtlLeadCapture />} />
-            <Route path="/tarwtl-lead-capture" element={<TarwtlLeadCapture />} />
-            <Route path="/tarwtl-success" element={<TarwtlLeadSuccess />} />
-            
-            {/* Special routes for Memar - no standard startup or layout */}
-            <Route path="/memar" element={<MemarLeadCapture />} />
-            <Route path="/memar-lead-capture" element={<MemarLeadCapture />} />
-            <Route path="/memar-success" element={<MemarLeadSuccess />} />
-            
-            {/* Special routes for Cityscape - no standard startup or layout */}
-            <Route path="/cityscape" element={<CityscapeStart />} />
-            <Route path="/cityscape-start" element={<CityscapeStart />} />
-            <Route path="/cityscape-lead-capture" element={<CityscapeLeadCapture />} />
-            <Route path="/cityscape-success" element={<CityscapeLeadSuccess />} />
-            
-            {/* Special routes for Soueast - no standard startup or layout */}
-            <Route path="/soueast" element={<SoueastLeadCapture />} />
-            <Route path="/soueast-lead-capture" element={<SoueastLeadCapture />} />
-            <Route path="/soueast-success" element={<SoueastLeadSuccess />} />
-            <Route path="/soueast-comparison" element={<SoueastComparison />} />
-            
-            {/* Special route for Project Team - no standard startup or layout */}
-            <Route path="/project-team" element={<ProjectTeam />} />
-            
-            {/* Special route for Project Team Admin - no standard startup or layout */}
-            <Route path="/project-team-admin" element={<ProjectTeamAdmin />} />
-            
-            {/* Special route for Project Team View (shareable customer page) - no standard startup or layout */}
-            <Route path="/project-team-view" element={<ProjectTeamView />} />
-            
-            {/* Special routes for Sales Portal - no standard startup or layout */}
-            <Route path="/sales" element={<SalesVerticals />} />
-            <Route path="/sales/vertical/:id" element={<SalesVerticalDetail />} />
-            
-            {/* Standard routes with startup sequence and layout */}
-            <Route path="/*" element={
-              <>
-                {showStartup && <StartupSequence onComplete={handleStartupComplete} />}
-                {startupComplete && (
-                  <Layout>
-                    <Routes>
-                      <Route path="/" element={<Home />} />
-                      <Route path="/about" element={<About />} />
-                      <Route path="/services" element={<Services />} />
-                      <Route path="/clients" element={<Clients />} />
-                      <Route path="/feedback" element={<Feedback />} />
-                      <Route path="/contact" element={<Contact />} />
-                      <Route path="/learn" element={<Learn />} />
-                      <Route path="/profile" element={<Profile />} />
-                      <Route path="/certificate/:id" element={<Certificate />} />
-                      <Route path="/verify-certificate" element={<VerifyCertificate />} />
-                      <Route path="/merchandise" element={<Merchandise />} />
-                      <Route path="/salesforce-apps" element={<SalesforceApps />} />
-                          <Route path="/salesforce-power" element={<SalesforcePower />} />
-                          <Route path="/salesforce-power-lead-capture" element={<SalesforcePowerLeadCapture />} />
-                          <Route path="/salesforce-power-success" element={<SalesforcePowerSuccess />} />
-                          <Route path="/salesforce-comparison" element={<SalesforceComparisonTable />} />
-                      <Route path="/intelligence-capture" element={<CaptureIntelligence />} />
-                      <Route path="/blogs" element={<Blogs />} />
-                      <Route path="/blog/:slug" element={<BlogDetail />} />
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </Layout>
-                )}
-              </>
-            } />
-          </Routes>
-            </BrowserRouter>
+                  <ScrollToTop />
+                  <Routes>
+                    {/* Special routes for Tarwtl - no standard startup or layout */}
+                    <Route path="/tarwtl" element={<TarwtlLeadCapture />} />
+                    <Route path="/tarwtl-lead-capture" element={<TarwtlLeadCapture />} />
+                    <Route path="/tarwtl-success" element={<TarwtlLeadSuccess />} />
+
+                    {/* Special routes for Memar - no standard startup or layout */}
+                    <Route path="/memar" element={<MemarLeadCapture />} />
+                    <Route path="/memar-lead-capture" element={<MemarLeadCapture />} />
+                    <Route path="/memar-success" element={<MemarLeadSuccess />} />
+
+                    {/* Special routes for Cityscape - no standard startup or layout */}
+                    <Route path="/cityscape" element={<CityscapeStart />} />
+                    <Route path="/cityscape-start" element={<CityscapeStart />} />
+                    <Route path="/cityscape-lead-capture" element={<CityscapeLeadCapture />} />
+                    <Route path="/cityscape-success" element={<CityscapeLeadSuccess />} />
+
+                    {/* Special routes for Soueast - no standard startup or layout */}
+                    <Route path="/soueast" element={<SoueastLeadCapture />} />
+                    <Route path="/soueast-lead-capture" element={<SoueastLeadCapture />} />
+                    <Route path="/soueast-success" element={<SoueastLeadSuccess />} />
+                    <Route path="/soueast-comparison" element={<SoueastComparison />} />
+
+                    {/* Special route for Project Team - no standard startup or layout */}
+                    <Route path="/project-team" element={<ProjectTeam />} />
+
+                    {/* Special route for Project Team Admin - no standard startup or layout */}
+                    <Route path="/project-team-admin" element={<ProjectTeamAdmin />} />
+
+                    {/* Special route for Project Team View (shareable customer page) - no standard startup or layout */}
+                    <Route path="/project-team-view" element={<ProjectTeamView />} />
+
+                    {/* Special routes for Sales Portal - no standard startup or layout */}
+                    <Route path="/sales" element={<SalesVerticals />} />
+                    <Route path="/sales/vertical/:id" element={<SalesVerticalDetail />} />
+
+                    {/* Standard routes with startup sequence and layout */}
+                    <Route path="/*" element={
+                      <>
+                        {showStartup && <StartupSequence onComplete={handleStartupComplete} />}
+                        {startupComplete && (
+                          <Layout>
+                            <Routes>
+                              <Route path="/" element={<Home />} />
+                              <Route path="/about" element={<About />} />
+                              <Route path="/services" element={<Services />} />
+                              <Route path="/clients" element={<Clients />} />
+                              <Route path="/feedback" element={<Feedback />} />
+                              <Route path="/contact" element={<Contact />} />
+                              <Route path="/learn" element={<Learn />} />
+                              <Route path="/profile" element={<Profile />} />
+                              <Route path="/certificate/:id" element={<Certificate />} />
+                              <Route path="/verify-certificate" element={<VerifyCertificate />} />
+                              <Route path="/merchandise" element={<Merchandise />} />
+                              <Route path="/salesforce-apps" element={<SalesforceApps />} />
+                              <Route path="/salesforce-power" element={<SalesforcePower />} />
+                              <Route path="/salesforce-power-lead-capture" element={<SalesforcePowerLeadCapture />} />
+                              <Route path="/salesforce-power-success" element={<SalesforcePowerSuccess />} />
+                              <Route path="/salesforce-comparison" element={<SalesforceComparisonTable />} />
+                              <Route path="/careers" element={<Careers />} />
+                              <Route path="/intelligence-capture" element={<CaptureIntelligence />} />
+                              <Route path="/blogs" element={<Blogs />} />
+                              <Route path="/blog/:slug" element={<BlogDetail />} />
+                              <Route path="*" element={<NotFound />} />
+                            </Routes>
+                          </Layout>
+                        )}
+                      </>
+                    } />
+                  </Routes>
+                </BrowserRouter>
               </PortalUserProvider>
             </SalesforceProvider>
-            </LanguageProvider>
-            </TooltipProvider>
-          </QueryClientProvider>
-        </HelmetProvider>
-      );
-    };
+          </LanguageProvider>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
+  );
+};
 
 export default App;

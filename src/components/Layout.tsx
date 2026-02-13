@@ -77,14 +77,14 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8">
+            <div className="hidden xl:flex items-center space-x-8">
               {mainNavItems.filter(item => !item.isIcon).map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
                   className={`relative px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive(item.path)
-                      ? "text-brand-primary"
-                      : "text-muted-foreground hover:text-foreground"
+                    ? "text-brand-primary"
+                    : "text-muted-foreground hover:text-foreground"
                     }`}
                 >
                   {item.isIcon ? (
@@ -107,8 +107,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               <DropdownMenu>
                 <DropdownMenuTrigger
                   className={`relative px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-1 ${isMoreActive
-                      ? "text-brand-primary"
-                      : "text-muted-foreground hover:text-foreground"
+                    ? "text-brand-primary"
+                    : "text-muted-foreground hover:text-foreground"
                     }`}
                 >
                   {t('nav.more') || 'More'}
@@ -140,7 +140,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             </div>
 
             {/* Mobile menu button and language switcher */}
-            <div className="md:hidden flex items-center space-x-2">
+            <div className="xl:hidden flex items-center space-x-2">
               <GlobalLogin />
               <LanguageSwitcher />
               <button
@@ -159,7 +159,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="md:hidden bg-card border-t border-border"
+            className="xl:hidden bg-card border-t border-border"
           >
             <div className="px-2 pt-2 pb-3 space-y-1">
               {allNavItems.map((item) => (
@@ -167,8 +167,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                   key={item.path}
                   to={item.path}
                   className={`flex items-center gap-3 px-3 py-2 rounded-md text-base font-medium ${isActive(item.path)
-                      ? "text-brand-primary bg-brand-primary/10"
-                      : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                    ? "text-brand-primary bg-brand-primary/10"
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent"
                     }`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
