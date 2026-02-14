@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
     Building2,
     MapPin,
@@ -10,12 +10,20 @@ import {
     ArrowRight,
     Search,
     Loader2,
-    Calendar
+    Calendar,
+    CheckCircle2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from "../components/ui/dialog";
 import { useSalesforce } from '../contexts/SalesforceContext';
 import { fetchPositions, type Position } from '../services/careerService';
 import { fetchCompanyLogo } from '../services/logoService';
@@ -36,6 +44,7 @@ const Careers = () => {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [companyLogo, setCompanyLogo] = useState<string | null>(null);
+    const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
 
     // Computed Styles
     const primaryColor = brandColor ? `#${brandColor.replace('#', '')}` : '#06b6d4'; // Default cyan-500
@@ -137,11 +146,11 @@ const Careers = () => {
                                 <img
                                     src={companyLogo}
                                     alt="Company Logo"
-                                    className="h-16 md:h-20 w-auto object-contain bg-white/5 rounded-2xl p-2 backdrop-blur-md border border-white/10 shadow-xl"
+                                    className="h-24 md:h-32 w-auto object-contain bg-white/5 rounded-2xl p-4 backdrop-blur-md border border-white/10 shadow-xl"
                                 />
                             ) : (
-                                <div className="bg-white/5 p-3 rounded-2xl border border-white/10 backdrop-blur-md" style={{ color: primaryColor }}>
-                                    <Building2 className="h-8 w-8" />
+                                <div className="bg-white/5 p-4 rounded-2xl border border-white/10 backdrop-blur-md" style={{ color: primaryColor }}>
+                                    <Building2 className="h-12 w-12" />
                                 </div>
                             )}
                         </div>
@@ -226,7 +235,10 @@ const Careers = () => {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: index * 0.05 }}
                             >
-                                <Card className="group relative bg-white/5 backdrop-blur-sm border-white/5 hover:bg-white/10 transition-all duration-300 overflow-hidden">
+                                <Card
+                                    className="group relative bg-white/5 backdrop-blur-sm border-white/5 hover:bg-white/10 transition-all duration-300 overflow-hidden cursor-pointer"
+                                    onClick={() => setSelectedPosition(position)}
+                                >
                                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 pointer-events-none" />
 
                                     <CardContent className="p-8">
@@ -256,14 +268,15 @@ const Careers = () => {
                                             </div>
 
                                             <div className="flex-shrink-0">
-                                                <Button
-                                                    onClick={() => handleApply(position.Formatted_Name__c)}
-                                                    className="w-full md:w-auto px-8 py-6 rounded-full text-lg font-medium bg-white text-black hover:bg-gray-200 border-0 transition-transform group-hover:scale-105"
-                                                    style={brandColor ? { backgroundColor: primaryColor, color: 'white' } : {}}
-                                                >
-                                                    View Role
-                                                    <ArrowRight className="ml-2 h-5 w-5" />
-                                                </Button>
+                                                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                                    <Button
+                                                        className="w-full md:w-auto px-8 py-6 rounded-full text-lg font-medium bg-white text-black hover:bg-gray-200 border-0"
+                                                        style={brandColor ? { backgroundColor: primaryColor, color: 'white' } : {}}
+                                                    >
+                                                        View Role
+                                                        <ArrowRight className="ml-2 h-5 w-5" />
+                                                    </Button>
+                                                </motion.div>
                                             </div>
                                         </div>
                                     </CardContent>
@@ -273,6 +286,65 @@ const Careers = () => {
                     </div>
                 )}
             </div>
+
+            {/* Position Details Modal */}
+            <Dialog open={!!selectedPosition} onOpenChange={(open) => !open && setSelectedPosition(null)}>
+                <DialogContent className="max-w-3xl bg-gray-900 border-gray-800 text-white max-h-[90vh] overflow-y-auto">
+                    {selectedPosition && (
+                        <>
+                            <DialogHeader>
+                                <div className="flex flex-col gap-4 mb-4">
+                                    <div className="flex items-center gap-3 text-sm font-medium tracking-wide uppercase">
+                                        <Badge variant="outline" className="bg-white/10 border-white/10 text-white hover:bg-white/20">
+                                            {selectedPosition.Type__c || 'Full Time'}
+                                        </Badge>
+                                        <span className="text-gray-400">Hybrid - Cairo, Egypt</span>
+                                    </div>
+                                    <DialogTitle className="text-4xl font-bold text-white">
+                                        {selectedPosition.Name}
+                                    </DialogTitle>
+                                </div>
+                            </DialogHeader>
+
+                            <div className="space-y-6 py-4">
+                                {selectedPosition.Job_Description__c && (
+                                    <div className="prose prose-invert max-w-none text-gray-300">
+                                        <p className="text-lg leading-relaxed whitespace-pre-line">
+                                            {selectedPosition.Job_Description__c}
+                                        </p>
+                                    </div>
+                                )}
+
+                                <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-gray-800">
+                                    <div className="flex-1 space-y-2">
+                                        {selectedPosition.Hire_By__c && (
+                                            <div className="flex items-center gap-2 text-gray-400">
+                                                <Calendar className="h-4 w-4" style={{ color: primaryColor }} />
+                                                <span>Application Deadline: {formatDate(selectedPosition.Hire_By__c)}</span>
+                                            </div>
+                                        )}
+                                        <div className="flex items-center gap-2 text-gray-400">
+                                            <MapPin className="h-4 w-4" style={{ color: primaryColor }} />
+                                            <span>Hybrid - Cairo, Egypt</span>
+                                        </div>
+                                    </div>
+
+                                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex-shrink-0">
+                                        <Button
+                                            onClick={() => handleApply(selectedPosition.Formatted_Name__c)}
+                                            className="w-full sm:w-auto px-8 py-6 rounded-full text-lg font-medium bg-white text-black hover:bg-gray-200 border-0"
+                                            style={brandColor ? { backgroundColor: primaryColor, color: 'white' } : {}}
+                                        >
+                                            Apply Now
+                                            <ArrowRight className="ml-2 h-5 w-5" />
+                                        </Button>
+                                    </motion.div>
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };
