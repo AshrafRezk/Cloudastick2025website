@@ -306,16 +306,52 @@ const Careers = () => {
                                 </div>
                             </DialogHeader>
 
-                            <div className="space-y-6 py-4">
+                            <div className="space-y-8 py-4">
                                 {selectedPosition.Job_Description__c && (
-                                    <div className="prose prose-invert max-w-none text-gray-300">
-                                        <p className="text-lg leading-relaxed whitespace-pre-line">
-                                            {selectedPosition.Job_Description__c}
-                                        </p>
+                                    <div className="space-y-4">
+                                        <h3 className="text-xl font-semibold text-white">About the Role</h3>
+                                        <div className="prose prose-invert max-w-none text-gray-300">
+                                            <p className="text-lg leading-relaxed whitespace-pre-line">
+                                                {selectedPosition.Job_Description__c}
+                                            </p>
+                                        </div>
                                     </div>
                                 )}
 
-                                <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-gray-800">
+                                {selectedPosition.Responsibilities__c && (
+                                    <div className="space-y-4">
+                                        <h3 className="text-xl font-semibold text-white">Key Responsibilities</h3>
+                                        <div className="prose prose-invert max-w-none text-gray-300">
+                                            <p className="text-lg leading-relaxed whitespace-pre-line">
+                                                {selectedPosition.Responsibilities__c}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {selectedPosition.Skills_Required__c && (
+                                    <div className="space-y-4">
+                                        <h3 className="text-xl font-semibold text-white">Required Skills</h3>
+                                        <div className="prose prose-invert max-w-none text-gray-300">
+                                            <p className="text-lg leading-relaxed whitespace-pre-line">
+                                                {selectedPosition.Skills_Required__c}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {selectedPosition.Educational_Requirements__c && (
+                                    <div className="space-y-4">
+                                        <h3 className="text-xl font-semibold text-white">Educational Requirements</h3>
+                                        <div className="prose prose-invert max-w-none text-gray-300">
+                                            <p className="text-lg leading-relaxed whitespace-pre-line">
+                                                {selectedPosition.Educational_Requirements__c}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="flex flex-col sm:flex-row gap-4 pt-8 border-t border-gray-800">
                                     <div className="flex-1 space-y-2">
                                         {selectedPosition.Hire_By__c && (
                                             <div className="flex items-center gap-2 text-gray-400">
