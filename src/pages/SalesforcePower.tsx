@@ -4100,6 +4100,8 @@ const SalesforcePower = () => {
           modules={modules}
           isLoading={modulesLoading}
           industryName={modulesVerticalData?.name || selectedIndustryData?.name}
+          verticalType={modulesVerticalData?.type}
+          companyName={companyName}
           selectedModules={selectedModuleIds}
           onToggleModule={handleToggleModule}
         />
