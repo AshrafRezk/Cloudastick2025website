@@ -7,8 +7,8 @@ import Button from './Button';
 const TechSaSection = () => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const images = [
-        "https://i0.wp.com/merge.techsa.io/wp-content/uploads/2023/09/shipper.png?w=1489&ssl=1",
-        "https://i0.wp.com/merge.techsa.io/wp-content/uploads/2023/09/Picture2.png?w=1001&ssl=1"
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxDIQQJhMyux45oQYAR9ls_CWzHHUmwwb1HA&s",
+        "https://i0.wp.com/aforza.com/wp-content/uploads/2021/10/What-is-Van-Sales-Hero-e1713804366516.jpeg?resize=1080%2C675&ssl=1"
     ];
 
     const nextImage = () => {
