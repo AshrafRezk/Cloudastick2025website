@@ -80,7 +80,7 @@ import PharmaSections from '../components/PharmaSections';
 import InvestmentPlanSection from '../components/InvestmentPlanSection';
 import ModulesSection from '../components/ModulesSection';
 import { useSalesforce } from '../contexts/SalesforceContext';
-import { fetchAllVerticals, fetchVerticalById, type VerticalModule } from '../services/verticalService';
+import { fetchAllVerticals, fetchVerticalById, type VerticalModule, type Vertical } from '../services/verticalService';
 
 import ScopeBuilderFab from '../components/ScopeBuilderFab';
 
@@ -426,6 +426,25 @@ const SalesforcePower = () => {
   // Handle vertical change from FAB
   const handleVerticalChange = (verticalId: string) => {
     triggerHaptic([10, 5, 10], '/Assets/selection3new.mp3');
+
+    if (showModulesSection) {
+      // If modules section is active, only change the vertical for modules
+      // 1. Map slug to Salesforce ID
+      const sfId = getSalesforceVerticalId(verticalId);
+
+      if (sfId) {
+        setModulesVerticalId(sfId);
+      } else {
+        console.warn(`Could not map industry slug '${verticalId}' to a Salesforce Vertical ID.`);
+        toast({
+          title: "Vertical Not Found",
+          description: "The selected industry does not have a mapped Salesforce Vertical yet.",
+          variant: "destructive"
+        });
+      }
+      return;
+    }
+
     setSelectedIndustry(verticalId);
     // Optional: Clear or reset modules selection for new vertical if needed, 
     // but useEffect above handles loading stored selection for the new vertical.
@@ -1202,20 +1221,47 @@ const SalesforcePower = () => {
   const [modulesVerticalId, setModulesVerticalId] = useState<string | null>(null);
   const [modulesVerticalData, setModulesVerticalData] = useState<Vertical | null>(null);
 
+  // Helper to find Salesforce Vertical ID from Industry Slug
+  const getSalesforceVerticalId = useCallback((slug: string) => {
+    if (!slug || allVerticals.length === 0) return null;
+
+    // 1. Get Industry Data to find the Name
+    const industryData = industries.find(i => i.id === slug);
+    if (!industryData) return null;
+
+    // 2. Find matching Vertical in allVerticals by Name or Type
+    const matchedVertical = allVerticals.find(v =>
+      (v.name && v.name.toLowerCase() === industryData.name.toLowerCase()) ||
+      (v.type && v.type.toLowerCase() === industryData.name.toLowerCase()) ||
+      // Also try matching against the slug itself if the name logic fails
+      (v.name && v.name.toLowerCase().replace(/\s+/g, '-') === slug)
+    );
+
+    return matchedVertical ? matchedVertical.id : null;
+  }, [allVerticals]);
+
   // Initialize modulesVerticalId from URL or default
   useEffect(() => {
     if (showModulesSection && !modulesVerticalId) {
       if (selectedIndustry) {
-        setModulesVerticalId(selectedIndustry);
+        // Map selectedIndustry (slug) to Salesforce ID
+        const sfId = getSalesforceVerticalId(selectedIndustry);
+        if (sfId) {
+          setModulesVerticalId(sfId);
+        } else if (allVerticals.length > 0) {
+          // Fallback if mapping fails but we have verticals
+          setModulesVerticalId(allVerticals[0].id);
+        }
       } else {
         if (allVerticals.length > 0) {
           setModulesVerticalId(allVerticals[0].id);
         }
       }
     }
-  }, [showModulesSection, selectedIndustry, modulesVerticalId, allVerticals]);
+  }, [showModulesSection, selectedIndustry, modulesVerticalId, allVerticals, getSalesforceVerticalId]);
 
 
+  // Fetch Modules Data independently
   // Fetch Modules Data independently
   useEffect(() => {
     const fetchModules = async () => {
@@ -1240,6 +1286,19 @@ const SalesforcePower = () => {
 
       // If we don't have a specific modules vertical selected yet, we can't fetch modules
       if (!modulesVerticalId) {
+        // If we have verticals but no ID, try to set it one last time (race condition guard)
+        if (selectedIndustry) {
+          const sfId = getSalesforceVerticalId(selectedIndustry);
+          if (sfId) {
+            setModulesVerticalId(sfId);
+            return; // Next render will fetch
+          }
+        }
+        if (allVerticals.length > 0) {
+          setModulesVerticalId(allVerticals[0].id);
+          return; // Next render will fetch
+        }
+
         setModules([]); // Clear modules if no vertical selected
         setModulesVerticalData(null);
         return;
@@ -1282,7 +1341,7 @@ const SalesforcePower = () => {
     };
 
     fetchModules();
-  }, [showModulesSection, modulesVerticalId, authData, allVerticals]); // Depend on modulesVerticalId instead of selectedIndustryData
+  }, [showModulesSection, modulesVerticalId, authData, allVerticals, getSalesforceVerticalId, selectedIndustry]); // Depend on modulesVerticalId instead of selectedIndustryData
 
   // Check if current industry is retail/commerce related
   const isRetailOrCommerce = useMemo(() => {
@@ -4138,6 +4197,7 @@ const SalesforcePower = () => {
       {/* Scope Builder FAB */}
       {showModulesSection && (
         <ScopeBuilderFab
+          verticals={allVerticals}
           selectedVerticalId={showModulesSection ? modulesVerticalId : selectedIndustry}
           selectedModuleCount={selectedModuleIds.size}
           onVerticalChange={handleVerticalChange}

@@ -9,9 +9,10 @@ import {
     ArrowRight
 } from 'lucide-react';
 import { Button } from './ui/button';
-import { industries } from '../data/industries';
+import { type Vertical } from '../services/verticalService';
 
 interface ScopeBuilderFabProps {
+    verticals: Vertical[];
     selectedVerticalId: string | null;
     selectedModuleCount: number;
     onVerticalChange: (verticalId: string) => void;
@@ -19,6 +20,7 @@ interface ScopeBuilderFabProps {
 }
 
 const ScopeBuilderFab = ({
+    verticals,
     selectedVerticalId,
     selectedModuleCount,
     onVerticalChange,
@@ -26,8 +28,9 @@ const ScopeBuilderFab = ({
 }: ScopeBuilderFabProps) => {
     const [isOpen, setIsOpen] = useState(false);
 
-    // Get current vertical name
-    const currentVerticalName = industries.find(i => i.id === selectedVerticalId)?.name || 'Select Industry';
+    // Get current vertical name from verticals list
+    const currentVertical = verticals.find(v => v.id === selectedVerticalId);
+    const currentVerticalName = currentVertical?.type || currentVertical?.name || 'Select Industry';
 
     return (
         <div className="fixed bottom-24 right-6 z-50 flex flex-col items-end pointer-events-none">
@@ -56,25 +59,30 @@ const ScopeBuilderFab = ({
                                     Target Industry
                                 </label>
                                 <div className="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-700">
-                                    {industries.map((industry) => (
+                                    {verticals.map((vertical) => (
                                         <button
-                                            key={industry.id}
+                                            key={vertical.id}
                                             onClick={() => {
-                                                onVerticalChange(industry.id);
+                                                onVerticalChange(vertical.id);
                                                 // Don't close, let them see the change
                                             }}
-                                            className={`flex items-center gap-2 p-2 rounded-lg text-sm transition-colors text-left ${selectedVerticalId === industry.id
-                                                    ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
-                                                    : 'hover:bg-gray-800 text-gray-300 border border-transparent'
+                                            className={`flex items-center gap-2 p-2 rounded-lg text-sm transition-colors text-left ${selectedVerticalId === vertical.id
+                                                ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
+                                                : 'hover:bg-gray-800 text-gray-300 border border-transparent'
                                                 }`}
                                         >
                                             <Building2 className="w-4 h-4 shrink-0" />
-                                            <span className="truncate">{industry.name}</span>
-                                            {selectedVerticalId === industry.id && (
+                                            <span className="truncate">{vertical.type || vertical.name}</span>
+                                            {selectedVerticalId === vertical.id && (
                                                 <CheckCircle2 className="w-3 h-3 ml-auto" />
                                             )}
                                         </button>
                                     ))}
+                                    {verticals.length === 0 && (
+                                        <div className="text-gray-500 text-sm p-2 text-center">
+                                            Loading industries...
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
@@ -107,13 +115,13 @@ const ScopeBuilderFab = ({
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsOpen(!isOpen)}
                 className={`pointer-events-auto flex items-center gap-3 pl-4 pr-3 py-3 rounded-full shadow-lg border backdrop-blur-sm transition-all shadow-cyan-500/10 ${isOpen
-                        ? 'bg-gray-800 border-cyan-500 text-white'
-                        : 'bg-gray-900/90 border-gray-700 text-gray-200 hover:border-cyan-500/50'
+                    ? 'bg-gray-800 border-cyan-500 text-white'
+                    : 'bg-gray-900/90 border-gray-700 text-gray-200 hover:border-cyan-500/50'
                     }`}
             >
                 <div className="flex flex-col items-start mr-1">
                     <span className="text-xs text-gray-400 font-medium">Building Scope for</span>
-                    <span className="text-sm font-bold text-cyan-400">{currentVerticalName}</span>
+                    <span className="text-sm font-bold text-cyan-400 truncate max-w-[120px]">{currentVerticalName}</span>
                 </div>
 
                 <div className="relative">
