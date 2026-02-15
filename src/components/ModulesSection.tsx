@@ -33,6 +33,7 @@ interface ModulesSectionProps {
     industryName?: string;
     verticalType?: string;
     companyName?: string;
+    companyLogo?: string;
     selectedModules?: Set<string>;
     onToggleModule?: (moduleId: string) => void;
 }
@@ -43,6 +44,7 @@ const ModulesSection = ({
     industryName,
     verticalType,
     companyName,
+    companyLogo,
     selectedModules,
     onToggleModule
 }: ModulesSectionProps) => {
@@ -50,7 +52,64 @@ const ModulesSection = ({
     const [execSummary, setExecSummary] = useState('');
     const [currentState, setCurrentState] = useState('');
     const [otherNotes, setOtherNotes] = useState('');
+    const [moduleNotes, setModuleNotes] = useState<Record<string, string>>({});
     const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+
+    const handleNoteChange = (moduleId: string, note: string) => {
+        setModuleNotes(prev => ({
+            ...prev,
+            [moduleId]: note
+        }));
+    };
+
+    const getBase64FromUrl = async (url: string): Promise<string> => {
+        const data = await fetch(url);
+        const blob = await data.blob();
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(blob);
+            reader.onloadend = () => {
+                const base64data = reader.result as string;
+                resolve(base64data);
+            };
+        });
+    };
+
+    const stripHtml = (html: string) => {
+        const tmp = document.createElement("DIV");
+        // Create a temporary element to parse HTML
+        tmp.innerHTML = html;
+        // Get text content, but we might want to preserve some structure like LIs
+        // For simple PDF export, textContent is safest, but let's try to format LIs
+        let text = tmp.textContent || tmp.innerText || "";
+
+        // If it was a list, innerText often squashes it. 
+        // Let's do a basic regex replace for common tags if textContent is too plain
+        if (html.includes('<li')) {
+            return html
+                .replace(/<[^>]+>/g, '') // Remove tags
+                .replace(/&nbsp;/g, ' ')
+                .trim();
+        }
+        return text.trim();
+    };
+
+    // Better HTML to Text converter for PDF that preserves some formatting
+    const formatHtmlForPdf = (html: string) => {
+        // Replace list items with bullets
+        let formatted = html.replace(/<li[^>]*>/g, '• ');
+        // Replace closing list items with newlines
+        formatted = formatted.replace(/<\/li>/g, '\n');
+        // Replace br and paragraphs with newlines
+        formatted = formatted.replace(/<br\s*\/?>/gi, '\n').replace(/<\/p>/gi, '\n');
+        // Strip remaining tags
+        formatted = formatted.replace(/<[^>]+>/g, '');
+        // Decode entities
+        const txt = document.createElement("textarea");
+        txt.innerHTML = formatted;
+        return txt.value.trim();
+    };
+
 
     const generateSOW = async () => {
         setIsGeneratingPdf(true);
@@ -58,23 +117,35 @@ const ModulesSection = ({
             const doc = new jsPDF();
             const pageWidth = doc.internal.pageSize.width;
 
-            // --- Header ---
-            // Placeholder for Logo - In a real app, you'd load the image data
-            // doc.addImage(logoData, 'PNG', 15, 15, 30, 10);
+            // --- Load Logos ---
+            try {
+                // Cloudastick Logo
+                const cloudastickLogoUrl = '/Assets/Company Logos/blue logo.png';
+                const cloudastickLogoBase64 = await getBase64FromUrl(cloudastickLogoUrl);
+                doc.addImage(cloudastickLogoBase64, 'PNG', 15, 10, 40, 15); // x, y, w, h
+
+                // Client Logo
+                if (companyLogo) {
+                    const clientLogoBase64 = await getBase64FromUrl(companyLogo);
+                    doc.addImage(clientLogoBase64, 'PNG', pageWidth - 55, 10, 40, 15);
+                }
+            } catch (e) {
+                console.warn("Could not load logos for PDF", e);
+            }
 
             doc.setFontSize(22);
             doc.setTextColor(0, 150, 255); // Cloudastick Blue-ish
-            doc.text("Scope of Work", pageWidth / 2, 20, { align: 'center' });
+            doc.text("Scope of Work", pageWidth / 2, 40, { align: 'center' });
 
             doc.setFontSize(16);
             doc.setTextColor(60, 60, 60);
-            doc.text(`For: ${companyName || 'Valued Client'}`, pageWidth / 2, 30, { align: 'center' });
+            doc.text(`For: ${companyName || 'Valued Client'}`, pageWidth / 2, 50, { align: 'center' });
 
             doc.setFontSize(12);
             doc.setTextColor(100, 100, 100);
-            doc.text(`Industry: ${verticalType || industryName || 'General'}`, pageWidth / 2, 38, { align: 'center' });
+            doc.text(`Industry: ${verticalType || industryName || 'General'}`, pageWidth / 2, 58, { align: 'center' });
 
-            let yPos = 50;
+            let yPos = 70;
 
             // --- Sections Helper ---
             const addSectionParams = (title: string, content: string) => {
@@ -97,6 +168,10 @@ const ModulesSection = ({
             addSectionParams("2. Current State & Vision", currentState);
 
             // --- In-Scope Modules ---
+            if (yPos > 240) {
+                doc.addPage();
+                yPos = 20;
+            }
             doc.setFontSize(14);
             doc.setTextColor(0, 0, 0);
             doc.text("3. In-Scope Modules", 14, yPos);
@@ -104,16 +179,25 @@ const ModulesSection = ({
 
             const inScopeData = modules
                 .filter(m => selectedModules?.has(m.id))
-                .map(m => [m.name, m.priority ? `P${m.priority}` : 'Standard']);
+                .map(m => [
+                    m.name,
+                    formatHtmlForPdf(m.featureList || ''),
+                    moduleNotes[m.id] || ''
+                ]);
 
             if (inScopeData.length > 0) {
                 autoTable(doc, {
                     startY: yPos,
-                    head: [['Module Name', 'Priority']],
+                    head: [['Module Name', 'Details / Features', 'Notes']],
                     body: inScopeData,
                     theme: 'grid',
                     headStyles: { fillColor: [0, 150, 255] },
-                    styles: { fontSize: 10, cellPadding: 3 },
+                    styles: { fontSize: 9, cellPadding: 3, overflow: 'linebreak' },
+                    columnStyles: {
+                        0: { cellWidth: 40 }, // Name
+                        1: { cellWidth: 90 }, // Details
+                        2: { cellWidth: 'auto' } // Notes
+                    },
                     margin: { left: 14, right: 14 }
                 });
                 // @ts-ignore
@@ -308,21 +392,12 @@ const ModulesSection = ({
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent className="space-y-6">
-                                        {/* Features List */}
+                                        {/* Features List - RICH TEXT RENDERED */}
                                         {module.featureList && (
-                                            <div className="space-y-3">
-                                                {module.featureList.split('\n').slice(0, 4).map((feature, idx) => (
-                                                    <div key={idx} className="flex items-start gap-2.5">
-                                                        <CheckCircle2 className={`w-5 h-5 mt-0.5 shrink-0 transition-colors ${isSelected ? 'text-cyan-500' : 'text-gray-500'}`} />
-                                                        <span className={`text-sm leading-snug transition-colors ${isSelected ? 'text-gray-200' : 'text-gray-400'}`}>{feature.replace(/^-\s*/, '')}</span>
-                                                    </div>
-                                                ))}
-                                                {module.featureList.split('\n').length > 4 && (
-                                                    <p className="text-xs text-gray-500 italic pl-7">
-                                                        + {module.featureList.split('\n').length - 4} more features
-                                                    </p>
-                                                )}
-                                            </div>
+                                            <div
+                                                className={`prose prose-sm prose-invert max-w-none text-gray-400 ${isSelected ? 'text-gray-200' : ''} [&>ul]:list-disc [&>ul]:pl-5 [&>ol]:list-decimal [&>ol]:pl-5`}
+                                                dangerouslySetInnerHTML={{ __html: module.featureList }}
+                                            />
                                         )}
 
                                         {/* Cloudastick Edge */}
@@ -335,6 +410,22 @@ const ModulesSection = ({
                                                 <p className="text-sm text-gray-400 leading-relaxed italic">
                                                     "{module.cloudastickEdge}"
                                                 </p>
+                                            </div>
+                                        )}
+
+                                        {/* Notes Input for Selected Modules */}
+                                        {isSelected && isInteractive && (
+                                            <div className="pt-4 mt-4 border-t border-gray-700/50" onClick={(e) => e.stopPropagation()}>
+                                                <label className="text-xs text-cyan-400 font-medium uppercase tracking-wider mb-2 block flex items-center gap-2">
+                                                    <FileText className="w-3 h-3" />
+                                                    Module Notes
+                                                </label>
+                                                <Textarea
+                                                    placeholder="Add specific requirements or notes for this module..."
+                                                    className="bg-gray-900/50 border-gray-700 focus:border-cyan-500 text-sm min-h-[60px]"
+                                                    value={moduleNotes[module.id] || ''}
+                                                    onChange={(e) => handleNoteChange(module.id, e.target.value)}
+                                                />
                                             </div>
                                         )}
                                     </CardContent>
