@@ -429,7 +429,16 @@ const SalesforcePower = () => {
 
     if (showModulesSection) {
       // If modules section is active, only change the vertical for modules
-      // 1. Map slug to Salesforce ID
+
+      // 1. Check if verticalId is already a valid Salesforce ID
+      const isDirectId = allVerticals.some(v => v.id === verticalId);
+
+      if (isDirectId) {
+        setModulesVerticalId(verticalId);
+        return;
+      }
+
+      // 2. If not a direct ID, try to map slug to Salesforce ID
       const sfId = getSalesforceVerticalId(verticalId);
 
       if (sfId) {
