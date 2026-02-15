@@ -1198,65 +1198,91 @@ const SalesforcePower = () => {
     }
   }, [modules, selectedIndustryData]);
 
+  // Separate state for modules vertical (decoupled from page vertical)
+  const [modulesVerticalId, setModulesVerticalId] = useState<string | null>(null);
+  const [modulesVerticalData, setModulesVerticalData] = useState<Vertical | null>(null);
 
-  // Fetch modules when industry is selected and modules param is present
+  // Initialize modulesVerticalId from URL or default
+  useEffect(() => {
+    if (showModulesSection && !modulesVerticalId) {
+      if (selectedIndustry) {
+        setModulesVerticalId(selectedIndustry);
+      } else {
+        if (allVerticals.length > 0) {
+          setModulesVerticalId(allVerticals[0].id);
+        }
+      }
+    }
+  }, [showModulesSection, selectedIndustry, modulesVerticalId, allVerticals]);
+
+
+  // Fetch Modules Data independently
   useEffect(() => {
     const fetchModules = async () => {
-      if (!showModulesSection || !selectedIndustryData || !authData?.access_token || !authData?.instance_url) {
+      // If we are not showing modules, or don't have auth, return
+      if (!showModulesSection || !authData?.access_token || !authData?.instance_url) {
         return;
       }
 
-      // If we don't have verticals list yet, fetch it or wait
+      // If we don't have verticals list yet, fetch it
       if (allVerticals.length === 0) {
         if (!modulesLoading) {
           try {
             const data = await fetchAllVerticals(authData.access_token, authData.instance_url);
             setAllVerticals(data);
-            findAndFetchVertical(data);
-          } catch (e) { console.error(e); }
+            // The next effect run will pick this up
+          } catch (e) {
+            console.error(e);
+          }
         }
         return;
       }
 
-      findAndFetchVertical(allVerticals);
-    };
+      // If we don't have a specific modules vertical selected yet, we can't fetch modules
+      if (!modulesVerticalId) {
+        setModules([]); // Clear modules if no vertical selected
+        setModulesVerticalData(null);
+        return;
+      }
 
-    const findAndFetchVertical = async (verticalsList: any[]) => {
       try {
         setModulesLoading(true);
-
-        // Find vertical by name match (case-insensitive)
-        const matchedVertical = verticalsList.find(v =>
-          v.name.toLowerCase() === selectedIndustryData?.name?.toLowerCase() ||
-          v.type?.toLowerCase() === selectedIndustryData?.name?.toLowerCase()
+        const data = await fetchVerticalById(
+          authData.access_token,
+          authData.instance_url,
+          modulesVerticalId
         );
 
-        if (matchedVertical) {
-          const fullVertical = await fetchVerticalById(authData.access_token, authData.instance_url, matchedVertical.id);
+        if (data) {
+          setModulesVerticalData(data);
+          const verticalModules = data.modules || [];
 
-          if (fullVertical.modules) {
-            setModules(fullVertical.modules);
-          } else {
-            setModules([]);
-          }
-        } else {
-          console.log(`No matching vertical found for industry: ${selectedIndustryData?.name}`);
-          setModules([]);
+          setModules(verticalModules);
+
+          // Pre-select priority modules (1-3)
+          const initialSelected = new Set<string>();
+          verticalModules.forEach((m: any) => {
+            if (m.priority !== null && m.priority <= 3) {
+              initialSelected.add(m.id);
+            }
+          });
+          setSelectedModuleIds(initialSelected);
+
         }
       } catch (error) {
         console.error('Error fetching modules:', error);
         toast({
-          title: 'Error loading modules',
-          description: 'Failed to load industry modules',
-          variant: 'destructive',
+          title: "Error",
+          description: "Failed to load modules. Please try again.",
+          variant: "destructive"
         });
       } finally {
         setModulesLoading(false);
       }
-    }
+    };
 
     fetchModules();
-  }, [showModulesSection, selectedIndustryData, authData, allVerticals]);
+  }, [showModulesSection, modulesVerticalId, authData, allVerticals]); // Depend on modulesVerticalId instead of selectedIndustryData
 
   // Check if current industry is retail/commerce related
   const isRetailOrCommerce = useMemo(() => {
@@ -3999,12 +4025,13 @@ const SalesforcePower = () => {
         </div>
       </section>
 
+
       {/* Modules Section */}
       {showModulesSection && (
         <ModulesSection
           modules={modules}
           isLoading={modulesLoading}
-          industryName={selectedIndustryData?.name}
+          industryName={modulesVerticalData?.name || selectedIndustryData?.name}
           selectedModules={selectedModuleIds}
           onToggleModule={handleToggleModule}
         />
@@ -4111,7 +4138,7 @@ const SalesforcePower = () => {
       {/* Scope Builder FAB */}
       {showModulesSection && (
         <ScopeBuilderFab
-          selectedVerticalId={selectedIndustry}
+          selectedVerticalId={showModulesSection ? modulesVerticalId : selectedIndustry}
           selectedModuleCount={selectedModuleIds.size}
           onVerticalChange={handleVerticalChange}
           onScrollToModules={handleScrollToModules}
