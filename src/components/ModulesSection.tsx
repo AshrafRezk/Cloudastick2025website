@@ -107,7 +107,12 @@ const ModulesSection = ({
         // Decode entities
         const txt = document.createElement("textarea");
         txt.innerHTML = formatted;
-        return txt.value.trim();
+
+        return txt.value
+            .split('\n')
+            .map(line => line.trim())
+            .filter(line => line.length > 0)
+            .join('\n');
     };
 
 
@@ -136,23 +141,32 @@ const ModulesSection = ({
 
             // Function to draw header graphics (Logos)
             const drawHeader = (doc: jsPDF) => {
+                let currentX = 15;
+                const headerY = 10;
+                const targetHeight = 15;
+
                 if (cloudastickLogoBase64) {
                     const imgProps = doc.getImageProperties(cloudastickLogoBase64);
-                    // Targeted height: 15mm
-                    const targetHeight = 15;
                     const scaleFactor = targetHeight / imgProps.height;
                     const scaledWidth = imgProps.width * scaleFactor;
-                    doc.addImage(cloudastickLogoBase64, 'PNG', 15, 10, scaledWidth, targetHeight);
+                    doc.addImage(cloudastickLogoBase64, 'PNG', currentX, headerY, scaledWidth, targetHeight);
+
+                    currentX += scaledWidth + 10; // Add padding between logos
                 }
 
                 if (clientLogoBase64) {
                     const imgProps = doc.getImageProperties(clientLogoBase64);
-                    // Targeted height: 15mm
-                    const targetHeight = 15;
                     const scaleFactor = targetHeight / imgProps.height;
                     const scaledWidth = imgProps.width * scaleFactor;
-                    // Right aligned
-                    doc.addImage(clientLogoBase64, 'PNG', pageWidth - 15 - scaledWidth, 10, scaledWidth, targetHeight);
+
+                    // Add a separator symbol?
+                    if (cloudastickLogoBase64) {
+                        doc.setFontSize(20);
+                        doc.setTextColor(150);
+                        doc.text("+", currentX - 6, headerY + 10);
+                    }
+
+                    doc.addImage(clientLogoBase64, 'PNG', currentX, headerY, scaledWidth, targetHeight);
                 }
             };
 
