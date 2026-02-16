@@ -21,7 +21,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const { t } = useLanguage();
 
   // Main navigation items (visible in menu)
-  const mainNavItems = [
+  const mainNavItems: { name: string; path: string; isIcon?: boolean }[] = [
     { name: 'home-icon', path: "/", isIcon: true },
     { name: t('nav.about'), path: "/about" },
     { name: t('nav.apps'), path: "/salesforce-apps" },
@@ -32,7 +32,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   ];
 
   // Items to show in "More" dropdown
-  const moreNavItems = [
+  const moreNavItems: { name: string; path: string; isIcon?: boolean }[] = [
     { name: t('nav.services'), path: "/services" },
     { name: t('nav.learn'), path: "/learn" },
     { name: t('nav.merchandise'), path: "/merchandise" },
@@ -77,7 +77,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden xl:flex items-center space-x-8">
+            <div className="hidden xl:flex items-center xl:space-x-4 2xl:space-x-8">
               {mainNavItems.filter(item => !item.isIcon).map((item) => (
                 <Link
                   key={item.path}
