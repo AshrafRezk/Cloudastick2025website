@@ -9,6 +9,13 @@ import {
     FileText,
     Download
 } from 'lucide-react';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from './ui/select';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
@@ -53,6 +60,7 @@ const ModulesSection = ({
     const [currentState, setCurrentState] = useState('');
     const [otherNotes, setOtherNotes] = useState('');
     const [moduleNotes, setModuleNotes] = useState<Record<string, string>>({});
+    const [modulePhases, setModulePhases] = useState<Record<string, string>>({});
     const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
     const handleNoteChange = (moduleId: string, note: string) => {
@@ -60,6 +68,25 @@ const ModulesSection = ({
             ...prev,
             [moduleId]: note
         }));
+    };
+
+    const handlePhaseChange = (moduleId: string, phase: string) => {
+        if (phase === 'future') {
+            // Deselect if switching to future/out of scope
+            if (selectedModules?.has(moduleId) && onToggleModule) {
+                onToggleModule(moduleId);
+            }
+        } else {
+            // Select if not selected
+            if (!selectedModules?.has(moduleId) && onToggleModule) {
+                onToggleModule(moduleId);
+            }
+            // Update phase
+            setModulePhases(prev => ({
+                ...prev,
+                [moduleId]: phase
+            }));
+        }
     };
 
     const getBase64FromUrl = async (url: string): Promise<string> => {
@@ -125,11 +152,16 @@ const ModulesSection = ({
             // --- Load Logos ---
             let cloudastickLogoBase64: string | null = null;
             let clientLogoBase64: string | null = null;
+            let salesforceLogoBase64: string | null = null;
 
             try {
-                // Cloudastick Logo
+                // Cloudastick Logo (using blue logo for white paper)
                 const cloudastickLogoUrl = '/Assets/Company Logos/blue logo.png';
                 cloudastickLogoBase64 = await getBase64FromUrl(cloudastickLogoUrl);
+
+                // Salesforce Logo
+                const salesforceLogoUrl = '/Assets/Product Logos/salesforce.png';
+                salesforceLogoBase64 = await getBase64FromUrl(salesforceLogoUrl);
 
                 // Client Logo
                 if (companyLogo) {
@@ -143,30 +175,38 @@ const ModulesSection = ({
             const drawHeader = (doc: jsPDF) => {
                 let currentX = 15;
                 const headerY = 10;
-                const targetHeight = 15;
+                const targetHeight = 12;
 
-                if (cloudastickLogoBase64) {
-                    const imgProps = doc.getImageProperties(cloudastickLogoBase64);
-                    const scaleFactor = targetHeight / imgProps.height;
-                    const scaledWidth = imgProps.width * scaleFactor;
-                    doc.addImage(cloudastickLogoBase64, 'PNG', currentX, headerY, scaledWidth, targetHeight);
-
-                    currentX += scaledWidth + 10; // Add padding between logos
-                }
-
+                // Client Logo
                 if (clientLogoBase64) {
                     const imgProps = doc.getImageProperties(clientLogoBase64);
                     const scaleFactor = targetHeight / imgProps.height;
                     const scaledWidth = imgProps.width * scaleFactor;
-
-                    // Add a separator symbol?
-                    if (cloudastickLogoBase64) {
-                        doc.setFontSize(20);
-                        doc.setTextColor(150);
-                        doc.text("+", currentX - 6, headerY + 10);
-                    }
-
                     doc.addImage(clientLogoBase64, 'PNG', currentX, headerY, scaledWidth, targetHeight);
+
+                    // Separator
+                    doc.setFontSize(16);
+                    doc.setTextColor(200);
+                    doc.text("|", currentX + scaledWidth + 5, headerY + 8);
+
+                    currentX += scaledWidth + 15;
+                }
+
+                // Salesforce Logo
+                if (salesforceLogoBase64) {
+                    const imgProps = doc.getImageProperties(salesforceLogoBase64);
+                    const scaleFactor = targetHeight / imgProps.height;
+                    const scaledWidth = imgProps.width * scaleFactor;
+                    doc.addImage(salesforceLogoBase64, 'PNG', currentX, headerY, scaledWidth, targetHeight);
+                    currentX += scaledWidth + 15;
+                }
+
+                // Cloudastick Logo
+                if (cloudastickLogoBase64) {
+                    const imgProps = doc.getImageProperties(cloudastickLogoBase64);
+                    const scaleFactor = targetHeight / imgProps.height;
+                    const scaledWidth = imgProps.width * scaleFactor;
+                    doc.addImage(cloudastickLogoBase64, 'PNG', pageWidth - scaledWidth - 15, headerY, scaledWidth, targetHeight);
                 }
             };
 
@@ -205,52 +245,71 @@ const ModulesSection = ({
             addSectionParams("1. Executive Summary & Objectives", execSummary);
             addSectionParams("2. Current State & Vision", currentState);
 
-            // --- In-Scope Modules ---
+            // --- Implementation Phases ---
             if (yPos > 240) {
                 doc.addPage();
-                yPos = 35; // increased margin for header
+                yPos = 35;
             }
-            doc.setFontSize(14);
+            doc.setFontSize(16);
             doc.setTextColor(0, 0, 0);
-            doc.text("3. In-Scope Modules", 14, yPos);
-            yPos += 5;
+            doc.text("3. Implementation Phases", 14, yPos);
+            yPos += 10;
 
-            const inScopeData = modules
-                .filter(m => selectedModules?.has(m.id))
-                .map(m => [
+            // Groups
+            const phase1 = modules.filter(m => selectedModules?.has(m.id) && (!modulePhases[m.id] || modulePhases[m.id] === 'phase1'));
+            const phase2 = modules.filter(m => selectedModules?.has(m.id) && modulePhases[m.id] === 'phase2');
+            const phase3 = modules.filter(m => selectedModules?.has(m.id) && modulePhases[m.id] === 'phase3');
+
+            const renderTable = (title: string, data: VerticalModule[]) => {
+                if (data.length === 0) return;
+
+                if (yPos > 240) {
+                    doc.addPage();
+                    yPos = 35;
+                }
+
+                doc.setFontSize(13);
+                doc.setTextColor(0, 100, 200);
+                doc.text(title, 14, yPos);
+                yPos += 5;
+
+                const tableData = data.map(m => [
                     m.name,
                     formatHtmlForPdf(m.featureList || ''),
                     moduleNotes[m.id] || ''
                 ]);
 
-            if (inScopeData.length > 0) {
                 autoTable(doc, {
                     startY: yPos,
                     head: [['Module Name', 'Details / Features', 'Notes']],
-                    body: inScopeData,
+                    body: tableData,
                     theme: 'grid',
                     headStyles: { fillColor: [0, 150, 255] },
                     styles: { fontSize: 9, cellPadding: 3, overflow: 'linebreak' },
                     columnStyles: {
-                        0: { cellWidth: 40 }, // Name
-                        1: { cellWidth: 90 }, // Details
-                        2: { cellWidth: 'auto' } // Notes
+                        0: { cellWidth: 40 },
+                        1: { cellWidth: 90 },
+                        2: { cellWidth: 'auto' }
                     },
-                    margin: { left: 14, right: 14, top: 30 }, // Top margin for logos
-                    didDrawPage: (data) => {
-                        // We will handle logos manually after, but ensuring margin is key
-                    }
+                    margin: { left: 14, right: 14, top: 30 },
+                    didDrawPage: (data) => { }
                 });
                 // @ts-ignore
-                yPos = doc.lastAutoTable.finalY + 15;
-            } else {
+                yPos = doc.lastAutoTable.finalY + 10;
+            };
+
+            renderTable("3.1 Phase 1 (Immediate Scope)", phase1);
+            renderTable("3.2 Phase 2", phase2);
+            renderTable("3.3 Phase 3", phase3);
+
+            if (phase1.length === 0 && phase2.length === 0 && phase3.length === 0) {
                 doc.setFontSize(10);
-                doc.text("(No modules selected)", 14, yPos + 5);
-                yPos += 15;
+                doc.setTextColor(100);
+                doc.text("(No modules selected for implementation)", 14, yPos);
+                yPos += 10;
             }
 
             // --- Out-of-Scope Modules ---
-            // Check if we need a new page
             if (yPos > 250) {
                 doc.addPage();
                 yPos = 35;
@@ -258,8 +317,8 @@ const ModulesSection = ({
 
             doc.setFontSize(14);
             doc.setTextColor(0, 0, 0);
-            doc.text("4. Out-of-Scope Modules", 14, yPos);
-            yPos += 2; // autotable margin handles spacing
+            doc.text("4. Out-of-Scope (Future Phase)", 14, yPos);
+            yPos += 2;
 
             const outScopeData = modules
                 .filter(m => !selectedModules?.has(m.id))
@@ -270,7 +329,7 @@ const ModulesSection = ({
                     startY: yPos + 5,
                     head: [['Module Name', 'Status']],
                     body: outScopeData,
-                    theme: 'striped', // different theme for contrast
+                    theme: 'striped',
                     headStyles: { fillColor: [150, 150, 150] },
                     styles: { fontSize: 9, cellPadding: 2, textColor: [100, 100, 100] },
                     margin: { left: 14, right: 14, top: 30 }
@@ -279,7 +338,7 @@ const ModulesSection = ({
                 yPos = doc.lastAutoTable.finalY + 15;
             } else {
                 doc.setFontSize(10);
-                doc.text("(All available modules selected)", 14, yPos + 10);
+                doc.text("(All available modules included in phases)", 14, yPos + 10);
                 yPos += 20;
             }
 
@@ -296,11 +355,7 @@ const ModulesSection = ({
             const pageCount = doc.getNumberOfPages();
             for (let i = 1; i <= pageCount; i++) {
                 doc.setPage(i);
-
-                // Draw Logos on every page
                 drawHeader(doc);
-
-                // Footer
                 doc.setFontSize(8);
                 doc.setTextColor(150);
                 doc.text(`Page ${i} of ${pageCount} - Generated by Cloudastick Scope Builder`, pageWidth / 2, doc.internal.pageSize.height - 10, { align: 'center' });
@@ -459,6 +514,29 @@ const ModulesSection = ({
                                             </div>
                                         )}
 
+                                        {/* Phase Selection */}
+                                        {isInteractive && (
+                                            <div className="pt-4 mt-auto border-t border-gray-700/50" onClick={(e) => e.stopPropagation()}>
+                                                <label className="text-xs text-cyan-400 font-medium uppercase tracking-wider mb-2 block">
+                                                    Implementation Phase
+                                                </label>
+                                                <Select
+                                                    value={isSelected ? (modulePhases[module.id] || 'phase1') : 'future'}
+                                                    onValueChange={(val) => handlePhaseChange(module.id, val)}
+                                                >
+                                                    <SelectTrigger className="w-full bg-gray-900/50 border-gray-700 text-gray-200">
+                                                        <SelectValue placeholder="Select Phase" />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="bg-gray-800 border-gray-700 text-gray-200">
+                                                        <SelectItem value="phase1">Phase 1 (Immediate)</SelectItem>
+                                                        <SelectItem value="phase2">Phase 2</SelectItem>
+                                                        <SelectItem value="phase3">Phase 3</SelectItem>
+                                                        <SelectItem value="future">Out of Scope (Future Phase)</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                        )}
+
                                         {/* Notes Input for Selected Modules */}
                                         {isSelected && isInteractive && (
                                             <div className="pt-4 mt-4 border-t border-gray-700/50" onClick={(e) => e.stopPropagation()}>
@@ -489,6 +567,27 @@ const ModulesSection = ({
                         viewport={{ once: true }}
                         className="max-w-4xl mx-auto bg-gray-800/50 backdrop-blur-md rounded-2xl border border-gray-700 p-8"
                     >
+                        {/* Logos Section */}
+                        <div className="flex flex-wrap items-center justify-center gap-8 mb-8 pb-8 border-b border-gray-700/50">
+                            {companyLogo && (
+                                <img
+                                    src={companyLogo}
+                                    alt={companyName || "Client Logo"}
+                                    className="h-12 w-auto object-contain bg-white/10 p-2 rounded"
+                                />
+                            )}
+                            <img
+                                src="/Assets/Product Logos/salesforce.png"
+                                alt="Salesforce"
+                                className="h-16 w-auto object-contain"
+                            />
+                            <img
+                                src="/Assets/Company Logos/white-logo-dark.webp"
+                                alt="Cloudastick Systems"
+                                className="h-10 w-auto object-contain"
+                            />
+                        </div>
+
                         <div className="flex items-center gap-3 mb-6">
                             <div className="bg-cyan-500/20 p-3 rounded-lg">
                                 <FileText className="w-6 h-6 text-cyan-400" />
