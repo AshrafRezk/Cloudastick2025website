@@ -9,13 +9,6 @@ import {
     FileText,
     Download
 } from 'lucide-react';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from './ui/select';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
@@ -160,7 +153,7 @@ const ModulesSection = ({
                 cloudastickLogoBase64 = await getBase64FromUrl(cloudastickLogoUrl);
 
                 // Salesforce Logo
-                const salesforceLogoUrl = '/Assets/Product Logos/salesforce.png';
+                const salesforceLogoUrl = '/Assets/Product Logos/salesforce-standard.png';
                 salesforceLogoBase64 = await getBase64FromUrl(salesforceLogoUrl);
 
                 // Client Logo
@@ -514,26 +507,41 @@ const ModulesSection = ({
                                             </div>
                                         )}
 
-                                        {/* Phase Selection */}
+                                        {/* Phase Selection Chips */}
                                         {isInteractive && (
                                             <div className="pt-4 mt-auto border-t border-gray-700/50" onClick={(e) => e.stopPropagation()}>
                                                 <label className="text-xs text-cyan-400 font-medium uppercase tracking-wider mb-2 block">
                                                     Implementation Phase
                                                 </label>
-                                                <Select
-                                                    value={isSelected ? (modulePhases[module.id] || 'phase1') : 'future'}
-                                                    onValueChange={(val) => handlePhaseChange(module.id, val)}
-                                                >
-                                                    <SelectTrigger className="w-full bg-gray-900/50 border-gray-700 text-gray-200">
-                                                        <SelectValue placeholder="Select Phase" />
-                                                    </SelectTrigger>
-                                                    <SelectContent className="bg-gray-800 border-gray-700 text-gray-200">
-                                                        <SelectItem value="phase1">Phase 1 (Immediate)</SelectItem>
-                                                        <SelectItem value="phase2">Phase 2</SelectItem>
-                                                        <SelectItem value="phase3">Phase 3</SelectItem>
-                                                        <SelectItem value="future">Out of Scope (Future Phase)</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {[
+                                                        { id: 'phase1', label: 'Phase 1' },
+                                                        { id: 'phase2', label: 'Phase 2' },
+                                                        { id: 'phase3', label: 'Phase 3' },
+                                                        { id: 'future', label: 'Future' }
+                                                    ].map((phase) => {
+                                                        const currentPhase = isSelected ? (modulePhases[module.id] || 'phase1') : 'future';
+                                                        const isPhaseActive = currentPhase === phase.id;
+
+                                                        return (
+                                                            <div
+                                                                key={phase.id}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handlePhaseChange(module.id, phase.id);
+                                                                }}
+                                                                className={`
+                                                                    px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-all duration-200 border
+                                                                    ${isPhaseActive
+                                                                        ? 'bg-cyan-500 text-white border-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.3)]'
+                                                                        : 'bg-gray-800/50 text-gray-400 border-gray-700 hover:border-gray-500 hover:text-gray-200'}
+                                                                `}
+                                                            >
+                                                                {phase.label}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
                                             </div>
                                         )}
 
@@ -577,7 +585,7 @@ const ModulesSection = ({
                                 />
                             )}
                             <img
-                                src="/Assets/Product Logos/salesforce.png"
+                                src="/Assets/Product Logos/salesforce-standard.png"
                                 alt="Salesforce"
                                 className="h-16 w-auto object-contain"
                             />
