@@ -153,7 +153,7 @@ const ModulesSection = ({
                 cloudastickLogoBase64 = await getBase64FromUrl(cloudastickLogoUrl);
 
                 // Salesforce Logo
-                const salesforceLogoUrl = '/Assets/Product Logos/salesforce-standard.png';
+                const salesforceLogoUrl = '/Assets/Product Logos/salesforce-transparent.png';
                 salesforceLogoBase64 = await getBase64FromUrl(salesforceLogoUrl);
 
                 // Client Logo
@@ -585,7 +585,7 @@ const ModulesSection = ({
                                 />
                             )}
                             <img
-                                src="/Assets/Product Logos/salesforce-standard.png"
+                                src="/Assets/Product Logos/salesforce-transparent.png"
                                 alt="Salesforce"
                                 className="h-16 w-auto object-contain"
                             />
