@@ -25,6 +25,22 @@ export const teamMembers: TeamMember[] = [
     description: "Leading Cloudastick's vision as a trusted Salesforce partner, Mina drives innovation in the ecosystem while building lasting relationships with clients across the Middle East and Africa."
   },
   {
+    id: "jenny-maged",
+    name: "Jenny Maged",
+    role: "Salesforce Consultant",
+    image: "/Assets/Company Members/Jenny_Maged_Salesforce_Consultant.png?v=3",
+    profileSlug: "jenny-maged",
+    description: "Arab Academy for Science Graduate delivering expert Salesforce consulting services, Jenny helps businesses optimize their CRM processes and achieve their digital transformation goals."
+  },
+  {
+    id: "john-shedoudy",
+    name: "John Shedoudy",
+    role: "Salesforce Consultant",
+    image: "/Assets/Company Members/John_Shedoudy_Salesforce_Consultant.png?v=3",
+    profileSlug: "john-shedoudy",
+    description: "Expert in Salesforce implementation and optimization, John delivers tailored solutions that enhance business processes and drive operational efficiency."
+  },
+  {
     id: "mireille-rafik",
     name: "Mireille Rafik",
     role: "Marketing Consultant",
@@ -143,22 +159,6 @@ export const teamMembers: TeamMember[] = [
     image: "/Assets/Company Members/Marina_Danial_CFO_Cloudastick_and_COO_of_Techsa.png?v=2",
     profileSlug: "marina-danial",
     description: "Leading financial strategy and operations, Marina ensures Cloudastick's financial health while driving operational excellence across both Cloudastick and Techsa."
-  },
-  {
-    id: "jenny-maged",
-    name: "Jenny Maged",
-    role: "Salesforce Consultant",
-    image: "/Assets/Company Members/Jenny_Maged_Salesforce_Consultant.png?v=3",
-    profileSlug: "jenny-maged",
-    description: "Arab Academy for Science Graduate delivering expert Salesforce consulting services, Jenny helps businesses optimize their CRM processes and achieve their digital transformation goals."
-  },
-  {
-    id: "john-shedoudy",
-    name: "John Shedoudy",
-    role: "Salesforce Consultant",
-    image: "/Assets/Company Members/John_Shedoudy_Salesforce_Consultant.png?v=3",
-    profileSlug: "john-shedoudy",
-    description: "Expert in Salesforce implementation and optimization, John delivers tailored solutions that enhance business processes and drive operational efficiency."
   },
   {
     id: "mariam-mahmoud",
