@@ -66,7 +66,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                   alt="Cloudastick Logo"
                   className="h-8 w-auto"
                 />
-                <div className="text-2xl font-bold italic text-foreground"
+                <div className="text-2xl font-bold italic text-foreground xl:hidden 2xl:block"
                   style={{
                     fontFamily: 'Helvetica, Arial, sans-serif'
                   }}

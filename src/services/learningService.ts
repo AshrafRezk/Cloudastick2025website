@@ -33,6 +33,7 @@ export interface LearningMaterial {
   childMaterials?: LearningMaterial[]; // Child materials nested under parent modules
   instance?: {
     id: string;
+    name: string;
     progress: number;
     status: string;
     score?: number | null;

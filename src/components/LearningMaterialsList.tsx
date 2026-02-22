@@ -48,8 +48,51 @@ const getStatusBgColor = (status: string) => {
   }
 };
 
+/**
+ * Utility to sort learning materials/instances.
+ * If titles start with numbering (e.g., "1-", "2-"), sort numerically.
+ * Fallback to LMI name (auto-number) sorting.
+ */
+const sortMaterials = <T extends { title?: string; name?: string; material?: { title: string }; instance?: { name: string } }>(items: T[]): T[] => {
+  return [...items].sort((a, b) => {
+    const titleA = a.material?.title || a.title || '';
+    const titleB = b.material?.title || b.title || '';
+    const nameA = (a as any).name || (a as any).instance?.name || '';
+    const nameB = (b as any).name || (b as any).instance?.name || '';
+
+    // Extract numerical prefix (e.g., "1-" -> 1)
+    const getNumPrefix = (s: string) => {
+      const match = s.match(/^(\d+)-/);
+      return match ? parseInt(match[1], 10) : null;
+    };
+
+    const numA = getNumPrefix(titleA);
+    const numB = getNumPrefix(titleB);
+
+    // If both have numbers, sort numerically
+    if (numA !== null && numB !== null) {
+      if (numA !== numB) return numA - numB;
+    }
+    // If only one has a number, numbered items come first
+    else if (numA !== null) return -1;
+    else if (numB !== null) return 1;
+
+    // Fallback to Salesforce auto-number (LMI name)
+    if (nameA && nameB) {
+      return nameA.localeCompare(nameB, undefined, { numeric: true });
+    }
+
+    // Secondary fallback to title
+    return titleA.localeCompare(titleB);
+  });
+};
+
 const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) => {
   const { instances, notStarted, inProgress, completed, isLoading } = usePortalUser();
+
+  const sortedInProgress = sortMaterials(inProgress);
+  const sortedNotStarted = sortMaterials(notStarted);
+  const sortedCompleted = sortMaterials(completed);
 
   if (isLoading) {
     return (
@@ -316,7 +359,7 @@ const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) 
           {hasChildren && isExpanded && (
             <CardContent className="pt-0 border-t border-border/50">
               <div className="space-y-2">
-                {instance.material.childMaterials?.map((child, childIndex) =>
+                {sortMaterials(instance.material.childMaterials || []).map((child, childIndex) =>
                   renderChildMaterial(child, instance, childIndex)
                 )}
               </div>
@@ -330,40 +373,40 @@ const LearningMaterialsList = ({ onMaterialClick }: LearningMaterialsListProps) 
   return (
     <div className="space-y-8">
       {/* In Progress Section */}
-      {inProgress.length > 0 && (
+      {sortedInProgress.length > 0 && (
         <div>
           <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
             <Play className="w-6 h-6 text-blue-500" />
-            In Progress ({inProgress.length})
+            In Progress ({sortedInProgress.length})
           </h2>
           <div className="flex flex-col gap-4">
-            {inProgress.map((instance, index) => renderMaterialCard(instance, index))}
+            {sortedInProgress.map((instance, index) => renderMaterialCard(instance, index))}
           </div>
         </div>
       )}
 
       {/* Not Started Section */}
-      {notStarted.length > 0 && (
+      {sortedNotStarted.length > 0 && (
         <div>
           <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
             <BookOpen className="w-6 h-6 text-muted-foreground" />
-            Not Started ({notStarted.length})
+            Not Started ({sortedNotStarted.length})
           </h2>
           <div className="flex flex-col gap-4">
-            {notStarted.map((instance, index) => renderMaterialCard(instance, index))}
+            {sortedNotStarted.map((instance, index) => renderMaterialCard(instance, index))}
           </div>
         </div>
       )}
 
       {/* Completed Section - Shows completed parent modules (not child badges) */}
-      {completed.length > 0 && (
+      {sortedCompleted.length > 0 && (
         <div>
           <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
             <CheckCircle2 className="w-6 h-6 text-green-500" />
-            Completed Modules ({completed.length})
+            Completed Modules ({sortedCompleted.length})
           </h2>
           <div className="flex flex-col gap-4">
-            {completed.map((instance, index) => renderMaterialCard(instance, index))}
+            {sortedCompleted.map((instance, index) => renderMaterialCard(instance, index))}
           </div>
         </div>
       )}

@@ -57,12 +57,12 @@ exports.handler = async (event, context) => {
     // Query Learning_Material_Instance__c for the contact
     // Field name is Learner__c based on Salesforce UI
     const escapedContactId = contactId.replace(/'/g, "\\'");
-    
+
     // Query instances - instances are tied to parent materials (courses)
     // We'll also need to fetch child materials separately
     // Note: The field on Learning_Material_Instance__c is Material__c, not Learning_Material__c
     const soqlQuery = `SELECT Id, Name, Learner__c, Material__c, Progress__c, Status__c, Score__c, Started_On__c, Completed_On__c, CreatedDate, Attempt_Number__c, Time_Taken_Minutes__c, Material__r.Id, Material__r.Title__c, Material__r.Description__c, Material__r.Material_Type__c, Material__r.Material_URL__c, Material__r.Duration__c, Material__r.Category__c, Material__r.Active__c, Material__r.Parent_Material__c, Material__r.Quiz_Questions__c, Material__r.Passing_Score__c, Material__r.Quiz_Time_Limit_Minutes__c, Material__r.Max_Attempts__c, Material__r.Show_Results__c, Material__r.Randomize_Questions__c FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' ORDER BY CreatedDate ASC`;
-    
+
     const encodedQuery = encodeURIComponent(soqlQuery);
     const queryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedQuery}`;
 
@@ -81,7 +81,7 @@ exports.handler = async (event, context) => {
     if (!queryResponse.ok) {
       let errorMessage = `Salesforce query failed: ${queryResponse.status}`;
       let isApiLimitError = false;
-      
+
       try {
         const errorText = await queryResponse.text();
         if (errorText) {
@@ -89,7 +89,7 @@ exports.handler = async (event, context) => {
             const errorData = JSON.parse(errorText);
             const errors = Array.isArray(errorData) ? errorData : [errorData];
             const apiLimitError = errors.find(e => e.errorCode === 'REQUEST_LIMIT_EXCEEDED');
-            
+
             if (apiLimitError) {
               isApiLimitError = true;
               errorMessage = 'TotalRequests Limit exceeded.';
@@ -105,7 +105,7 @@ exports.handler = async (event, context) => {
       } catch (e) {
         console.error('❌ Error parsing response:', e);
       }
-      
+
       return {
         statusCode: isApiLimitError ? 403 : queryResponse.status === 403 ? 403 : 500,
         headers: {
@@ -117,7 +117,7 @@ exports.handler = async (event, context) => {
           message: errorMessage,
           statusCode: queryResponse.status,
           errorCode: isApiLimitError ? 'REQUEST_LIMIT_EXCEEDED' : undefined,
-          suggestion: isApiLimitError 
+          suggestion: isApiLimitError
             ? 'Salesforce API daily limit has been reached. Please try again later or contact your administrator.'
             : 'Check your Salesforce permissions and try again',
         }),
@@ -153,20 +153,20 @@ exports.handler = async (event, context) => {
     const instancesWithChildren = await Promise.all(
       activeRecords.map(async (record) => {
         const material = record.Material__r;
-        
+
         // If this is a parent material (Module/Course), fetch child materials and their instances
         // The instance is tied to the parent, and child materials are nested underneath
         let childMaterials = [];
         let calculatedParentProgress = record.Progress__c || 0;
         let allChildrenCompleted = false;
-        
+
         if (material && !material.Parent_Material__c) {
           try {
             // Fetch child materials
             const childQuery = `SELECT Id, Title__c, Description__c, Material_Type__c, Material_URL__c, Duration__c, Category__c, Active__c, Quiz_Questions__c, Passing_Score__c, Quiz_Time_Limit_Minutes__c, Max_Attempts__c, Show_Results__c, Randomize_Questions__c FROM Learning_Material__c WHERE Parent_Material__c = '${material.Id}' AND Active__c = true ORDER BY CreatedDate ASC`;
             const encodedChildQuery = encodeURIComponent(childQuery);
             const childQueryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedChildQuery}`;
-            
+
             const childResponse = await fetch(childQueryUrl, {
               method: 'GET',
               headers: {
@@ -174,18 +174,18 @@ exports.handler = async (event, context) => {
                 'Content-Type': 'application/json',
               },
             });
-            
+
             if (childResponse.ok) {
               const childData = await childResponse.json();
               const childMaterialRecords = childData.records || [];
-              
+
               // If we have child materials, fetch their instances
               if (childMaterialRecords.length > 0) {
                 const childIds = childMaterialRecords.map(c => c.Id).map(id => `'${id.replace(/'/g, "\\'")}'`).join(',');
-                const childInstanceQuery = `SELECT Id, Material__c, Progress__c, Status__c, Score__c, Started_On__c, Completed_On__c FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' AND Material__c IN (${childIds})`;
+                const childInstanceQuery = `SELECT Id, Name, Material__c, Progress__c, Status__c, Score__c, Started_On__c, Completed_On__c FROM Learning_Material_Instance__c WHERE Learner__c = '${escapedContactId}' AND Material__c IN (${childIds})`;
                 const encodedChildInstanceQuery = encodeURIComponent(childInstanceQuery);
                 const childInstanceQueryUrl = `${instance_url}/services/data/v58.0/query/?q=${encodedChildInstanceQuery}`;
-                
+
                 const childInstanceResponse = await fetch(childInstanceQueryUrl, {
                   method: 'GET',
                   headers: {
@@ -193,13 +193,14 @@ exports.handler = async (event, context) => {
                     'Content-Type': 'application/json',
                   },
                 });
-                
+
                 let childInstancesMap = {};
                 if (childInstanceResponse.ok) {
                   const childInstanceData = await childInstanceResponse.json();
                   (childInstanceData.records || []).forEach(inst => {
                     childInstancesMap[inst.Material__c] = {
                       id: inst.Id,
+                      name: inst.Name,
                       progress: inst.Progress__c || 0,
                       status: inst.Status__c || 'Not Started',
                       score: inst.Score__c !== null && inst.Score__c !== undefined ? inst.Score__c : null,
@@ -209,26 +210,26 @@ exports.handler = async (event, context) => {
                   });
                   console.log(`📊 Found ${Object.keys(childInstancesMap).length} child instances for ${material.Title__c}`);
                 }
-                
+
                 // Calculate duration-weighted parent progress
                 let totalWeightedProgress = 0;
                 let totalDuration = 0;
                 let completedChildrenCount = 0;
-                
+
                 childMaterials = childMaterialRecords.map((child) => {
                   const childInstance = childInstancesMap[child.Id] || null;
                   const childDuration = child.Duration__c || 0;
                   const childProgress = childInstance ? childInstance.progress : 0;
-                  
+
                   // Calculate weighted contribution
                   totalWeightedProgress += childProgress * childDuration;
                   totalDuration += childDuration;
-                  
+
                   // Check if child is completed
                   if (childInstance && childInstance.progress === 100 && childInstance.status === 'Completed') {
                     completedChildrenCount++;
                   }
-                  
+
                   return {
                     id: child.Id,
                     title: child.Title__c,
@@ -249,16 +250,16 @@ exports.handler = async (event, context) => {
                     randomizeQuestions: child.Randomize_Questions__c || null,
                   };
                 });
-                
+
                 // Calculate parent progress as duration-weighted average
                 if (totalDuration > 0) {
                   calculatedParentProgress = Math.round(totalWeightedProgress / totalDuration);
                   console.log(`📈 Calculated parent progress: ${calculatedParentProgress}% (weighted by duration)`);
                 }
-                
+
                 // Check if all children are completed
                 allChildrenCompleted = completedChildrenCount === childMaterials.length && childMaterials.length > 0;
-                
+
                 console.log(`📚 Found ${childMaterials.length} child materials for ${material.Title__c}, ${completedChildrenCount} completed`);
               }
             }
@@ -266,7 +267,7 @@ exports.handler = async (event, context) => {
             console.log('⚠️ Could not fetch child materials:', e);
           }
         }
-        
+
         // Display the parent material info, with child materials attached
         const displayMaterial = material ? {
           id: material.Id,
@@ -290,14 +291,14 @@ exports.handler = async (event, context) => {
 
         // Use calculated progress if we have children, otherwise use the record's progress
         const finalProgress = childMaterials.length > 0 ? calculatedParentProgress : (record.Progress__c || 0);
-        
+
         // Auto-complete parent if all children are completed
         let finalStatus = record.Status__c || 'Not Started';
         if (allChildrenCompleted && childMaterials.length > 0) {
           finalStatus = 'Completed';
           console.log(`✅ Auto-completing parent ${material?.Title__c} - all children completed`);
         }
-        
+
         return {
           id: record.Id,
           name: record.Name,
@@ -316,7 +317,7 @@ exports.handler = async (event, context) => {
         };
       })
     );
-    
+
     // Keep instances as-is: parent instances contain child materials nested within them
     // The frontend will handle displaying the hierarchy (module with materials underneath)
     const instances = instancesWithChildren;
@@ -335,7 +336,7 @@ exports.handler = async (event, context) => {
     const notStarted = instances.filter(i => i.status === 'Not Started');
     const inProgress = instances.filter(i => i.status === 'In Progress');
     const completed = instances.filter(i => i.status === 'Completed');
-    
+
     console.log(`📈 Status breakdown: ${notStarted.length} not started, ${inProgress.length} in progress, ${completed.length} completed`);
 
     return {
@@ -344,7 +345,7 @@ exports.handler = async (event, context) => {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         instances,
         notStarted,
         inProgress,
@@ -356,14 +357,14 @@ exports.handler = async (event, context) => {
   } catch (error) {
     console.error('❌ Fetch Learning Instances Function Error:', error);
     const errorMessage = error instanceof Error ? error.message : String(error);
-    
+
     return {
       statusCode: 500,
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         error: 'Failed to fetch learning instances',
         message: errorMessage
       }),

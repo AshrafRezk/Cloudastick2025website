@@ -174,8 +174,7 @@ export const teamMembers: TeamMember[] = [
     role: "Salesforce Consultant",
     image: "/Assets/Company Members/Omar_Bazid_Salesforce_Consultant.png?v=2",
     profileSlug: "omar-bazid",
-    description: "Focused on delivering scalable Salesforce solutions, Omar combines technical expertise with business acumen to transform customer engagement strategies.",
-    isAcademy: true
+    description: "Focused on delivering scalable Salesforce solutions, Omar combines technical expertise with business acumen to transform customer engagement strategies."
   },
   {
     id: "sakshi-dokarimare",

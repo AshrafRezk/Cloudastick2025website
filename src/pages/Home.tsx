@@ -183,8 +183,7 @@ const Home = () => {
       icons: [TrendingUp, Target],
       hoverElements: [t('team.hoverElements.scalability'), t('team.hoverElements.growth')],
       color: "from-green-400 to-emerald-500",
-      description: "Focused on delivering scalable Salesforce solutions, Omar combines technical expertise with business acumen to transform customer engagement strategies.",
-      isAcademy: true
+      description: "Focused on delivering scalable Salesforce solutions, Omar combines technical expertise with business acumen to transform customer engagement strategies."
     },
     {
       id: 22, name: "Sakshi Dokarimare", role: t('team.salesforceConsultant'),

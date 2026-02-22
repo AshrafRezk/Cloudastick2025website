@@ -173,8 +173,7 @@ const About = () => {
       image: "/Assets/Company Members/Omar_Bazid_Salesforce_Consultant.png?v=2",
       icons: [TrendingUp, Target],
       hoverElements: [t('team.hoverElements.scalability'), t('team.hoverElements.growth')],
-      color: "from-green-400 to-emerald-500",
-      isAcademy: true
+      color: "from-green-400 to-emerald-500"
     },
     {
       id: 22, name: "Sakshi Dokarimare",
