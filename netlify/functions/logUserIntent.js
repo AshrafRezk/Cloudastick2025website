@@ -92,19 +92,14 @@ exports.handler = async (event, context) => {
         const significantClicks = cumulativeClicks.filter(c => c.text && c.text.length > 2 && c.element !== 'svg' && !c.text.includes('\n')).map(c => c.text.trim()).filter((v, i, a) => a.indexOf(v) === i).slice(-6);
         if (significantClicks.length > 0) summarySections.push(`🎬 KEY USER ACTIONS:\n${significantClicks.map(text => `• ${text}`).join('\n')}`);
 
-        const intentSummary = `
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💎 USER INTENT REPORT
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        const intentSummary = `💎 USER INTENT REPORT
 
 ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySections.length > 0 ? summarySections.join('\n\n') : '• User is active on the page.'}
 
 📍 CONTEXT:
 • Origin: ${ip}
 • Device: ${device?.screenSize || 'Desktop'}
-• Session: [Ref: ${sessionId}]
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+• Session: [Ref: ${sessionId}]`;
 
         // ------------------------------------------------------------
         // 2. NON-BLOCKING DB STORAGE (with Retry)
