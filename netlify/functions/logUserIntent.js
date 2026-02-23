@@ -84,7 +84,7 @@ exports.handler = async (event, context) => {
         const sectionNames = { 'hero-section': 'Value Proposition', 'hub-and-spoke': 'Platform Hub', 'comparison-table': 'Feature Matrix', 'personalization-section': 'Personalization Engine', 'platform-overview': 'Core Concepts', 'industries-grid': 'Industry Verticals', 'pharma-sections': 'Life Sciences', 'financial-sections': 'FSI Solutions', 'real-estate-sections': 'Property Tech', 'investment-plan-section': 'ROI Plan', 'modules-section': 'Scope Spec', 'techsa-section': 'Partners', 'erp-integration': 'Integration', 'data-cloud': 'Data Intelligence' };
 
         const sortedHovers = Object.entries(cumulativeHovers).sort((a, b) => b[1] - a[1]).filter(([_, t]) => t > 2000);
-        const highInterest = cumulativeClicks.some(c => c.text?.toLowerCase().includes('is interested'));
+        const highInterest = payload.highInterest === true || cumulativeClicks.some(c => c.text && c.text.toLowerCase().includes('is interested'));
 
         const summarySections = [];
         if (sortedHovers.length > 0) summarySections.push(`📈 ENGAGEMENT HOTSPOTS:\n${sortedHovers.slice(0, 4).map(([id, t]) => `• ${sectionNames[id] || id}: ${formatDuration(t)}`).join('\n')}`);
@@ -186,7 +186,7 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                         }
 
                         // 3. SET INTENT SUMMARY (OVERRIDE MODE)
-                        // updateFields.Salesforce_Power_Intent__c = intentSummary.substring(0, 32000); // This line is redundant as it's set above
+                        // This already happened in updateFields initialization
 
                         // 4. SIMPLE POST METHOD with PATCH OVERRIDE
                         await fetch(`${instance_url}/services/data/v58.0/sobjects/Lead/${sfrecordId}?_HttpMethod=PATCH`, {

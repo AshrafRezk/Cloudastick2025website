@@ -21,6 +21,7 @@ interface TrackingData {
         y: number;
     }>;
     hovers: Record<string, number>; // sectionId -> time spent in ms
+    highInterest?: boolean;
 }
 
 export const useUserTracking = (enabledSections: string[]) => {
@@ -98,11 +99,17 @@ export const useUserTracking = (enabledSections: string[]) => {
                 y: e.clientY,
             });
 
+            // Detection: check if this specific click is the transition to High Interest
+            const isInterestClick = clickText.toLowerCase().includes('is interested');
+            if (isInterestClick) {
+                trackingDataRef.current.highInterest = true;
+            }
+
             // Trigger immediate sync on click
             sendTrackingData();
 
-            // STOP TRACKING if the user expressed interest
-            if (clickText.toLowerCase().includes('is interested')) {
+            // STOP TRACKING if interest was expressed
+            if (isInterestClick) {
                 console.log('⏹️ Target interest expressed. Halting further tracking.');
                 isTrackingStopped.current = true;
             }
