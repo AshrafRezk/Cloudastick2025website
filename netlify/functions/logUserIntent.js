@@ -1,6 +1,7 @@
 /**
  * Netlify Function to log user behavior tracking and update Salesforce Lead intent
  * Grouping logic: Same IP + Lead ID + Hour window = Accumulated entry
+ * Direct Salesforce Auth to avoid internal timeouts.
  */
 
 const { getDb } = require('./db');
@@ -51,8 +52,8 @@ exports.handler = async (event, context) => {
             LIMIT 1
         `;
 
-        let cumulativeClicks = newClicks || [];
-        let cumulativeHovers = newHovers || {};
+        let cumulativeClicks = [...(newClicks || [])];
+        let cumulativeHovers = { ...(newHovers || {}) };
         let sessionId = null;
         let isNewSession = true;
 
@@ -62,12 +63,11 @@ exports.handler = async (event, context) => {
 
             // Merge Hovers
             const oldHovers = existingSession[0].hover_events || {};
-            cumulativeHovers = { ...oldHovers };
-            for (const [key, value] of Object.entries(newHovers || {})) {
+            for (const [key, value] of Object.entries(oldHovers)) {
                 cumulativeHovers[key] = (cumulativeHovers[key] || 0) + value;
             }
 
-            // Merge Clicks (simple append for now, filtering duplicates in summary)
+            // Merge Clicks
             cumulativeClicks = [...(existingSession[0].click_events || []), ...(newClicks || [])];
         }
 
@@ -102,7 +102,6 @@ exports.handler = async (event, context) => {
             .filter(([_, time]) => time > 5000); // Only show relevant engagement (> 5s)
 
         const highInterest = cumulativeClicks.some(c => c.text?.toLowerCase().includes('is interested'));
-        const downloads = cumulativeClicks.filter(c => c.text?.toLowerCase().includes('download') || c.text?.toLowerCase().includes('pdf'));
 
         const summarySections = [];
 
@@ -111,7 +110,7 @@ exports.handler = async (event, context) => {
         }
 
         const significantClicks = cumulativeClicks
-            .filter(c => c.text && c.text.length > 2 && c.element !== 'svg')
+            .filter(c => c.text && c.text.length > 2 && c.element !== 'svg' && !c.text.includes('\n'))
             .map(c => c.text.trim())
             .filter((v, i, a) => a.indexOf(v) === i) // Unique
             .slice(-5); // Last 5 unique actions
@@ -120,7 +119,7 @@ exports.handler = async (event, context) => {
             summarySections.push(`🎯 RECENT KEY ACTIONS:\n${significantClicks.map(text => `- ${text}`).join('\n')}`);
         }
 
-        const intentSummary = `🚀 SALESFORCE POWER - INTENT INSIGHTS (${new Date().toLocaleTimeString()})
+        const intentSummary = `🚀 SALESFORCE POWER - INTENT INSIGHTS (${new Date().toLocaleTimeString('en-US', { hour12: true })})
 --------------------------------------------------
 ${highInterest ? '🔥 STATUS: EXPRESS INTEREST (Action Required)\n' : ''}
 ${summarySections.join('\n\n')}
@@ -146,57 +145,72 @@ ${summarySections.join('\n\n')}
             `;
         }
 
-        // 4. Update Salesforce
+        // 4. Update Salesforce (Direct Auth)
         try {
-            const host = event.headers.host;
-            const protocol = event.headers['x-forwarded-proto'] || 'http';
-            const authUrl = `${protocol}://${host}/.netlify/functions/salesforceAuth`;
+            const clientId = process.env.SALESFORCE_CLIENT_ID;
+            const clientSecret = process.env.SALESFORCE_CLIENT_SECRET;
+            const tokenUrl = process.env.SALESFORCE_TOKEN_URL;
 
-            const authResponse = await fetch(authUrl, { method: 'POST' });
-            if (authResponse.ok) {
-                const { access_token, instance_url } = await authResponse.json();
+            if (clientId && clientSecret && tokenUrl) {
+                const formData = new URLSearchParams();
+                formData.append('grant_type', 'client_credentials');
+                formData.append('client_id', clientId);
+                formData.append('client_secret', clientSecret);
 
-                const currentLeadResponse = await fetch(`${instance_url}/services/data/v58.0/sobjects/Lead/${sfrecordId}`, {
-                    headers: { 'Authorization': `Bearer ${access_token}` }
+                const authResponse = await fetch(tokenUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData.toString(),
                 });
 
-                if (currentLeadResponse.ok) {
-                    const leadData = await currentLeadResponse.json();
-                    let existingIntent = leadData.Salesforce_Power_Intent__c || '';
+                if (authResponse.ok) {
+                    const { access_token, instance_url } = await authResponse.json();
 
-                    // SMART ACCUMULATION IN SALESFORCE FIELD
-                    // Check if we already have a block for the current hour in the field
-                    const hourMarker = `(${new Date().toLocaleDateString()}, ${new Date().getHours()}:`; // Simplified hour check
-
-                    let newIntent;
-                    if (existingIntent.includes(hourMarker)) {
-                        // Replace the last session block of this hour
-                        const blocks = existingIntent.split('\n\n---\n\n');
-                        const lastBlockIndex = blocks.length - 1;
-                        if (blocks[lastBlockIndex].includes(hourMarker)) {
-                            blocks[lastBlockIndex] = intentSummary;
-                            newIntent = blocks.join('\n\n---\n\n');
-                        } else {
-                            newIntent = `${existingIntent}\n\n---\n\n${intentSummary}`;
-                        }
-                    } else {
-                        newIntent = existingIntent ? `${existingIntent}\n\n---\n\n${intentSummary}` : intentSummary;
-                    }
-
-                    await fetch(`${instance_url}/services/data/v58.0/sobjects/Lead/${sfrecordId}`, {
-                        method: 'PATCH',
-                        headers: {
-                            'Authorization': `Bearer ${access_token}`,
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            Salesforce_Power_Intent__c: newIntent.substring(0, 32000)
-                        }),
+                    const currentLeadResponse = await fetch(`${instance_url}/services/data/v58.0/sobjects/Lead/${sfrecordId}`, {
+                        headers: { 'Authorization': `Bearer ${access_token}` }
                     });
+
+                    if (currentLeadResponse.ok) {
+                        const leadData = await currentLeadResponse.json();
+                        let existingIntent = leadData.Salesforce_Power_Intent__c || '';
+
+                        // SMART ACCUMULATION IN SALESFORCE FIELD
+                        const now = new Date();
+                        const hourMarker = `(${now.toLocaleDateString()}, ${now.getHours()}:`;
+
+                        let newIntent;
+                        if (existingIntent.includes(hourMarker)) {
+                            const blocks = existingIntent.split('\n\n---\n\n');
+                            const lastBlockIndex = blocks.length - 1;
+                            // Search for any block in this hour (usually the last one)
+                            let updated = false;
+                            for (let i = blocks.length - 1; i >= 0; i--) {
+                                if (blocks[i].includes(hourMarker)) {
+                                    blocks[i] = intentSummary;
+                                    updated = true;
+                                    break;
+                                }
+                            }
+                            newIntent = updated ? blocks.join('\n\n---\n\n') : `${existingIntent}\n\n---\n\n${intentSummary}`;
+                        } else {
+                            newIntent = existingIntent ? `${existingIntent}\n\n---\n\n${intentSummary}` : intentSummary;
+                        }
+
+                        await fetch(`${instance_url}/services/data/v58.0/sobjects/Lead/${sfrecordId}`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Authorization': `Bearer ${access_token}`,
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                Salesforce_Power_Intent__c: newIntent.substring(0, 32000)
+                            }),
+                        });
+                    }
                 }
             }
         } catch (sfError) {
-            console.error('❌ logUserIntent: Salesforce update failed:', sfError);
+            console.error('❌ logUserIntent: Salesforce direct update failed:', sfError);
         }
 
         return {
