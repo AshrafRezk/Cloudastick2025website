@@ -92,24 +92,31 @@ exports.handler = async (event, context) => {
         const significantClicks = cumulativeClicks.filter(c => c.text && c.text.length > 2 && c.element !== 'svg' && !c.text.includes('\n')).map(c => c.text.trim()).filter((v, i, a) => a.indexOf(v) === i).slice(-6);
         if (significantClicks.length > 0) summarySections.push(`🎬 KEY USER ACTIONS:\n${significantClicks.map(text => `• ${text}`).join('\n')}`);
 
+        const totalDurationMs = Object.values(cumulativeHovers).reduce((a, b) => a + b, 0);
+        const totalMinutes = (totalDurationMs / 60000).toFixed(1);
+
         const intentSummary = `💎 USER INTENT REPORT
 
 ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySections.length > 0 ? summarySections.join('\n\n') : '• User is active on the page.'}
 
+🕒 ENGAGEMENT:
+• Total Time Spent: ${totalMinutes} minutes
+
 📍 CONTEXT:
 • Origin: ${ip}
 • Device: ${device?.screenSize || 'Desktop'}
-• Session: [Ref: ${sessionId}]`;
+• Session: [Ref: ${sessionId || payload.sessionId || 'Sess_' + Date.now()}]`;
 
         // ------------------------------------------------------------
         // 2. NON-BLOCKING DB STORAGE (with Retry)
         // ------------------------------------------------------------
         try {
             const locationInfo = { ip, userAgent: event.headers['user-agent'] };
+            const finalSessionId = sessionId || payload.sessionId || 'Sess_' + Date.now();
             await withRetry(async () => {
                 await db`
                     INSERT INTO user_tracking (sf_record_id, sessionId, browser_info, device_info, location_info, click_events, hover_events, intent_summary)
-                    VALUES (${sfrecordId}, ${sessionId}, ${JSON.stringify(browser)}, ${JSON.stringify(device)}, ${JSON.stringify(locationInfo)}, ${JSON.stringify(cumulativeClicks)}, ${JSON.stringify(cumulativeHovers)}, ${intentSummary})
+                    VALUES (${sfrecordId}, ${finalSessionId}, ${JSON.stringify(browser)}, ${JSON.stringify(device)}, ${JSON.stringify(locationInfo)}, ${JSON.stringify(cumulativeClicks)}, ${JSON.stringify(cumulativeHovers)}, ${intentSummary})
                     ON CONFLICT (sessionId) DO UPDATE SET 
                         click_events = EXCLUDED.click_events,
                         hover_events = EXCLUDED.hover_events,
@@ -121,7 +128,7 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                         SET click_events = ${JSON.stringify(cumulativeClicks)}, 
                             hover_events = ${JSON.stringify(cumulativeHovers)}, 
                             intent_summary = ${intentSummary}
-                        WHERE sessionId = ${sessionId}
+                        WHERE sessionId = ${finalSessionId}
                     `;
                 });
             });
@@ -152,8 +159,7 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                     if (leadRes.ok) {
                         const leadData = await leadRes.json();
                         let existingIntent = leadData.Salesforce_Power_Intent__c || '';
-                        let currentInterestLevel = leadData.Interest_Level__c || 'Low';
-                        const sessionMarker = `[Ref: ${sessionId}]`;
+                        let currentInterestLevel = leadData.Interest_Level__c;
                         let newIntent;
 
                         // 1. DETERMINE NEW INTEREST DATA
@@ -166,20 +172,21 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                             newReason = `User explored ${sortedHovers.length} sections, focused on ${sectionNames[sortedHovers[0][0]] || sortedHovers[0][0]}.`;
                         }
 
-                        // 2. NO-DOWNGRADE LOGIC
-                        const levelScores = { 'High': 3, 'Medium': 2, 'Low': 1 };
-                        const updateFields = { Salesforce_Power_Intent__c: '' };
+                        // 2. NO-DOWNGRADE & FORCE-FILL LOGIC
+                        const levelScores = { 'High': 3, 'Medium': 2, 'Low': 1, null: 0, undefined: 0 };
+                        const updateFields = { Salesforce_Power_Intent__c: intentSummary.substring(0, 32000) };
 
-                        if (levelScores[newInterestLevel] > levelScores[currentInterestLevel]) {
+                        // Update if new level is higher OR if current level is empty/null in Salesforce
+                        if (!currentInterestLevel || levelScores[newInterestLevel] > levelScores[currentInterestLevel]) {
                             updateFields.Interest_Level__c = newInterestLevel;
                             if (newReason) updateFields.Interest_Level_Reason__c = newReason.substring(0, 255);
-                        } else if (newInterestLevel === 'High' && currentInterestLevel === 'High') {
-                            // If already high, just update reason if it's an explicit interest click
-                            if (highInterest) updateFields.Interest_Level_Reason__c = newReason.substring(0, 255);
+                        } else if (newInterestLevel === 'High' && currentInterestLevel === 'High' && highInterest) {
+                            // Already high, but user clicked explicit interest button again - update reason
+                            updateFields.Interest_Level_Reason__c = newReason.substring(0, 255);
                         }
 
                         // 3. SET INTENT SUMMARY (OVERRIDE MODE)
-                        updateFields.Salesforce_Power_Intent__c = intentSummary.substring(0, 32000);
+                        // updateFields.Salesforce_Power_Intent__c = intentSummary.substring(0, 32000); // This line is redundant as it's set above
 
                         // 4. SIMPLE POST METHOD with PATCH OVERRIDE
                         await fetch(`${instance_url}/services/data/v58.0/sobjects/Lead/${sfrecordId}?_HttpMethod=PATCH`, {
