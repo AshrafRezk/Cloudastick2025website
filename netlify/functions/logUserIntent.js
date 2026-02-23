@@ -166,7 +166,7 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                         let newReason = '';
 
                         if (highInterest) {
-                            newReason = `User explicitly clicked the Interest button during session ${sessionId}.`;
+                            newReason = '🔥 Customer expressed Interest';
                         } else if (sortedHovers.length > 0) {
                             newReason = `User explored ${sortedHovers.length} sections, focused on ${sectionNames[sortedHovers[0][0]] || sortedHovers[0][0]}.`;
                         }
