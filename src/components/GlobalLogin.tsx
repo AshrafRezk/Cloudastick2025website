@@ -85,7 +85,7 @@ const GlobalLogin = () => {
                 {getUserInitials(user.name)}
               </AvatarFallback>
             </Avatar>
-            <span className="hidden sm:inline text-sm font-medium">{user.name}</span>
+            <span className="text-sm font-medium">{getUserInitials(user.name)}</span>
             <ChevronDown className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
