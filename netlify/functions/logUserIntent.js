@@ -1,5 +1,6 @@
 /**
  * Netlify Function to log user behavior tracking and update Salesforce Lead intent
+ * Grouping logic: Same IP + Lead ID + Hour window = Accumulated entry
  */
 
 const { getDb } = require('./db');
@@ -26,98 +27,163 @@ exports.handler = async (event, context) => {
     }
 
     try {
-        console.log('📡 logUserIntent: Request received');
-        const data = JSON.parse(event.body || '{}');
-        const { sfrecordId, browser, device, clicks, hovers } = data;
+        const payload = JSON.parse(event.body || '{}');
+        const { sfrecordId, browser, device, clicks: newClicks, hovers: newHovers } = payload;
 
         if (!sfrecordId) {
-            console.warn('⚠️ logUserIntent: No sfrecordId provided in payload');
             return {
                 statusCode: 200,
                 body: JSON.stringify({ message: 'No sfrecordId, tracking skipped' }),
             };
         }
 
-        console.log(`📝 logUserIntent: Processing tracking for Lead ID: ${sfrecordId}`);
-        console.log(`📊 Stats: Clicks: ${clicks?.length || 0}, Section Hovers: ${Object.keys(hovers || {}).length}`);
+        const ip = (event.headers['x-forwarded-for'] || event.headers['x-real-ip'] || 'Unknown').split(',')[0].trim();
+        const db = getDb();
 
-        // Get location info from headers
-        const ip = event.headers['x-forwarded-for'] || event.headers['x-real-ip'] || 'Unknown';
-        const locationInfo = {
-            ip: ip.split(',')[0].trim(),
-            userAgent: event.headers['user-agent'],
-        };
+        // 1. Check for existing session in the last hour
+        const existingSession = await db`
+            SELECT id, click_events, hover_events, created_at, intent_summary
+            FROM user_tracking
+            WHERE sf_record_id = ${sfrecordId}
+              AND location_info->>'ip' = ${ip}
+              AND created_at > NOW() - INTERVAL '1 hour'
+            ORDER BY created_at DESC
+            LIMIT 1
+        `;
 
-        // Generate Intent Summary
-        const interestExpressed = (clicks || []).some(c => c.text?.includes('is interested'));
+        let cumulativeClicks = newClicks || [];
+        let cumulativeHovers = newHovers || {};
+        let sessionId = null;
+        let isNewSession = true;
 
-        const clickSummary = (clicks || []).length > 0
-            ? `Clicked on: ${(clicks || []).map(c => `${c.element} ("${c.text}")`).join(', ')}.`
-            : 'No clicks recorded.';
+        if (existingSession.length > 0) {
+            sessionId = existingSession[0].id;
+            isNewSession = false;
 
-        const sortedHovers = Object.entries(hovers || {})
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 3);
+            // Merge Hovers
+            const oldHovers = existingSession[0].hover_events || {};
+            cumulativeHovers = { ...oldHovers };
+            for (const [key, value] of Object.entries(newHovers || {})) {
+                cumulativeHovers[key] = (cumulativeHovers[key] || 0) + value;
+            }
 
-        const hoverSummary = sortedHovers.length > 0
-            ? `Highest engagement in: ${sortedHovers.map(([id, time]) => `${id} (${Math.round(time / 1000)}s)`).join(', ')}.`
-            : 'No specific area engagement recorded.';
-
-        const intentSummary = `User Behavior Report (${new Date().toLocaleString()}):
-${interestExpressed ? '🔥 HIGH INTEREST: User clicked "Notify Cloudastick Systems with your interest"!\n' : ''}- Location/IP: ${locationInfo.ip}
-- Device: ${device?.screenSize || 'Unknown'} (${device?.orientation || 'Unknown'})
-- Browser: ${browser?.userAgent || 'Unknown'}
-- ${hoverSummary}
-- ${clickSummary}`;
-
-        // Store in Database
-        try {
-            const db = getDb();
-            console.log('🗄️ logUserIntent: Inserting raw tracking data into DB...');
-            await db`
-                INSERT INTO user_tracking (sf_record_id, browser_info, device_info, location_info, click_events, hover_events, intent_summary)
-                VALUES (${sfrecordId}, ${JSON.stringify(browser)}, ${JSON.stringify(device)}, ${JSON.stringify(locationInfo)}, ${JSON.stringify(clicks)}, ${JSON.stringify(hovers)}, ${intentSummary})
-            `;
-            console.log('✅ logUserIntent: DB insertion successful');
-        } catch (dbError) {
-            console.error('❌ logUserIntent: DB insertion failed:', dbError);
-            // Continue to Salesforce update even if DB fails
+            // Merge Clicks (simple append for now, filtering duplicates in summary)
+            cumulativeClicks = [...(existingSession[0].click_events || []), ...(newClicks || [])];
         }
 
-        // Update Salesforce Lead
-        try {
-            console.log('☁️ logUserIntent: Starting Salesforce Lead update process...');
+        // 2. Generate "C-Level / Marketeer" Summary
+        const formatDuration = (ms) => {
+            if (ms < 1000) return 'less than 1s';
+            const seconds = Math.floor(ms / 1000);
+            if (seconds < 60) return `${seconds}s`;
+            const minutes = Math.floor(seconds / 60);
+            return `${minutes}m ${seconds % 60}s`;
+        };
 
-            // Construct absolute URL for internal auth function
+        const sectionNames = {
+            'hero-section': 'Introduction & Hero',
+            'hub-and-spoke': 'Platform Hub Concept',
+            'comparison-table': 'Feature Comparison',
+            'personalization-section': 'Personalization Details',
+            'platform-overview': 'Core Platform Capabilities',
+            'industries-grid': 'Industry Verticals Browser',
+            'pharma-sections': 'Pharma Specific Solutions',
+            'financial-sections': 'Financial Services Solutions',
+            'real-estate-sections': 'Real Estate Solutions',
+            'investment-plan-section': 'Investment & ROI Planner',
+            'modules-section': 'Feature Scope Builder',
+            'techsa-section': 'Partner Ecosystem (TechSa)',
+            'erp-integration': 'ERP & System Integration',
+            'data-cloud': 'Data Cloud Strategy'
+        };
+
+        const sortedHovers = Object.entries(cumulativeHovers)
+            .sort((a, b) => b[1] - a[1])
+            .filter(([_, time]) => time > 5000); // Only show relevant engagement (> 5s)
+
+        const highInterest = cumulativeClicks.some(c => c.text?.toLowerCase().includes('is interested'));
+        const downloads = cumulativeClicks.filter(c => c.text?.toLowerCase().includes('download') || c.text?.toLowerCase().includes('pdf'));
+
+        const summarySections = [];
+
+        if (sortedHovers.length > 0) {
+            summarySections.push(`📊 TOP ENGAGEMENT AREAS:\n${sortedHovers.slice(0, 3).map(([id, time]) => `- ${sectionNames[id] || id}: ${formatDuration(time)}`).join('\n')}`);
+        }
+
+        const significantClicks = cumulativeClicks
+            .filter(c => c.text && c.text.length > 2 && c.element !== 'svg')
+            .map(c => c.text.trim())
+            .filter((v, i, a) => a.indexOf(v) === i) // Unique
+            .slice(-5); // Last 5 unique actions
+
+        if (significantClicks.length > 0) {
+            summarySections.push(`🎯 RECENT KEY ACTIONS:\n${significantClicks.map(text => `- ${text}`).join('\n')}`);
+        }
+
+        const intentSummary = `🚀 SALESFORCE POWER - INTENT INSIGHTS (${new Date().toLocaleTimeString()})
+--------------------------------------------------
+${highInterest ? '🔥 STATUS: EXPRESS INTEREST (Action Required)\n' : ''}
+${summarySections.join('\n\n')}
+
+📱 CONTEXT: ${device?.screenSize || 'Desktop'} | IP: ${ip}
+--------------------------------------------------`;
+
+        // 3. Update Database
+        const locationInfo = { ip, userAgent: event.headers['user-agent'] };
+
+        if (isNewSession) {
+            await db`
+                INSERT INTO user_tracking (sf_record_id, browser_info, device_info, location_info, click_events, hover_events, intent_summary)
+                VALUES (${sfrecordId}, ${JSON.stringify(browser)}, ${JSON.stringify(device)}, ${JSON.stringify(locationInfo)}, ${JSON.stringify(cumulativeClicks)}, ${JSON.stringify(cumulativeHovers)}, ${intentSummary})
+            `;
+        } else {
+            await db`
+                UPDATE user_tracking
+                SET click_events = ${JSON.stringify(cumulativeClicks)},
+                    hover_events = ${JSON.stringify(cumulativeHovers)},
+                    intent_summary = ${intentSummary}
+                WHERE id = ${sessionId}
+            `;
+        }
+
+        // 4. Update Salesforce
+        try {
             const host = event.headers.host;
             const protocol = event.headers['x-forwarded-proto'] || 'http';
             const authUrl = `${protocol}://${host}/.netlify/functions/salesforceAuth`;
 
-            console.log(`🔐 logUserIntent: Fetching token from internally: ${authUrl}`);
             const authResponse = await fetch(authUrl, { method: 'POST' });
-
             if (authResponse.ok) {
-                const authData = await authResponse.json();
-                const { access_token, instance_url } = authData;
-                console.log(`✅ logUserIntent: Auth successful. Instance: ${instance_url}`);
+                const { access_token, instance_url } = await authResponse.json();
 
-                // To append, we need to GET first
-                console.log(`🔍 logUserIntent: Fetching current Lead data for ${sfrecordId}...`);
                 const currentLeadResponse = await fetch(`${instance_url}/services/data/v58.0/sobjects/Lead/${sfrecordId}`, {
                     headers: { 'Authorization': `Bearer ${access_token}` }
                 });
 
                 if (currentLeadResponse.ok) {
                     const leadData = await currentLeadResponse.json();
-                    console.log('✅ logUserIntent: Lead data retrieved successfully');
+                    let existingIntent = leadData.Salesforce_Power_Intent__c || '';
 
-                    const existingIntent = leadData.Salesforce_Power_Intent__c || '';
-                    const newIntent = existingIntent
-                        ? `${existingIntent}\n\n---\n\n${intentSummary}`
-                        : intentSummary;
+                    // SMART ACCUMULATION IN SALESFORCE FIELD
+                    // Check if we already have a block for the current hour in the field
+                    const hourMarker = `(${new Date().toLocaleDateString()}, ${new Date().getHours()}:`; // Simplified hour check
 
-                    console.log('🆙 logUserIntent: PATCHing Lead record with updated intent...');
-                    const patchResponse = await fetch(`${instance_url}/services/data/v58.0/sobjects/Lead/${sfrecordId}`, {
+                    let newIntent;
+                    if (existingIntent.includes(hourMarker)) {
+                        // Replace the last session block of this hour
+                        const blocks = existingIntent.split('\n\n---\n\n');
+                        const lastBlockIndex = blocks.length - 1;
+                        if (blocks[lastBlockIndex].includes(hourMarker)) {
+                            blocks[lastBlockIndex] = intentSummary;
+                            newIntent = blocks.join('\n\n---\n\n');
+                        } else {
+                            newIntent = `${existingIntent}\n\n---\n\n${intentSummary}`;
+                        }
+                    } else {
+                        newIntent = existingIntent ? `${existingIntent}\n\n---\n\n${intentSummary}` : intentSummary;
+                    }
+
+                    await fetch(`${instance_url}/services/data/v58.0/sobjects/Lead/${sfrecordId}`, {
                         method: 'PATCH',
                         headers: {
                             'Authorization': `Bearer ${access_token}`,
@@ -127,37 +193,24 @@ ${interestExpressed ? '🔥 HIGH INTEREST: User clicked "Notify Cloudastick Syst
                             Salesforce_Power_Intent__c: newIntent.substring(0, 32000)
                         }),
                     });
-
-                    if (patchResponse.ok) {
-                        console.log('✅ logUserIntent: Salesforce Lead updated successfully');
-                    } else {
-                        const patchError = await patchResponse.text();
-                        console.error('❌ logUserIntent: Salesforce PATCH failed:', patchResponse.status, patchError);
-                    }
-                } else {
-                    const leadError = await currentLeadResponse.text();
-                    console.error('❌ logUserIntent: Salesforce GET Lead failed:', currentLeadResponse.status, leadError);
                 }
-            } else {
-                const authError = await authResponse.text();
-                console.error('❌ logUserIntent: Internal auth call failed:', authResponse.status, authError);
             }
         } catch (sfError) {
-            console.error('❌ logUserIntent: Unexpected Salesforce process error:', sfError);
+            console.error('❌ logUserIntent: Salesforce update failed:', sfError);
         }
 
         return {
             statusCode: 200,
             headers: { 'Access-Control-Allow-Origin': '*' },
-            body: JSON.stringify({ success: true, intentSummary }),
+            body: JSON.stringify({ success: true }),
         };
 
     } catch (error) {
-        console.error('❌ logUserIntent: Top-level error:', error);
+        console.error('❌ logUserIntent: Critical Error:', error);
         return {
             statusCode: 500,
             headers: { 'Access-Control-Allow-Origin': '*' },
-            body: JSON.stringify({ error: 'Internal Server Error', message: error.message }),
+            body: JSON.stringify({ error: error.message }),
         };
     }
 };
