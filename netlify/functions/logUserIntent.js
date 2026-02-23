@@ -92,13 +92,19 @@ exports.handler = async (event, context) => {
         const significantClicks = cumulativeClicks.filter(c => c.text && c.text.length > 2 && c.element !== 'svg' && !c.text.includes('\n')).map(c => c.text.trim()).filter((v, i, a) => a.indexOf(v) === i).slice(-6);
         if (significantClicks.length > 0) summarySections.push(`🎬 KEY USER ACTIONS:\n${significantClicks.map(text => `• ${text}`).join('\n')}`);
 
-        const intentSummary = `💎 USER INTENT INSIGHTS [Ref: ${sessionId}]
---------------------------------------------------
-${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n' : ''}
-${summarySections.length > 0 ? summarySections.join('\n\n') : '• User is active on the page.'}
+        const intentSummary = `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💎 USER INTENT REPORT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-📍 ORIGIN: ${ip} | DEV: ${device?.screenSize || 'Desktop'}
---------------------------------------------------`;
+${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySections.length > 0 ? summarySections.join('\n\n') : '• User is active on the page.'}
+
+📍 CONTEXT:
+• Origin: ${ip}
+• Device: ${device?.screenSize || 'Desktop'}
+• Session: [Ref: ${sessionId}]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
 
         // ------------------------------------------------------------
         // 2. NON-BLOCKING DB STORAGE (with Retry)
@@ -154,13 +160,19 @@ ${summarySections.length > 0 ? summarySections.join('\n\n') : '• User is activ
                         const sessionMarker = `[Ref: ${sessionId}]`;
                         let newIntent;
 
+                        const SESSION_SEP = '\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+
                         if (existingIntent.includes(sessionMarker)) {
-                            const blocks = existingIntent.split('\n\n---\n\n');
+                            const blocks = existingIntent.split(SESSION_SEP);
                             const idx = blocks.findIndex(b => b.includes(sessionMarker));
-                            if (idx !== -1) { blocks[idx] = intentSummary; newIntent = blocks.join('\n\n---\n\n'); }
-                            else newIntent = `${existingIntent}\n\n---\n\n${intentSummary}`;
+                            if (idx !== -1) {
+                                blocks[idx] = intentSummary;
+                                newIntent = blocks.join(SESSION_SEP);
+                            } else {
+                                newIntent = `${existingIntent}${SESSION_SEP}${intentSummary}`;
+                            }
                         } else {
-                            newIntent = existingIntent ? `${existingIntent}\n\n---\n\n${intentSummary}` : intentSummary;
+                            newIntent = existingIntent ? `${existingIntent}${SESSION_SEP}${intentSummary}` : intentSummary;
                         }
 
                         // SIMPLE POST METHOD with PATCH OVERRIDE
