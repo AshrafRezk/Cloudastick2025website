@@ -81,6 +81,7 @@ import InvestmentPlanSection from '../components/InvestmentPlanSection';
 import ModulesSection from '../components/ModulesSection';
 import { useSalesforce } from '../contexts/SalesforceContext';
 import { fetchAllVerticals, fetchVerticalById, type VerticalModule, type Vertical } from '../services/verticalService';
+import { useUserTracking } from '../hooks/useUserTracking';
 
 import ScopeBuilderFab from '../components/ScopeBuilderFab';
 
@@ -400,6 +401,24 @@ const SalesforcePower = () => {
   const [modulesLoading, setModulesLoading] = useState(false);
   const [selectedModuleIds, setSelectedModuleIds] = useState<Set<string>>(new Set());
   const [allVerticals, setAllVerticals] = useState<any[]>([]); // Store all verticals once fetched
+
+  // Initialize behavior tracking
+  useUserTracking([
+    'hero-section',
+    'hub-and-spoke',
+    'comparison-table',
+    'personalization-section',
+    'platform-overview',
+    'industries-grid',
+    'pharma-sections',
+    'financial-sections',
+    'real-estate-sections',
+    'investment-plan-section',
+    'modules-section',
+    'techsa-section',
+    'landing-fleet-management',
+    'amadeus-section'
+  ]);
 
 
 
@@ -1418,7 +1437,7 @@ const SalesforcePower = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white" dir={isRTL ? 'rtl' : 'ltr'}>
+    <div id="salesforce-power-page" className="min-h-screen bg-gray-900 text-white" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Product Recommendation Banner */}
       {companyIntelligence?.recommendedProduct && (
         <ProductRecommendationBanner
@@ -1488,7 +1507,7 @@ const SalesforcePower = () => {
         <link rel="canonical" href={`${window.location.origin}/salesforce-power${selectedIndustry ? `?industry=${selectedIndustry}` : ''}`} />
       </Helmet>
       {/* Hero Section */}
-      <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <section id="hero-section" ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Background Effects */}
         <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900"></div>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-cyan-500/20 via-transparent to-transparent"></div>
@@ -1953,7 +1972,7 @@ const SalesforcePower = () => {
         const clientsToShow = arrangeClients();
 
         return allClients.length > 0 ? (
-          <section className="py-12 relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+          <section id="hub-and-spoke" className="py-24 relative overflow-hidden bg-gray-900">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -2182,7 +2201,7 @@ const SalesforcePower = () => {
       </section>
 
       {/* Platform Overview Section */}
-      <section ref={platformRef} className="py-10 sm:py-16 md:py-20 relative overflow-hidden">
+      <section id="platform-overview" ref={platformRef} className="py-10 sm:py-16 md:py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-900 to-black"></div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -2899,7 +2918,7 @@ const SalesforcePower = () => {
       )}
 
       {/* ERP Integration Section */}
-      <section ref={erpRef} className="py-20 relative overflow-hidden">
+      <section id="erp-integration" ref={erpRef} className="py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900"></div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -3236,7 +3255,7 @@ const SalesforcePower = () => {
 
       {/* Industry-Specific Solutions */}
       {selectedIndustry && selectedIndustryData && (
-        <section ref={industryRef} className="py-20 relative overflow-hidden">
+        <section id="industries-grid" ref={industryRef} className="py-24 relative bg-gray-900">
           <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-900 to-black"></div>
 
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -3350,7 +3369,7 @@ const SalesforcePower = () => {
       )}
 
       {/* Competitive Analysis Comparison */}
-      <section ref={comparisonRef} className="py-20 relative overflow-hidden">
+      <section id="comparison-table" ref={comparisonRef} className="py-24 relative bg-gray-900 scroll-mt-20">
         <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900"></div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -20,11 +20,11 @@ function getDb() {
   if (!DATABASE_URL) {
     throw new Error('NETLIFY_DATABASE_URL or DATABASE_URL environment variable is not set');
   }
-  
+
   if (!sql) {
     sql = neon(DATABASE_URL);
   }
-  
+
   return sql;
 }
 
@@ -34,7 +34,7 @@ function getDb() {
  */
 async function initSchema() {
   const db = getDb();
-  
+
   // Create contacts table
   await db`
     CREATE TABLE IF NOT EXISTS contacts (
@@ -50,7 +50,7 @@ async function initSchema() {
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `;
-  
+
   // Create users table
   await db`
     CREATE TABLE IF NOT EXISTS users (
@@ -64,7 +64,7 @@ async function initSchema() {
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `;
-  
+
   // Create OKRs table
   await db`
     CREATE TABLE IF NOT EXISTS okrs (
@@ -88,7 +88,7 @@ async function initSchema() {
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `;
-  
+
   // Create blog_posts table
   await db`
     CREATE TABLE IF NOT EXISTS blog_posts (
@@ -103,7 +103,7 @@ async function initSchema() {
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `;
-  
+
   // Create requirements table
   await db`
     CREATE TABLE IF NOT EXISTS requirements (
@@ -118,7 +118,7 @@ async function initSchema() {
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `;
-  
+
   // Create sfdc_projects table
   await db`
     CREATE TABLE IF NOT EXISTS sfdc_projects (
@@ -132,7 +132,7 @@ async function initSchema() {
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `;
-  
+
   // Create company_leads table
   await db`
     CREATE TABLE IF NOT EXISTS company_leads (
@@ -146,7 +146,22 @@ async function initSchema() {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `;
-  
+
+  // Create user_tracking table
+  await db`
+    CREATE TABLE IF NOT EXISTS user_tracking (
+      id SERIAL PRIMARY KEY,
+      sf_record_id VARCHAR(255),
+      browser_info JSONB,
+      device_info JSONB,
+      location_info JSONB,
+      click_events JSONB,
+      hover_events JSONB,
+      intent_summary TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `;
+
   // Create indexes for better query performance
   await db`
     CREATE INDEX IF NOT EXISTS idx_contacts_email ON contacts(email)
@@ -172,7 +187,7 @@ async function initSchema() {
   await db`
     CREATE INDEX IF NOT EXISTS idx_company_leads_company ON company_leads(company_name)
   `;
-  
+
   console.log('✅ Database schema initialized');
 }
 
