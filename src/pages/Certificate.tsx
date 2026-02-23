@@ -8,7 +8,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Download, Share2, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
 import { getCertificate } from '../services/certificateService';
-import { Certificate } from '../services/learningService';
+import { type Certificate } from '../services/learningService';
 import CertificateViewer from '../components/CertificateViewer';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
@@ -73,7 +73,7 @@ const Certificate = () => {
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
-        
+
         toast({
           title: 'PDF Downloaded',
           description: 'Your certificate has been downloaded successfully.',
@@ -180,10 +180,6 @@ const Certificate = () => {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Certificate ID:</span>
                 <span className="font-mono">{certificate.certificateId}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Verification Code:</span>
-                <span className="font-mono font-semibold">{certificate.verificationCode}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Issued Date:</span>
