@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 
 interface TrackingData {
     sfrecordId: string;
+    sessionId: string;
     browser: {
         userAgent: string;
         language: string;
@@ -28,6 +29,7 @@ export const useUserTracking = (enabledSections: string[]) => {
 
     const trackingDataRef = useRef<TrackingData>({
         sfrecordId: sfrecordId || '',
+        sessionId: `sess_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
         browser: {
             userAgent: navigator.userAgent,
             language: navigator.language,
@@ -44,11 +46,11 @@ export const useUserTracking = (enabledSections: string[]) => {
     const lastSectionRef = useRef<string | null>(null);
     const sectionStartTimeRef = useRef<number>(Date.now());
 
-    const sendTrackingData = useCallback(async () => {
+    const sendTrackingData = useCallback(async (isInitial = false) => {
         if (!sfrecordId) return;
 
-        // Update time for the current section before sending
-        if (lastSectionRef.current) {
+        // Update time for current section if not the initial ping
+        if (!isInitial && lastSectionRef.current) {
             const duration = Date.now() - sectionStartTimeRef.current;
             trackingDataRef.current.hovers[lastSectionRef.current] =
                 (trackingDataRef.current.hovers[lastSectionRef.current] || 0) + duration;
@@ -56,7 +58,7 @@ export const useUserTracking = (enabledSections: string[]) => {
         }
 
         try {
-            console.log('📊 Submitting user tracking data for lead:', sfrecordId);
+            console.log(`📊 ${isInitial ? '🚀 Arrival' : '🔄 Syncing'} tracking data [Session: ${trackingDataRef.current.sessionId}]`);
             const response = await fetch('/.netlify/functions/logUserIntent', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -64,22 +66,25 @@ export const useUserTracking = (enabledSections: string[]) => {
             });
 
             if (response.ok) {
-                console.log('✅ Tracking data submitted successfully');
+                console.log('✅ Tracking data synced successfully');
             } else {
                 console.warn('⚠️ Tracking data submission failed with status:', response.status);
             }
         } catch (error) {
-            console.error('❌ Failed to send tracking data:', error);
+            console.error('❌ Failed to sync tracking data:', error);
         }
     }, [sfrecordId]);
 
     useEffect(() => {
         if (!sfrecordId) {
-            console.log('ℹ️ User tracking disabled: No sfrecordId found in URL.');
+            console.log('ℹ️ User tracking disabled: No sfrecordId found.');
             return;
         }
 
         console.log('🚀 User tracking enabled for lead:', sfrecordId);
+
+        // Immediate Arrival Ping
+        sendTrackingData(true);
 
         const handleClick = (e: MouseEvent) => {
             const target = e.target as HTMLElement;
@@ -90,6 +95,8 @@ export const useUserTracking = (enabledSections: string[]) => {
                 x: e.clientX,
                 y: e.clientY,
             });
+            // Trigger immediate sync on click for real-time responsiveness
+            sendTrackingData();
         };
 
         const handleMouseMove = (e: MouseEvent) => {
@@ -112,7 +119,7 @@ export const useUserTracking = (enabledSections: string[]) => {
         window.addEventListener('click', handleClick);
         window.addEventListener('mousemove', handleMouseMove);
 
-        const interval = setInterval(sendTrackingData, 30000);
+        const interval = setInterval(() => sendTrackingData(), 30000);
 
         const handleUnload = () => {
             if (lastSectionRef.current) {

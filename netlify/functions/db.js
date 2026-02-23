@@ -152,6 +152,7 @@ async function initSchema() {
     CREATE TABLE IF NOT EXISTS user_tracking (
       id SERIAL PRIMARY KEY,
       sf_record_id VARCHAR(255),
+      sessionId VARCHAR(255),
       browser_info JSONB,
       device_info JSONB,
       location_info JSONB,
