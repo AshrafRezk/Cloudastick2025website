@@ -143,6 +143,7 @@ export interface Certificate {
   // Additional fields from related objects
   certificateLogoUrl?: string | null; // From Learning_Material__c.Certificate_Logo_URL__c
   certificateTemplate?: string | null; // From Learning_Material__c.Certificate_Template__c
+  learningMaterialDescription?: string | null; // From Learning_Material__c.Description__c
 }
 
 export interface CertificateGenerationRequest {

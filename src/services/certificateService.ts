@@ -133,6 +133,7 @@ export const fetchCertificates = async (
         contactName: instance.Learner__r?.Name || '',
         learningMaterialId: instance.Material__c,
         learningMaterialTitle: instance.Material__r?.Title__c || '',
+        learningMaterialDescription: instance.Material__r?.Description__c || null,
         learningMaterialInstanceId: instance.Id,
         issuedDate: issuedDate,
         certificateUrl: certificateUrl,

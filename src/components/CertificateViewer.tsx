@@ -44,21 +44,10 @@ const CertificateViewer = ({ certificate, showVerificationCode = true }: Certifi
             className="h-16 object-contain"
           />
         </div>
-
-        {/* Course Logo (if available) */}
-        {certificate.certificateLogoUrl && (
-          <div className="flex-1 flex justify-end">
-            <img
-              src={certificate.certificateLogoUrl}
-              alt="Course Logo"
-              className="max-h-20 object-contain"
-            />
-          </div>
-        )}
       </div>
 
       {/* Certificate Title */}
-      <div className="text-center mb-12">
+      <div className="text-center mb-8">
         <h1 className="text-5xl font-bold text-gray-900 mb-4" style={{
           fontFamily: 'serif',
           letterSpacing: '2px',
@@ -66,6 +55,17 @@ const CertificateViewer = ({ certificate, showVerificationCode = true }: Certifi
           Certificate of Completion
         </h1>
         <div className="w-32 h-1 bg-gradient-to-r from-yellow-400 to-yellow-600 mx-auto"></div>
+      </div>
+
+      {/* Course Logo (below title) */}
+      <div className="text-center mb-10 flex flex-col items-center gap-4">
+        {certificate.certificateLogoUrl && (
+          <img
+            src={certificate.certificateLogoUrl}
+            alt="Course Logo"
+            className="max-h-24 object-contain"
+          />
+        )}
       </div>
 
       {/* Certificate Body */}
@@ -89,23 +89,43 @@ const CertificateViewer = ({ certificate, showVerificationCode = true }: Certifi
         }}>
           {certificate.learningMaterialTitle}
         </h3>
-        <p className="text-base text-gray-600">
+        <p className="text-base text-gray-600 mb-4">
           Issued on {formatDate(certificate.issuedDate)}
         </p>
+
+        {certificate.learningMaterialDescription && (
+          <p className="text-sm text-gray-500 max-w-lg mx-auto italic leading-relaxed">
+            {certificate.learningMaterialDescription}
+          </p>
+        )}
       </div>
 
       {/* Footer */}
       <div className="absolute bottom-20 left-0 right-0">
-        <div className="flex justify-between items-end px-8">
+        <div className="flex justify-between items-end px-12">
           {/* Certificate ID */}
-          <div className="text-xs text-gray-500">
+          <div className="text-[10px] text-gray-400">
             <div>Certificate ID: {certificate.certificateId}</div>
+            {showVerificationCode && (
+              <div>Verification Code: {certificate.verificationCode}</div>
+            )}
           </div>
 
-          {/* Signature area (optional) */}
-          <div className="text-center">
-            <div className="border-t-2 border-gray-400 w-48 mt-2"></div>
-            <div className="text-sm text-gray-600 mt-2">Authorized Signature</div>
+          {/* Signature area */}
+          <div className="text-center flex flex-col items-center">
+            <div className="relative mb-0 h-16 w-48 flex items-center justify-center">
+              <img
+                src="/Assets/LMS%20assets/signature.png"
+                alt="Authorized Signature"
+                className="max-h-full max-w-full object-contain mix-blend-multiply"
+                onError={(e) => {
+                  console.error('Failed to load signature. Trying alternative path.');
+                  (e.target as HTMLImageElement).src = '/Assets/LMS assets/signature.png';
+                }}
+              />
+            </div>
+            <div className="border-t-2 border-gray-400 w-48"></div>
+            <div className="text-sm text-gray-600 mt-2 font-medium">Authorized Signature</div>
           </div>
         </div>
       </div>
