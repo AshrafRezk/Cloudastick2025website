@@ -44,20 +44,22 @@ exports.handler = async (event, context) => {
         };
 
         // Generate Intent Summary
+        const interestExpressed = clicks.some(c => c.text.includes('Notify Cloudastick Systems with your interest'));
+
         const clickSummary = clicks.length > 0
             ? `Clicked on: ${clicks.map(c => `${c.element} ("${c.text}")`).join(', ')}.`
             : 'No clicks recorded.';
 
         const sortedHovers = Object.entries(hovers)
-            .sort((a, b) => (b[1] as number) - (a[1] as number))
+            .sort((a, b) => b[1] - a[1])
             .slice(0, 3);
 
         const hoverSummary = sortedHovers.length > 0
-            ? `Highest engagement in: ${sortedHovers.map(([id, time]) => `${id} (${Math.round(time as number / 1000)}s)`).join(', ')}.`
+            ? `Highest engagement in: ${sortedHovers.map(([id, time]) => `${id} (${Math.round(time / 1000)}s)`).join(', ')}.`
             : 'No specific area engagement recorded.';
 
         const intentSummary = `User Behavior Report (${new Date().toLocaleString()}):
-- Location/IP: ${locationInfo.ip}
+${interestExpressed ? '🔥 HIGH INTEREST: User clicked "Notify Cloudastick Systems with your interest"!\n' : ''}- Location/IP: ${locationInfo.ip}
 - Device: ${device.screenSize} (${device.orientation})
 - Browser: ${browser.userAgent}
 - ${hoverSummary}
@@ -73,9 +75,6 @@ exports.handler = async (event, context) => {
         // Update Salesforce Lead
         try {
             // We need to authenticate with Salesforce first to get tokens if we are calling from backend
-            // Or we can assume the frontend passed it? No, hook doesn't have it easily.
-            // Let's use the patterns from salesforceAuth.js to get a token.
-
             const authResponse = await fetch(`${process.env.URL || 'http://localhost:8888'}/.netlify/functions/salesforceAuth`, {
                 method: 'POST'
             });
@@ -84,26 +83,7 @@ exports.handler = async (event, context) => {
                 const authData = await authResponse.json();
                 const { access_token, instance_url } = authData;
 
-                // Get current value first to avoid overriding (if we had a way to append)
-                // Salesforce Power Intent field: Salesforce_Power_Intent__c
-
-                const leadResponse = await fetch(`${instance_url}/services/data/v58.0/sobjects/Lead/${sfrecordId}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Authorization': `Bearer ${access_token}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        // Note: Salesforce Text Area (Long) or similar might be needed.
-                        // "dont override old logs ofc" -> We should append.
-                        // To append, we'd need to GET first.
-                        Salesforce_Power_Intent__c: intentSummary // I'll check if I can append in next step
-                    }),
-                });
-
-                // If we want to truly NOT override, we must GET first.
-                // Let's implement GET and Append logic.
-
+                // To append, we need to GET first
                 const currentLeadResponse = await fetch(`${instance_url}/services/data/v58.0/sobjects/Lead/${sfrecordId}`, {
                     headers: { 'Authorization': `Bearer ${access_token}` }
                 });

@@ -4235,6 +4235,30 @@ const SalesforcePower = () => {
           onScrollToModules={handleScrollToModules}
         />
       )}
+
+      {/* Express Interest Button (Conditional) */}
+      {searchParams.get('sfrecordId') && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8, x: 50 }}
+          animate={{ opacity: 1, scale: 1, x: 0 }}
+          className="fixed bottom-24 right-8 z-50"
+        >
+          <Button
+            onClick={() => {
+              triggerHaptic([20, 10, 20], '/Assets/selection3new.mp3');
+              toast({
+                title: "Interest Notified! 🚀",
+                description: "Cloudastick Systems has been notified of your interest.",
+              });
+              // The click tracking within useUserTracking will automatically pick this up
+            }}
+            className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white shadow-2xl px-6 py-4 rounded-full font-bold flex items-center gap-2 group transition-all duration-300 hover:scale-110"
+          >
+            <Heart className="w-5 h-5 group-hover:fill-current transition-colors" />
+            <span>Notify Cloudastick Systems with your interest</span>
+          </Button>
+        </motion.div>
+      )}
     </div>
   );
 };
