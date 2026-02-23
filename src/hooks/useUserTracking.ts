@@ -24,7 +24,7 @@ interface TrackingData {
 
 export const useUserTracking = (enabledSections: string[]) => {
     const [searchParams] = useSearchParams();
-    const sfrecordId = searchParams.get('sfrecordId');
+    const sfrecordId = searchParams.get('sfrecordId') || searchParams.get('sfrecordid');
 
     const trackingDataRef = useRef<TrackingData>({
         sfrecordId: sfrecordId || '',
@@ -56,27 +56,30 @@ export const useUserTracking = (enabledSections: string[]) => {
         }
 
         try {
-            await fetch('/.netlify/functions/logUserIntent', {
+            console.log('📊 Submitting user tracking data for lead:', sfrecordId);
+            const response = await fetch('/.netlify/functions/logUserIntent', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(trackingDataRef.current),
             });
 
-            // Optionally clear some data if we don't want to keep resending it
-            // For now, let's keep it cumulative as requested ("dont override old logs")
-            // Actually, the backend will receive multiple calls and should handle them.
-            // To avoid massive payloads, we could clear clicks/resets timers after successful send
-            // but the user said "for each time have a different log". 
-            // This implies one session = one log or multiple logs per session?
-            // "the link could be accessed multiple times ;) for each time have a different log ;)"
-            // This refers to different page loads. Within one page load, we should probably accumulate and send at once or in chunks.
+            if (response.ok) {
+                console.log('✅ Tracking data submitted successfully');
+            } else {
+                console.warn('⚠️ Tracking data submission failed with status:', response.status);
+            }
         } catch (error) {
-            console.error('Failed to send tracking data:', error);
+            console.error('❌ Failed to send tracking data:', error);
         }
     }, [sfrecordId]);
 
     useEffect(() => {
-        if (!sfrecordId) return;
+        if (!sfrecordId) {
+            console.log('ℹ️ User tracking disabled: No sfrecordId found in URL.');
+            return;
+        }
+
+        console.log('🚀 User tracking enabled for lead:', sfrecordId);
 
         const handleClick = (e: MouseEvent) => {
             const target = e.target as HTMLElement;
@@ -95,7 +98,6 @@ export const useUserTracking = (enabledSections: string[]) => {
 
             if (section && enabledSections.includes(section)) {
                 if (section !== lastSectionRef.current) {
-                    // Record duration for previous section
                     if (lastSectionRef.current) {
                         const duration = Date.now() - sectionStartTimeRef.current;
                         trackingDataRef.current.hovers[lastSectionRef.current] =
@@ -110,18 +112,18 @@ export const useUserTracking = (enabledSections: string[]) => {
         window.addEventListener('click', handleClick);
         window.addEventListener('mousemove', handleMouseMove);
 
-        // Periodically send data every 30 seconds
         const interval = setInterval(sendTrackingData, 30000);
 
-        // Send data on page unload
         const handleUnload = () => {
-            // Use sendBeacon for more reliability on unload
             if (lastSectionRef.current) {
                 const duration = Date.now() - sectionStartTimeRef.current;
                 trackingDataRef.current.hovers[lastSectionRef.current] =
                     (trackingDataRef.current.hovers[lastSectionRef.current] || 0) + duration;
             }
-            navigator.sendBeacon('/.netlify/functions/logUserIntent', JSON.stringify(trackingDataRef.current));
+
+            const blob = new Blob([JSON.stringify(trackingDataRef.current)], { type: 'application/json' });
+            navigator.sendBeacon('/.netlify/functions/logUserIntent', blob);
+            console.log('📤 Final tracking data sent via beacon');
         };
 
         window.addEventListener('beforeunload', handleUnload);
