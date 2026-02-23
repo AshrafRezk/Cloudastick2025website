@@ -49,7 +49,7 @@ exports.handler = async (event, context) => {
         };
 
         // Generate Intent Summary
-        const interestExpressed = (clicks || []).some(c => c.text?.includes('Notify Cloudastick Systems with your interest'));
+        const interestExpressed = (clicks || []).some(c => c.text?.includes('is interested'));
 
         const clickSummary = (clicks || []).length > 0
             ? `Clicked on: ${(clicks || []).map(c => `${c.element} ("${c.text}")`).join(', ')}.`
