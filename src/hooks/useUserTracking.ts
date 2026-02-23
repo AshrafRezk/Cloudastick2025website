@@ -43,11 +43,12 @@ export const useUserTracking = (enabledSections: string[]) => {
         hovers: {},
     });
 
+    const isTrackingStopped = useRef(false);
     const lastSectionRef = useRef<string | null>(null);
     const sectionStartTimeRef = useRef<number>(Date.now());
 
     const sendTrackingData = useCallback(async (isInitial = false) => {
-        if (!sfrecordId) return;
+        if (!sfrecordId || isTrackingStopped.current) return;
 
         // Update time for current section if not the initial ping
         if (!isInitial && lastSectionRef.current) {
@@ -58,7 +59,7 @@ export const useUserTracking = (enabledSections: string[]) => {
         }
 
         try {
-            console.log(`📊 ${isInitial ? '🚀 Arrival' : '🔄 Syncing'} tracking data [Session: ${trackingDataRef.current.sessionId}]`);
+            console.log(`📊 Syncing tracking data [Session: ${trackingDataRef.current.sessionId}]`);
             const response = await fetch('/.netlify/functions/logUserIntent', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -67,8 +68,6 @@ export const useUserTracking = (enabledSections: string[]) => {
 
             if (response.ok) {
                 console.log('✅ Tracking data synced successfully');
-            } else {
-                console.warn('⚠️ Tracking data submission failed with status:', response.status);
             }
         } catch (error) {
             console.error('❌ Failed to sync tracking data:', error);
@@ -83,23 +82,35 @@ export const useUserTracking = (enabledSections: string[]) => {
 
         console.log('🚀 User tracking enabled for lead:', sfrecordId);
 
-        // Immediate Arrival Ping
-        sendTrackingData(true);
+        // Immediate Arrival Ping removed as per interaction-only requirement
 
         const handleClick = (e: MouseEvent) => {
+            if (isTrackingStopped.current) return;
+
             const target = e.target as HTMLElement;
+            const clickText = target.innerText || '';
+
             trackingDataRef.current.clicks.push({
                 element: target.tagName,
-                text: target.innerText?.substring(0, 50) || '',
+                text: clickText.substring(0, 50),
                 timestamp: Date.now(),
                 x: e.clientX,
                 y: e.clientY,
             });
-            // Trigger immediate sync on click for real-time responsiveness
+
+            // Trigger immediate sync on click
             sendTrackingData();
+
+            // STOP TRACKING if the user expressed interest
+            if (clickText.toLowerCase().includes('is interested')) {
+                console.log('⏹️ Target interest expressed. Halting further tracking.');
+                isTrackingStopped.current = true;
+            }
         };
 
         const handleMouseMove = (e: MouseEvent) => {
+            if (isTrackingStopped.current) return;
+
             const target = e.target as HTMLElement;
             const section = target.closest('section[id], div[id]')?.id;
 
@@ -119,9 +130,9 @@ export const useUserTracking = (enabledSections: string[]) => {
         window.addEventListener('click', handleClick);
         window.addEventListener('mousemove', handleMouseMove);
 
-        const interval = setInterval(() => sendTrackingData(), 30000);
-
         const handleUnload = () => {
+            if (isTrackingStopped.current) return;
+
             if (lastSectionRef.current) {
                 const duration = Date.now() - sectionStartTimeRef.current;
                 trackingDataRef.current.hovers[lastSectionRef.current] =
@@ -139,7 +150,6 @@ export const useUserTracking = (enabledSections: string[]) => {
             window.removeEventListener('click', handleClick);
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('beforeunload', handleUnload);
-            clearInterval(interval);
         };
     }, [sfrecordId, enabledSections, sendTrackingData]);
 

@@ -4162,12 +4162,14 @@ const SalesforcePower = () => {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link to="/salesforce-power-lead-capture">
-                  <Button variant="primary" size="lg" className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700">
-                    {t('power.cta.contact')}
-                    <ArrowRight className={`h-5 w-5 ${isRTL ? 'mr-2' : 'ml-2'}`} />
-                  </Button>
-                </Link>
+                {!searchParams.get('sfrecordId') && !searchParams.get('sfrecordid') && (
+                  <Link to="/salesforce-power-lead-capture">
+                    <Button variant="primary" size="lg" className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700">
+                      {t('power.cta.contact')}
+                      <ArrowRight className={`h-5 w-5 ${isRTL ? 'mr-2' : 'ml-2'}`} />
+                    </Button>
+                  </Link>
+                )}
 
                 <Button
                   variant="secondary"
@@ -4236,27 +4238,39 @@ const SalesforcePower = () => {
         />
       )}
 
-      {/* Express Interest Button (Conditional) */}
-      {searchParams.get('sfrecordId') && (
+      {/* Express Interest Button (Conditional & Animated) */}
+      {(searchParams.get('sfrecordId') || searchParams.get('sfrecordid')) && (
         <motion.div
-          initial={{ opacity: 0, scale: 0.8, x: 50 }}
-          animate={{ opacity: 1, scale: 1, x: 0 }}
-          className="fixed bottom-24 right-8 z-50"
+          initial={{ opacity: 0, scale: 0.8, y: 100 }}
+          animate={{
+            opacity: 1,
+            scale: 1,
+            y: 0,
+            x: currentSection >= 4 ? '-50%' : '0%',
+            left: currentSection >= 4 ? '50%' : 'auto',
+            right: currentSection >= 4 ? 'auto' : '2rem',
+            bottom: currentSection >= 4 ? '40%' : '6rem'
+          }}
+          transition={{ type: "spring", damping: 15, stiffness: 100 }}
+          className="fixed z-50 pointer-events-none"
+          style={{ width: 'fit-content' }}
         >
-          <Button
-            onClick={() => {
-              triggerHaptic([20, 10, 20], '/Assets/selection3new.mp3');
-              toast({
-                title: "Interest Notified! 🚀",
-                description: `Cloudastick Systems has been notified that ${companyName || 'your company'} is interested.`,
-              });
-              // The click tracking within useUserTracking will automatically pick this up
-            }}
-            className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white shadow-2xl px-6 py-4 rounded-full font-bold flex items-center gap-2 group transition-all duration-300 hover:scale-110"
-          >
-            <Heart className="w-5 h-5 group-hover:fill-current transition-colors" />
-            <span>Let Salesforce know that {companyName || 'your company'} is interested</span>
-          </Button>
+          <div className="pointer-events-auto">
+            <Button
+              onClick={() => {
+                triggerHaptic([20, 10, 20], '/Assets/selection3new.mp3');
+                toast({
+                  title: "Interest Notified! 🚀",
+                  description: `Cloudastick Systems has been notified that ${companyName || 'your company'} is interested.`,
+                });
+                // The click tracking within useUserTracking will automatically pick this up
+              }}
+              className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white shadow-2xl px-6 py-4 rounded-full font-bold flex items-center gap-2 group transition-all duration-300 hover:scale-110 whitespace-nowrap"
+            >
+              <Heart className="w-5 h-5 group-hover:fill-current transition-colors" />
+              <span>Let Salesforce know that {companyName || 'your company'} is interested</span>
+            </Button>
+          </div>
         </motion.div>
       )}
     </div>
