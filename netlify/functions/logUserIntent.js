@@ -42,14 +42,39 @@ exports.handler = async (event, context) => {
         const db = getDb();
 
         // 1. Check for existing session in our DB (deterministic via sessionId)
-        const existingSession = await db`
-            SELECT id, click_events, hover_events, created_at, intent_summary
-            FROM user_tracking
-            WHERE sf_record_id = ${sfrecordId}
-              AND (sessionId = ${sessionId} OR (location_info->>'ip' = ${ip} AND created_at > NOW() - INTERVAL '4 hours'))
-            ORDER BY created_at DESC
-            LIMIT 1
-        `;
+        let existingSession = [];
+        try {
+            existingSession = await db`
+                SELECT id, click_events, hover_events, created_at, intent_summary
+                FROM user_tracking
+                WHERE sf_record_id = ${sfrecordId}
+                  AND (sessionId = ${sessionId} OR (location_info->>'ip' = ${ip} AND created_at > NOW() - INTERVAL '4 hours'))
+                ORDER BY created_at DESC
+                LIMIT 1
+            `;
+        } catch (dbError) {
+            // Self-healing: If column sessionId is missing, try to add it
+            if (dbError.message.includes('column "sessionid" does not exist')) {
+                console.log('🔧 logUserIntent: Attempting to add missing "sessionId" column...');
+                try {
+                    await db`ALTER TABLE user_tracking ADD COLUMN sessionId VARCHAR(255)`;
+                    // Retry the query
+                    existingSession = await db`
+                        SELECT id, click_events, hover_events, created_at, intent_summary
+                        FROM user_tracking
+                        WHERE sf_record_id = ${sfrecordId}
+                          AND (sessionId = ${sessionId} OR (location_info->>'ip' = ${ip} AND created_at > NOW() - INTERVAL '4 hours'))
+                        ORDER BY created_at DESC
+                        LIMIT 1
+                    `;
+                } catch (migrationError) {
+                    console.error('❌ logUserIntent: Migration failed:', migrationError);
+                    throw dbError; // Throw original if migration also fails
+                }
+            } else {
+                throw dbError;
+            }
+        }
 
         let cumulativeClicks = [...(newClicks || [])];
         let cumulativeHovers = { ...(newHovers || {}) };

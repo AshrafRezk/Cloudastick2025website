@@ -163,6 +163,21 @@ async function initSchema() {
     )
   `;
 
+  // Migration: Add sessionId if it doesn't exist
+  try {
+    await db`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='user_tracking' AND column_name='sessionid') THEN
+          ALTER TABLE user_tracking ADD COLUMN sessionId VARCHAR(255);
+        END IF;
+      END
+      $$;
+    `;
+  } catch (e) {
+    console.warn('Migration warning:', e.message);
+  }
+
   // Create indexes for better query performance
   await db`
     CREATE INDEX IF NOT EXISTS idx_contacts_email ON contacts(email)
@@ -196,4 +211,3 @@ module.exports = {
   getDb,
   initSchema,
 };
-
