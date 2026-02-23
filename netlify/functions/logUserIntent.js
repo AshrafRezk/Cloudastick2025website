@@ -155,11 +155,35 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                     });
 
                     if (leadRes.ok) {
-                        const leadData = await leadRes.ok ? await leadRes.json() : {};
+                        const leadData = await leadRes.json();
                         let existingIntent = leadData.Salesforce_Power_Intent__c || '';
+                        let currentInterestLevel = leadData.Interest_Level__c || 'Low';
                         const sessionMarker = `[Ref: ${sessionId}]`;
                         let newIntent;
 
+                        // 1. DETERMINE NEW INTEREST DATA
+                        let newInterestLevel = highInterest ? 'High' : (sortedHovers.length > 5 ? 'Medium' : 'Low');
+                        let newReason = '';
+
+                        if (highInterest) {
+                            newReason = `User explicitly clicked the Interest button during session ${sessionId}.`;
+                        } else if (sortedHovers.length > 0) {
+                            newReason = `User explored ${sortedHovers.length} sections, focused on ${sectionNames[sortedHovers[0][0]] || sortedHovers[0][0]}.`;
+                        }
+
+                        // 2. NO-DOWNGRADE LOGIC
+                        const levelScores = { 'High': 3, 'Medium': 2, 'Low': 1 };
+                        const updateFields = { Salesforce_Power_Intent__c: '' };
+
+                        if (levelScores[newInterestLevel] > levelScores[currentInterestLevel]) {
+                            updateFields.Interest_Level__c = newInterestLevel;
+                            if (newReason) updateFields.Interest_Level_Reason__c = newReason.substring(0, 255);
+                        } else if (newInterestLevel === 'High' && currentInterestLevel === 'High') {
+                            // If already high, just update reason if it's an explicit interest click
+                            if (highInterest) updateFields.Interest_Level_Reason__c = newReason.substring(0, 255);
+                        }
+
+                        // 3. MERGE INTENT SUMMARY
                         const SESSION_SEP = '\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
 
                         if (existingIntent.includes(sessionMarker)) {
@@ -175,14 +199,16 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                             newIntent = existingIntent ? `${existingIntent}${SESSION_SEP}${intentSummary}` : intentSummary;
                         }
 
-                        // SIMPLE POST METHOD with PATCH OVERRIDE
+                        updateFields.Salesforce_Power_Intent__c = newIntent.substring(0, 32000);
+
+                        // 4. SIMPLE POST METHOD with PATCH OVERRIDE
                         await fetch(`${instance_url}/services/data/v58.0/sobjects/Lead/${sfrecordId}?_HttpMethod=PATCH`, {
                             method: 'POST',
                             headers: {
                                 'Authorization': `Bearer ${access_token}`,
                                 'Content-Type': 'application/json'
                             },
-                            body: JSON.stringify({ Salesforce_Power_Intent__c: newIntent.substring(0, 32000) }),
+                            body: JSON.stringify(updateFields),
                         });
                     }
                 }
