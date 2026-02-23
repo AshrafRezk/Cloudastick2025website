@@ -183,23 +183,8 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                             if (highInterest) updateFields.Interest_Level_Reason__c = newReason.substring(0, 255);
                         }
 
-                        // 3. MERGE INTENT SUMMARY
-                        const SESSION_SEP = '\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
-
-                        if (existingIntent.includes(sessionMarker)) {
-                            const blocks = existingIntent.split(SESSION_SEP);
-                            const idx = blocks.findIndex(b => b.includes(sessionMarker));
-                            if (idx !== -1) {
-                                blocks[idx] = intentSummary;
-                                newIntent = blocks.join(SESSION_SEP);
-                            } else {
-                                newIntent = `${existingIntent}${SESSION_SEP}${intentSummary}`;
-                            }
-                        } else {
-                            newIntent = existingIntent ? `${existingIntent}${SESSION_SEP}${intentSummary}` : intentSummary;
-                        }
-
-                        updateFields.Salesforce_Power_Intent__c = newIntent.substring(0, 32000);
+                        // 3. SET INTENT SUMMARY (OVERRIDE MODE)
+                        updateFields.Salesforce_Power_Intent__c = intentSummary.substring(0, 32000);
 
                         // 4. SIMPLE POST METHOD with PATCH OVERRIDE
                         await fetch(`${instance_url}/services/data/v58.0/sobjects/Lead/${sfrecordId}?_HttpMethod=PATCH`, {
