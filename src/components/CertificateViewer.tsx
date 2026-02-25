@@ -23,11 +23,12 @@ const CertificateViewer = ({ certificate, showVerificationCode = true }: Certifi
   return (
     <div className="certificate-container bg-white" style={{
       width: '210mm',
-      minHeight: '297mm',
+      height: '297mm',
       margin: '0 auto',
       padding: '40px',
       boxShadow: '0 0 20px rgba(0,0,0,0.1)',
       position: 'relative',
+      overflow: 'hidden',
     }}>
       {/* Decorative border */}
       <div className="absolute inset-0 border-8 border-yellow-400" style={{

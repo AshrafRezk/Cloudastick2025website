@@ -199,9 +199,12 @@ const Certificate = () => {
         </motion.div>
       </div>
 
-      {/* Print Styles */}
       <style>{`
         @media print {
+          @page {
+            margin: 0;
+            size: A4;
+          }
           body * {
             visibility: hidden;
           }
@@ -213,8 +216,13 @@ const Certificate = () => {
             position: absolute;
             left: 0;
             top: 0;
-            width: 210mm;
-            min-height: 297mm;
+            width: 210mm !important;
+            height: 297mm !important;
+            margin: 0 !important;
+            padding: 40px !important;
+            box-shadow: none !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
           }
         }
       `}</style>
