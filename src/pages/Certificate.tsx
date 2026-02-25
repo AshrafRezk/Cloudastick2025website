@@ -6,7 +6,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Download, Share2, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
+import { Download, Share2, CheckCircle2, Loader2, AlertCircle, Linkedin } from 'lucide-react';
+import html2canvas from 'html2canvas';
 import { getCertificate } from '../services/certificateService';
 import { type Certificate } from '../services/learningService';
 import CertificateViewer from '../components/CertificateViewer';
@@ -50,43 +51,57 @@ const Certificate = () => {
     fetchCertificate();
   }, [id]);
 
-  const handleDownloadPDF = async () => {
+  const handleDownloadImage = async () => {
     if (!certificate) return;
 
     try {
-      // Generate PDF using the PDF generation endpoint
-      const response = await fetch('/.netlify/functions/generateCertificatePDF', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ certificateId: certificate.certificateId }),
+      const element = document.getElementById('certificate-to-download');
+      if (!element) return;
+
+      toast({
+        title: 'Preparing Image',
+        description: 'Generating high-quality certificate image...',
       });
 
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `certificate-${certificate.certificateId}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
+      const canvas = await html2canvas(element, {
+        scale: 2, // High resolution
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+      });
 
-        toast({
-          title: 'PDF Downloaded',
-          description: 'Your certificate has been downloaded successfully.',
-        });
-      } else {
-        // Fallback: print the certificate
-        window.print();
-      }
+      const url = canvas.toDataURL('image/png');
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `certificate-${certificate.certificateId}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      toast({
+        title: 'Image Downloaded',
+        description: 'Your certificate image has been downloaded successfully.',
+      });
     } catch (err) {
-      console.error('Error generating PDF:', err);
-      // Fallback: print the certificate
-      window.print();
+      console.error('Error generating image:', err);
+      toast({
+        title: 'Download Failed',
+        description: 'Failed to generate certificate image. Please try again.',
+        variant: 'destructive',
+      });
     }
+  };
+
+  const handleShareLinkedIn = () => {
+    if (!certificate) return;
+
+    const url = window.location.href;
+    const text = `I'm proud to share that I've successfully completed the course "${certificate.learningMaterialTitle}" and earned my certification from Cloudastick! %0A%0ACheck out my certificate here:`;
+
+    // LinkedIn share URL format
+    const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}&summary=${text}`;
+
+    window.open(linkedInUrl, '_blank', 'width=600,height=600');
   };
 
   const handleShare = async () => {
@@ -144,13 +159,17 @@ const Certificate = () => {
             <span className="text-sm text-muted-foreground">Verified Certificate</span>
           </div>
           <div className="flex gap-2">
+            <Button variant="outline" onClick={handleShareLinkedIn} size="sm" className="bg-[#0077b5] text-white hover:bg-[#006699] border-none">
+              <Linkedin className="h-4 w-4 mr-2" />
+              Share on LinkedIn
+            </Button>
             <Button variant="outline" onClick={handleShare} size="sm">
               <Share2 className="h-4 w-4 mr-2" />
-              Share
+              Copy Link
             </Button>
-            <Button onClick={handleDownloadPDF} size="sm">
+            <Button onClick={handleDownloadImage} size="sm">
               <Download className="h-4 w-4 mr-2" />
-              Download PDF
+              Download Image
             </Button>
           </div>
         </motion.div>
