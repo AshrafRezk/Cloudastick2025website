@@ -21,7 +21,7 @@ const CertificateViewer = ({ certificate, showVerificationCode = true }: Certifi
   };
 
   return (
-    <div id="certificate-to-download" className="certificate-container bg-white" style={{
+    <div className="certificate-container bg-white" style={{
       width: '210mm',
       height: '297mm',
       margin: '0 auto',

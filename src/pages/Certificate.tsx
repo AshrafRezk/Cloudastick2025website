@@ -6,8 +6,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Download, Share2, CheckCircle2, Loader2, AlertCircle, Linkedin } from 'lucide-react';
-import html2canvas from 'html2canvas';
+import { Share2, CheckCircle2, Loader2, AlertCircle, Linkedin } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 import { getCertificate } from '../services/certificateService';
 import { type Certificate } from '../services/learningService';
 import CertificateViewer from '../components/CertificateViewer';
@@ -51,56 +51,41 @@ const Certificate = () => {
     fetchCertificate();
   }, [id]);
 
-  const handleDownloadImage = async () => {
-    if (!certificate) return;
 
-    try {
-      const element = document.getElementById('certificate-to-download');
-      if (!element) return;
 
-      toast({
-        title: 'Preparing Image',
-        description: 'Generating high-quality certificate image...',
-      });
-
-      const canvas = await html2canvas(element, {
-        scale: 2, // High resolution
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-      });
-
-      const url = canvas.toDataURL('image/png');
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `certificate-${certificate.certificateId}.png`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-
-      toast({
-        title: 'Image Downloaded',
-        description: 'Your certificate image has been downloaded successfully.',
-      });
-    } catch (err) {
-      console.error('Error generating image:', err);
-      toast({
-        title: 'Download Failed',
-        description: 'Failed to generate certificate image. Please try again.',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleShareLinkedIn = () => {
+  const handleShareLinkedIn = async () => {
     if (!certificate) return;
 
     const url = window.location.href;
-    const text = `I'm proud to share that I've successfully completed the course "${certificate.learningMaterialTitle}" and earned my certification from Cloudastick! %0A%0ACheck out my certificate here:`;
+    const shareText = `I'm proud to share that I've successfully completed the course "${certificate.learningMaterialTitle}" and earned my certification from Cloudastick! 🎓✨`;
 
-    // LinkedIn share URL format
-    const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}&summary=${text}`;
+    // 1. Attempt Web Share API first (best for mobile, populates post body in some apps)
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'My Certification - Cloudastick',
+          text: shareText,
+          url: url,
+        });
+        return;
+      } catch (err) {
+        console.log('Web Share failed or cancelled', err);
+      }
+    }
 
+    // 2. Fallback: Copy to clipboard and open LinkedIn
+    try {
+      await navigator.clipboard.writeText(`${shareText}\n\nCheck out my certificate here: ${url}`);
+      toast({
+        title: 'Message Copied!',
+        description: 'Your celebratory message is copied! You can now paste it into your LinkedIn post.',
+      });
+    } catch (err) {
+      console.error('Clipboard error', err);
+    }
+
+    // Open LinkedIn Share dialog
+    const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
     window.open(linkedInUrl, '_blank', 'width=600,height=600');
   };
 
@@ -147,6 +132,14 @@ const Certificate = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted to-background py-8">
+      <Helmet>
+        <title>{certificate.contactName} - Certificate of Completion | Cloudastick</title>
+        <meta property="og:title" content={`${certificate.contactName} earned a certification in ${certificate.learningMaterialTitle}`} />
+        <meta property="og:description" content="View this verified certificate of completion from Cloudastick." />
+        <meta property="og:image" content={certificate.certificateLogoUrl || "https://cloudastick.com/Assets/Company%20Logos/blue-logo.png"} />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+      </Helmet>
       <div className="max-w-4xl mx-auto px-4">
         {/* Header Actions */}
         <motion.div
@@ -159,17 +152,13 @@ const Certificate = () => {
             <span className="text-sm text-muted-foreground">Verified Certificate</span>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={handleShareLinkedIn} size="sm" className="bg-[#0077b5] text-white hover:bg-[#006699] border-none">
+            <Button variant="outline" onClick={handleShareLinkedIn} size="sm" className="bg-[#0077b5] text-white hover:bg-[#006699] border-none group">
               <Linkedin className="h-4 w-4 mr-2" />
               Share on LinkedIn
             </Button>
             <Button variant="outline" onClick={handleShare} size="sm">
               <Share2 className="h-4 w-4 mr-2" />
               Copy Link
-            </Button>
-            <Button onClick={handleDownloadImage} size="sm">
-              <Download className="h-4 w-4 mr-2" />
-              Download Image
             </Button>
           </div>
         </motion.div>
