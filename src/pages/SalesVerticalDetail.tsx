@@ -124,11 +124,14 @@ const SalesVerticalDetail = () => {
       }
     } else if (portalUser?.portalSalesAccess) {
       // Already logged in contact - allow access
-      setSalesUser({
+      const newUser = {
         id: portalUser.id,
         name: portalUser.name,
         email: portalUser.email || '',
-      });
+      };
+      setSalesUser(newUser);
+      // Persist to session storage for consistency with the main list page
+      sessionStorage.setItem('sales-portal-user', JSON.stringify(newUser));
     } else {
       // Redirect to login if not authenticated
       navigate('/sales');

@@ -13,6 +13,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
+import { usePortalUser } from '../contexts/PortalUserContext';
 import { useToast } from '../hooks/use-toast';
 import { Badge } from '../components/ui/badge';
 
@@ -26,6 +27,7 @@ const SalesVerticals = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { authData, isLoading: authLoading } = useSalesforce();
+  const { user: portalUser } = usePortalUser();
 
   // Authentication state
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -54,6 +56,26 @@ const SalesVerticals = () => {
   const [filteredVerticals, setFilteredVerticals] = useState<Vertical[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Handle auto-login from portal context
+  useEffect(() => {
+    if (!isAuthenticated && portalUser?.portalSalesAccess) {
+      const newUser = {
+        id: portalUser.id,
+        name: portalUser.name,
+        email: portalUser.email || '',
+      };
+
+      setSalesUser(newUser);
+      setIsAuthenticated(true);
+      sessionStorage.setItem('sales-portal-user', JSON.stringify(newUser));
+
+      toast({
+        title: 'Welcome back',
+        description: `You've been automatically signed in as ${portalUser.name}`,
+      });
+    }
+  }, [portalUser, isAuthenticated, toast]);
 
   // Sync state and load data
   useEffect(() => {
