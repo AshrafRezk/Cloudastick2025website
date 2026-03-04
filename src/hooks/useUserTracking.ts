@@ -23,9 +23,15 @@ interface TrackingData {
     }>;
     hovers: Record<string, number>; // sectionId -> time spent in ms
     highInterest?: boolean;
+    videoOpened?: boolean;
+    videoViewDuration?: number; // in seconds
 }
 
-export const useUserTracking = (enabledSections: string[]) => {
+export const useUserTracking = (
+    enabledSections: string[],
+    videoOpened?: boolean,
+    videoViewDuration?: number
+) => {
     const [searchParams] = useSearchParams();
     const sfrecordId = searchParams.get('sfrecordId') || searchParams.get('sfrecordid');
 
@@ -57,6 +63,19 @@ export const useUserTracking = (enabledSections: string[]) => {
         clicks: [],
         hovers: {},
     });
+
+    // Update video tracking data when it changes
+    useEffect(() => {
+        if (videoOpened) {
+            trackingDataRef.current.videoOpened = true;
+        }
+    }, [videoOpened]);
+
+    useEffect(() => {
+        if (videoViewDuration !== undefined) {
+            trackingDataRef.current.videoViewDuration = videoViewDuration;
+        }
+    }, [videoViewDuration]);
 
     const isTrackingStopped = useRef(false);
     const lastSectionRef = useRef<string | null>(null);

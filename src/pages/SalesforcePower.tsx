@@ -81,6 +81,7 @@ import FleetManagementSection from '../components/FleetManagementSection';
 import PharmaSections from '../components/PharmaSections';
 import InvestmentPlanSection from '../components/InvestmentPlanSection';
 import ModulesSection from '../components/ModulesSection';
+import PrintingBusinessFlow from '../components/PrintingBusinessFlow';
 import { useSalesforce } from '../contexts/SalesforceContext';
 import { fetchAllVerticals, fetchVerticalById, type VerticalModule, type Vertical } from '../services/verticalService';
 import { useUserTracking } from '../hooks/useUserTracking';
@@ -375,7 +376,7 @@ const getYouTubeEmbedUrl = (url: string) => {
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
   const match = url.match(regExp);
   return (match && match[2].length === 11)
-    ? `https://www.youtube.com/embed/${match[2]}?autoplay=0&rel=0`
+    ? `https://www.youtube.com/embed/${match[2]}?autoplay=0&rel=0&enablejsapi=1`
     : null;
 };
 
@@ -417,6 +418,12 @@ const SalesforcePower = () => {
   const [isPreloading, setIsPreloading] = useState<boolean>(false);
   const [genericIndustryData, setGenericIndustryData] = useState<ReturnType<typeof createGenericIndustryData> | null>(null);
 
+  // Video tracking state
+  const [videoOpened, setVideoOpened] = useState<boolean>(false);
+  const [videoViewDuration, setVideoViewDuration] = useState<number>(0);
+  const [videoStartTime, setVideoStartTime] = useState<number | null>(null);
+  const playerRef = useRef<any>(null);
+
   // Modules state
   const { authData } = useSalesforce();
   const showModulesSection = searchParams.get('modules') === 'true';
@@ -439,9 +446,10 @@ const SalesforcePower = () => {
     'investment-plan-section',
     'modules-section',
     'techsa-section',
-    'landing-fleet-management',
-    'amadeus-section'
-  ]);
+    'erp-integration',
+    'data-cloud',
+    'printing-industries' // Added this vertical as well for tracking
+  ], videoOpened, videoViewDuration);
 
   // Handle pw=true URL parameter
   useEffect(() => {
@@ -723,7 +731,51 @@ const SalesforcePower = () => {
     } finally {
       setLogoLoading(false);
     }
-  }, []);
+  }, [setLogoLoading, setLogoError, setCompanyLogo]);
+
+  // YouTube API integration for video tracking
+  useEffect(() => {
+    if (!embedVideoUrl) return;
+
+    // Load the YouTube IFrame Player API code if not already loaded
+    if (!(window as any).YT) {
+      const tag = document.createElement('script');
+      tag.src = "https://www.youtube.com/iframe_api";
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+    }
+
+    // Define function for API ready
+    const handleAPIReady = () => {
+      playerRef.current = new (window as any).YT.Player('demo-video-player', {
+        events: {
+          'onStateChange': (event: any) => {
+            // PLAYING (1)
+            if (event.data === 1) {
+              setVideoOpened(true);
+              setVideoStartTime(Date.now());
+            }
+            // PAUSED (2), ENDED (0)
+            else if (event.data === 2 || event.data === 0) {
+              setVideoStartTime(prevStart => {
+                if (prevStart) {
+                  const duration = (Date.now() - prevStart) / 1000;
+                  setVideoViewDuration(prevDuration => prevDuration + duration);
+                }
+                return null;
+              });
+            }
+          }
+        }
+      });
+    };
+
+    if ((window as any).YT && (window as any).YT.Player) {
+      handleAPIReady();
+    } else {
+      (window as any).onYouTubeIframeAPIReady = handleAPIReady;
+    }
+  }, [embedVideoUrl]);
 
   // Handle website input change (no auto-trigger)
   const handleWebsiteChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1631,6 +1683,7 @@ const SalesforcePower = () => {
                   className="relative w-full max-w-4xl mx-auto mb-12 aspect-video rounded-3xl overflow-hidden shadow-2xl border border-white/10 group bg-black/40 backdrop-blur-sm"
                 >
                   <iframe
+                    id="demo-video-player"
                     src={embedVideoUrl}
                     className="absolute inset-0 w-full h-full"
                     title="Demo Video"
@@ -3561,6 +3614,13 @@ const SalesforcePower = () => {
       {
         selectedIndustry === 'healthcare-life-sciences' && (
           <PharmaSections />
+        )
+      }
+
+      {/* Printing Industry Specific Sections */}
+      {
+        selectedIndustry === 'printing-industries' && (
+          <PrintingBusinessFlow />
         )
       }
 

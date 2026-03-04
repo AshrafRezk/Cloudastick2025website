@@ -142,6 +142,9 @@ const INDUSTRY_MAPPING: { [key: string]: string } = {
   'not-for-profit': null,
   'non profit': null,
   'non profit organizations': null,
+  'printing': 'printing-industries',
+  'printing industries': 'printing-industries',
+  'printing-industries': 'printing-industries',
 };
 
 /**
@@ -260,6 +263,7 @@ export function matchIndustryFromUrl(industryParam: string | null): string | nul
 
     'government': 'government',
     'public sector': 'government',
+    'printing': 'printing-industries',
   };
 
   for (const [keyword, industryId] of Object.entries(keywords)) {

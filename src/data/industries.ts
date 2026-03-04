@@ -1,19 +1,21 @@
-import { 
-  Building2, 
-  Heart, 
-  Factory, 
-  Phone, 
-  CreditCard, 
-  ShoppingBag, 
+import {
+  Building2,
+  Heart,
+  Factory,
+  Phone,
+  CreditCard,
+  ShoppingBag,
   ShoppingCart,
-  Briefcase, 
+  Briefcase,
   GraduationCap,
   Car,
   Plane,
   Utensils,
   Home,
   Wrench,
-  Shield
+  Shield,
+  Printer,
+  Layers
 } from 'lucide-react';
 
 export interface IndustryData {
@@ -2680,6 +2682,111 @@ export const industries: IndustryData[] = [
         salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
       }
     ]
+  },
+  {
+    id: 'printing-industries',
+    name: 'Printing Industries',
+    shortName: 'Printing',
+    icon: Printer,
+    gradient: 'from-cyan-600 to-emerald-700',
+    description: 'Comprehensive solutions for the printing industry, from marketing and lead capture to samples, order management, and after-sales service.',
+    recommendedProducts: ['sales-cloud', 'service-cloud', 'marketing-cloud', 'data-cloud', 'manufacturing-cloud'],
+    useCases: [
+      'Marketing & Campaign Management',
+      'Lead Capturing & Qualification',
+      'Specifications & Opportunity Highlights',
+      'Sample Sharing & Customer Approval',
+      'Order & Contract Management with ERP',
+      'Financial Management & Account Cash-in',
+      'After-Sales & Customer Success'
+    ],
+    successMetrics: [
+      { value: '45%', description: 'improvement in sample approval speed' },
+      { value: '30%', description: 'increase in repeat contract volume' },
+      { value: '40%', description: 'reduction in specification errors' },
+      { value: '35%', description: 'improvement in account cash-in cycles' }
+    ],
+    keyChallenges: [
+      'Complex specification management',
+      'Manual sample approval processes',
+      'Fragmented ERP and CRM data',
+      'Inefficient after-sales management'
+    ],
+    painPoints: [
+      'Disconnected marketing and sales data',
+      'Poor visibility into sample status',
+      'Manual contract and order entry',
+      'Lack of unified customer view for after-sales'
+    ],
+    integrations: [
+      'MuleSoft for ERP Orchestration',
+      'Informatica for Data Management',
+      'Print Management Systems (PMS)',
+      'Adobe Creative Cloud',
+      'SAP ERP',
+      'Oracle NetSuite'
+    ],
+    dataSources: [
+      'Marketing platforms',
+      'Lead databases',
+      'Specification documents',
+      'ERP order data',
+      'Customer feedback systems'
+    ],
+    marketSize: '$820 billion globally',
+    growthRate: '2.5% annually',
+    comparisonMetrics: [
+      {
+        metric: 'Segmentation by Customer Size',
+        metricKey: 'printing.metrics.segmentationSize',
+        salesforce: { score: 10, label: 'Dynamic Segmentation', description: 'Advanced AI-driven segmentation based on revenue, employee count, and market influence' },
+        hubspot: { score: 7, label: 'Standard Segmentation', description: 'Basic company size and property-based segmentation' },
+        zoho: { score: 6, label: 'Standard Tiers', description: 'Basic tiering based on revenue fields' },
+        freshworks: { score: 5, label: 'Limited', description: 'Simple tag-based segmentation' },
+        odoo: { score: 7, label: 'Custom Tiers', description: 'Configurable company types and size brackets' },
+        salezbuzz: { score: 6, label: 'Basic Tiers', description: 'Standard sales-ledger size categories' }
+      },
+      {
+        metric: 'Customer Loyalty & Rating Engine',
+        metricKey: 'printing.metrics.loyaltyEngine',
+        salesforce: { score: 10, label: 'Loyalty Suite', description: 'Comprehensive loyalty program management with behavioral-based ratings and predictive retention' },
+        hubspot: { score: 6, label: 'Basic Scoring', description: 'Simple lead and customer scoring models' },
+        zoho: { score: 7, label: 'Good Loyalty', description: 'Points-based loyalty features with basic ratings' },
+        freshworks: { score: 6, label: 'Support Loyalty', description: 'Service-level loyalty tracking' },
+        odoo: { score: 8, label: 'Loyalty Module', description: 'Highly configurable loyalty and rewards engine' },
+        salezbuzz: { score: 7, label: 'Reliable Scoring', description: 'Solid history-based customer rating system' }
+      },
+      {
+        metric: 'Sample Lifecycle Management',
+        metricKey: 'printing.metrics.sampleLifecycle',
+        salesforce: { score: 10, label: 'Full Asset Lifecycle', description: 'Complete tracking from design to physical sample delivery and digital approval' },
+        hubspot: { score: 4, label: 'Not Available', description: 'No native sample tracking capabilities' },
+        zoho: { score: 6, label: 'Basic Tracking', description: 'Custom modules required for sample management' },
+        freshworks: { score: 4, label: 'Limited', description: 'Basic ticket-based sample requests' },
+        odoo: { score: 8, label: 'Product Module', description: 'Comprehensive product and variant tracking for samples' },
+        salezbuzz: { score: 7, label: 'Good Features', description: 'Strong focus on physical production cycles' }
+      },
+      {
+        metric: 'Order & Contract Management (ERP Link)',
+        metricKey: 'printing.metrics.orderIntegration',
+        salesforce: { score: 10, label: 'MuleSoft Orchestration', description: 'Real-time bidirectional ERP sync for contracts, orders, and financial status' },
+        hubspot: { score: 5, label: 'App Sync', description: 'Basic third-party integrations for financial data' },
+        zoho: { score: 7, label: 'Finance Suite', description: 'Integrated accounting and order management' },
+        freshworks: { score: 5, label: 'Marketplace', description: 'Basic financial connectors' },
+        odoo: { score: 9, label: 'Native ERP', description: 'Fully integrated ERP and CRM on a single platform' },
+        salezbuzz: { score: 8, label: 'Strong ERP', description: 'Built-in ERP capabilities for manufacturing' }
+      },
+      {
+        metric: 'After-Sales Service Excellence',
+        metricKey: 'printing.metrics.afterSales',
+        salesforce: { score: 10, label: 'Unified Service', description: 'AI-powered service cloud with field service and proactive maintenance alerts' },
+        hubspot: { score: 8, label: 'Service Hub', description: 'Comprehensive customer helpdesk and feedback tools' },
+        zoho: { score: 8, label: 'Desk Suite', description: 'Full-featured support and ticketing system' },
+        freshworks: { score: 9, label: 'Freshdesk', description: 'Market-leading customer support and field service management' },
+        odoo: { score: 7, label: 'Helpdesk Module', description: 'Integrated support and maintenance management' },
+        salezbuzz: { score: 7, label: 'Good Support', description: 'Solid after-sales tracking for manufacturing' }
+      }
+    ]
   }
 ];
 
@@ -2690,14 +2797,14 @@ export const getIndustryById = (id: string): IndustryData | undefined => {
 export const getIndustriesByCategory = (category: string): IndustryData[] => {
   const categories = {
     'technology': ['telecommunications', 'professional-services'],
-    'manufacturing': ['manufacturing', 'automotive', 'food-beverage'],
+    'manufacturing': ['manufacturing', 'automotive', 'food-beverage', 'printing-industries'],
     'services': ['financial-services', 'professional-services', 'travel-tourism', 'utilities'],
     'retail': ['commerce-cloud'],
     'healthcare': ['healthcare-life-sciences'],
     'real-estate': ['real-estate'],
     'government': ['government']
   };
-  
+
   const industryIds = categories[category as keyof typeof categories] || [];
   return industries.filter(industry => industryIds.includes(industry.id));
 };
@@ -2708,7 +2815,7 @@ export const getIndustriesByCategory = (category: string): IndustryData[] => {
  */
 export function createGenericIndustryData(industryName?: string): IndustryData {
   const displayName = industryName || 'Your Industry';
-  
+
   return {
     id: 'generic',
     name: displayName,

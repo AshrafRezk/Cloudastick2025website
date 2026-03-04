@@ -26,7 +26,7 @@ exports.handler = async (event, context) => {
     let payload = {};
     try {
         payload = JSON.parse(event.body || '{}');
-        const { sfrecordId, recordType = 'Lead', sessionId, browser, device, clicks: newClicks, hovers: newHovers } = payload;
+        const { sfrecordId, recordType = 'Lead', sessionId, browser, device, clicks: newClicks, hovers: newHovers, videoOpened: newVideoOpened, videoViewDuration: newVideoViewDuration } = payload;
 
         if (!sfrecordId) {
             return {
@@ -38,10 +38,12 @@ exports.handler = async (event, context) => {
         const ip = (event.headers['x-forwarded-for'] || event.headers['x-real-ip'] || 'Unknown').split(',')[0].trim();
 
         // ------------------------------------------------------------
-        // 1. DATA MERGING & SUMMARY
+        // 1. DATA MERGING & SUMMARY (Session + IP Accumulation)
         // ------------------------------------------------------------
         let cumulativeClicks = [...(newClicks || [])];
         let cumulativeHovers = { ...(newHovers || {}) };
+        let cumulativeVideoOpened = !!newVideoOpened;
+        let cumulativeVideoViewDuration = Number(newVideoViewDuration || 0);
 
         const db = getDb();
 
@@ -58,30 +60,60 @@ exports.handler = async (event, context) => {
             }
         };
 
-        let existingSession = [];
+        // Fetch ALL tracking data for this sfrecordId and IP to accumulate
+        let allTrackingData = [];
         try {
             await withRetry(async () => {
-                existingSession = await db`
-                    SELECT id, click_events, hover_events, created_at, intent_summary
+                allTrackingData = await db`
+                    SELECT sessionId, click_events, hover_events, video_opened, video_view_duration
                     FROM user_tracking
-                    WHERE sessionId = ${sessionId}
-                    LIMIT 1
+                    WHERE sf_record_id = ${sfrecordId} 
+                    AND location_info->>'ip' = ${ip}
                 `;
             });
         } catch (dbError) {
             console.error('⚠️ DB Retrieval failed (Non-blocking):', dbError.message);
         }
 
-        if (existingSession.length > 0) {
-            const oldHovers = existingSession[0].hover_events || {};
-            for (const [key, value] of Object.entries(oldHovers)) {
-                cumulativeHovers[key] = (cumulativeHovers[key] || 0) + value;
+        // Merge logic: 
+        // 1. Identify current session data from DB if it exists
+        // 2. Accumulate everything from other sessions from the same IP
+        if (allTrackingData.length > 0) {
+            const sessionsMap = new Map();
+            allTrackingData.forEach(row => {
+                sessionsMap.set(row.sessionid, row);
+            });
+
+            // If current session exists in DB, we merge it with payload first
+            const existingInDb = sessionsMap.get(sessionId);
+            if (existingInDb) {
+                const oldHovers = existingInDb.hover_events || {};
+                for (const [key, value] of Object.entries(oldHovers)) {
+                    cumulativeHovers[key] = (cumulativeHovers[key] || 0) + value;
+                }
+                cumulativeClicks = [...(existingInDb.click_events || []), ...(newClicks || [])];
+                cumulativeVideoOpened = cumulativeVideoOpened || !!existingInDb.video_opened;
+                cumulativeVideoViewDuration = Math.max(cumulativeVideoViewDuration, Number(existingInDb.video_view_duration || 0));
+
+                // Remove from map to avoid double-counting in IP accumulation
+                sessionsMap.delete(sessionId);
             }
-            cumulativeClicks = [...(existingSession[0].click_events || []), ...(newClicks || [])];
+
+            // Now accumulate from ALL OTHER sessions from the same IP
+            for (const otherSession of sessionsMap.values()) {
+                const otherHovers = otherSession.hover_events || {};
+                for (const [key, value] of Object.entries(otherHovers)) {
+                    cumulativeHovers[key] = (cumulativeHovers[key] || 0) + value;
+                }
+                // For clicks, we just combine unique actions if possible, but simple concat is safer for "actions history"
+                cumulativeClicks = [...(otherSession.click_events || []), ...cumulativeClicks];
+                cumulativeVideoOpened = cumulativeVideoOpened || !!otherSession.video_opened;
+                cumulativeVideoViewDuration += Number(otherSession.video_view_duration || 0);
+            }
         }
 
         const formatDuration = (ms) => ms < 1000 ? 'briefly' : (ms < 60000 ? `${Math.floor(ms / 1000)}s` : `${Math.floor(ms / 60000)}m`);
-        const sectionNames = { 'hero-section': 'Value Proposition', 'hub-and-spoke': 'Platform Hub', 'comparison-table': 'Feature Matrix', 'personalization-section': 'Personalization Engine', 'platform-overview': 'Core Concepts', 'industries-grid': 'Industry Verticals', 'pharma-sections': 'Life Sciences', 'financial-sections': 'FSI Solutions', 'real-estate-sections': 'Property Tech', 'investment-plan-section': 'ROI Plan', 'modules-section': 'Scope Spec', 'techsa-section': 'Partners', 'erp-integration': 'Integration', 'data-cloud': 'Data Intelligence' };
+        const sectionNames = { 'hero-section': 'Value Proposition', 'hub-and-spoke': 'Platform Hub', 'comparison-table': 'Feature Matrix', 'personalization-section': 'Personalization Engine', 'platform-overview': 'Core Concepts', 'industries-grid': 'Industry Verticals', 'pharma-sections': 'Life Sciences', 'financial-sections': 'FSI Solutions', 'real-estate-sections': 'Property Tech', 'investment-plan-section': 'ROI Plan', 'modules-section': 'Scope Spec', 'techsa-section': 'Partners', 'erp-integration': 'Integration', 'data-cloud': 'Data Intelligence', 'printing-industries': 'Printing Solutions' };
 
         const sortedHovers = Object.entries(cumulativeHovers).sort((a, b) => b[1] - a[1]).filter(([_, t]) => t > 2000);
         const highInterest = payload.highInterest === true || cumulativeClicks.some(c => c.text && c.text.toLowerCase().includes('is interested'));
@@ -89,13 +121,17 @@ exports.handler = async (event, context) => {
         const summarySections = [];
         if (sortedHovers.length > 0) summarySections.push(`📈 ENGAGEMENT HOTSPOTS:\n${sortedHovers.slice(0, 4).map(([id, t]) => `• ${sectionNames[id] || id}: ${formatDuration(t)}`).join('\n')}`);
 
+        if (cumulativeVideoOpened) {
+            summarySections.push(`🎥 DEMO VIDEO ENGAGEMENT:\n• User watched the demo video\n• Total view duration: ${cumulativeVideoViewDuration.toFixed(1)} seconds`);
+        }
+
         const significantClicks = cumulativeClicks.filter(c => c.text && c.text.length > 2 && c.element !== 'svg' && !c.text.includes('\n')).map(c => c.text.trim()).filter((v, i, a) => a.indexOf(v) === i).slice(-6);
         if (significantClicks.length > 0) summarySections.push(`🎬 KEY USER ACTIONS:\n${significantClicks.map(text => `• ${text}`).join('\n')}`);
 
         const totalDurationMs = Object.values(cumulativeHovers).reduce((a, b) => a + b, 0);
         const totalMinutes = (totalDurationMs / 60000).toFixed(1);
 
-        const intentSummary = `💎 USER INTENT REPORT
+        const intentSummary = `💎 USER INTENT REPORT (Accumulated by Origin IP)
 
 ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySections.length > 0 ? summarySections.join('\n\n') : '• User is active on the page.'}
 
@@ -115,18 +151,23 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
             const finalSessionId = sessionId || payload.sessionId || 'Sess_' + Date.now();
             await withRetry(async () => {
                 await db`
-                    INSERT INTO user_tracking (sf_record_id, sessionId, browser_info, device_info, location_info, click_events, hover_events, intent_summary)
-                    VALUES (${sfrecordId}, ${finalSessionId}, ${JSON.stringify(browser)}, ${JSON.stringify(device)}, ${JSON.stringify(locationInfo)}, ${JSON.stringify(cumulativeClicks)}, ${JSON.stringify(cumulativeHovers)}, ${intentSummary})
+                    INSERT INTO user_tracking (sf_record_id, sessionId, browser_info, device_info, location_info, click_events, hover_events, video_opened, video_view_duration, intent_summary)
+                    VALUES (${sfrecordId}, ${finalSessionId}, ${JSON.stringify(browser)}, ${JSON.stringify(device)}, ${JSON.stringify(locationInfo)}, ${JSON.stringify(newClicks || [])}, ${JSON.stringify(newHovers || {})}, ${!!newVideoOpened}, ${Number(newVideoViewDuration || 0)}, ${intentSummary})
                     ON CONFLICT (sessionId) DO UPDATE SET 
                         click_events = EXCLUDED.click_events,
                         hover_events = EXCLUDED.hover_events,
+                        video_opened = EXCLUDED.video_opened,
+                        video_view_duration = EXCLUDED.video_view_duration,
                         intent_summary = EXCLUDED.intent_summary
-                `.catch(async () => {
+                `.catch(async (e) => {
+                    console.log('Insert failed, trying update fallback...', e.message);
                     // Fallback UPDATE by sessionId if no conflict constraint triggered
                     await db`
                         UPDATE user_tracking 
-                        SET click_events = ${JSON.stringify(cumulativeClicks)}, 
-                            hover_events = ${JSON.stringify(cumulativeHovers)}, 
+                        SET click_events = ${JSON.stringify(newClicks || [])}, 
+                            hover_events = ${JSON.stringify(newHovers || {})}, 
+                            video_opened = ${!!newVideoOpened},
+                            video_view_duration = ${Number(newVideoViewDuration || 0)},
                             intent_summary = ${intentSummary}
                         WHERE sessionId = ${finalSessionId}
                     `;

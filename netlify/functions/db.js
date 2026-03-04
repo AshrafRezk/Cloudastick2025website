@@ -158,6 +158,8 @@ async function initSchema() {
       location_info JSONB,
       click_events JSONB,
       hover_events JSONB,
+      video_opened BOOLEAN DEFAULT FALSE,
+      video_view_duration DECIMAL DEFAULT 0,
       intent_summary TEXT,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
@@ -170,6 +172,12 @@ async function initSchema() {
       BEGIN
         IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='user_tracking' AND column_name='sessionid') THEN
           ALTER TABLE user_tracking ADD COLUMN sessionId VARCHAR(255);
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='user_tracking' AND column_name='video_opened') THEN
+          ALTER TABLE user_tracking ADD COLUMN video_opened BOOLEAN DEFAULT FALSE;
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='user_tracking' AND column_name='video_view_duration') THEN
+          ALTER TABLE user_tracking ADD COLUMN video_view_duration DECIMAL DEFAULT 0;
         END IF;
       END
       $$;
