@@ -85,6 +85,7 @@ import PrintingBusinessFlow from '../components/PrintingBusinessFlow';
 import { useSalesforce } from '../contexts/SalesforceContext';
 import { fetchAllVerticals, fetchVerticalById, type VerticalModule, type Vertical } from '../services/verticalService';
 import { useUserTracking } from '../hooks/useUserTracking';
+import { usePortalUser } from '../contexts/PortalUserContext';
 
 import ScopeBuilderFab from '../components/ScopeBuilderFab';
 import PasswordModal from '../components/PasswordModal';
@@ -427,7 +428,8 @@ const SalesforcePower = () => {
 
   // Modules state
   const { authData } = useSalesforce();
-  const showModulesSection = searchParams.get('modules') === 'true' || !!authData;
+  const { user: portalUser } = usePortalUser();
+  const showModulesSection = searchParams.get('modules') === 'true' || !!portalUser;
   const [modules, setModules] = useState<VerticalModule[]>([]);
   const [modulesLoading, setModulesLoading] = useState(false);
   const [selectedModuleIds, setSelectedModuleIds] = useState<Set<string>>(new Set());
