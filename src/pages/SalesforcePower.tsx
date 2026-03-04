@@ -3635,7 +3635,7 @@ const SalesforcePower = () => {
           {/* Printing Industry Specific Sections */}
           {
             selectedIndustry === 'printing-industries' && (
-              <PrintingBusinessFlow />
+              <PrintingBusinessFlow companyName={companyName} />
             )
           }
 

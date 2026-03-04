@@ -248,8 +248,22 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                             updateFields.Interest_Level_Reason__c = newReason.substring(0, 255);
                         }
 
-                        // 3. SET INTENT SUMMARY (OVERRIDE MODE)
-                        // This already happened in updateFields initialization
+                        // 3. SET INTENT SUMMARY (APPEND MODE)
+                        const separator = '\n\n' + '='.repeat(40) + '\n\n';
+                        newIntent = intentSummary;
+
+                        if (existingIntent && !existingIntent.includes(payload.sessionId)) {
+                            // Only append if this specific session summary isn't already there 
+                            // (though we usually override within the same session, it's safer for history)
+                            newIntent = existingIntent + separator + intentSummary;
+                        }
+
+                        // Ensure we don't exceed Salesforce long textarea limit (32,768 chars)
+                        if (newIntent.length > 32000) {
+                            newIntent = '... (Previous data truncated)\n\n' + newIntent.substring(newIntent.length - 30000);
+                        }
+
+                        updateFields.Salesforce_Power_Intent__c = newIntent;
 
                         // 4. SIMPLE POST METHOD with PATCH OVERRIDE
                         await fetch(`${instance_url}/services/data/v58.0/sobjects/${recordType}/${sfrecordId}?_HttpMethod=PATCH`, {

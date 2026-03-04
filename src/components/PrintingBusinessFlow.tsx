@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import AnimatedSection from './AnimatedSection';
 
-const PrintingBusinessFlow = () => {
+const PrintingBusinessFlow = ({ companyName }: { companyName?: string }) => {
     const steps = [
         {
             title: 'Marketing',
@@ -26,7 +26,7 @@ const PrintingBusinessFlow = () => {
         {
             title: 'Lead Capturing',
             icon: UserCheck,
-            description: 'Instant lead capture from all sources with AI-driven qualification and automated routing.',
+            description: 'Instant lead capture from all sources with AI-driven qualification and automated routing logic.',
             color: 'bg-cyan-500',
             shadow: 'shadow-cyan-500/20'
         },
@@ -52,9 +52,9 @@ const PrintingBusinessFlow = () => {
             shadow: 'shadow-amber-500/20'
         },
         {
-            title: 'Account Cash-in/out',
+            title: 'Account Management',
             icon: DollarSign,
-            description: 'Unified financial management for seamless accounts payable and receivable tracking.',
+            description: `Unified view for ${companyName || 'your company'} with opportunities, contracts, orders, and investment size.`,
             color: 'bg-green-500',
             shadow: 'shadow-green-500/20'
         },
