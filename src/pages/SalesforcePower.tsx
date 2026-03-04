@@ -427,7 +427,7 @@ const SalesforcePower = () => {
 
   // Modules state
   const { authData } = useSalesforce();
-  const showModulesSection = searchParams.get('modules') === 'true';
+  const showModulesSection = searchParams.get('modules') === 'true' || !!authData;
   const [modules, setModules] = useState<VerticalModule[]>([]);
   const [modulesLoading, setModulesLoading] = useState(false);
   const [selectedModuleIds, setSelectedModuleIds] = useState<Set<string>>(new Set());
