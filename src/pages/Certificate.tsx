@@ -78,15 +78,18 @@ const Certificate = () => {
       await navigator.clipboard.writeText(`${shareText}\n\nCheck out my certificate here: ${url}`);
       toast({
         title: 'Message Copied!',
-        description: 'Your celebratory message is copied! Paste it into your LinkedIn post.',
+        description: 'Please paste this celebratory message into your LinkedIn post.',
+        duration: 5000,
       });
     } catch (err) {
       console.error('Clipboard error', err);
     }
 
-    // Open LinkedIn Share dialog
-    const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
-    window.open(linkedInUrl, '_blank', 'width=600,height=600');
+    // Open LinkedIn Share dialog after a short delay
+    setTimeout(() => {
+      const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+      window.open(linkedInUrl, '_blank', 'width=600,height=600');
+    }, 500);
   };
 
   const handleShare = async () => {
@@ -134,13 +137,14 @@ const Certificate = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-muted to-background py-8">
       <Helmet>
         <title>{certificate.contactName} - {certificate.learningMaterialTitle} Certificate | Cloudastick</title>
-        <meta property="og:title" content={`${certificate.contactName} earned a certification in ${certificate.learningMaterialTitle}!`} />
-        <meta property="og:description" content={`Verified certificate of completion for "${certificate.learningMaterialTitle}" from Cloudastick Systems. A milestone in professional development.`} />
+        <meta property="og:title" content={`${certificate.contactName} earned a certificate in ${certificate.learningMaterialTitle}!`} />
+        <meta property="og:description" content={`Verified certificate of completion for "${certificate.learningMaterialTitle}" from Cloudastick Systems. A milestone in professional growth.`} />
         <meta property="og:image" content={certificate.certificateLogoUrl || "https://cloudastick.com/Assets/Company%20Logos/blue-logo.png"} />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={`${certificate.contactName} - ${certificate.learningMaterialTitle} Certificate`} />
-        <meta name="twitter:description" content="View this verified certificate of completion from Cloudastick Systems." />
+        <meta name="twitter:description" content={`Verified certificate of completion for "${certificate.learningMaterialTitle}" from Cloudastick Systems.`} />
+        <meta name="twitter:image" content={certificate.certificateLogoUrl || "https://cloudastick.com/Assets/Company%20Logos/blue-logo.png"} />
       </Helmet>
       <div className="max-w-4xl mx-auto px-4">
         {/* Header Actions */}

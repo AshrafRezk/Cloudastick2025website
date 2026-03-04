@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 
 interface TrackingData {
     sfrecordId: string;
+    recordType: 'Lead' | 'Opportunity' | 'Account' | 'Contact';
     sessionId: string;
     browser: {
         userAgent: string;
@@ -28,8 +29,21 @@ export const useUserTracking = (enabledSections: string[]) => {
     const [searchParams] = useSearchParams();
     const sfrecordId = searchParams.get('sfrecordId') || searchParams.get('sfrecordid');
 
+    // Detect record type based on Salesforce ID prefix
+    const getRecordType = (id: string | null): TrackingData['recordType'] => {
+        if (!id) return 'Lead';
+        if (id.startsWith('00Q')) return 'Lead';
+        if (id.startsWith('006')) return 'Opportunity';
+        if (id.startsWith('001')) return 'Account';
+        if (id.startsWith('003')) return 'Contact';
+        return 'Lead'; // Default fallback
+    };
+
+    const recordType = getRecordType(sfrecordId);
+
     const trackingDataRef = useRef<TrackingData>({
         sfrecordId: sfrecordId || '',
+        recordType: recordType,
         sessionId: `sess_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
         browser: {
             userAgent: navigator.userAgent,

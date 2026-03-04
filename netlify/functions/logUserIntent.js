@@ -26,7 +26,7 @@ exports.handler = async (event, context) => {
     let payload = {};
     try {
         payload = JSON.parse(event.body || '{}');
-        const { sfrecordId, sessionId, browser, device, clicks: newClicks, hovers: newHovers } = payload;
+        const { sfrecordId, recordType = 'Lead', sessionId, browser, device, clicks: newClicks, hovers: newHovers } = payload;
 
         if (!sfrecordId) {
             return {
@@ -152,14 +152,14 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                     const { access_token, instance_url } = await authRes.json();
 
                     // First, get existing content to merge
-                    const leadRes = await fetch(`${instance_url}/services/data/v58.0/sobjects/Lead/${sfrecordId}`, {
+                    const sfRes = await fetch(`${instance_url}/services/data/v58.0/sobjects/${recordType}/${sfrecordId}`, {
                         headers: { 'Authorization': `Bearer ${access_token}` }
                     });
 
-                    if (leadRes.ok) {
-                        const leadData = await leadRes.json();
-                        let existingIntent = leadData.Salesforce_Power_Intent__c || '';
-                        let currentInterestLevel = leadData.Interest_Level__c;
+                    if (sfRes.ok) {
+                        const sfData = await sfRes.json();
+                        let existingIntent = sfData.Salesforce_Power_Intent__c || '';
+                        let currentInterestLevel = sfData.Interest_Level__c;
                         let newIntent;
 
                         // 1. DETERMINE NEW INTEREST DATA
@@ -189,7 +189,7 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                         // This already happened in updateFields initialization
 
                         // 4. SIMPLE POST METHOD with PATCH OVERRIDE
-                        await fetch(`${instance_url}/services/data/v58.0/sobjects/Lead/${sfrecordId}?_HttpMethod=PATCH`, {
+                        await fetch(`${instance_url}/services/data/v58.0/sobjects/${recordType}/${sfrecordId}?_HttpMethod=PATCH`, {
                             method: 'POST',
                             headers: {
                                 'Authorization': `Bearer ${access_token}`,
