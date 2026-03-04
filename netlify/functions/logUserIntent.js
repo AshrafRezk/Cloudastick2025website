@@ -235,35 +235,48 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                             newReason = `User explored ${sortedHovers.length} sections, focused on ${sectionNames[sortedHovers[0][0]] || sortedHovers[0][0]}.`;
                         }
 
-                        // 2. NO-DOWNGRADE & FORCE-FILL LOGIC
+                        // 2. NO-DOWNGRADE & FORCE-FILL LOGIC (Strictly Monotonic)
                         const levelScores = { 'High': 3, 'Medium': 2, 'Low': 1, null: 0, undefined: 0 };
-                        const updateFields = { Salesforce_Power_Intent__c: intentSummary.substring(0, 32000) };
+                        const updateFields = {};
 
-                        // Update if new level is higher OR if current level is empty/null in Salesforce
+                        // Only update level if it's an increase OR if it's currently empty
                         if (!currentInterestLevel || levelScores[newInterestLevel] > levelScores[currentInterestLevel]) {
                             updateFields.Interest_Level__c = newInterestLevel;
                             if (newReason) updateFields.Interest_Level_Reason__c = newReason.substring(0, 255);
-                        } else if (newInterestLevel === 'High' && currentInterestLevel === 'High' && highInterest) {
-                            // Already high, but user clicked explicit interest button again - update reason
-                            updateFields.Interest_Level_Reason__c = newReason.substring(0, 255);
+                        } else {
+                            // Level is same or lower, keep existing level but maybe update reason if highInterest
+                            if (newInterestLevel === 'High' && currentInterestLevel === 'High' && highInterest) {
+                                updateFields.Interest_Level_Reason__c = newReason.substring(0, 255);
+                            }
                         }
 
-                        // 3. SET INTENT SUMMARY (APPEND MODE)
-                        const separator = '\n\n' + '='.repeat(40) + '\n\n';
-                        newIntent = intentSummary;
+                        // 3. SET INTENT SUMMARY (BLOCK-BASED APPEND/UPDATE)
+                        const blockStart = `[SESSION:${sessionId}]`;
+                        const blockEnd = `[END_SESSION:${sessionId}]`;
+                        const newSummaryBlock = `${blockStart}\n${intentSummary}\n${blockEnd}`;
 
-                        if (existingIntent && !existingIntent.includes(payload.sessionId)) {
-                            // Only append if this specific session summary isn't already there 
-                            // (though we usually override within the same session, it's safer for history)
-                            newIntent = existingIntent + separator + intentSummary;
+                        let finalIntent = existingIntent || '';
+                        if (finalIntent.includes(blockStart)) {
+                            // Update existing block for this session
+                            const regex = new RegExp(`\\n?\\n?\\Q${blockStart}\\E[\\s\\S]*?\\Q${blockEnd}\\E`, 'g');
+                            // Using string replacement with markers is safer than complex regex for special chars
+                            const startIndex = finalIntent.indexOf(blockStart);
+                            const endIndex = finalIntent.indexOf(blockEnd) + blockEnd.length;
+                            if (startIndex !== -1 && endIndex !== -1) {
+                                finalIntent = finalIntent.substring(0, startIndex) + newSummaryBlock + finalIntent.substring(endIndex);
+                            }
+                        } else {
+                            // Append new session block
+                            const separator = finalIntent ? '\n\n' + '='.repeat(40) + '\n\n' : '';
+                            finalIntent = finalIntent + separator + newSummaryBlock;
                         }
 
                         // Ensure we don't exceed Salesforce long textarea limit (32,768 chars)
-                        if (newIntent.length > 32000) {
-                            newIntent = '... (Previous data truncated)\n\n' + newIntent.substring(newIntent.length - 30000);
+                        if (finalIntent.length > 32000) {
+                            finalIntent = '... (Previous history truncated)\n\n' + finalIntent.substring(finalIntent.length - 30000);
                         }
 
-                        updateFields.Salesforce_Power_Intent__c = newIntent;
+                        updateFields.Salesforce_Power_Intent__c = finalIntent;
 
                         // 4. SIMPLE POST METHOD with PATCH OVERRIDE
                         await fetch(`${instance_url}/services/data/v58.0/sobjects/${recordType}/${sfrecordId}?_HttpMethod=PATCH`, {
