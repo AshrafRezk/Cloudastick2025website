@@ -1528,6 +1528,8 @@ const SalesforcePower = () => {
         onClose={() => setShowPasswordModal(false)}
         onSuccess={() => setIsPageLocked(false)}
         isGatekeeper={isPageLocked}
+        customerLogo={companyLogo || (companyWebsite ? `https://logo.clearbit.com/${companyWebsite}` : null)}
+        customerName={companyName}
       />
 
       {isPageLocked ? (

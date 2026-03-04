@@ -11,9 +11,18 @@ interface PasswordModalProps {
     onClose: () => void;
     onSuccess?: () => void;
     isGatekeeper?: boolean;
+    customerLogo?: string | null;
+    customerName?: string;
 }
 
-const PasswordModal: React.FC<PasswordModalProps> = ({ isOpen, onClose, onSuccess, isGatekeeper = false }) => {
+const PasswordModal: React.FC<PasswordModalProps> = ({
+    isOpen,
+    onClose,
+    onSuccess,
+    isGatekeeper = false,
+    customerLogo,
+    customerName
+}) => {
     const [inputPassword, setInputPassword] = useState("");
     const [error, setError] = useState(false);
     const correctPassword = "Salesforce#$PW3R";
@@ -26,7 +35,6 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ isOpen, onClose, onSucces
             onClose();
         } else {
             setError(true);
-            // Shake effect or feedback
         }
     };
 
@@ -38,14 +46,39 @@ const PasswordModal: React.FC<PasswordModalProps> = ({ isOpen, onClose, onSucces
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-blue-500/20 blur-[80px] rounded-full pointer-events-none" />
 
                     <div className="flex flex-col items-center text-center">
-                        {/* Header Icon */}
+                        {/* Logos Section */}
                         <motion.div
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ type: "spring", damping: 15, stiffness: 200 }}
-                            className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-6 border border-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.15)]"
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="flex items-center gap-4 mb-8"
                         >
-                            <Shield className="w-8 h-8 text-blue-400" />
+                            <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 shadow-lg backdrop-blur-sm p-2">
+                                <img
+                                    src="https://www.vectorlogo.zone/logos/salesforce/salesforce-icon.svg"
+                                    alt="Salesforce"
+                                    className="w-full h-full object-contain"
+                                />
+                            </div>
+
+                            <div className="flex items-center gap-1">
+                                <div className="w-1 h-1 rounded-full bg-blue-500/50" />
+                                <div className="w-1 h-1 rounded-full bg-blue-500/30" />
+                                <div className="w-1 h-1 rounded-full bg-blue-500/10" />
+                            </div>
+
+                            {customerLogo && (
+                                <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 shadow-lg backdrop-blur-sm p-2 overflow-hidden">
+                                    <img
+                                        src={customerLogo}
+                                        alt={customerName || "Customer"}
+                                        className="w-full h-full object-contain"
+                                        onError={(e) => {
+                                            // Fallback to a generic company icon or hide
+                                            (e.target as any).style.display = 'none';
+                                        }}
+                                    />
+                                </div>
+                            )}
                         </motion.div>
 
                         <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
