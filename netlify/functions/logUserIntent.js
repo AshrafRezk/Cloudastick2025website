@@ -65,10 +65,11 @@ exports.handler = async (event, context) => {
         try {
             await withRetry(async () => {
                 allTrackingData = await db`
-                    SELECT sessionId, click_events, hover_events, video_opened, video_view_duration
+                    SELECT sessionId, click_events, hover_events, video_opened, video_view_duration, created_at, updated_at
                     FROM user_tracking
                     WHERE sf_record_id = ${sfrecordId} 
                     AND location_info->>'ip' = ${ip}
+                    ORDER BY created_at ASC
                 `;
             });
         } catch (dbError) {
@@ -78,11 +79,25 @@ exports.handler = async (event, context) => {
         // Merge logic: 
         // 1. Identify current session data from DB if it exists
         // 2. Accumulate everything from other sessions from the same IP
+        let firstViewAt = new Date();
+        let lastViewAt = new Date();
+        let sessionCount = 1;
+
         if (allTrackingData.length > 0) {
             const sessionsMap = new Map();
             allTrackingData.forEach(row => {
                 sessionsMap.set(row.sessionid, row);
             });
+
+            // Timestamps based on existing records
+            firstViewAt = new Date(allTrackingData[0].created_at);
+            lastViewAt = new Date(); // Current interaction is latest
+            sessionCount = sessionsMap.size;
+
+            // If the current sessionId is NOT in the sessionsMap yet, it's a "fresh open"
+            if (!sessionsMap.has(sessionId)) {
+                sessionCount += 1;
+            }
 
             // If current session exists in DB, we merge it with payload first
             const existingInDb = sessionsMap.get(sessionId);
@@ -105,7 +120,7 @@ exports.handler = async (event, context) => {
                 for (const [key, value] of Object.entries(otherHovers)) {
                     cumulativeHovers[key] = (cumulativeHovers[key] || 0) + value;
                 }
-                // For clicks, we just combine unique actions if possible, but simple concat is safer for "actions history"
+                // For clicks, we just combine unique actions if possible
                 cumulativeClicks = [...(otherSession.click_events || []), ...cumulativeClicks];
                 cumulativeVideoOpened = cumulativeVideoOpened || !!otherSession.video_opened;
                 cumulativeVideoViewDuration += Number(otherSession.video_view_duration || 0);
@@ -131,12 +146,17 @@ exports.handler = async (event, context) => {
         const totalDurationMs = Object.values(cumulativeHovers).reduce((a, b) => a + b, 0);
         const totalMinutes = (totalDurationMs / 60000).toFixed(1);
 
+        const formatDate = (date) => date.toLocaleString('en-GB', { timeZone: 'UTC', hour12: false }) + ' UTC';
+
         const intentSummary = `💎 USER INTENT REPORT (Accumulated by Origin IP)
 
 ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySections.length > 0 ? summarySections.join('\n\n') : '• User is active on the page.'}
 
 🕒 ENGAGEMENT:
 • Total Time Spent: ${totalMinutes} minutes
+• Link Open Count: ${sessionCount} times
+• First Origin View: ${formatDate(firstViewAt)}
+• Latest Origin Activity: ${formatDate(lastViewAt)}
 
 📍 CONTEXT:
 • Origin: ${ip}
@@ -151,14 +171,15 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
             const finalSessionId = sessionId || payload.sessionId || 'Sess_' + Date.now();
             await withRetry(async () => {
                 await db`
-                    INSERT INTO user_tracking (sf_record_id, sessionId, browser_info, device_info, location_info, click_events, hover_events, video_opened, video_view_duration, intent_summary)
-                    VALUES (${sfrecordId}, ${finalSessionId}, ${JSON.stringify(browser)}, ${JSON.stringify(device)}, ${JSON.stringify(locationInfo)}, ${JSON.stringify(newClicks || [])}, ${JSON.stringify(newHovers || {})}, ${!!newVideoOpened}, ${Number(newVideoViewDuration || 0)}, ${intentSummary})
+                    INSERT INTO user_tracking (sf_record_id, sessionId, browser_info, device_info, location_info, click_events, hover_events, video_opened, video_view_duration, intent_summary, updated_at)
+                    VALUES (${sfrecordId}, ${finalSessionId}, ${JSON.stringify(browser)}, ${JSON.stringify(device)}, ${JSON.stringify(locationInfo)}, ${JSON.stringify(newClicks || [])}, ${JSON.stringify(newHovers || {})}, ${!!newVideoOpened}, ${Number(newVideoViewDuration || 0)}, ${intentSummary}, CURRENT_TIMESTAMP)
                     ON CONFLICT (sessionId) DO UPDATE SET 
                         click_events = EXCLUDED.click_events,
                         hover_events = EXCLUDED.hover_events,
                         video_opened = EXCLUDED.video_opened,
                         video_view_duration = EXCLUDED.video_view_duration,
-                        intent_summary = EXCLUDED.intent_summary
+                        intent_summary = EXCLUDED.intent_summary,
+                        updated_at = EXCLUDED.updated_at
                 `.catch(async (e) => {
                     console.log('Insert failed, trying update fallback...', e.message);
                     // Fallback UPDATE by sessionId if no conflict constraint triggered
@@ -168,7 +189,8 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                             hover_events = ${JSON.stringify(newHovers || {})}, 
                             video_opened = ${!!newVideoOpened},
                             video_view_duration = ${Number(newVideoViewDuration || 0)},
-                            intent_summary = ${intentSummary}
+                            intent_summary = ${intentSummary},
+                            updated_at = CURRENT_TIMESTAMP
                         WHERE sessionId = ${finalSessionId}
                     `;
                 });

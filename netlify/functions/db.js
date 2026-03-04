@@ -161,7 +161,8 @@ async function initSchema() {
       video_opened BOOLEAN DEFAULT FALSE,
       video_view_duration DECIMAL DEFAULT 0,
       intent_summary TEXT,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `;
 
@@ -178,6 +179,9 @@ async function initSchema() {
         END IF;
         IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='user_tracking' AND column_name='video_view_duration') THEN
           ALTER TABLE user_tracking ADD COLUMN video_view_duration DECIMAL DEFAULT 0;
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='user_tracking' AND column_name='updated_at') THEN
+          ALTER TABLE user_tracking ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
         END IF;
       END
       $$;
