@@ -25,6 +25,10 @@ interface TrackingData {
     highInterest?: boolean;
     videoOpened?: boolean;
     videoViewDuration?: number; // in seconds
+    location?: {
+        lat: number;
+        lng: number;
+    };
 }
 
 export const useUserTracking = (
@@ -107,6 +111,29 @@ export const useUserTracking = (
             console.error('❌ Failed to sync tracking data:', error);
         }
     }, [sfrecordId]);
+
+    // Request geolocation on mount
+    useEffect(() => {
+        if (!sfrecordId) return;
+
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    trackingDataRef.current.location = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                    };
+                    console.log('📍 Geolocation captured:', trackingDataRef.current.location);
+                    // Sync immediately once location is captured
+                    sendTrackingData();
+                },
+                (error) => {
+                    console.warn('⚠️ Geolocation capture failed:', error.message);
+                },
+                { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+            );
+        }
+    }, [sfrecordId, sendTrackingData]);
 
     useEffect(() => {
         if (!sfrecordId) {

@@ -26,7 +26,7 @@ exports.handler = async (event, context) => {
     let payload = {};
     try {
         payload = JSON.parse(event.body || '{}');
-        const { sfrecordId, recordType = 'Lead', sessionId, browser, device, clicks: newClicks, hovers: newHovers, videoOpened: newVideoOpened, videoViewDuration: newVideoViewDuration } = payload;
+        const { sfrecordId, recordType = 'Lead', sessionId, browser, device, clicks: newClicks, hovers: newHovers, videoOpened: newVideoOpened, videoViewDuration: newVideoViewDuration, location: newLocation } = payload;
 
         if (!sfrecordId) {
             return {
@@ -159,7 +159,7 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
 • Latest Origin Activity: ${formatDate(lastViewAt)}
 
 📍 CONTEXT:
-• Origin: ${ip}
+• Origin: ${ip}${newLocation ? ` (GPS: ${newLocation.lat.toFixed(4)}, ${newLocation.lng.toFixed(4)})` : ''}
 • Device: ${device?.screenSize || 'Desktop'}
 • Session: [Ref: ${sessionId || payload.sessionId || 'Sess_' + Date.now()}]`;
 
@@ -167,7 +167,7 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
         // 2. NON-BLOCKING DB STORAGE (with Retry)
         // ------------------------------------------------------------
         try {
-            const locationInfo = { ip, userAgent: event.headers['user-agent'] };
+            const locationInfo = { ip, userAgent: event.headers['user-agent'], gps: newLocation || null };
             const finalSessionId = sessionId || payload.sessionId || 'Sess_' + Date.now();
             await withRetry(async () => {
                 await db`
