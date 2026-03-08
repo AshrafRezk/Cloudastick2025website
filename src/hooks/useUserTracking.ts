@@ -29,6 +29,13 @@ interface TrackingData {
         lat: number;
         lng: number;
     };
+    feedback?: {
+        budget?: string;
+        timeline?: string;
+        satisfaction?: string;
+        needDemo?: boolean;
+        timestamp: number;
+    };
 }
 
 export const useUserTracking = (
@@ -220,5 +227,14 @@ export const useUserTracking = (
         };
     }, [sfrecordId, enabledSections, sendTrackingData]);
 
-    return null;
+    const setFeedback = useCallback((feedback: Omit<NonNullable<TrackingData['feedback']>, 'timestamp'>) => {
+        trackingDataRef.current.feedback = {
+            ...feedback,
+            timestamp: Date.now()
+        };
+        console.log('📝 Feedback captured:', trackingDataRef.current.feedback);
+        sendTrackingData(); // Sync immediately on feedback submission
+    }, [sendTrackingData]);
+
+    return { setFeedback, sendTrackingData };
 };

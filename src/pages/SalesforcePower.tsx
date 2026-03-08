@@ -89,6 +89,7 @@ import { usePortalUser } from '../contexts/PortalUserContext';
 
 import ScopeBuilderFab from '../components/ScopeBuilderFab';
 import PasswordModal from '../components/PasswordModal';
+import OpportunityFeedbackModal from '../components/OpportunityFeedbackModal';
 
 // Modern Carousel Hub and Spoke Component
 const HubAndSpokeVisualization = React.memo(({
@@ -381,12 +382,51 @@ const getYouTubeEmbedUrl = (url: string) => {
     : null;
 };
 
+/**
+ * Converts Canva or Google Drive URLs into embeddable URLs
+ * @param url The URL to convert
+ * @returns The embeddable URL or the original URL if no conversion pattern matches
+ */
+const getProposalEmbedUrl = (url: string) => {
+  if (!url) return null;
+
+  // Canva: https://www.canva.com/design/DAF.../view?utm_content=...
+  if (url.includes('canva.com/design/')) {
+    const match = url.match(/\/design\/([^\/\?]+)/);
+    if (match) return `https://www.canva.com/design/${match[1]}/view?embed`;
+  }
+
+  // Google Drive File
+  if (url.includes('drive.google.com/file/d/')) {
+    const match = url.match(/\/file\/d\/([^\/\?]+)/);
+    if (match) return `https://drive.google.com/file/d/${match[1]}/preview`;
+  }
+
+  // Google Slides
+  if (url.includes('docs.google.com/presentation/d/')) {
+    const match = url.match(/\/presentation\/d\/([^\/\?]+)/);
+    if (match) return `https://docs.google.com/presentation/d/${match[1]}/embed`;
+  }
+
+  // Google Docs
+  if (url.includes('docs.google.com/document/d/')) {
+    const match = url.match(/\/document\/d\/([^\/\?]+)/);
+    if (match) return `https://docs.google.com/document/d/${match[1]}/pub?embedded=true`;
+  }
+
+  return url;
+};
+
 const SalesforcePower = () => {
   const { t, isRTL, language } = useLanguage();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
   const videoUrlParam = searchParams.get('video');
   const embedVideoUrl = useMemo(() => getYouTubeEmbedUrl(videoUrlParam || ''), [videoUrlParam]);
+  const [opportunityData, setOpportunityData] = useState<any>(null);
+  const proposalEmbedUrl = useMemo(() =>
+    opportunityData?.Financial_Proposal_URL__c ? getProposalEmbedUrl(opportunityData.Financial_Proposal_URL__c) : null
+    , [opportunityData]);
   const [selectedIndustry, setSelectedIndustry] = useState<string | null>(null);
   const [currentSection, setCurrentSection] = useState(0);
   const [showPlatformOverview, setShowPlatformOverview] = useState(false);
@@ -435,8 +475,11 @@ const SalesforcePower = () => {
   const [selectedModuleIds, setSelectedModuleIds] = useState<Set<string>>(new Set());
   const [allVerticals, setAllVerticals] = useState<any[]>([]); // Store all verticals once fetched
 
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [loadingOpportunity, setLoadingOpportunity] = useState(false);
+
   // Initialize behavior tracking
-  useUserTracking([
+  const { setFeedback } = useUserTracking([
     'hero-section',
     'hub-and-spoke',
     'comparison-table',
@@ -460,6 +503,36 @@ const SalesforcePower = () => {
       setIsPageLocked(true);
       setShowPasswordModal(true);
     }
+  }, [searchParams]);
+
+  // Fetch Opportunity data if sfrecordId is an Opportunity (starts with 006)
+  useEffect(() => {
+    const fetchOpportunity = async () => {
+      const id = searchParams.get('sfrecordId') || searchParams.get('sfrecordid');
+      if (id && id.startsWith('006')) {
+        setLoadingOpportunity(true);
+        try {
+          const response = await fetch('/.netlify/functions/getSalesforceRecord', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              recordId: id,
+              objectType: 'Opportunity',
+              fields: ['Id', 'Name', 'Financial_Proposal_URL__c', 'Amount', 'StageName']
+            })
+          });
+          if (response.ok) {
+            const data = await response.json();
+            setOpportunityData(data);
+          }
+        } catch (err) {
+          console.error('Error fetching opportunity:', err);
+        } finally {
+          setLoadingOpportunity(false);
+        }
+      }
+    };
+    fetchOpportunity();
   }, [searchParams]);
 
 
@@ -1527,11 +1600,20 @@ const SalesforcePower = () => {
     <div id="salesforce-power-page" className="min-h-screen bg-gray-900 text-white" dir={isRTL ? 'rtl' : 'ltr'}>
       <PasswordModal
         isOpen={showPasswordModal}
-        onClose={() => setShowPasswordModal(false)}
-        onSuccess={() => setIsPageLocked(false)}
+        onClose={() => !isPageLocked && setShowPasswordModal(false)}
+        onSuccess={() => {
+          setIsPageLocked(false);
+          setShowPasswordModal(false);
+        }}
         isGatekeeper={isPageLocked}
         customerLogo={companyLogo || (companyWebsite ? `https://logo.clearbit.com/${companyWebsite}` : null)}
         customerName={companyName}
+      />
+
+      <OpportunityFeedbackModal
+        isOpen={showFeedbackModal}
+        onClose={() => setShowFeedbackModal(false)}
+        onSubmit={setFeedback}
       />
 
       {isPageLocked ? (
@@ -1693,6 +1775,45 @@ const SalesforcePower = () => {
                       : personalizeText(t('power.hero.title'))
                     }
                   </h1>
+
+                  {/* Opportunity Proposal Iframe Section */}
+                  {proposalEmbedUrl && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.8, delay: 0.2 }}
+                      className="relative w-full max-w-5xl mx-auto mb-16"
+                    >
+                      <div className="relative p-1 rounded-3xl bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 shadow-[0_0_30px_rgba(6,182,212,0.3)] overflow-hidden">
+                        <div className="bg-gray-900 rounded-[22px] overflow-hidden aspect-[16/10] md:aspect-[16/9]">
+                          <iframe
+                            src={proposalEmbedUrl}
+                            className="w-full h-full border-none"
+                            title="Salesforce Business Proposal"
+                            allowFullScreen
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          ></iframe>
+                        </div>
+                      </div>
+
+                      {/* Feedback button directly under the iframe */}
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.6 }}
+                        className="mt-6 flex flex-col items-center gap-3"
+                      >
+                        <button
+                          onClick={() => setShowFeedbackModal(true)}
+                          className="px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-cyan-500/50 text-white font-bold rounded-2xl transition-all flex items-center gap-3 group backdrop-blur-md shadow-lg"
+                        >
+                          <MessageSquare className="w-5 h-5 text-cyan-400 group-hover:scale-110 transition-transform" />
+                          <span>Leave feedback to the Salesforce team</span>
+                        </button>
+                        <p className="text-xs text-gray-500 italic">Your feedback goes directly to our account management team</p>
+                      </motion.div>
+                    </motion.div>
+                  )}
 
                   {embedVideoUrl && (
                     <motion.div
@@ -4596,7 +4717,8 @@ const SalesforcePower = () => {
             )
           }
         </>
-      )}
+      )
+      }
     </div >
   );
 };

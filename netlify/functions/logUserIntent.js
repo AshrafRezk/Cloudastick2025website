@@ -26,7 +26,7 @@ exports.handler = async (event, context) => {
     let payload = {};
     try {
         payload = JSON.parse(event.body || '{}');
-        const { sfrecordId, recordType = 'Lead', sessionId, browser, device, clicks: newClicks, hovers: newHovers, videoOpened: newVideoOpened, videoViewDuration: newVideoViewDuration, location: newLocation } = payload;
+        const { sfrecordId, recordType = 'Lead', sessionId, browser, device, clicks: newClicks, hovers: newHovers, videoOpened: newVideoOpened, videoViewDuration: newVideoViewDuration, location: newLocation, feedback: newFeedback } = payload;
 
         if (!sfrecordId) {
             return {
@@ -142,6 +142,14 @@ exports.handler = async (event, context) => {
 
         const significantClicks = cumulativeClicks.filter(c => c.text && c.text.length > 2 && c.element !== 'svg' && !c.text.includes('\n')).map(c => c.text.trim()).filter((v, i, a) => a.indexOf(v) === i).slice(-6);
         if (significantClicks.length > 0) summarySections.push(`🎬 KEY USER ACTIONS:\n${significantClicks.map(text => `• ${text}`).join('\n')}`);
+
+        if (newFeedback) {
+            summarySections.push(`💬 CUSTOMER FEEDBACK:
+• Pricing & Budget: ${newFeedback.budget || 'N/A'}
+• Timeline: ${newFeedback.timeline || 'N/A'}
+• Overall Satisfaction: ${newFeedback.satisfaction || 'N/A'}
+• Needs another demo? ${newFeedback.needDemo ? 'Yes' : 'No'}`);
+        }
 
         const totalDurationMs = Object.values(cumulativeHovers).reduce((a, b) => a + b, 0);
         const totalMinutes = (totalDurationMs / 60000).toFixed(1);
