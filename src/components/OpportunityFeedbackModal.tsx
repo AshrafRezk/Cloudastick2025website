@@ -13,12 +13,14 @@ interface OpportunityFeedbackModalProps {
         satisfaction: string;
         needDemo: boolean;
     }) => void;
+    onSuccess?: () => void;
 }
 
 const OpportunityFeedbackModal: React.FC<OpportunityFeedbackModalProps> = ({
     isOpen,
     onClose,
-    onSubmit
+    onSubmit,
+    onSuccess
 }) => {
     const { isRTL } = useLanguage();
     const [budget, setBudget] = useState('');
@@ -41,6 +43,7 @@ const OpportunityFeedbackModal: React.FC<OpportunityFeedbackModalProps> = ({
         setTimeout(() => {
             setIsSubmitting(false);
             onClose();
+            if (onSuccess) onSuccess();
         }, 500);
     };
 

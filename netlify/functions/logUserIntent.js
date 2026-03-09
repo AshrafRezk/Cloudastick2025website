@@ -168,7 +168,8 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
 
 📍 CONTEXT:
 • Origin: ${ip}${newLocation ? ` (GPS: ${newLocation.lat.toFixed(4)}, ${newLocation.lng.toFixed(4)})` : ''}
-• Device: ${device?.screenSize || 'Desktop'}
+• Device: ${device?.deviceType || 'Desktop'} (${device?.os || 'Unknown'})${device?.isApple ? ' ' : ''}${device?.isLargeScreen ? ' 📺 (Large Screen)' : ''}
+• Screen: ${device?.screenSize || 'Unknown'}
 • Session: [Ref: ${sessionId || payload.sessionId || 'Sess_' + Date.now()}]`;
 
         // ------------------------------------------------------------

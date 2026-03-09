@@ -18,6 +18,25 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
 import RichTextEditor from '../components/RichTextEditor';
+import { MessageSquare, Download } from 'lucide-react';
+import OpportunityFeedbackModal from '../components/OpportunityFeedbackModal';
+
+const getProposalDownloadUrl = (url: string) => {
+  if (!url) return null;
+
+  // Canva: Return design URL without params
+  if (url.includes('canva.com/design/')) {
+    return url.split('?')[0];
+  }
+
+  // Google Drive File
+  if (url.includes('drive.google.com/file/d/')) {
+    const match = url.match(/\/file\/d\/([^\/\?]+)/);
+    if (match) return `https://drive.google.com/uc?export=download&id=${match[1]}`;
+  }
+
+  return url;
+};
 
 const SalesVerticalDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -84,6 +103,30 @@ const SalesVerticalDetail = () => {
   const [companyProfileValue, setCompanyProfileValue] = useState('');
   const [iframeError, setIframeError] = useState(false);
   const [iframeLoaded, setIframeLoaded] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [hasSubmittedFeedback, setHasSubmittedFeedback] = useState(false);
+  const [pendingDownload, setPendingDownload] = useState(false);
+
+  const handleDownloadProposal = (url: string) => {
+    const downloadUrl = getProposalDownloadUrl(url);
+    if (!downloadUrl) return;
+
+    if (!hasSubmittedFeedback) {
+      setPendingDownload(true);
+      setShowFeedbackModal(true);
+    } else {
+      window.open(downloadUrl, '_blank');
+    }
+  };
+
+  const handleFeedbackSuccess = (url: string) => {
+    setHasSubmittedFeedback(true);
+    const downloadUrl = getProposalDownloadUrl(url);
+    if (pendingDownload && downloadUrl) {
+      window.open(downloadUrl, '_blank');
+      setPendingDownload(false);
+    }
+  };
 
   // Initialize all modules as selected if no previous selection exists
   useEffect(() => {
@@ -360,14 +403,10 @@ const SalesVerticalDetail = () => {
 
                 // Canva links - check if it's already an embed URL or convert it
                 if (url.includes('canva.com/design/')) {
-                  // If it's already a share/embed link, use it
-                  if (url.includes('/view') || url.includes('sharebutton')) {
-                    // Try to convert to embed format if possible
-                    // Canva embed URLs typically use: https://www.canva.com/design/DESIGN_ID/view?embed
-                    const designMatch = url.match(/\/design\/([a-zA-Z0-9_-]+)/);
-                    if (designMatch) {
-                      return `https://www.canva.com/design/${designMatch[1]}/view?embed`;
-                    }
+                  const designMatch = url.match(/\/design\/([^\?]+)/);
+                  if (designMatch) {
+                    const designPath = designMatch[1].replace(/\/view$/, '').replace(/\/watch$/, '');
+                    return `https://www.canva.com/design/${designPath}/view?embed`;
                   }
                 }
 
@@ -404,6 +443,17 @@ const SalesVerticalDetail = () => {
                             >
                               <ExternalLink className="h-4 w-4 mr-2" />
                               Open in New Tab
+                            </Button>
+                          )}
+                          {profileUrl && (
+                            <Button
+                              variant="default"
+                              size="sm"
+                              onClick={() => handleDownloadProposal(profileUrl)}
+                              className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white"
+                            >
+                              <Download className="h-4 w-4 mr-2" />
+                              Download Proposal
                             </Button>
                           )}
                           {salesUser && (
@@ -529,27 +579,42 @@ const SalesVerticalDetail = () => {
                           </div>
                         </div>
                       ) : profileUrl && !iframeError ? (
-                        <div className="w-full relative">
-                          <iframe
-                            src={embeddableUrl || profileUrl}
-                            className="w-full h-[600px] border border-gray-600 rounded-lg"
-                            title="Company Profile"
-                            allow="fullscreen"
-                            sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-                            onLoad={() => {
-                              setIframeLoaded(true);
-                            }}
-                            onError={() => {
-                              setIframeError(true);
-                              setIframeLoaded(false);
-                            }}
-                            style={{ display: iframeError ? 'none' : 'block' }}
-                          />
-                          {!iframeLoaded && !iframeError && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-gray-900/50 rounded-lg">
-                              <Loader2 className="h-8 w-8 animate-spin text-cyan-400" />
-                            </div>
-                          )}
+                        <div className="flex flex-col gap-4">
+                          <div className="w-full relative">
+                            <iframe
+                              src={embeddableUrl || profileUrl}
+                              className="w-full h-[600px] border border-gray-600 rounded-lg"
+                              title="Company Profile"
+                              allow="fullscreen"
+                              sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+                              onLoad={() => {
+                                setIframeLoaded(true);
+                              }}
+                              onError={() => {
+                                setIframeError(true);
+                                setIframeLoaded(false);
+                              }}
+                              style={{ display: iframeError ? 'none' : 'block' }}
+                            />
+                            {!iframeLoaded && !iframeError && (
+                              <div className="absolute inset-0 flex items-center justify-center bg-gray-900/50 rounded-lg">
+                                <Loader2 className="h-8 w-8 animate-spin text-cyan-400" />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Download button directly under the iframe for better visibility */}
+                          <div className="flex justify-center">
+                            <Button
+                              variant="default"
+                              size="lg"
+                              onClick={() => handleDownloadProposal(profileUrl)}
+                              className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold py-6 px-8 rounded-xl shadow-lg shadow-cyan-500/20 group"
+                            >
+                              <Download className="h-5 w-5 mr-3 group-hover:translate-y-1 transition-transform" />
+                              Download Proposal as PDF
+                            </Button>
+                          </div>
                         </div>
                       ) : profileUrl && iframeError ? (
                         <div className="text-center py-8">
@@ -1292,6 +1357,19 @@ const SalesVerticalDetail = () => {
           </div>
         </div>
       </div>
+      <OpportunityFeedbackModal
+        isOpen={showFeedbackModal}
+        onClose={() => {
+          setShowFeedbackModal(false);
+          setPendingDownload(false);
+        }}
+        onSubmit={() => { }}
+        onSuccess={() => {
+          if (vertical.companyProfile) {
+            handleFeedbackSuccess(vertical.companyProfile);
+          }
+        }}
+      />
     </div>
   );
 };

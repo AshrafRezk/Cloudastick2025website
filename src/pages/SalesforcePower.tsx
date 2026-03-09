@@ -392,8 +392,11 @@ const getProposalEmbedUrl = (url: string) => {
 
   // Canva: https://www.canva.com/design/DAF.../view?utm_content=...
   if (url.includes('canva.com/design/')) {
-    const match = url.match(/\/design\/([^\/\?]+)/);
-    if (match) return `https://www.canva.com/design/${match[1]}/view?embed`;
+    const match = url.match(/\/design\/([^\?]+)/);
+    if (match) {
+      const designPath = match[1].replace(/\/view$/, '').replace(/\/watch$/, '');
+      return `https://www.canva.com/design/${designPath}/view?embed`;
+    }
   }
 
   // Google Drive File
@@ -417,6 +420,25 @@ const getProposalEmbedUrl = (url: string) => {
   return url;
 };
 
+const getProposalDownloadUrl = (url: string) => {
+  if (!url) return null;
+
+  // Canva: Try to get a link that might allow download or just pointing back to design
+  if (url.includes('canva.com/design/')) {
+    // Canva doesn't have a direct "download as PDF" URL without API, 
+    // but the design view link is better than the embed link for downloading
+    return url.split('?')[0]; // Return design URL without params
+  }
+
+  // Google Drive File
+  if (url.includes('drive.google.com/file/d/')) {
+    const match = url.match(/\/file\/d\/([^\/\?]+)/);
+    if (match) return `https://drive.google.com/uc?export=download&id=${match[1]}`;
+  }
+
+  return url;
+};
+
 const SalesforcePower = () => {
   const { t, isRTL, language } = useLanguage();
   const { toast } = useToast();
@@ -427,6 +449,31 @@ const SalesforcePower = () => {
   const proposalEmbedUrl = useMemo(() =>
     opportunityData?.Financial_Proposal_URL__c ? getProposalEmbedUrl(opportunityData.Financial_Proposal_URL__c) : null
     , [opportunityData]);
+  const proposalDownloadUrl = useMemo(() =>
+    opportunityData?.Financial_Proposal_URL__c ? getProposalDownloadUrl(opportunityData.Financial_Proposal_URL__c) : null
+    , [opportunityData]);
+
+  const [hasSubmittedFeedback, setHasSubmittedFeedback] = useState(false);
+  const [pendingDownload, setPendingDownload] = useState(false);
+
+  const handleDownloadProposal = () => {
+    if (!proposalDownloadUrl) return;
+
+    if (!hasSubmittedFeedback) {
+      setPendingDownload(true);
+      setShowFeedbackModal(true);
+    } else {
+      window.open(proposalDownloadUrl, '_blank');
+    }
+  };
+
+  const handleFeedbackSuccess = () => {
+    setHasSubmittedFeedback(true);
+    if (pendingDownload && proposalDownloadUrl) {
+      window.open(proposalDownloadUrl, '_blank');
+      setPendingDownload(false);
+    }
+  };
   const [selectedIndustry, setSelectedIndustry] = useState<string | null>(null);
   const [currentSection, setCurrentSection] = useState(0);
   const [showPlatformOverview, setShowPlatformOverview] = useState(false);
@@ -505,20 +552,24 @@ const SalesforcePower = () => {
     }
   }, [searchParams]);
 
-  // Fetch Opportunity data if sfrecordId is an Opportunity (starts with 006)
+  // Fetch record data if sfrecordId is an Opportunity (006) or Lead (00Q)
   useEffect(() => {
-    const fetchOpportunity = async () => {
+    const fetchRecord = async () => {
       const id = searchParams.get('sfrecordId') || searchParams.get('sfrecordid');
-      if (id && id.startsWith('006')) {
+      if (id && (id.startsWith('006') || id.startsWith('00Q'))) {
         setLoadingOpportunity(true);
+        const objectType = id.startsWith('006') ? 'Opportunity' : 'Lead';
+        const fields = objectType === 'Opportunity'
+          ? ['Id', 'Name', 'Financial_Proposal_URL__c', 'Amount', 'StageName']
+          : ['Id', 'Name', 'Financial_Proposal_URL__c'];
         try {
           const response = await fetch('/.netlify/functions/getSalesforceRecord', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               recordId: id,
-              objectType: 'Opportunity',
-              fields: ['Id', 'Name', 'Financial_Proposal_URL__c', 'Amount', 'StageName']
+              objectType: objectType,
+              fields: fields
             })
           });
           if (response.ok) {
@@ -526,13 +577,13 @@ const SalesforcePower = () => {
             setOpportunityData(data);
           }
         } catch (err) {
-          console.error('Error fetching opportunity:', err);
+          console.error(`Error fetching ${objectType}:`, err);
         } finally {
           setLoadingOpportunity(false);
         }
       }
     };
-    fetchOpportunity();
+    fetchRecord();
   }, [searchParams]);
 
 
@@ -1796,20 +1847,32 @@ const SalesforcePower = () => {
                         </div>
                       </div>
 
-                      {/* Feedback button directly under the iframe */}
+                      {/* Feedback and Download buttons directly under the iframe */}
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.6 }}
-                        className="mt-6 flex flex-col items-center gap-3"
+                        className="mt-6 flex flex-col items-center gap-4"
                       >
-                        <button
-                          onClick={() => setShowFeedbackModal(true)}
-                          className="px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-cyan-500/50 text-white font-bold rounded-2xl transition-all flex items-center gap-3 group backdrop-blur-md shadow-lg"
-                        >
-                          <MessageSquare className="w-5 h-5 text-cyan-400 group-hover:scale-110 transition-transform" />
-                          <span>Leave feedback to the Salesforce team</span>
-                        </button>
+                        <div className="flex flex-wrap items-center justify-center gap-4">
+                          <button
+                            onClick={() => setShowFeedbackModal(true)}
+                            className="px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-cyan-500/50 text-white font-bold rounded-2xl transition-all flex items-center gap-3 group backdrop-blur-md shadow-lg"
+                          >
+                            <MessageSquare className="w-5 h-5 text-cyan-400 group-hover:scale-110 transition-transform" />
+                            <span>Leave feedback to the Salesforce team</span>
+                          </button>
+
+                          {proposalDownloadUrl && (
+                            <button
+                              onClick={handleDownloadProposal}
+                              className="px-8 py-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-2xl transition-all flex items-center gap-3 group shadow-lg shadow-cyan-500/20"
+                            >
+                              <Download className="w-5 h-5 group-hover:translate-y-1 transition-transform" />
+                              <span>Download Proposal (PDF)</span>
+                            </button>
+                          )}
+                        </div>
                         <p className="text-xs text-gray-500 italic">Your feedback goes directly to our account management team</p>
                       </motion.div>
                     </motion.div>

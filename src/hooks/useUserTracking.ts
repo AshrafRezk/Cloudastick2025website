@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { detectDevice } from '../utils/deviceDetector';
 
 interface TrackingData {
     sfrecordId: string;
@@ -13,6 +14,10 @@ interface TrackingData {
     device: {
         screenSize: string;
         orientation: string;
+        deviceType: string;
+        os: string;
+        isApple: boolean;
+        isLargeScreen: boolean;
     };
     clicks: Array<{
         element: string;
@@ -70,6 +75,7 @@ export const useUserTracking = (
         device: {
             screenSize: `${window.innerWidth}x${window.innerHeight}`,
             orientation: window.screen.orientation?.type || 'unknown',
+            ...detectDevice(),
         },
         clicks: [],
         hovers: {},
