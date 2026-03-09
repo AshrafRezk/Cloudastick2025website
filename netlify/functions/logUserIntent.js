@@ -60,15 +60,23 @@ exports.handler = async (event, context) => {
             }
         };
 
-        // Fetch ALL tracking data for this sfrecordId and IP to accumulate
+        // Fetch ALL tracking data for this sfrecordId across ALL IPs to accumulate global truth
         let allTrackingData = [];
         try {
             await withRetry(async () => {
                 allTrackingData = await db`
-                    SELECT sessionId, click_events, hover_events, video_opened, video_view_duration, created_at, updated_at
+                    SELECT 
+                        sessionId, 
+                        device_info, 
+                        location_info, 
+                        click_events, 
+                        hover_events, 
+                        video_opened, 
+                        video_view_duration, 
+                        created_at, 
+                        updated_at
                     FROM user_tracking
-                    WHERE sf_record_id = ${sfrecordId} 
-                    AND location_info->>'ip' = ${ip}
+                    WHERE sf_record_id = ${sfrecordId}
                     ORDER BY created_at ASC
                 `;
             });
@@ -76,55 +84,45 @@ exports.handler = async (event, context) => {
             console.error('⚠️ DB Retrieval failed (Non-blocking):', dbError.message);
         }
 
-        // Merge logic: 
-        // 1. Identify current session data from DB if it exists
-        // 2. Accumulate everything from other sessions from the same IP
-        let firstViewAt = new Date();
+        // Timestamps and counts for the current IP report (preserving old summary logic)
+        const ipTrackingData = allTrackingData.filter(row => row.location_info?.ip === ip);
+        let firstViewAt = ipTrackingData.length > 0 ? new Date(ipTrackingData[0].created_at) : new Date();
         let lastViewAt = new Date();
-        let sessionCount = 1;
+        let sessionCount = new Set(allTrackingData.map(r => r.sessionid)).size;
+        // If current session not in DB yet
+        if (!allTrackingData.some(r => r.sessionid === sessionId)) sessionCount++;
 
-        if (allTrackingData.length > 0) {
-            const sessionsMap = new Map();
-            allTrackingData.forEach(row => {
-                sessionsMap.set(row.sessionid, row);
-            });
+        // Prepare sessions map for the IP-based text report accumulation
+        const sessionsMap = new Map();
+        ipTrackingData.forEach(row => {
+            sessionsMap.set(row.sessionid, row);
+        });
 
-            // Timestamps based on existing records
-            firstViewAt = new Date(allTrackingData[0].created_at);
-            lastViewAt = new Date(); // Current interaction is latest
-            sessionCount = sessionsMap.size;
-
-            // If the current sessionId is NOT in the sessionsMap yet, it's a "fresh open"
-            if (!sessionsMap.has(sessionId)) {
-                sessionCount += 1;
+        // 1. Identify current session data from DB if it exists (for IP report)
+        const existingInDb = sessionsMap.get(sessionId);
+        if (existingInDb) {
+            const oldHovers = existingInDb.hover_events || {};
+            for (const [key, value] of Object.entries(oldHovers)) {
+                cumulativeHovers[key] = (cumulativeHovers[key] || 0) + value;
             }
+            cumulativeClicks = [...(existingInDb.click_events || []), ...(newClicks || [])];
+            cumulativeVideoOpened = cumulativeVideoOpened || !!existingInDb.video_opened;
+            cumulativeVideoViewDuration = Math.max(cumulativeVideoViewDuration, Number(existingInDb.video_view_duration || 0));
 
-            // If current session exists in DB, we merge it with payload first
-            const existingInDb = sessionsMap.get(sessionId);
-            if (existingInDb) {
-                const oldHovers = existingInDb.hover_events || {};
-                for (const [key, value] of Object.entries(oldHovers)) {
-                    cumulativeHovers[key] = (cumulativeHovers[key] || 0) + value;
-                }
-                cumulativeClicks = [...(existingInDb.click_events || []), ...(newClicks || [])];
-                cumulativeVideoOpened = cumulativeVideoOpened || !!existingInDb.video_opened;
-                cumulativeVideoViewDuration = Math.max(cumulativeVideoViewDuration, Number(existingInDb.video_view_duration || 0));
+            // Remove from map to avoid double-counting in IP accumulation
+            sessionsMap.delete(sessionId);
+        }
 
-                // Remove from map to avoid double-counting in IP accumulation
-                sessionsMap.delete(sessionId);
+        // Now accumulate from ALL OTHER sessions from the same IP
+        for (const otherSession of sessionsMap.values()) {
+            const otherHovers = otherSession.hover_events || {};
+            for (const [key, value] of Object.entries(otherHovers)) {
+                cumulativeHovers[key] = (cumulativeHovers[key] || 0) + value;
             }
-
-            // Now accumulate from ALL OTHER sessions from the same IP
-            for (const otherSession of sessionsMap.values()) {
-                const otherHovers = otherSession.hover_events || {};
-                for (const [key, value] of Object.entries(otherHovers)) {
-                    cumulativeHovers[key] = (cumulativeHovers[key] || 0) + value;
-                }
-                // For clicks, we just combine unique actions if possible
-                cumulativeClicks = [...(otherSession.click_events || []), ...cumulativeClicks];
-                cumulativeVideoOpened = cumulativeVideoOpened || !!otherSession.video_opened;
-                cumulativeVideoViewDuration += Number(otherSession.video_view_duration || 0);
-            }
+            // For clicks, we just combine unique actions if possible
+            cumulativeClicks = [...(otherSession.click_events || []), ...cumulativeClicks];
+            cumulativeVideoOpened = cumulativeVideoOpened || !!otherSession.video_opened;
+            cumulativeVideoViewDuration += Number(otherSession.video_view_duration || 0);
         }
 
         const formatDuration = (ms) => ms < 1000 ? 'briefly' : (ms < 60000 ? `${Math.floor(ms / 1000)}s` : `${Math.floor(ms / 60000)}m`);
@@ -267,6 +265,16 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                             legacyData: ""
                         };
 
+                        // REFRESH tracking data from DB to pick up concurrent sessions
+                        try {
+                            allTrackingData = await db`
+                                SELECT sessionId, device_info, location_info, click_events, hover_events, video_opened, video_view_duration, created_at, updated_at
+                                FROM user_tracking
+                                WHERE sf_record_id = ${sfrecordId}
+                                ORDER BY created_at ASC
+                            `;
+                        } catch (e) { console.error('Secondary DB fetch failed', e); }
+
                         const tryParseTracking = (str) => {
                             if (!str || typeof str !== 'string') return null;
                             const trimmed = str.trim();
@@ -302,8 +310,56 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                                 }
                             }
                         };
-
                         deepFlatten(existingIntent);
+
+                        // 3.5 SYNC WITH DB SOURCE OF TRUTH (Self-healing)
+                        // Add sessions from DB that might be missing due to race conditions or multi-IP access
+                        allTrackingData.forEach(row => {
+                            const sessId = row.sessionid;
+                            if (sessId && sessId !== sessionId) {
+                                // Only populate if not already in JSON or if DB has more data (using hover count as heuristic)
+                                const dbHovers = row.hover_events || {};
+                                const jsonHovers = intentJson.sessions[sessId]?.engagement?.hotspots || {};
+
+                                const dbTotalTime = Object.values(dbHovers).reduce((a, b) => a + Number(b), 0);
+                                const jsonTotalTime = Object.values(jsonHovers).reduce((a, b) => a + Number(b), 0);
+
+                                if (!intentJson.sessions[sessId] || dbTotalTime > jsonTotalTime) {
+                                    intentJson.sessions[sessId] = {
+                                        sessionId: sessId,
+                                        ip: row.location_info?.ip || 'Unknown',
+                                        device: {
+                                            type: row.device_info?.deviceType || 'Desktop',
+                                            os: row.device_info?.os || 'Unknown',
+                                            isApple: !!row.device_info?.isApple,
+                                            isLargeScreen: !!row.device_info?.isLargeScreen
+                                        },
+                                        screen: row.device_info?.screenSize || 'Unknown',
+                                        engagement: {
+                                            totalMinutes: Number((dbTotalTime / 60000).toFixed(1)),
+                                            hotspots: dbHovers,
+                                            video: {
+                                                opened: !!row.video_opened,
+                                                duration: Number(row.video_view_duration || 0)
+                                            }
+                                        },
+                                        clicks: row.click_events || [],
+                                        firstViewAt: new Date(row.created_at).toISOString(),
+                                        lastViewAt: new Date(row.updated_at).toISOString(),
+                                        source: "db_sync"
+                                    };
+                                }
+                            }
+                        });
+
+                        // 4. UPDATE INTEREST DATA WITH GLOBAL CONTEXT
+                        const totalGlobalSessions = Object.keys(intentJson.sessions).length;
+                        if (totalGlobalSessions > 1 && !highInterest) {
+                            updateFields.Interest_Level_Reason__c = `Link opened multiple times! (${totalGlobalSessions} sessions)`;
+                            if (levelScores[updateFields.Interest_Level__c || currentInterestLevel] < levelScores['Medium']) {
+                                updateFields.Interest_Level__c = 'Medium';
+                            }
+                        }
 
                         // Update or add the current session
                         intentJson.sessions[sessionId] = {
