@@ -261,8 +261,7 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                         let intentJson = {
                             version: "2.0",
                             lastUpdated: new Date().toISOString(),
-                            sessions: {},
-                            legacyData: ""
+                            sessions: {}
                         };
 
                         // REFRESH tracking data from DB to pick up ALL sessions for this Lead (not just this IP)
@@ -287,25 +286,13 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                             return null;
                         };
 
-                        const deepFlatten = (data) => {
-                            if (!data) return;
-                            const parsed = tryParseTracking(data);
-                            if (parsed && typeof parsed === 'object') {
-                                if (parsed.sessions && typeof parsed.sessions === 'object') {
-                                    Object.assign(intentJson.sessions, parsed.sessions);
-                                }
-                                if (parsed.legacyData) deepFlatten(parsed.legacyData);
-                            } else if (typeof data === 'string' && data.trim()) {
-                                if (!data.trim().startsWith('{')) {
-                                    if (data.length > (intentJson.legacyData || "").length) {
-                                        intentJson.legacyData = data.trim();
-                                    }
-                                }
+                        // First, grab what's in Salesforce and merge into current intentJson
+                        if (existingIntent) {
+                            const parsed = tryParseTracking(existingIntent);
+                            if (parsed && parsed.sessions) {
+                                Object.assign(intentJson.sessions, parsed.sessions);
                             }
-                        };
-
-                        // First, grab what's in Salesforce
-                        deepFlatten(existingIntent);
+                        }
 
                         // Then, backfill/overwrite with the more detailed DB records
                         allTrackingData.forEach(row => {
