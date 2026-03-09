@@ -276,30 +276,25 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                                 if (parsed && typeof parsed === 'object' && (parsed.version === "2.0" || parsed.sessions)) {
                                     return parsed;
                                 }
-                            } catch (e) {
-                                return null;
-                            }
+                            } catch (e) { return null; }
                             return null;
                         };
 
-                        const mergedJson = tryParseTracking(existingIntent);
-                        if (mergedJson) {
-                            intentJson = mergedJson;
-                            // Critical: If legacyData somehow contains a JSON string, try to flatten it once
-                            const flattenedLegacy = tryParseTracking(intentJson.legacyData);
-                            if (flattenedLegacy) {
-                                console.log('🩹 Flattening nested legacyData found in JSON');
-                                // Merge sessions from nested legacy data into main sessions
-                                if (flattenedLegacy.sessions) {
-                                    intentJson.sessions = { ...flattenedLegacy.sessions, ...intentJson.sessions };
+                        const deepFlatten = (data) => {
+                            const parsed = tryParseTracking(data);
+                            if (parsed) {
+                                if (parsed.sessions) {
+                                    // Merge historical sessions into our current map
+                                    intentJson.sessions = { ...parsed.sessions, ...intentJson.sessions };
                                 }
-                                // Preserve any deeper legacy text
-                                intentJson.legacyData = flattenedLegacy.legacyData || "";
+                                if (parsed.legacyData) deepFlatten(parsed.legacyData);
+                            } else if (data) {
+                                // Leaf node: presumably the original text report
+                                intentJson.legacyData = data;
                             }
-                        } else if (existingIntent) {
-                            // Only store as legacyData if it's NOT a tracking JSON
-                            intentJson.legacyData = existingIntent;
-                        }
+                        };
+
+                        deepFlatten(existingIntent);
 
                         // Update or add the current session
                         intentJson.sessions[sessionId] = {
