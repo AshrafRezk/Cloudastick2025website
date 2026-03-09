@@ -47,11 +47,13 @@ async function migrate() {
             for (const record of records) {
                 const existingIntent = record.Salesforce_Power_Intent__c;
                 const tryParseTracking = (str) => {
-                    if (!str || typeof str !== 'string' || !str.trim().startsWith('{')) return null;
+                    if (!str || typeof str !== 'string') return null;
+                    const trimmed = str.trim();
+                    if (!trimmed.startsWith('{') && !trimmed.startsWith('"')) return null;
                     try {
-                        const parsed = JSON.parse(str);
+                        const parsed = JSON.parse(trimmed);
                         if (typeof parsed === 'string') return tryParseTracking(parsed);
-                        if (parsed && typeof parsed === 'object' && (parsed.version === "2.0" || parsed.sessions)) return parsed;
+                        if (parsed && typeof parsed === 'object') return parsed;
                     } catch (e) { return null; }
                     return null;
                 };
@@ -59,34 +61,18 @@ async function migrate() {
                 const deepFlatten = (data) => {
                     if (!data) return;
                     const parsed = tryParseTracking(data);
-                    if (parsed) {
-                        if (parsed.sessions) {
-                            Object.entries(parsed.sessions).forEach(([id, sess]) => {
-                                if (!intentJson.sessions[id]) intentJson.sessions[id] = sess;
-                            });
+                    if (parsed && typeof parsed === 'object') {
+                        if (parsed.sessions && typeof parsed.sessions === 'object') {
+                            Object.assign(intentJson.sessions, parsed.sessions);
                         }
                         if (parsed.legacyData) deepFlatten(parsed.legacyData);
-                    } else {
-                        if (typeof data === 'string' && data.length > intentJson.legacyData.length) {
-                            intentJson.legacyData = data;
+                    } else if (typeof data === 'string' && data.trim()) {
+                        if (!data.trim().startsWith('{')) {
+                            if (data.length > (intentJson.legacyData || "").length) {
+                                intentJson.legacyData = data.trim();
+                            }
                         }
                     }
-                };
-
-                const initialParsed = tryParseTracking(existingIntent);
-                if (initialParsed) {
-                    // Check if it's already clean (not nested)
-                    if (!tryParseTracking(initialParsed.legacyData)) {
-                        console.log(`⏩ Skipping ${record.Id} (Already flat JSON)`);
-                        continue;
-                    }
-                }
-
-                let intentJson = {
-                    version: "2.0",
-                    lastUpdated: new Date().toISOString(),
-                    sessions: {},
-                    legacyData: ""
                 };
 
                 console.log(`🔄 Cleaning/Flattening corrupted record ${record.Id}...`);

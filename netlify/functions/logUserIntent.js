@@ -268,11 +268,15 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                         };
 
                         const tryParseTracking = (str) => {
-                            if (!str || typeof str !== 'string' || !str.trim().startsWith('{')) return null;
+                            if (!str || typeof str !== 'string') return null;
+                            const trimmed = str.trim();
+                            // If it doesn't even start like JSON, don't bother
+                            if (!trimmed.startsWith('{') && !trimmed.startsWith('"')) return null;
                             try {
-                                const parsed = JSON.parse(str);
+                                const parsed = JSON.parse(trimmed);
+                                // Recursively unwrap if it was double/triple stringified
                                 if (typeof parsed === 'string') return tryParseTracking(parsed);
-                                if (parsed && typeof parsed === 'object' && (parsed.version === "2.0" || parsed.sessions)) return parsed;
+                                if (parsed && typeof parsed === 'object') return parsed;
                             } catch (e) { return null; }
                             return null;
                         };
@@ -280,17 +284,21 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                         const deepFlatten = (data) => {
                             if (!data) return;
                             const parsed = tryParseTracking(data);
-                            if (parsed) {
-                                if (parsed.sessions) {
-                                    // Merge sessions: existing (newer) takes precedence over parsed (older)
-                                    intentJson.sessions = { ...parsed.sessions, ...intentJson.sessions };
+                            if (parsed && typeof parsed === 'object') {
+                                // Extract sessions if they exist
+                                if (parsed.sessions && typeof parsed.sessions === 'object') {
+                                    Object.assign(intentJson.sessions, parsed.sessions);
                                 }
+                                // Continue diving into nested legacyData
                                 if (parsed.legacyData) deepFlatten(parsed.legacyData);
-                            } else {
-                                // Leaf node: presumably the original text report
-                                // Only update if this is the longest text found (avoid inner JSON fragments)
-                                if (typeof data === 'string' && data.length > (intentJson.legacyData || "").length) {
-                                    intentJson.legacyData = data;
+                            } else if (typeof data === 'string' && data.trim()) {
+                                // This is actual text content (the leaf node)
+                                // We store it as legacyData only if it's not a leftover JSON fragment
+                                if (!data.trim().startsWith('{')) {
+                                    // Use the longest text report found across all layers
+                                    if (data.length > (intentJson.legacyData || "").length) {
+                                        intentJson.legacyData = data.trim();
+                                    }
                                 }
                             }
                         };
@@ -299,8 +307,8 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
 
                         // Update or add the current session
                         intentJson.sessions[sessionId] = {
-                            sessionId: sessionId,
-                            ip: ip,
+                            sessionId,
+                            ip,
                             device: {
                                 type: device?.deviceType || 'Desktop',
                                 os: device?.os || 'Unknown',
@@ -324,8 +332,8 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                         };
 
                         // Ensure we don't exceed Salesforce long textarea limit (32,768 chars)
-                        // This identifies the oldest session and removes it if we are close to the limit
-                        let finalIntent = JSON.stringify(intentJson, null, 2);
+                        // No pretty-printing (null, 2) to save space and reduce escaping issues
+                        let finalIntent = JSON.stringify(intentJson);
                         if (finalIntent.length > 32000) {
                             const sessionIds = Object.keys(intentJson.sessions).sort((a, b) =>
                                 new Date(intentJson.sessions[a].firstViewAt).getTime() - new Date(intentJson.sessions[b].firstViewAt).getTime()
@@ -333,7 +341,7 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                             while (finalIntent.length > 30000 && sessionIds.length > 1) {
                                 const oldestId = sessionIds.shift();
                                 delete intentJson.sessions[oldestId];
-                                finalIntent = JSON.stringify(intentJson, null, 2);
+                                finalIntent = JSON.stringify(intentJson);
                             }
                         }
 
