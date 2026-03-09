@@ -46,31 +46,68 @@ async function migrate() {
 
             for (const record of records) {
                 const existingIntent = record.Salesforce_Power_Intent__c;
-                if (!existingIntent || existingIntent.trim().startsWith('{')) {
-                    console.log(`⏩ Skipping ${record.Id} (Already JSON or empty)`);
-                    continue;
+                const tryParseTracking = (str) => {
+                    if (!str || typeof str !== 'string') return null;
+                    const trimmed = str.trim();
+                    if (!trimmed.startsWith('{')) return null;
+                    try {
+                        const parsed = JSON.parse(trimmed);
+                        if (parsed && typeof parsed === 'object' && (parsed.version === "2.0" || parsed.sessions)) {
+                            return parsed;
+                        }
+                    } catch (e) { return null; }
+                    return null;
+                };
+
+                const alreadyParsed = tryParseTracking(existingIntent);
+                if (alreadyParsed) {
+                    // Check if it has nested JSON in legacyData
+                    const nested = tryParseTracking(alreadyParsed.legacyData);
+                    if (!nested) {
+                        console.log(`⏩ Skipping ${record.Id} (Already valid JSON)`);
+                        continue;
+                    }
+                    console.log(`🩹 Record ${record.Id} is nested, will be flattened.`);
                 }
 
-                console.log(`🔄 Migrating ${record.Id}...`);
+                console.log(`🔄 Migrating/Flattening ${record.Id}...`);
 
-                const intentJson = {
+                let intentJson = {
                     version: "2.0",
                     lastUpdated: new Date().toISOString(),
                     sessions: {},
-                    legacyData: existingIntent
+                    legacyData: ""
                 };
 
-                // Attempt basic session extraction if markers exist
-                const sessionMarkers = existingIntent.match(/\[SESSION:(sess_[^\]]+)\]/g);
-                if (sessionMarkers) {
-                    sessionMarkers.forEach(marker => {
-                        const sessId = marker.match(/sess_[^\]]+/)[0];
-                        intentJson.sessions[sessId] = {
-                            sessionId: sessId,
-                            migrated: true,
-                            note: "Extracted from legacy text"
-                        };
-                    });
+                const deepFlatten = (data) => {
+                    const parsed = tryParseTracking(data);
+                    if (parsed) {
+                        if (parsed.sessions) {
+                            intentJson.sessions = { ...parsed.sessions, ...intentJson.sessions };
+                        }
+                        if (parsed.legacyData) deepFlatten(parsed.legacyData);
+                    } else {
+                        intentJson.legacyData = data;
+                    }
+                };
+
+                deepFlatten(existingIntent);
+
+                // Attempt basic session extraction if markers exist in legacy text
+                if (intentJson.legacyData && intentJson.legacyData.includes('[SESSION:')) {
+                    const sessionMarkers = intentJson.legacyData.match(/\[SESSION:(sess_[^\]]+)\]/g);
+                    if (sessionMarkers) {
+                        sessionMarkers.forEach(marker => {
+                            const sessId = marker.match(/sess_[^\]]+/)[0];
+                            if (!intentJson.sessions[sessId]) {
+                                intentJson.sessions[sessId] = {
+                                    sessionId: sessId,
+                                    migrated: true,
+                                    note: "Extracted from legacy text"
+                                };
+                            }
+                        });
+                    }
                 }
 
                 await fetch(`${instance_url}/services/data/v58.0/sobjects/${objectType}/${record.Id}?_HttpMethod=PATCH`, {

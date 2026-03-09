@@ -267,15 +267,37 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                             legacyData: ""
                         };
 
-                        try {
-                            if (existingIntent && existingIntent.trim().startsWith('{')) {
-                                intentJson = JSON.parse(existingIntent);
-                            } else if (existingIntent) {
-                                // Keep legacy text in the new structure
-                                intentJson.legacyData = existingIntent;
+                        const tryParseTracking = (str) => {
+                            if (!str || typeof str !== 'string') return null;
+                            const trimmed = str.trim();
+                            if (!trimmed.startsWith('{')) return null;
+                            try {
+                                const parsed = JSON.parse(trimmed);
+                                if (parsed && typeof parsed === 'object' && (parsed.version === "2.0" || parsed.sessions)) {
+                                    return parsed;
+                                }
+                            } catch (e) {
+                                return null;
                             }
-                        } catch (e) {
-                            console.warn('Failed to parse existing JSON, treating as legacy text');
+                            return null;
+                        };
+
+                        const mergedJson = tryParseTracking(existingIntent);
+                        if (mergedJson) {
+                            intentJson = mergedJson;
+                            // Critical: If legacyData somehow contains a JSON string, try to flatten it once
+                            const flattenedLegacy = tryParseTracking(intentJson.legacyData);
+                            if (flattenedLegacy) {
+                                console.log('🩹 Flattening nested legacyData found in JSON');
+                                // Merge sessions from nested legacy data into main sessions
+                                if (flattenedLegacy.sessions) {
+                                    intentJson.sessions = { ...flattenedLegacy.sessions, ...intentJson.sessions };
+                                }
+                                // Preserve any deeper legacy text
+                                intentJson.legacyData = flattenedLegacy.legacyData || "";
+                            }
+                        } else if (existingIntent) {
+                            // Only store as legacyData if it's NOT a tracking JSON
                             intentJson.legacyData = existingIntent;
                         }
 
