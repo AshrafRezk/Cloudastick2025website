@@ -230,7 +230,6 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                         const sfData = await sfRes.json();
                         let existingIntent = sfData.Salesforce_Power_Intent__c || '';
                         let currentInterestLevel = sfData.Interest_Level__c;
-                        let newIntent;
 
                         // 1. DETERMINE NEW INTEREST DATA
                         let newInterestLevel = highInterest ? 'High' : (sortedHovers.length > 5 ? 'Medium' : 'Low');
@@ -257,81 +256,26 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                             }
                         }
 
-                        // 3. SET INTENT SUMMARY (JSON-BASED)
+                        // 3. SET INTENT SUMMARY (JSON-BASED - Logic from c051b78)
                         let intentJson = {
                             version: "2.0",
                             lastUpdated: new Date().toISOString(),
                             sessions: {}
                         };
 
-                        // REFRESH tracking data from DB to pick up ALL sessions for this Lead (not just this IP)
-                        try {
-                            allTrackingData = await db`
-                                SELECT sessionId, device_info, location_info, click_events, hover_events, video_opened, video_view_duration, created_at, updated_at
-                                FROM user_tracking
-                                WHERE sf_record_id = ${sfrecordId}
-                                ORDER BY created_at ASC
-                            `;
-                        } catch (e) { console.error('Secondary DB fetch failed', e); }
-
-                        const tryParseTracking = (str) => {
-                            if (!str || typeof str !== 'string') return null;
-                            const trimmed = str.trim();
-                            if (!trimmed.startsWith('{') && !trimmed.startsWith('"')) return null;
-                            try {
-                                const parsed = JSON.parse(trimmed);
-                                if (typeof parsed === 'string') return tryParseTracking(parsed);
-                                if (parsed && typeof parsed === 'object') return parsed;
-                            } catch (e) { return null; }
-                            return null;
-                        };
-
-                        // First, grab what's in Salesforce and merge into current intentJson
                         if (existingIntent) {
-                            const parsed = tryParseTracking(existingIntent);
-                            if (parsed && parsed.sessions) {
-                                Object.assign(intentJson.sessions, parsed.sessions);
+                            try {
+                                const parsed = JSON.parse(existingIntent);
+                                if (parsed && typeof parsed === 'object' && parsed.sessions) {
+                                    intentJson.sessions = parsed.sessions;
+                                }
+                            } catch (e) {
+                                // Not valid JSON yet, start clean per user request
                             }
                         }
 
-                        // Then, backfill/overwrite with the more detailed DB records
-                        allTrackingData.forEach(row => {
-                            const sessId = row.sessionid;
-                            if (sessId) {
-                                const dbHovers = row.hover_events || {};
-                                const dbTotalTime = Object.values(dbHovers).reduce((a, b) => a + Number(b), 0);
-
-                                // Merge or add session
-                                intentJson.sessions[sessId] = {
-                                    sessionId: sessId,
-                                    ip: row.location_info?.ip || intentJson.sessions[sessId]?.ip || 'Unknown',
-                                    device: {
-                                        type: row.device_info?.deviceType || intentJson.sessions[sessId]?.device?.type || 'Desktop',
-                                        os: row.device_info?.os || intentJson.sessions[sessId]?.device?.os || 'Unknown',
-                                        isApple: !!row.device_info?.isApple,
-                                        isLargeScreen: !!row.device_info?.isLargeScreen
-                                    },
-                                    screen: row.device_info?.screenSize || intentJson.sessions[sessId]?.screen || 'Unknown',
-                                    engagement: {
-                                        totalMinutes: Number((dbTotalTime / 60000).toFixed(1)),
-                                        hotspots: dbHovers,
-                                        video: {
-                                            opened: !!row.video_opened || !!intentJson.sessions[sessId]?.engagement?.video?.opened,
-                                            duration: Math.max(Number(row.video_view_duration || 0), intentJson.sessions[sessId]?.engagement?.video?.duration || 0)
-                                        }
-                                    },
-                                    clicks: row.click_events?.map(c => c.text).filter(Boolean).slice(-10) || intentJson.sessions[sessId]?.clicks || [],
-                                    firstViewAt: new Date(row.created_at).toISOString(),
-                                    lastViewAt: new Date(row.updated_at).toISOString(),
-                                    feedback: intentJson.sessions[sessId]?.feedback || null,
-                                    location: row.location_info?.gps || intentJson.sessions[sessId]?.location || null
-                                };
-                            }
-                        });
-
-                        // Finally, ensure the CURRENT payload data is the most up-to-date for THIS session
+                        // Add or update the current session
                         intentJson.sessions[sessionId] = {
-                            ...intentJson.sessions[sessionId],
                             sessionId,
                             ip,
                             device: {
@@ -340,6 +284,7 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                                 isApple: !!device?.isApple,
                                 isLargeScreen: !!device?.isLargeScreen
                             },
+                            screen: device?.screenSize || 'Unknown',
                             engagement: {
                                 totalMinutes: Number(totalMinutes),
                                 hotspots: cumulativeHovers,
@@ -351,10 +296,11 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                             clicks: significantClicks,
                             feedback: newFeedback || intentJson.sessions[sessionId]?.feedback || null,
                             location: newLocation || intentJson.sessions[sessionId]?.location || null,
+                            firstViewAt: intentJson.sessions[sessionId]?.firstViewAt || firstViewAt.toISOString(),
                             lastViewAt: lastViewAt.toISOString()
                         };
 
-                        // Interest Logic based on the newly merged context
+                        // Interest Logic 
                         const totalGlobalSessions = Object.keys(intentJson.sessions).length;
                         if (totalGlobalSessions > 1 && !highInterest) {
                             updateFields.Interest_Level_Reason__c = `Link opened multiple times! (${totalGlobalSessions} sessions)`;
@@ -363,16 +309,16 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                             }
                         }
 
-                        // Truncation if needed
+                        // Truncation
                         let finalIntent = JSON.stringify(intentJson);
                         if (finalIntent.length > 32000) {
                             const sortedIds = Object.keys(intentJson.sessions).sort((a, b) =>
-                                new Date(intentJson.sessions[a].firstViewAt).getTime() - new Date(intentJson.sessions[b].firstViewAt).getTime()
+                                new Date(intentJson.sessions[a].firstViewAt) - new Date(intentJson.sessions[b].firstViewAt)
                             );
-                            while (finalIntent.length > 30000 && sortedIds.length > 1) {
+                            while (JSON.stringify(intentJson).length > 31000 && sortedIds.length > 1) {
                                 delete intentJson.sessions[sortedIds.shift()];
-                                finalIntent = JSON.stringify(intentJson);
                             }
+                            finalIntent = JSON.stringify(intentJson);
                         }
 
                         updateFields.Salesforce_Power_Intent__c = finalIntent;
