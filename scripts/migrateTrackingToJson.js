@@ -47,50 +47,42 @@ async function migrate() {
             for (const record of records) {
                 const existingIntent = record.Salesforce_Power_Intent__c;
                 const tryParseTracking = (str) => {
-                    if (!str || typeof str !== 'string') return null;
-                    const trimmed = str.trim();
-                    if (!trimmed.startsWith('{')) return null;
+                    if (!str || typeof str !== 'string' || !str.trim().startsWith('{')) return null;
                     try {
-                        const parsed = JSON.parse(trimmed);
-                        if (parsed && typeof parsed === 'object' && (parsed.version === "2.0" || parsed.sessions)) {
-                            return parsed;
-                        }
+                        const parsed = JSON.parse(str);
+                        if (typeof parsed === 'string') return tryParseTracking(parsed);
+                        if (parsed && typeof parsed === 'object' && (parsed.version === "2.0" || parsed.sessions)) return parsed;
                     } catch (e) { return null; }
                     return null;
                 };
 
-                const alreadyParsed = tryParseTracking(existingIntent);
-                if (alreadyParsed) {
-                    // Check if it has nested JSON in legacyData
-                    const nested = tryParseTracking(alreadyParsed.legacyData);
-                    if (!nested) {
-                        console.log(`⏩ Skipping ${record.Id} (Already valid JSON)`);
-                        continue;
-                    }
-                    console.log(`🩹 Record ${record.Id} is nested, will be flattened.`);
-                }
-
-                console.log(`🔄 Migrating/Flattening ${record.Id}...`);
-
-                let intentJson = {
-                    version: "2.0",
-                    lastUpdated: new Date().toISOString(),
-                    sessions: {},
-                    legacyData: ""
-                };
-
                 const deepFlatten = (data) => {
+                    if (!data) return;
                     const parsed = tryParseTracking(data);
                     if (parsed) {
                         if (parsed.sessions) {
-                            intentJson.sessions = { ...parsed.sessions, ...intentJson.sessions };
+                            Object.entries(parsed.sessions).forEach(([id, sess]) => {
+                                if (!intentJson.sessions[id]) intentJson.sessions[id] = sess;
+                            });
                         }
                         if (parsed.legacyData) deepFlatten(parsed.legacyData);
                     } else {
-                        intentJson.legacyData = data;
+                        if (typeof data === 'string' && data.length > intentJson.legacyData.length) {
+                            intentJson.legacyData = data;
+                        }
                     }
                 };
 
+                const initialParsed = tryParseTracking(existingIntent);
+                if (initialParsed) {
+                    // Check if it's already clean (not nested)
+                    if (!tryParseTracking(initialParsed.legacyData)) {
+                        console.log(`⏩ Skipping ${record.Id} (Already flat JSON)`);
+                        continue;
+                    }
+                }
+
+                console.log(`🔄 Cleaning/Flattening corrupted record ${record.Id}...`);
                 deepFlatten(existingIntent);
 
                 // Attempt basic session extraction if markers exist in legacy text
@@ -103,7 +95,7 @@ async function migrate() {
                                 intentJson.sessions[sessId] = {
                                     sessionId: sessId,
                                     migrated: true,
-                                    note: "Extracted from legacy text"
+                                    note: "Saved from legacy text"
                                 };
                             }
                         });
