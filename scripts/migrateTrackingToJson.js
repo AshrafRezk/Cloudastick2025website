@@ -82,6 +82,13 @@ async function migrate() {
                     }
                 }
 
+                let intentJson = {
+                    version: "2.0",
+                    lastUpdated: new Date().toISOString(),
+                    sessions: {},
+                    legacyData: ""
+                };
+
                 console.log(`🔄 Cleaning/Flattening corrupted record ${record.Id}...`);
                 deepFlatten(existingIntent);
 
