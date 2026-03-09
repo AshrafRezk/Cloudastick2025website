@@ -183,12 +183,12 @@ export const clientsData: Record<string, ClientInfo> = {
     description: 'HDP is a real estate development company focused on creating innovative residential and commercial properties. They are known for their modern design approach and quality construction practices.',
     websiteUrl: undefined
   },
-  'IMKAN': {
-    id: 'imkan',
-    name: 'IMKAN',
+  'Faisal Bin Saedan': {
+    id: 'faisal-bin-saedan',
+    name: 'Faisal Bin Saedan',
     industry: 'Real Estate & Construction',
-    description: 'IMKAN is a leading real estate development company creating innovative and sustainable communities. They are known for their commitment to quality design and environmental responsibility.',
-    websiteUrl: 'https://www.imkan.ae'
+    description: 'Faisal Bin Saedan Group is a prominent real estate development and investment company based in Saudi Arabia, specializing in large-scale residential and commercial projects that contribute to the Kingdom\'s Vision 2030.',
+    websiteUrl: undefined
   },
   'InTuition': {
     id: 'intuition',

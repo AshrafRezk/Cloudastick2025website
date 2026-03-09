@@ -92,7 +92,7 @@ export function parseLogoFiles(): ClientSection[] {
     'Global Banding - Manufacturing.png',
     'Global Scales - Manufacturing.png',
     'HDP - Real Estate.png',
-    'IMKAN - Real Estate.png',
+    'Faisal Bin Saedan - Real Estate.png',
     'InTuition - Education.png',
     'KAYAN - Automotive.png',
     'Kingfisher - eCommerce.png',
@@ -130,7 +130,7 @@ export function parseLogoFiles(): ClientSection[] {
     const [name, industry] = filename.replace('.png', '').split(' - ');
     const clientName = name.trim();
     const clientData = clientsData[clientName];
-    
+
     return {
       name: clientName,
       industry: industryMapping[industry] || industry,
@@ -160,7 +160,7 @@ export function parseLogoFiles(): ClientSection[] {
 
   // Shuffle sections randomly
   const shuffledSections = sections.sort(() => Math.random() - 0.5);
-  
+
   // Shuffle logos within each section
   shuffledSections.forEach(section => {
     section.logos = section.logos.sort(() => Math.random() - 0.5);
