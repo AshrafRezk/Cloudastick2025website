@@ -268,29 +268,30 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                         };
 
                         const tryParseTracking = (str) => {
-                            if (!str || typeof str !== 'string') return null;
-                            const trimmed = str.trim();
-                            if (!trimmed.startsWith('{')) return null;
+                            if (!str || typeof str !== 'string' || !str.trim().startsWith('{')) return null;
                             try {
-                                const parsed = JSON.parse(trimmed);
-                                if (parsed && typeof parsed === 'object' && (parsed.version === "2.0" || parsed.sessions)) {
-                                    return parsed;
-                                }
+                                const parsed = JSON.parse(str);
+                                if (typeof parsed === 'string') return tryParseTracking(parsed);
+                                if (parsed && typeof parsed === 'object' && (parsed.version === "2.0" || parsed.sessions)) return parsed;
                             } catch (e) { return null; }
                             return null;
                         };
 
                         const deepFlatten = (data) => {
+                            if (!data) return;
                             const parsed = tryParseTracking(data);
                             if (parsed) {
                                 if (parsed.sessions) {
-                                    // Merge historical sessions into our current map
+                                    // Merge sessions: existing (newer) takes precedence over parsed (older)
                                     intentJson.sessions = { ...parsed.sessions, ...intentJson.sessions };
                                 }
                                 if (parsed.legacyData) deepFlatten(parsed.legacyData);
-                            } else if (data) {
+                            } else {
                                 // Leaf node: presumably the original text report
-                                intentJson.legacyData = data;
+                                // Only update if this is the longest text found (avoid inner JSON fragments)
+                                if (typeof data === 'string' && data.length > (intentJson.legacyData || "").length) {
+                                    intentJson.legacyData = data;
+                                }
                             }
                         };
 
