@@ -259,30 +259,64 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                             }
                         }
 
-                        // 3. SET INTENT SUMMARY (BLOCK-BASED APPEND/UPDATE)
-                        const blockStart = `[SESSION:${sessionId}]`;
-                        const blockEnd = `[END_SESSION:${sessionId}]`;
-                        const newSummaryBlock = `${blockStart}\n${intentSummary}\n${blockEnd}`;
+                        // 3. SET INTENT SUMMARY (JSON-BASED)
+                        let intentJson = {
+                            version: "2.0",
+                            lastUpdated: new Date().toISOString(),
+                            sessions: {},
+                            legacyData: ""
+                        };
 
-                        let finalIntent = existingIntent || '';
-                        if (finalIntent.includes(blockStart)) {
-                            // Update existing block for this session
-                            const regex = new RegExp(`\\n?\\n?\\Q${blockStart}\\E[\\s\\S]*?\\Q${blockEnd}\\E`, 'g');
-                            // Using string replacement with markers is safer than complex regex for special chars
-                            const startIndex = finalIntent.indexOf(blockStart);
-                            const endIndex = finalIntent.indexOf(blockEnd) + blockEnd.length;
-                            if (startIndex !== -1 && endIndex !== -1) {
-                                finalIntent = finalIntent.substring(0, startIndex) + newSummaryBlock + finalIntent.substring(endIndex);
+                        try {
+                            if (existingIntent && existingIntent.trim().startsWith('{')) {
+                                intentJson = JSON.parse(existingIntent);
+                            } else if (existingIntent) {
+                                // Keep legacy text in the new structure
+                                intentJson.legacyData = existingIntent;
                             }
-                        } else {
-                            // Append new session block
-                            const separator = finalIntent ? '\n\n' + '='.repeat(40) + '\n\n' : '';
-                            finalIntent = finalIntent + separator + newSummaryBlock;
+                        } catch (e) {
+                            console.warn('Failed to parse existing JSON, treating as legacy text');
+                            intentJson.legacyData = existingIntent;
                         }
 
+                        // Update or add the current session
+                        intentJson.sessions[sessionId] = {
+                            sessionId: sessionId,
+                            ip: ip,
+                            device: {
+                                type: device?.deviceType || 'Desktop',
+                                os: device?.os || 'Unknown',
+                                isApple: !!device?.isApple,
+                                isLargeScreen: !!device?.isLargeScreen
+                            },
+                            screen: device?.screenSize || 'Unknown',
+                            engagement: {
+                                totalMinutes: Number(totalMinutes),
+                                hotspots: cumulativeHovers,
+                                video: {
+                                    opened: cumulativeVideoOpened,
+                                    duration: cumulativeVideoViewDuration
+                                }
+                            },
+                            clicks: significantClicks,
+                            feedback: newFeedback || null,
+                            location: newLocation || null,
+                            firstViewAt: firstViewAt.toISOString(),
+                            lastViewAt: lastViewAt.toISOString()
+                        };
+
                         // Ensure we don't exceed Salesforce long textarea limit (32,768 chars)
+                        // This identifies the oldest session and removes it if we are close to the limit
+                        let finalIntent = JSON.stringify(intentJson, null, 2);
                         if (finalIntent.length > 32000) {
-                            finalIntent = '... (Previous history truncated)\n\n' + finalIntent.substring(finalIntent.length - 30000);
+                            const sessionIds = Object.keys(intentJson.sessions).sort((a, b) =>
+                                new Date(intentJson.sessions[a].firstViewAt).getTime() - new Date(intentJson.sessions[b].firstViewAt).getTime()
+                            );
+                            while (finalIntent.length > 30000 && sessionIds.length > 1) {
+                                const oldestId = sessionIds.shift();
+                                delete intentJson.sessions[oldestId];
+                                finalIntent = JSON.stringify(intentJson, null, 2);
+                            }
                         }
 
                         updateFields.Salesforce_Power_Intent__c = finalIntent;
