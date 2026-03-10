@@ -256,35 +256,81 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                             }
                         }
 
-                        // 3. SET INTENT SUMMARY (JSON-BASED - Logic from c051b78)
+                        // 3. GENERATE HYBRID INTENT SUMMARY (Readable + Machine-Readable)
+
+                        // A. Build the machine-readable JSON structure (for developers/LWC)
                         let intentJson = {
-                            version: "2.0",
+                            version: "3.0",
                             lastUpdated: new Date().toISOString(),
                             sessions: {}
                         };
 
-                        if (existingIntent) {
+                        // 1. EXTRACT EXISTING DATA FROM SALESFORCE
+                        let existingText = existingIntent || '';
+                        const jsonMarkerStart = '--- MACHINE_DATA_START ---';
+                        const jsonMarkerEnd = '--- MACHINE_DATA_END ---';
+
+                        if (existingText.includes(jsonMarkerStart)) {
                             try {
-                                const parsed = JSON.parse(existingIntent);
-                                if (parsed && typeof parsed === 'object' && parsed.sessions) {
-                                    intentJson.sessions = parsed.sessions;
+                                const parts = existingText.split(jsonMarkerStart);
+                                existingText = parts[0].trim(); // Save the text part
+                                const jsonPart = parts[1].split(jsonMarkerEnd)[0].trim();
+                                const parsedSfJson = JSON.parse(jsonPart);
+                                if (parsedSfJson && parsedSfJson.sessions) {
+                                    Object.assign(intentJson.sessions, parsedSfJson.sessions);
                                 }
                             } catch (e) {
-                                // Not valid JSON yet, start clean per user request
+                                console.error('Failed to parse existing SF JSON', e);
                             }
                         }
 
-                        // Add or update the current session
+                        // 2. MERGE WITH DB (Source of truth for detailed events)
+                        try {
+                            const dbAllSessions = await db`
+                                SELECT sessionId, device_info, location_info, click_events, hover_events, video_opened, video_view_duration, created_at, updated_at
+                                FROM user_tracking
+                                WHERE sf_record_id = ${sfrecordId}
+                                ORDER BY created_at ASC
+                            `;
+
+                            dbAllSessions.forEach(row => {
+                                const dbHovers = row.hover_events || {};
+                                const dbTotalTime = Object.values(dbHovers).reduce((a, b) => a + Number(b), 0);
+                                const sessId = row.sessionid;
+
+                                // Create or merge with existing entry from SF
+                                intentJson.sessions[sessId] = {
+                                    ...(intentJson.sessions[sessId] || {}),
+                                    sessionId: sessId,
+                                    ip: row.location_info?.ip || intentJson.sessions[sessId]?.ip || 'Unknown',
+                                    device: {
+                                        type: row.device_info?.deviceType || intentJson.sessions[sessId]?.device?.type || 'Desktop',
+                                        os: row.device_info?.os || intentJson.sessions[sessId]?.device?.os || 'Unknown',
+                                        isApple: !!row.device_info?.isApple,
+                                        isLargeScreen: !!row.device_info?.isLargeScreen
+                                    },
+                                    screen: row.device_info?.screenSize || intentJson.sessions[sessId]?.screen || 'Unknown',
+                                    engagement: {
+                                        totalMinutes: Number((dbTotalTime / 60000).toFixed(1)),
+                                        hotspots: dbHovers,
+                                        video: {
+                                            opened: !!row.video_opened,
+                                            duration: Number(row.video_view_duration || 0)
+                                        }
+                                    },
+                                    clicks: row.click_events?.map(c => c.text).filter(Boolean).slice(-10) || intentJson.sessions[sessId]?.clicks || [],
+                                    location: row.location_info?.gps || intentJson.sessions[sessId]?.location || null,
+                                    firstViewAt: new Date(row.created_at).toISOString(),
+                                    lastViewAt: new Date(row.updated_at).toISOString()
+                                };
+                            });
+                        } catch (e) { console.error('DB session fetch failed', e); }
+
+                        // 3. OVERWRITE WITH CURRENT PAYLOAD (Latest truth)
                         intentJson.sessions[sessionId] = {
+                            ...intentJson.sessions[sessionId],
                             sessionId,
                             ip,
-                            device: {
-                                type: device?.deviceType || 'Desktop',
-                                os: device?.os || 'Unknown',
-                                isApple: !!device?.isApple,
-                                isLargeScreen: !!device?.isLargeScreen
-                            },
-                            screen: device?.screenSize || 'Unknown',
                             engagement: {
                                 totalMinutes: Number(totalMinutes),
                                 hotspots: cumulativeHovers,
@@ -296,11 +342,40 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                             clicks: significantClicks,
                             feedback: newFeedback || intentJson.sessions[sessionId]?.feedback || null,
                             location: newLocation || intentJson.sessions[sessionId]?.location || null,
-                            firstViewAt: intentJson.sessions[sessionId]?.firstViewAt || firstViewAt.toISOString(),
                             lastViewAt: lastViewAt.toISOString()
                         };
 
-                        // Interest Logic 
+                        // B. Build the human-readable Text Blocks (for manual review)
+                        const blockStart = `[SESSION:${sessionId}]`;
+                        const blockEnd = `[END_SESSION:${sessionId}]`;
+                        const newSummaryBlock = `${blockStart}\n${intentSummary}\n${blockEnd}`;
+
+                        let textReport = existingText;
+                        if (textReport.includes(blockStart)) {
+                            // Update existing block for this session
+                            const startIndex = textReport.indexOf(blockStart);
+                            let endIndex = textReport.indexOf(blockEnd, startIndex);
+                            if (endIndex !== -1) {
+                                endIndex += blockEnd.length;
+                                textReport = textReport.substring(0, startIndex) + newSummaryBlock + textReport.substring(endIndex);
+                            }
+                        } else {
+                            // Append new session block
+                            const separator = textReport ? '\n\n' + '='.repeat(40) + '\n\n' : '';
+                            textReport = textReport + separator + newSummaryBlock;
+                        }
+
+                        // C. STITCH together: Text + JSON Metadata
+                        let finalIntent = `${textReport}\n\n${jsonMarkerStart}\n${JSON.stringify(intentJson)}\n${jsonMarkerEnd}`;
+
+                        // Safety Truncation (Salesforce limit 32,768) - prioritizing current summary and JSON
+                        if (finalIntent.length > 32000) {
+                            finalIntent = '... (Old history truncated for space)\n\n' + finalIntent.substring(finalIntent.length - 30000);
+                        }
+
+                        updateFields.Salesforce_Power_Intent__c = finalIntent;
+
+                        // 4. Update Interest Data (Logic from c051b78)
                         const totalGlobalSessions = Object.keys(intentJson.sessions).length;
                         if (totalGlobalSessions > 1 && !highInterest) {
                             updateFields.Interest_Level_Reason__c = `Link opened multiple times! (${totalGlobalSessions} sessions)`;
@@ -309,21 +384,7 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                             }
                         }
 
-                        // Truncation
-                        let finalIntent = JSON.stringify(intentJson);
-                        if (finalIntent.length > 32000) {
-                            const sortedIds = Object.keys(intentJson.sessions).sort((a, b) =>
-                                new Date(intentJson.sessions[a].firstViewAt) - new Date(intentJson.sessions[b].firstViewAt)
-                            );
-                            while (JSON.stringify(intentJson).length > 31000 && sortedIds.length > 1) {
-                                delete intentJson.sessions[sortedIds.shift()];
-                            }
-                            finalIntent = JSON.stringify(intentJson);
-                        }
-
-                        updateFields.Salesforce_Power_Intent__c = finalIntent;
-
-                        // 4. SIMPLE POST METHOD with PATCH OVERRIDE
+                        // 5. SIMPLE POST METHOD with PATCH OVERRIDE
                         await fetch(`${instance_url}/services/data/v58.0/sobjects/${recordType}/${sfrecordId}?_HttpMethod=PATCH`, {
                             method: 'POST',
                             headers: {
