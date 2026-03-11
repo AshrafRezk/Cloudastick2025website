@@ -135,15 +135,15 @@ const PrintingBusinessFlow = ({ companyName }: { companyName?: string }) => {
                                             >
                                                 <div className="relative group">
                                                     {/* Card */}
-                                                    <div className="relative z-10 p-10 bg-gray-900/40 backdrop-blur-xl rounded-[2.5rem] border border-white/10 hover:border-white/20 transition-all duration-500 shadow-2xl overflow-hidden group-hover:-translate-y-2">
-                                                        <div className="flex flex-col gap-6">
-                                                            <div className={`w-16 h-16 bg-gradient-to-br ${step.color} rounded-2xl flex items-center justify-center shadow-lg relative`}>
+                                                    <div className="relative z-10 p-12 bg-gray-900/40 backdrop-blur-xl rounded-[2.5rem] border border-white/10 hover:border-white/20 transition-all duration-500 shadow-2xl group-hover:-translate-y-2 flex flex-col h-full">
+                                                        <div className="flex flex-col gap-8 h-full">
+                                                            <div className={`w-16 h-16 bg-gradient-to-br ${step.color} rounded-2xl flex items-center justify-center shadow-lg relative shrink-0`}>
                                                                 <step.icon className="w-8 h-8 text-white" />
                                                                 <div className="absolute inset-0 bg-white opacity-20 blur-xl scale-150 rounded-full -z-10"></div>
                                                             </div>
-                                                            <div>
+                                                            <div className="flex-grow">
                                                                 <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-cyan-400 transition-colors tracking-tight">{step.title}</h3>
-                                                                <p className="text-gray-400 leading-relaxed group-hover:text-gray-200 transition-all duration-500 text-base font-light">
+                                                                <p className="text-gray-400 leading-relaxed group-hover:text-gray-200 transition-all duration-500 text-lg font-light">
                                                                     {step.description}
                                                                 </p>
                                                             </div>
