@@ -256,108 +256,27 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                             }
                         }
 
-                        // 3. GENERATE HYBRID INTENT SUMMARY (Readable + Machine-Readable)
+                        // 3. GENERATE CLEAN TEXT REPORT (For manual review only)
 
-                        // A. Build the machine-readable JSON structure (for developers/LWC)
-                        let intentJson = {
-                            version: "3.0",
-                            lastUpdated: new Date().toISOString(),
-                            sessions: {}
-                        };
-
-                        // 1. EXTRACT EXISTING DATA FROM SALESFORCE
-                        let existingText = existingIntent || '';
+                        // Strip any previous JSON metadata from existing intent to keep it human-readable
+                        let textReport = existingIntent || '';
                         const jsonMarkerStart = '--- MACHINE_DATA_START ---';
-                        const jsonMarkerEnd = '--- MACHINE_DATA_END ---';
-
-                        if (existingText.includes(jsonMarkerStart)) {
-                            try {
-                                const parts = existingText.split(jsonMarkerStart);
-                                existingText = parts[0].trim(); // Save the text part
-                                const jsonPart = parts[1].split(jsonMarkerEnd)[0].trim();
-                                const parsedSfJson = JSON.parse(jsonPart);
-                                if (parsedSfJson && parsedSfJson.sessions) {
-                                    Object.assign(intentJson.sessions, parsedSfJson.sessions);
-                                }
-                            } catch (e) {
-                                console.error('Failed to parse existing SF JSON', e);
-                            }
+                        if (textReport.includes(jsonMarkerStart)) {
+                            textReport = textReport.split(jsonMarkerStart)[0].trim();
                         }
 
-                        // 2. MERGE WITH DB (Source of truth for detailed events)
-                        try {
-                            const dbAllSessions = await db`
-                                SELECT sessionId, device_info, location_info, click_events, hover_events, video_opened, video_view_duration, created_at, updated_at
-                                FROM user_tracking
-                                WHERE sf_record_id = ${sfrecordId}
-                                ORDER BY created_at ASC
-                            `;
-
-                            dbAllSessions.forEach(row => {
-                                const dbHovers = row.hover_events || {};
-                                const dbTotalTime = Object.values(dbHovers).reduce((a, b) => a + Number(b), 0);
-                                const sessId = row.sessionid;
-
-                                // Create or merge with existing entry from SF
-                                intentJson.sessions[sessId] = {
-                                    ...(intentJson.sessions[sessId] || {}),
-                                    sessionId: sessId,
-                                    ip: row.location_info?.ip || intentJson.sessions[sessId]?.ip || 'Unknown',
-                                    device: {
-                                        type: row.device_info?.deviceType || intentJson.sessions[sessId]?.device?.type || 'Desktop',
-                                        os: row.device_info?.os || intentJson.sessions[sessId]?.device?.os || 'Unknown',
-                                        isApple: !!row.device_info?.isApple,
-                                        isLargeScreen: !!row.device_info?.isLargeScreen
-                                    },
-                                    screen: row.device_info?.screenSize || intentJson.sessions[sessId]?.screen || 'Unknown',
-                                    engagement: {
-                                        totalMinutes: Number((dbTotalTime / 60000).toFixed(1)),
-                                        hotspots: dbHovers,
-                                        video: {
-                                            opened: !!row.video_opened,
-                                            duration: Number(row.video_view_duration || 0)
-                                        }
-                                    },
-                                    clicks: row.click_events?.map(c => c.text).filter(Boolean).slice(-10) || intentJson.sessions[sessId]?.clicks || [],
-                                    location: row.location_info?.gps || intentJson.sessions[sessId]?.location || null,
-                                    firstViewAt: new Date(row.created_at).toISOString(),
-                                    lastViewAt: new Date(row.updated_at).toISOString()
-                                };
-                            });
-                        } catch (e) { console.error('DB session fetch failed', e); }
-
-                        // 3. OVERWRITE WITH CURRENT PAYLOAD (Latest truth)
-                        intentJson.sessions[sessionId] = {
-                            ...intentJson.sessions[sessionId],
-                            sessionId,
-                            ip,
-                            engagement: {
-                                totalMinutes: Number(totalMinutes),
-                                hotspots: cumulativeHovers,
-                                video: {
-                                    opened: cumulativeVideoOpened,
-                                    duration: cumulativeVideoViewDuration
-                                }
-                            },
-                            clicks: significantClicks,
-                            feedback: newFeedback || intentJson.sessions[sessionId]?.feedback || null,
-                            location: newLocation || intentJson.sessions[sessionId]?.location || null,
-                            lastViewAt: lastViewAt.toISOString()
-                        };
-
-                        // B. Build the human-readable Text Blocks (for manual review)
+                        // Build the block for the current session
                         const blockStart = `[SESSION:${sessionId}]`;
                         const blockEnd = `[END_SESSION:${sessionId}]`;
                         const newSummaryBlock = `${blockStart}\n${intentSummary}\n${blockEnd}`;
 
-                        let textReport = existingText;
                         if (textReport.includes(blockStart)) {
                             // Update existing block for this session
                             const startIndex = textReport.indexOf(blockStart);
                             let endIndex = textReport.indexOf(blockEnd, startIndex);
                             if (endIndex !== -1) {
                                 endIndex += blockEnd.length;
-                                textReport = textReport.substring(0, startIndex) + newSummaryBlock + textReport.substring(endIndex);
+                                textReport = textReport.substring(0, startIndex) + newSummaryBlock + textReport.substring(endIndex).trim();
                             }
                         } else {
                             // Append new session block
@@ -365,20 +284,16 @@ ${highInterest ? '🚀 PRIORITY: DIRECT INTEREST EXPRESSED\n\n' : ''}${summarySe
                             textReport = textReport + separator + newSummaryBlock;
                         }
 
-                        // C. STITCH together: Text + JSON Metadata
-                        let finalIntent = `${textReport}\n\n${jsonMarkerStart}\n${JSON.stringify(intentJson)}\n${jsonMarkerEnd}`;
-
-                        // Safety Truncation (Salesforce limit 32,768) - prioritizing current summary and JSON
-                        if (finalIntent.length > 32000) {
-                            finalIntent = '... (Old history truncated for space)\n\n' + finalIntent.substring(finalIntent.length - 30000);
+                        // Safety Truncation (Salesforce limit 32,768)
+                        if (textReport.length > 32000) {
+                            textReport = '... (Old history truncated for space)\n\n' + textReport.substring(textReport.length - 30000);
                         }
 
-                        updateFields.Salesforce_Power_Intent__c = finalIntent;
+                        updateFields.Salesforce_Power_Intent__c = textReport;
 
-                        // 4. Update Interest Data (Logic from c051b78)
-                        const totalGlobalSessions = Object.keys(intentJson.sessions).length;
-                        if (totalGlobalSessions > 1 && !highInterest) {
-                            updateFields.Interest_Level_Reason__c = `Link opened multiple times! (${totalGlobalSessions} sessions)`;
+                        // 4. Update Interest Data (Using sessionCount from line 91)
+                        if (sessionCount > 1 && !highInterest) {
+                            updateFields.Interest_Level_Reason__c = `Link opened multiple times! (${sessionCount} sessions)`;
                             if (levelScores[updateFields.Interest_Level__c || currentInterestLevel] < levelScores['Medium']) {
                                 updateFields.Interest_Level__c = 'Medium';
                             }
