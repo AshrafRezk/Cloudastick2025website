@@ -36,8 +36,9 @@ export const getClientsByIndustry = (selectedIndustry: string): ClientInfo[] => 
     )
   );
   
-  // Return up to 6 relevant clients
-  return filtered.slice(0, 6);
+  // Return up to 6 relevant clients, but show more for real-estate to highlight big names
+  const limit = selectedIndustry === 'real-estate' ? 20 : 6;
+  return filtered.slice(0, limit);
 };
 
 /**

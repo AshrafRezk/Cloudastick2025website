@@ -399,5 +399,194 @@ export const clientsData: Record<string, ClientInfo> = {
     industry: 'Professional Services',
     description: 'World Business Council is a professional services organization providing business consulting and advisory services. They help organizations navigate complex business challenges and opportunities.',
     websiteUrl: undefined
+  },
+  'ROSHN': {
+    id: 'roshn',
+    name: 'ROSHN',
+    industry: 'Real Estate & Construction',
+    description: 'ROSHN is a national community developer in Saudi Arabia, powered by the Public Investment Fund (PIF). It is committed to supporting the goals of Vision 2030 by significantly increasing the rate of home ownership and delivering world-class residential communities.',
+    websiteUrl: 'https://www.roshn.sa'
+  },
+  'Emaar': {
+    id: 'emaar',
+    name: 'Emaar',
+    industry: 'Real Estate & Construction',
+    description: 'Emaar Properties is a global property developer and provider of premium lifestyles. One of the world’s most valuable and admired real estate development companies, Emaar has collective presence in several countries, known for iconic projects like the Burj Khalifa and Dubai Mall.',
+    websiteUrl: 'https://www.emaar.com'
+  },
+  'Red Sea': {
+    id: 'red-sea',
+    name: 'Red Sea',
+    industry: 'Real Estate & Construction',
+    description: 'Red Sea Global (formerly TRSDC) is a closed joint-stock company wholly owned by the Public Investment Fund (PIF) of Saudi Arabia. It is developing the Red Sea and Amaala projects, pioneering luxury regenerative tourism destinations.',
+    websiteUrl: 'https://www.redseaglobal.com'
+  },
+  'NEOM': {
+    id: 'neom',
+    name: 'NEOM',
+    industry: 'Real Estate & Construction',
+    description: 'NEOM is a vision of what a new future might look like. It’s an attempt to do something that’s never been done before and it’s coming at a time when the world needs fresh thinking and new solutions. NEOM will be a destination and a home for people who dream big and want to be part of building a new model for exceptional livability.',
+    websiteUrl: 'https://www.neom.com'
+  },
+  'Dar EL Arkan': {
+    id: 'dar-el-arkan',
+    name: 'Dar EL Arkan',
+    industry: 'Real Estate & Construction',
+    description: 'Dar Al Arkan Real Estate Development Company is a Saudi Arabian property development company. It is based in Riyadh and is one of the largest real estate developers in the Middle East, specializing in premium residential and commercial projects.',
+    websiteUrl: 'https://www.daralarkan.com'
+  },
+  'TMG': {
+    id: 'tmg',
+    name: 'TMG',
+    industry: 'Real Estate & Construction',
+    description: 'Talaat Moustafa Group (TMG) is one of the largest conglomerates in Egypt and the Middle East. TMG is a leading force in real estate and hospitality, known for developing mega-cities like Madinaty and Al Rehab.',
+    websiteUrl: 'https://www.tmtg.com'
+  },
+  'Damac': {
+    id: 'damac',
+    name: 'Damac Properties',
+    industry: 'Real Estate & Construction',
+    description: 'Damac Properties is an Emirati real estate development company, based in Dubai, United Arab Emirates. It is one of the largest property developers in the region, known for luxury residential, leisure, and commercial developments.',
+    websiteUrl: 'https://www.damacproperties.com'
+  },
+  'Nakheel': {
+    id: 'nakheel',
+    name: 'Nakheel',
+    industry: 'Real Estate & Construction',
+    description: 'Nakheel PJSC is a property developer based in Dubai, United Arab Emirates. It is known for its iconic projects such as the Palm Jumeirah, The World Islands, and Deira Islands.',
+    websiteUrl: 'https://www.nakheel.com'
+  },
+  'Aldar': {
+    id: 'aldar',
+    name: 'Aldar Properties',
+    industry: 'Real Estate & Construction',
+    description: 'Aldar Properties PJSC is a real estate development, management and investment company with headquarters in Abu Dhabi, United Arab Emirates.',
+    websiteUrl: 'https://www.aldar.com'
+  },
+  'Meraas': {
+    id: 'meraas',
+    name: 'Meraas',
+    industry: 'Real Estate & Construction',
+    description: 'Meraas is a Dubai-based holding company concentrated on developing mixed-use communities and destinations in the UAE.',
+    websiteUrl: 'https://www.meraas.com'
+  },
+  'Sotheby\'s Dubai': {
+    id: 'sothebys-dubai',
+    name: 'Dubai Sotheby\'s International Realty',
+    industry: 'Real Estate & Construction',
+    description: 'Luxurious property brokerage in Dubai part of the global Sotheby\'s International Realty network.',
+    websiteUrl: 'https://www.luxurysales.ae'
+  },
+  'Select Group': {
+    id: 'select-group',
+    name: 'Select Group',
+    industry: 'Real Estate & Construction',
+    description: 'Select Group is a multi-disciplinary real estate development and investment company headquartered in Dubai.',
+    websiteUrl: 'https://www.select-group.ae'
+  },
+  'Al-Futtaim': {
+    id: 'al-futtaim',
+    name: 'Al-Futtaim Group',
+    industry: 'Real Estate & Construction',
+    description: 'Al-Futtaim Group is a large conglomerate based in Dubai, United Arab Emirates, with significant real estate and property development interests.',
+    websiteUrl: 'https://www.alfuttaim.com'
+  },
+  'Strada': {
+    id: 'strada',
+    name: 'Strada Real Estate',
+    industry: 'Real Estate & Construction',
+    description: 'A leading full-service real estate brokerage based in Dubai, offering sales, leasing, and property management services.',
+    websiteUrl: 'https://www.strada.ae'
+  },
+  'Savills': {
+    id: 'savills',
+    name: 'Savills',
+    industry: 'Real Estate & Construction',
+    description: 'Savills is a global real estate services provider listed on the London Stock Exchange with more than 600 offices and associates throughout the Americas, the UK, continental Europe, Asia Pacific, Africa and the Middle East.',
+    websiteUrl: 'https://www.savills.com'
+  },
+  'Property Finder': {
+    id: 'property-finder',
+    name: 'Property Finder',
+    industry: 'Real Estate & Construction',
+    description: 'Property Finder is one of the leading real estate portals in the Middle East and North Africa, providing property listings and market intelligence.',
+    websiteUrl: 'https://www.propertyfinder.ae'
+  },
+  'Arada': {
+    id: 'arada',
+    name: 'Arada',
+    industry: 'Real Estate & Construction',
+    description: 'Arada is a leading real estate developer based in Sharjah, United Arab Emirates, focused on building sustainable and innovative communities.',
+    websiteUrl: 'https://www.arada.com'
+  },
+  'Ellington': {
+    id: 'ellington',
+    name: 'Ellington Properties',
+    industry: 'Real Estate & Construction',
+    description: 'Ellington Properties is a high-end property developer in Dubai specializing in design-led boutique residential projects.',
+    websiteUrl: 'https://www.ellingtonproperties.ae'
+  },
+  'Colliers': {
+    id: 'colliers',
+    name: 'Colliers International',
+    industry: 'Real Estate & Construction',
+    description: 'Colliers is a leading diversified professional services and investment management company operaring globally.',
+    websiteUrl: 'https://www.colliers.com'
+  },
+  'JLL': {
+    id: 'jll',
+    name: 'JLL',
+    industry: 'Real Estate & Construction',
+    description: 'JLL (Jones Lang LaSalle) is a global real estate services firm and investment management company.',
+    websiteUrl: 'https://www.jll.com'
+  },
+  'CBRE': {
+    id: 'cbre',
+    name: 'CBRE',
+    industry: 'Real Estate & Construction',
+    description: 'CBRE Group, Inc. is the world’s largest commercial real estate services and investment firm.',
+    websiteUrl: 'https://www.cbre.com'
+  },
+  'White & Co': {
+    id: 'white-co',
+    name: 'White & Co Real Estate',
+    industry: 'Real Estate & Construction',
+    description: 'A dedicated real estate brokerage in Dubai specializing in luxury residential property.',
+    websiteUrl: 'https://www.whiteandco.net'
+  },
+  'Allegiance': {
+    id: 'allegiance',
+    name: 'Allegiance Real Estate',
+    industry: 'Real Estate & Construction',
+    description: 'A boutique real estate agency in Dubai providing customized property solutions.',
+    websiteUrl: 'https://www.allegiance.ae'
+  },
+  'Coldwell Banker': {
+    id: 'coldwell-banker',
+    name: 'Coldwell Banker',
+    industry: 'Real Estate & Construction',
+    description: 'A global leader in the residential real estate industry with a significant presence in the Middle East.',
+    websiteUrl: 'https://www.coldwellbanker.com'
+  },
+  'MAG': {
+    id: 'mag',
+    name: 'MAG Lifestyle Development',
+    industry: 'Real Estate & Construction',
+    description: 'One of the largest property developers in the region with projects focused on wellness and luxury.',
+    websiteUrl: 'https://www.mag.global'
+  },
+  'Ohana': {
+    id: 'ohana',
+    name: 'Ohana Development',
+    industry: 'Real Estate & Construction',
+    description: 'An innovative real estate developer creating high-end residential concepts.',
+    websiteUrl: 'https://www.ohanadevelopment.ae'
+  },
+  'Elysian': {
+    id: 'elysian',
+    name: 'Elysian Real Estate',
+    industry: 'Real Estate & Construction',
+    description: 'A prominent private real estate brokerage and management firm in Dubai.',
+    websiteUrl: 'https://www.elysian.com'
   }
 };

@@ -90,6 +90,8 @@ import { usePortalUser } from '../contexts/PortalUserContext';
 import ScopeBuilderFab from '../components/ScopeBuilderFab';
 import PasswordModal from '../components/PasswordModal';
 import OpportunityFeedbackModal from '../components/OpportunityFeedbackModal';
+import CompoundPlanMap from '../components/CompoundPlanMap';
+import InteractiveCompanyMap from '../components/InteractiveCompanyMap';
 
 // Modern Carousel Hub and Spoke Component
 const HubAndSpokeVisualization = React.memo(({
@@ -436,6 +438,18 @@ const getProposalDownloadUrl = (url: string) => {
     if (match) return `https://drive.google.com/uc?export=download&id=${match[1]}`;
   }
 
+  // Google Docs
+  if (url.includes('docs.google.com/document/d/')) {
+    const match = url.match(/\/document\/d\/([^\/\?]+)/);
+    if (match) return `https://docs.google.com/document/d/${match[1]}/export?format=pdf`;
+  }
+
+  // Google Slides
+  if (url.includes('docs.google.com/presentation/d/')) {
+    const match = url.match(/\/presentation\/d\/([^\/\?]+)/);
+    if (match) return `https://docs.google.com/presentation/d/${match[1]}/export/pdf`;
+  }
+
   return url;
 };
 
@@ -524,6 +538,7 @@ const SalesforcePower = () => {
 
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [loadingOpportunity, setLoadingOpportunity] = useState(false);
+  const [visualMode, setVisualMode] = useState<'3d' | 'plan' | 'map'>('3d');
 
   // Initialize behavior tracking
   const { setFeedback } = useUserTracking([
@@ -544,11 +559,14 @@ const SalesforcePower = () => {
     'printing-industries' // Added this vertical as well for tracking
   ], videoOpened, videoViewDuration);
 
-  // Handle pw=true URL parameter
+  // Handle pw=true OR feedback=true URL parameters
   useEffect(() => {
     if (searchParams.get('pw') === 'true') {
       setIsPageLocked(true);
       setShowPasswordModal(true);
+    }
+    if (searchParams.get('feedback') === 'true') {
+      setShowFeedbackModal(true);
     }
   }, [searchParams]);
 
@@ -1664,7 +1682,14 @@ const SalesforcePower = () => {
       <OpportunityFeedbackModal
         isOpen={showFeedbackModal}
         onClose={() => setShowFeedbackModal(false)}
-        onSubmit={setFeedback}
+        onSubmit={(feedbackData) => {
+          setFeedback(feedbackData);
+          toast({
+            title: "Feedback Received! ❤️",
+            description: "Thank you for rating your engagement with Salesforce & Cloudastick.",
+          });
+        }}
+        onSuccess={handleFeedbackSuccess}
       />
 
       {isPageLocked ? (
@@ -2321,18 +2346,12 @@ const SalesforcePower = () => {
                               ? 'border-yellow-400 shadow-lg shadow-yellow-500/30 hover:border-yellow-300 hover:shadow-yellow-400/40'
                               : 'border-gray-600 hover:border-cyan-400 hover:shadow-lg hover:shadow-cyan-500/30'
                               }`}>
-                              <img
-                                src={getClientLogoPath(client.name, client.industry)}
-                                alt={client.name}
-                                className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-300 filter brightness-0 invert"
-                                onError={(e) => {
-                                  // Fallback to text if image fails
-                                  e.currentTarget.style.display = 'none';
-                                  const parent = e.currentTarget.parentElement;
-                                  if (parent) {
-                                    parent.innerHTML = `<div class="text-center"><h4 class="font-bold text-white text-base">${client.name}</h4><p class="text-xs text-gray-400 mt-1">${client.industry}</p></div>`;
-                                  }
-                                }}
+                              <CompanyLogo
+                                logoUrl={getClientLogoPath(client.name, client.industry)}
+                                website={client.websiteUrl}
+                                companyName={client.name}
+                                className="max-w-full max-h-full transition-transform duration-300 group-hover:scale-110"
+                                size="large"
                               />
                             </div>
                           </div>
@@ -2639,48 +2658,106 @@ const SalesforcePower = () => {
                 </AnimatedSection>
 
                 <div className="grid lg:grid-cols-2 gap-12 items-center">
-                  {/* Interactive 3D Model */}
+                  {/* Interactive Visualizations */}
                   <motion.div
                     initial={{ opacity: 0, x: -30 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.8, delay: 0.2 }}
                     className="order-2 lg:order-1"
                   >
-                    <div className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-xl rounded-3xl p-6 border border-emerald-500/20 shadow-2xl shadow-emerald-500/10">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                        <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                        <span className="text-gray-400 text-sm ml-2">Interactive 3D Viewer</span>
-                      </div>
-                      <div className="rounded-2xl overflow-hidden bg-black/50">
-                        <iframe
-                          src="https://3dwarehouse.sketchup.com/embed/796431a0-c0d1-4046-afad-24937e815134?token=t0dGLB7xv8E=&binaryName=s21"
-                          frameBorder="0"
-                          scrolling="no"
-                          width="100%"
-                          height="400"
-                          allowFullScreen
-                          title="3D Property Model - Interactive Viewer"
-                          className="w-full"
-                          style={{ minHeight: '400px' }}
-                        />
-                      </div>
-                      <div className="flex items-center justify-center gap-6 mt-4 text-sm text-gray-400">
-                        <span className="flex items-center gap-2">
-                          <span className="w-6 h-6 bg-emerald-500/20 rounded-lg flex items-center justify-center text-emerald-400">↻</span>
-                          Rotate
-                        </span>
-                        <span className="flex items-center gap-2">
-                          <span className="w-6 h-6 bg-cyan-500/20 rounded-lg flex items-center justify-center text-cyan-400">⊕</span>
-                          Zoom
-                        </span>
-                        <span className="flex items-center gap-2">
-                          <span className="w-6 h-6 bg-purple-500/20 rounded-lg flex items-center justify-center text-purple-400">⇔</span>
-                          Pan
-                        </span>
-                      </div>
+                    <div className="flex flex-wrap gap-2 mb-6">
+                      {[
+                        { id: '3d', label: '3D Model', icon: Building2 },
+                        { id: 'plan', label: 'Compound Plan', icon: Layers },
+                        { id: 'map', label: 'Interactive Map', icon: Globe }
+                      ].map((mode) => (
+                        <button
+                          key={mode.id}
+                          onClick={() => setVisualMode(mode.id as any)}
+                          className={`
+                            flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300
+                            ${visualMode === mode.id 
+                              ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' 
+                              : 'bg-gray-800/50 text-gray-400 hover:bg-gray-700/50 hover:text-white border border-gray-700/50'}
+                          `}
+                        >
+                          <mode.icon className="w-4 h-4" />
+                          {mode.label}
+                        </button>
+                      ))}
                     </div>
+
+                    <AnimatePresence mode="wait">
+                      {visualMode === '3d' && (
+                        <motion.div
+                          key="3d-mode"
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.95 }}
+                          transition={{ duration: 0.4 }}
+                        >
+                          <div className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-xl rounded-3xl p-6 border border-emerald-500/20 shadow-2xl shadow-emerald-500/10">
+                            <div className="flex items-center gap-3 mb-4">
+                              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                              <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                              <span className="text-gray-400 text-sm ml-2">Interactive 3D Viewer</span>
+                            </div>
+                            <div className="rounded-2xl overflow-hidden bg-black/50">
+                              <iframe
+                                src="https://3dwarehouse.sketchup.com/embed/796431a0-c0d1-4046-afad-24937e815134?token=t0dGLB7xv8E=&binaryName=s21"
+                                frameBorder="0"
+                                scrolling="no"
+                                width="100%"
+                                height="400"
+                                allowFullScreen
+                                title="3D Property Model - Interactive Viewer"
+                                className="w-full"
+                                style={{ minHeight: '400px' }}
+                              />
+                            </div>
+                            <div className="flex items-center justify-center gap-6 mt-4 text-sm text-gray-400">
+                              <span className="flex items-center gap-2">
+                                <span className="w-6 h-6 bg-emerald-500/20 rounded-lg flex items-center justify-center text-emerald-400">↻</span>
+                                Rotate
+                              </span>
+                              <span className="flex items-center gap-2">
+                                <span className="w-6 h-6 bg-cyan-500/20 rounded-lg flex items-center justify-center text-cyan-400">⊕</span>
+                                Zoom
+                              </span>
+                              <span className="flex items-center gap-2">
+                                <span className="w-6 h-6 bg-purple-500/20 rounded-lg flex items-center justify-center text-purple-400">⇔</span>
+                                Pan
+                              </span>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+
+                      {visualMode === 'plan' && (
+                        <motion.div
+                          key="plan-mode"
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.95 }}
+                          transition={{ duration: 0.4 }}
+                        >
+                          <CompoundPlanMap />
+                        </motion.div>
+                      )}
+
+                      {visualMode === 'map' && (
+                        <motion.div
+                          key="map-mode"
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.95 }}
+                          transition={{ duration: 0.4 }}
+                        >
+                          <InteractiveCompanyMap companyName={companyName || 'Real Estate Project'} />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </motion.div>
 
                   {/* Features List */}
@@ -4745,22 +4822,23 @@ const SalesforcePower = () => {
           {/* Express Interest Button (Conditional & Animated) */}
           {
             (searchParams.get('sfrecordId') || searchParams.get('sfrecordid')) && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8, y: 100 }}
-                animate={{
-                  opacity: 1,
-                  scale: 1,
-                  y: 0,
-                  x: currentSection >= 4 ? '-50%' : '0%',
-                  left: currentSection >= 4 ? '50%' : 'auto',
-                  right: currentSection >= 4 ? 'auto' : '2rem',
-                  bottom: currentSection >= 4 ? '40%' : '6rem'
-                }}
-                transition={{ type: "spring", damping: 15, stiffness: 100 }}
-                className="fixed z-50 pointer-events-none"
-                style={{ width: 'fit-content' }}
-              >
-                <div className="pointer-events-auto">
+              <div className="fixed z-50 bottom-24 right-8 flex flex-col items-end gap-4 pointer-events-none">
+                {/* Interest Notification Button */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8, y: 50 }}
+                  animate={{
+                    opacity: 1,
+                    scale: 1,
+                    y: 0,
+                    x: currentSection >= 4 ? '-50%' : '0%',
+                    left: currentSection >= 4 ? '50%' : 'auto',
+                    right: currentSection >= 4 ? 'auto' : '0',
+                    bottom: currentSection >= 4 ? '40%' : '0'
+                  }}
+                  transition={{ type: "spring", damping: 15, stiffness: 100 }}
+                  className={`${currentSection >= 4 ? 'fixed translate-x-[-50%] left-[50%]' : 'relative'} pointer-events-auto`}
+                  style={{ width: 'fit-content' }}
+                >
                   <Button
                     onClick={() => {
                       triggerHaptic([20, 10, 20], '/Assets/selection3new.mp3');
@@ -4768,15 +4846,37 @@ const SalesforcePower = () => {
                         title: "Interest Notified! 🚀",
                         description: `Cloudastick Systems has been notified that ${companyName || 'your company'} is interested.`,
                       });
-                      // The click tracking within useUserTracking will automatically pick this up
                     }}
                     className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white shadow-2xl px-6 py-4 rounded-full font-bold flex items-center gap-2 group transition-all duration-300 hover:scale-110 whitespace-nowrap"
                   >
                     <Heart className="w-5 h-5 group-hover:fill-current transition-colors" />
                     <span>Let Salesforce know that {companyName || 'your company'} is interested</span>
                   </Button>
-                </div>
-              </motion.div>
+                </motion.div>
+
+                {/* New: Rate Your Engagement Button */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8, y: 50 }}
+                  animate={{
+                    opacity: 1,
+                    scale: 1,
+                    y: 0,
+                  }}
+                  transition={{ type: "spring", damping: 15, stiffness: 100, delay: 0.2 }}
+                  className={`pointer-events-auto ${currentSection >= 4 ? 'hidden' : ''}`}
+                >
+                  <Button
+                    onClick={() => {
+                      triggerHaptic([10, 10, 10], '/Assets/selection2new.mp3');
+                      setShowFeedbackModal(true);
+                    }}
+                    className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-2xl px-6 py-4 rounded-full font-bold flex items-center gap-2 group transition-all duration-300 hover:scale-110 whitespace-nowrap"
+                  >
+                    <Star className="w-5 h-5 text-yellow-300 fill-yellow-300 group-hover:scale-125 transition-transform" />
+                    <span>Rate your engagement?</span>
+                  </Button>
+                </motion.div>
+              </div>
             )
           }
         </>

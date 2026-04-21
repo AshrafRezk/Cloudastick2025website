@@ -9,6 +9,7 @@ interface ButtonProps {
   size?: "sm" | "md" | "lg";
   className?: string;
   disabled?: boolean;
+  type?: "button" | "submit" | "reset";
 }
 
 const Button = ({
@@ -18,6 +19,7 @@ const Button = ({
   size = "md",
   className = "",
   disabled = false,
+  type = "button",
 }: ButtonProps) => {
   const baseClasses = "font-medium rounded-lg transition-all duration-200 inline-flex items-center justify-center";
   
@@ -35,6 +37,7 @@ const Button = ({
 
   return (
     <motion.button
+      type={type}
       whileHover={{ scale: disabled ? 1 : 1.05 }}
       whileTap={{ scale: disabled ? 1 : 0.95 }}
       onClick={onClick}

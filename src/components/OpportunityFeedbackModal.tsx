@@ -12,6 +12,8 @@ interface OpportunityFeedbackModalProps {
         timeline: string;
         satisfaction: string;
         needDemo: boolean;
+        engagementRating: number;
+        demoFeedback: string;
     }) => void;
     onSuccess?: () => void;
 }
@@ -27,6 +29,8 @@ const OpportunityFeedbackModal: React.FC<OpportunityFeedbackModalProps> = ({
     const [timeline, setTimeline] = useState('');
     const [satisfaction, setSatisfaction] = useState('Satisfied');
     const [needDemo, setNeedDemo] = useState(false);
+    const [engagementRating, setEngagementRating] = useState(0);
+    const [demoFeedback, setDemoFeedback] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -37,14 +41,18 @@ const OpportunityFeedbackModal: React.FC<OpportunityFeedbackModalProps> = ({
             budget,
             timeline,
             satisfaction,
-            needDemo
+            needDemo,
+            engagementRating,
+            demoFeedback
         });
+
+        // Trigger success callback immediately to avoid popup blockers
+        if (onSuccess) onSuccess();
 
         setTimeout(() => {
             setIsSubmitting(false);
             onClose();
-            if (onSuccess) onSuccess();
-        }, 500);
+        }, 800);
     };
 
     return (
@@ -70,7 +78,7 @@ const OpportunityFeedbackModal: React.FC<OpportunityFeedbackModalProps> = ({
                                     <MessageSquare className="w-5 h-5 text-blue-400" />
                                 </div>
                                 <div>
-                                    <h2 className="text-xl font-bold text-white">Share Your Feedback</h2>
+                                    <h2 className="text-xl font-bold text-white">Rate Your Engagement</h2>
                                     <p className="text-xs text-gray-400">Help us tailor the perfect solution for you</p>
                                 </div>
                             </div>
@@ -79,18 +87,57 @@ const OpportunityFeedbackModal: React.FC<OpportunityFeedbackModalProps> = ({
                             </button>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+                        <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto max-h-[80vh]">
+                            {/* Engagement Rating */}
+                            <div className="space-y-3 p-4 bg-blue-600/10 border border-blue-500/20 rounded-xl">
+                                <label className="text-sm font-bold text-blue-300 flex items-center gap-2">
+                                    <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                                    How much did you like the engagement?
+                                </label>
+                                <div className="flex gap-3 justify-center py-2">
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                        <button
+                                            key={star}
+                                            type="button"
+                                            onClick={() => setEngagementRating(star)}
+                                            className="transition-transform hover:scale-125 focus:outline-none"
+                                        >
+                                            <Star
+                                                className={`w-8 h-8 ${star <= engagementRating
+                                                    ? 'text-yellow-400 fill-yellow-400'
+                                                    : 'text-gray-600'
+                                                    }`}
+                                            />
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Demo Feedback */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
+                                    <PlayCircle className="w-4 h-4 text-red-400" />
+                                    If there was a demo, how was it?
+                                </label>
+                                <textarea
+                                    value={demoFeedback}
+                                    onChange={(e) => setDemoFeedback(e.target.value)}
+                                    className="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none min-h-[80px]"
+                                    placeholder="Tell us your thoughts about the demo experience..."
+                                />
+                            </div>
+
                             {/* Budget */}
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
                                     <DollarSign className="w-4 h-4 text-green-400" />
-                                    Pricing & Budget
+                                    Pricing & Budget Expectations
                                 </label>
                                 <textarea
                                     value={budget}
                                     onChange={(e) => setBudget(e.target.value)}
-                                    className="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none min-h-[80px]"
-                                    placeholder="Tell us about your budget expectations..."
+                                    className="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none min-h-[60px]"
+                                    placeholder="Your budget expectations..."
                                 />
                             </div>
 
@@ -103,7 +150,7 @@ const OpportunityFeedbackModal: React.FC<OpportunityFeedbackModalProps> = ({
                                 <textarea
                                     value={timeline}
                                     onChange={(e) => setTimeline(e.target.value)}
-                                    className="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none min-h-[80px]"
+                                    className="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none min-h-[60px]"
                                     placeholder="When are you looking to implement?"
                                 />
                             </div>
@@ -144,22 +191,39 @@ const OpportunityFeedbackModal: React.FC<OpportunityFeedbackModalProps> = ({
                                 </div>
                             </div>
 
-                            {/* Submit Button */}
-                            <div className="pt-4">
+                             {/* Submit Button */}
+                            <div className="pt-2 space-y-3">
                                 <Button
                                     type="submit"
-                                    disabled={isSubmitting}
-                                    className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-blue-500/20 transition-all flex items-center justify-center gap-2 group"
+                                    disabled={isSubmitting || engagementRating === 0}
+                                    className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-blue-500/20 transition-all flex items-center justify-center gap-2 group disabled:opacity-50 disabled:grayscale"
                                 >
                                     {isSubmitting ? (
                                         <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                     ) : (
                                         <>
-                                            Submit Feedback
+                                            Submit Feedbacks
                                             <Send className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                                         </>
                                     )}
                                 </Button>
+                                
+                                {!isSubmitting && (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            if (onSuccess) onSuccess();
+                                            onClose();
+                                        }}
+                                        className="w-full py-3 text-sm text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-all flex items-center justify-center gap-2"
+                                    >
+                                        Skip and download proposal
+                                    </button>
+                                )}
+
+                                {engagementRating === 0 && (
+                                    <p className="text-[10px] text-center text-gray-500 mt-2 italic">Please select a rating to enable submission</p>
+                                )}
                             </div>
                         </form>
                     </motion.div>
