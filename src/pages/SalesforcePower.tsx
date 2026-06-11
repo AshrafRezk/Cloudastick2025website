@@ -3678,8 +3678,80 @@ const SalesforcePower = () => {
             </div>
           </section>
 
-          {/* Data Cloud Section */}
-          <section ref={dataCloudRef} className="py-20 relative overflow-hidden">
+          {/* Agentforce Section (For Insurance) or Data Cloud Section */}
+          {selectedIndustry === 'insurance' ? (
+            <section className="py-20 relative overflow-hidden bg-gradient-to-br from-indigo-900 via-purple-900 to-violet-900">
+              <div className="absolute inset-0">
+                {[...Array(20)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute w-2 h-2 bg-pink-400/30 rounded-full"
+                    animate={{
+                      y: [0, -100],
+                      opacity: [0, 1, 0],
+                    }}
+                    transition={{
+                      duration: 3 + Math.random() * 2,
+                      repeat: Infinity,
+                      delay: Math.random() * 2,
+                    }}
+                    style={{
+                      left: `${Math.random() * 100}%`,
+                      top: `${80 + Math.random() * 20}%`,
+                    }}
+                  />
+                ))}
+              </div>
+
+              <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <AnimatedSection className="text-center mb-16">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-pink-500/20 rounded-full text-pink-300 text-sm font-medium mb-6 border border-pink-500/30">
+                    <Sparkles className="w-4 h-4 text-pink-400 animate-pulse" />
+                    Agentforce AI
+                  </div>
+                  <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+                    Supercharge Sales with Agentforce
+                  </h2>
+                  <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+                    Empower your insurance brokers and sales directors with autonomous AI agents that analyze interactions and drive deal closures.
+                  </p>
+                </AnimatedSection>
+
+                <div className="grid md:grid-cols-3 gap-8">
+                  <AnimatedSection delay={0.2} className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 hover:bg-white/15 transition-all">
+                    <div className="w-14 h-14 bg-gradient-to-br from-pink-500 to-rose-500 rounded-xl flex items-center justify-center mb-6">
+                      <Target className="w-7 h-7 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-white mb-4">Deal Closures & Insights</h3>
+                    <p className="text-gray-300 leading-relaxed">
+                      Agentforce provides sales teams with real-time deal insights, next-best-action recommendations, and proactive guidance to accelerate closures.
+                    </p>
+                  </AnimatedSection>
+
+                  <AnimatedSection delay={0.3} className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 hover:bg-white/15 transition-all">
+                    <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-xl flex items-center justify-center mb-6">
+                      <TrendingUp className="w-7 h-7 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-white mb-4">Lost Opportunity Trends</h3>
+                    <p className="text-gray-300 leading-relaxed">
+                      Equips Sales Directors with deep analytical insights to identify hidden patterns and trends in lost opportunities, helping refine overarching strategies.
+                    </p>
+                  </AnimatedSection>
+
+                  <AnimatedSection delay={0.4} className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 hover:bg-white/15 transition-all">
+                    <div className="w-14 h-14 bg-gradient-to-br from-violet-500 to-fuchsia-500 rounded-xl flex items-center justify-center mb-6">
+                      <Headphones className="w-7 h-7 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-white mb-4">Autodialler AI Analysis</h3>
+                    <p className="text-gray-300 leading-relaxed">
+                      Automatically analyzes recordings from autodialler apps to extract insights on pitching methodology, tone, and objection handling for targeted coaching.
+                    </p>
+                  </AnimatedSection>
+                </div>
+              </div>
+            </section>
+          ) : (
+            <section ref={dataCloudRef} className="py-20 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-gray-900 to-indigo-900"></div>
 
             {/* Particle Effects */}
@@ -3876,6 +3948,7 @@ const SalesforcePower = () => {
               </motion.div>
             </div>
           </section >
+          )}
 
           {/* Industry-Specific Solutions */}
           {
