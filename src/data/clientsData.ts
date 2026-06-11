@@ -25,7 +25,7 @@ export const clientsData: Record<string, ClientInfo> = {
   'Al Bedeawi & Partners': {
     id: 'al-bedeawi-partners',
     name: 'Al Bedeawi & Partners',
-    industry: 'Professional Services',
+    industry: 'Law',
     description: 'Al Bedeawi & Partners is a leading law firm providing comprehensive legal services across various practice areas. They offer expert legal counsel and representation to clients in both local and international matters.',
     websiteUrl: undefined
   },

@@ -1067,6 +1067,36 @@ export const industries: IndustryData[] = [
         freshworks: { score: 4, label: 'Limited App', description: 'Basic mobile CRM' },
         odoo: { score: 5, label: 'Responsive Web', description: 'Mobile responsive interface' },
         salezbuzz: { score: 4, label: 'Basic App', description: 'Standard mobile features' }
+      },
+      {
+        metric: 'Call Center Integration',
+        metricKey: 'insurance.metrics.callCenter',
+        salesforce: { score: 10, label: 'Omnichannel Integration', description: 'Deep native integration with Techsa and other leading autodialers' },
+        hubspot: { score: 7, label: 'Basic Calling', description: 'Standard dialer features' },
+        zoho: { score: 6, label: 'Telephony', description: 'Basic PBX integration' },
+        freshworks: { score: 8, label: 'Freshcaller', description: 'Native contact center' },
+        odoo: { score: 5, label: 'Limited', description: 'Basic VoIP integration' },
+        salezbuzz: { score: 6, label: 'Standard Dialer', description: 'Basic call logging' }
+      },
+      {
+        metric: 'CRM Core',
+        metricKey: 'insurance.metrics.crmCore',
+        salesforce: { score: 10, label: 'Industry Standard', description: 'The most comprehensive and customizable CRM core in the market' },
+        hubspot: { score: 9, label: 'Strong Core', description: 'Excellent core CRM capabilities' },
+        zoho: { score: 8, label: 'Feature Rich', description: 'Comprehensive but complex CRM core' },
+        freshworks: { score: 7, label: 'Good Core', description: 'Solid core CRM functionality' },
+        odoo: { score: 7, label: 'ERP Focused', description: 'CRM module within ERP core' },
+        salezbuzz: { score: 6, label: 'Basic CRM', description: 'Standard CRM capabilities' }
+      },
+      {
+        metric: 'UI/UX',
+        metricKey: 'insurance.metrics.uiux',
+        salesforce: { score: 10, label: 'Lightning Experience', description: 'Modern, highly intuitive and fully customizable interface' },
+        hubspot: { score: 9, label: 'User Friendly', description: 'Clean and easy to use interface' },
+        zoho: { score: 7, label: 'Cluttered', description: 'Interface can be overwhelming' },
+        freshworks: { score: 8, label: 'Clean UI', description: 'Modern and simple interface' },
+        odoo: { score: 6, label: 'ERP Style', description: 'Utilitarian interface design' },
+        salezbuzz: { score: 6, label: 'Basic UI', description: 'Standard interface' }
       }
     ]
   },
