@@ -3433,6 +3433,30 @@ const SalesforcePower = () => {
                       title: 'Techsa Autodialler Integration',
                       description: 'Seamlessly integrates with autodialler applications. We partner with Techsa, a premier auto dialler provider, to supercharge your team\'s outreach and productivity.',
                       gradient: 'from-emerald-500/20 to-blue-500/20'
+                    },
+                    {
+                      icon: Share2,
+                      title: 'Referrals & Commissions',
+                      description: 'Effortlessly track client referrals and automate the associated commission payouts to continuously grow and reward your network.',
+                      gradient: 'from-indigo-500/20 to-purple-500/20'
+                    },
+                    {
+                      icon: MessageSquare,
+                      title: 'WhatsApp Integration',
+                      description: 'Native WhatsApp integration allows your team to communicate with clients directly from within Salesforce for faster, personalized service.',
+                      gradient: 'from-green-500/20 to-emerald-500/20'
+                    },
+                    {
+                      icon: Target,
+                      title: 'Marketing Campaigns',
+                      description: 'Design, manage, and execute targeted marketing campaigns to nurture leads, cross-sell policies, and increase overall client retention.',
+                      gradient: 'from-pink-500/20 to-rose-500/20'
+                    },
+                    {
+                      icon: RefreshCw,
+                      title: 'Automated Renewals',
+                      description: 'Set up intelligent automation and timely reminders for upcoming policy renewals, ensuring you never miss an opportunity to retain a client.',
+                      gradient: 'from-orange-500/20 to-red-500/20'
                     }
                   ].map((feature, idx) => (
                     <motion.div
