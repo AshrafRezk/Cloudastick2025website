@@ -2283,19 +2283,13 @@ const SalesforcePower = () => {
               // Separate relevant and other clients
               const otherClients = allClients.filter(c => !relevantClientIds.has(c.id));
 
-              // Create carousel with relevant clients appearing 3x more frequently
-              // Pattern: [relevant x3, other, relevant x3, other, ...]
               const carouselClients: ClientInfo[] = [];
 
-              // Add relevant clients 3 times
-              carouselClients.push(...relevantClients);
-              carouselClients.push(...relevantClients);
+              // Add relevant clients first
               carouselClients.push(...relevantClients);
 
-              // Interleave with other clients
-              otherClients.forEach((client) => {
-                carouselClients.push(client);
-              });
+              // Then add all other clients
+              carouselClients.push(...otherClients);
 
               // Duplicate the entire pattern for seamless loop
               return [...carouselClients, ...carouselClients];
