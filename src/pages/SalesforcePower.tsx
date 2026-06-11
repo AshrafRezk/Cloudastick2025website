@@ -3403,7 +3403,7 @@ const SalesforcePower = () => {
                       Salesforce for Insurance & Brokerage
                     </h2>
                     <p className="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
-                      Trusted by <span className="text-white font-semibold">Deraya</span>, <span className="text-white font-semibold">Tawuniya</span>, and many other leading insurance companies and brokerages to power their operations.
+                      Trusted by our customer <span className="text-yellow-400 font-bold px-2 py-1 bg-yellow-400/10 rounded-md border border-yellow-400/30 shadow-[0_0_15px_rgba(250,204,21,0.2)] mx-1">Deraya Insurance</span>, <span className="text-white font-semibold">Tawuniya</span>, and many other leading insurance companies and brokerages to power their operations.
                     </p>
                   </motion.div>
                 </AnimatedSection>
