@@ -53,7 +53,9 @@ import {
   Layers,
   Paintbrush,
   Search as SearchIcon,
-  Network
+  Network,
+  Calculator,
+  Smartphone
 } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import AnimatedSection from '../components/AnimatedSection';
@@ -3378,6 +3380,79 @@ const SalesforcePower = () => {
           {/* TechSa Section - Only for Commerce, Manufacturing, and Healthcare */}
           {selectedIndustry && ['commerce-cloud', 'healthcare-life-sciences', 'manufacturing'].includes(selectedIndustry) && (
             <TechSaSection />
+          )}
+
+          {/* Insurance Section - Only for Insurance */}
+          {selectedIndustry === 'insurance' && (
+            <section className="py-20 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-900/20 via-gray-900 to-blue-900/20"></div>
+              <div className="absolute top-20 right-10 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse"></div>
+              
+              <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <AnimatedSection className="text-center mb-16">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8 }}
+                  >
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/20 rounded-full text-cyan-400 text-sm font-medium mb-6 border border-cyan-500/30">
+                      <span className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></span>
+                      Insurance Excellence
+                    </div>
+                    <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+                      Salesforce for Insurance & Brokerage
+                    </h2>
+                    <p className="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
+                      Trusted by <span className="text-white font-semibold">Deraya</span>, <span className="text-white font-semibold">Tawuniya</span>, and many other leading insurance companies and brokerages to power their operations.
+                    </p>
+                  </motion.div>
+                </AnimatedSection>
+
+                <div className="grid md:grid-cols-2 gap-8">
+                  {[
+                    {
+                      icon: Calculator,
+                      title: 'Advanced Premium Calculator',
+                      description: 'Salesforce features a highly advanced calculator for premiums covering all types of insurances, enabling instant and accurate quotes for your clients.',
+                      gradient: 'from-blue-500/20 to-cyan-500/20'
+                    },
+                    {
+                      icon: Users,
+                      title: 'Sales Team Tree Commissions',
+                      description: 'Intelligently calculate and distribute commissions across complex sales team trees and hierarchies with complete accuracy and transparency.',
+                      gradient: 'from-cyan-500/20 to-teal-500/20'
+                    },
+                    {
+                      icon: Smartphone,
+                      title: 'External Broker Mobile App',
+                      description: 'Empower your external brokers with a dedicated Salesforce mobile app, giving them the tools to manage leads and close policies anywhere.',
+                      gradient: 'from-teal-500/20 to-emerald-500/20'
+                    },
+                    {
+                      icon: Phone,
+                      title: 'Techsa Autodialler Integration',
+                      description: 'Seamlessly integrates with autodialler applications. We partner with Techsa, a premier auto dialler provider, to supercharge your team\'s outreach and productivity.',
+                      gradient: 'from-emerald-500/20 to-blue-500/20'
+                    }
+                  ].map((feature, idx) => (
+                    <motion.div
+                      key={idx}
+                      initial={{ opacity: 0, y: 30 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: 0.2 + idx * 0.1 }}
+                      whileHover={{ scale: 1.05, y: -5 }}
+                      className={`bg-gradient-to-br ${feature.gradient} rounded-2xl p-8 border border-white/10 backdrop-blur-sm hover:shadow-2xl hover:border-cyan-500/30 transition-all duration-300 group`}
+                    >
+                      <div className="w-14 h-14 bg-white/10 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <feature.icon className="w-7 h-7 text-cyan-400" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-white mb-4">{feature.title}</h3>
+                      <p className="text-gray-300 leading-relaxed text-lg">{feature.description}</p>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </section>
           )}
 
           {/* ERP Integration Section */}
