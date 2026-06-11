@@ -991,233 +991,82 @@ export const industries: IndustryData[] = [
     ]
   },
   {
-    id: 'financial-services',
-    name: 'Financial Services',
-    shortName: 'Financial Services',
-    icon: CreditCard,
-    gradient: 'from-emerald-500 to-teal-600',
-    description: 'Compliance-focused solutions for banking, insurance, and wealth management organizations.',
-    recommendedProducts: ['financial-services-cloud', 'sales-cloud', 'service-cloud', 'marketing-cloud', 'data-cloud', 'informatica'],
+    id: 'insurance',
+    name: 'Insurance & Brokerage',
+    shortName: 'Insurance',
+    icon: Shield,
+    gradient: 'from-blue-500 to-cyan-600',
+    description: 'Advanced solutions for insurance companies and brokerages to manage premiums, commissions, and clients.',
+    recommendedProducts: ['financial-services-cloud', 'sales-cloud', 'service-cloud', 'marketing-cloud'],
     useCases: [
-      'Client Relationship Management',
-      'Wealth Management & Advisory',
-      'Insurance Policy Management',
-      'Compliance & Risk Management',
-      'Digital Banking Services'
+      'Advanced Premium Calculation',
+      'Sales Team Tree Commissions',
+      'External Broker Mobile App',
+      'Automated Renewals & Reminders',
+      'WhatsApp & Autodialler Integration'
     ],
     successMetrics: [
-      { value: '45%', description: 'improvement in client satisfaction' },
-      { value: '30%', description: 'increase in cross-selling' },
-      { value: '60%', description: 'faster loan processing' },
-      { value: '25%', description: 'reduction in compliance costs' }
+      { value: '45%', description: 'increase in policy renewals' },
+      { value: '30%', description: 'faster premium calculation' },
+      { value: '60%', description: 'improvement in broker productivity' },
+      { value: '25%', description: 'reduction in manual data entry' }
     ],
     keyChallenges: [
-      'Regulatory compliance requirements',
-      'Client data security',
-      'Complex product offerings',
-      'Digital transformation needs'
+      'Complex commission hierarchies',
+      'Accurate premium calculations',
+      'External broker management',
+      'Timely policy renewals'
     ],
     painPoints: [
-      'Complex regulatory compliance requirements',
-      'Poor client relationship management',
-      'Manual wealth management processes',
-      'Inefficient risk assessment and reporting'
+      'Manual commission calculations',
+      'Disconnected broker communication',
+      'Missed renewal opportunities',
+      'Inaccurate premium quoting'
     ],
     integrations: [
-      'SAP Banking',
-      'Oracle Financial Services',
-      'FISERV',
-      'Fiserv',
-      'Temenos'
+      'Techsa Autodialler',
+      'WhatsApp API',
+      'Core Insurance Systems',
+      'Payment Gateways'
     ],
     dataSources: [
-      'Core banking systems',
-      'Investment platforms',
-      'Risk management systems',
-      'Compliance databases'
+      'Policy databases',
+      'Broker management systems',
+      'Client portals',
+      'Claims systems'
     ],
-    marketSize: '$2.5 trillion globally',
-    growthRate: '5.5% annually',
+    marketSize: '$5.8 trillion globally',
+    growthRate: '4.3% annually',
     comparisonMetrics: [
       {
-        metric: 'Client Relationship Management & Onboarding',
-        metricKey: 'financial.metrics.clientOnboarding',
-        salesforce: { score: 10, label: 'Full Onboarding Suite', description: 'Complete client onboarding with KYC/AML' },
-        hubspot: { score: 6, label: 'Basic CRM', description: 'Simple contact management' },
-        zoho: { score: 7, label: 'Good CRM', description: 'Client relationship management' },
-        freshworks: { score: 5, label: 'Limited', description: 'Basic contact management' },
-        odoo: { score: 8, label: 'Custom CRM', description: 'Configurable client management' },
-        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
+        metric: 'Premium Calculation & Quoting',
+        metricKey: 'insurance.metrics.premiumCalculation',
+        salesforce: { score: 10, label: 'Advanced Calculator', description: 'Highly advanced calculator for premiums covering all types of insurances' },
+        hubspot: { score: 4, label: 'Basic CRM', description: 'Requires manual calculation' },
+        zoho: { score: 6, label: 'Custom Forms', description: 'Basic quoting tools' },
+        freshworks: { score: 4, label: 'Limited', description: 'Simple pricing only' },
+        odoo: { score: 7, label: 'Custom Setup', description: 'Configurable quoting' },
+        salezbuzz: { score: 5, label: 'Basic Quoting', description: 'Standard quoting features' }
       },
       {
-        metric: 'Wealth Management & Portfolio Tracking',
-        metricKey: 'financial.metrics.wealthManagement',
-        salesforce: { score: 9, label: 'Wealth Suite', description: 'Complete wealth management and portfolio tracking' },
-        hubspot: { score: 3, label: 'Not Available', description: 'No wealth management' },
-        zoho: { score: 5, label: 'Basic Tracking', description: 'Simple portfolio tracking' },
-        freshworks: { score: 3, label: 'Not Available', description: 'No wealth features' },
-        odoo: { score: 7, label: 'Custom Wealth', description: 'Configurable wealth management' },
-        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
+        metric: 'Commission Management & Hierarchies',
+        metricKey: 'insurance.metrics.commissions',
+        salesforce: { score: 10, label: 'Sales Team Trees', description: 'Intelligently calculate commissions across complex sales team trees' },
+        hubspot: { score: 3, label: 'Not Available', description: 'No native commission engine' },
+        zoho: { score: 5, label: 'Basic Tracking', description: 'Simple commission tracking' },
+        freshworks: { score: 3, label: 'Limited', description: 'No commission hierarchies' },
+        odoo: { score: 6, label: 'Manual Setup', description: 'Requires extensive configuration' },
+        salezbuzz: { score: 5, label: 'Basic Tracking', description: 'Simple sales tracking' }
       },
       {
-        metric: 'Regulatory Compliance & Risk Management',
-        metricKey: 'financial.metrics.regulatoryCompliance',
-        salesforce: { score: 10, label: 'Compliance Suite', description: 'Complete regulatory compliance and risk management' },
-        hubspot: { score: 3, label: 'Not Available', description: 'No compliance features' },
-        zoho: { score: 6, label: 'Basic Compliance', description: 'Simple compliance tracking' },
-        freshworks: { score: 4, label: 'Limited', description: 'Basic audit trails' },
-        odoo: { score: 7, label: 'Custom Compliance', description: 'Configurable compliance workflows' },
-        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
-      },
-      {
-        metric: 'Loan Processing & Credit Management',
-        metricKey: 'financial.metrics.loanProcessing',
-        salesforce: { score: 9, label: 'Loan Suite', description: 'Complete loan processing and credit management' },
-        hubspot: { score: 3, label: 'Not Available', description: 'No loan management' },
-        zoho: { score: 6, label: 'Basic Loans', description: 'Simple loan tracking' },
-        freshworks: { score: 4, label: 'Limited', description: 'Basic case management' },
-        odoo: { score: 8, label: 'Loan Module', description: 'Configurable loan management' },
-        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
-      },
-      {
-        metric: 'Insurance Policy Management',
-        metricKey: 'financial.metrics.insurancePolicies',
-        salesforce: { score: 9, label: 'Insurance Suite', description: 'Complete insurance policy lifecycle management' },
-        hubspot: { score: 3, label: 'Not Available', description: 'No insurance features' },
-        zoho: { score: 6, label: 'Basic Policies', description: 'Simple policy tracking' },
-        freshworks: { score: 4, label: 'Limited', description: 'Basic case management' },
-        odoo: { score: 7, label: 'Policy Module', description: 'Configurable policy management' },
-        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
-      },
-      {
-        metric: 'Anti-Money Laundering (AML) & KYC',
-        metricKey: 'financial.metrics.amlKyc',
-        salesforce: { score: 10, label: 'AML/KYC Suite', description: 'Complete AML and KYC compliance management' },
-        hubspot: { score: 2, label: 'Not Available', description: 'No AML/KYC capabilities' },
-        zoho: { score: 4, label: 'Basic KYC', description: 'Simple identity verification' },
-        freshworks: { score: 3, label: 'Not Available', description: 'No compliance features' },
-        odoo: { score: 6, label: 'Custom KYC', description: 'Configurable KYC workflows' },
-        salezbuzz: { score: 5, label: 'Basic Capabilities', description: 'SMB-focused solution with essential features' }
-      },
-      {
-        metric: 'Investment Advisory & Financial Planning',
-        metricKey: 'financial.metrics.investmentAdvisory',
-        salesforce: { score: 8, label: 'Advisory Tools', description: 'Investment advisory and financial planning tools' },
-        hubspot: { score: 3, label: 'Not Available', description: 'No advisory features' },
-        zoho: { score: 5, label: 'Basic Planning', description: 'Simple financial planning' },
-        freshworks: { score: 3, label: 'Not Available', description: 'No advisory capabilities' },
-        odoo: { score: 6, label: 'Custom Advisory', description: 'Configurable advisory tools' },
-        salezbuzz: { score: 5, label: 'Basic Capabilities', description: 'SMB-focused solution with essential features' }
-      },
-      {
-        metric: 'Digital Banking & Mobile Services',
-        metricKey: 'financial.metrics.digitalBanking',
-        salesforce: { score: 9, label: 'Digital Suite', description: 'Complete digital banking and mobile services' },
-        hubspot: { score: 4, label: 'Not Available', description: 'No banking features' },
-        zoho: { score: 6, label: 'Basic Mobile', description: 'Simple mobile interface' },
-        freshworks: { score: 4, label: 'Limited', description: 'Basic mobile access' },
-        odoo: { score: 7, label: 'Custom Mobile', description: 'Configurable mobile banking' },
-        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
-      },
-      {
-        metric: 'Fraud Detection & Security',
-        metricKey: 'financial.metrics.fraudDetection',
-        salesforce: { score: 9, label: 'Security Suite', description: 'Advanced fraud detection and security management' },
-        hubspot: { score: 3, label: 'Not Available', description: 'No fraud detection' },
-        zoho: { score: 5, label: 'Basic Security', description: 'Simple security tracking' },
-        freshworks: { score: 4, label: 'Limited', description: 'Basic security features' },
-        odoo: { score: 6, label: 'Custom Security', description: 'Configurable security workflows' },
-        salezbuzz: { score: 5, label: 'Basic Capabilities', description: 'SMB-focused solution with essential features' }
-      },
-      {
-        metric: 'Customer Onboarding & KYC Automation',
-        metricKey: 'financial.metrics.customerOnboarding',
-        salesforce: { score: 10, label: 'Automated Onboarding', description: 'AI-powered customer onboarding and KYC automation' },
-        hubspot: { score: 4, label: 'Not Available', description: 'No onboarding automation' },
-        zoho: { score: 6, label: 'Basic Onboarding', description: 'Simple customer setup' },
-        freshworks: { score: 4, label: 'Limited', description: 'Basic customer management' },
-        odoo: { score: 7, label: 'Custom Onboarding', description: 'Configurable onboarding workflows' },
-        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
-      },
-      {
-        metric: 'Investment Performance Analytics',
-        metricKey: 'financial.metrics.investmentAnalytics',
-        salesforce: { score: 10, label: 'AI Analytics', description: 'Einstein Analytics for investment performance' },
-        hubspot: { score: 4, label: 'Not Available', description: 'No investment analytics' },
-        zoho: { score: 6, label: 'Basic Analytics', description: 'Simple performance tracking' },
-        freshworks: { score: 4, label: 'Limited', description: 'Basic reporting' },
-        odoo: { score: 7, label: 'Custom Analytics', description: 'Configurable investment analytics' },
-        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
-      },
-      {
-        metric: 'Regulatory Reporting & Documentation',
-        metricKey: 'financial.metrics.regulatoryReporting',
-        salesforce: { score: 9, label: 'Reporting Suite', description: 'Complete regulatory reporting and documentation' },
-        hubspot: { score: 3, label: 'Not Available', description: 'No regulatory reporting' },
-        zoho: { score: 5, label: 'Basic Reporting', description: 'Simple report generation' },
-        freshworks: { score: 4, label: 'Limited', description: 'Basic document management' },
-        odoo: { score: 7, label: 'Custom Reporting', description: 'Configurable reporting workflows' },
-        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
-      },
-      {
-        metric: 'Client Communication & Document Management',
-        metricKey: 'financial.metrics.clientCommunication',
-        salesforce: { score: 9, label: 'Communication Suite', description: 'Complete client communication and document management' },
-        hubspot: { score: 7, label: 'Good Communication', description: 'Email and communication tools' },
-        zoho: { score: 7, label: 'Good Communication', description: 'Client communication management' },
-        freshworks: { score: 6, label: 'Communication Focus', description: 'Communication and support tools' },
-        odoo: { score: 8, label: 'Custom Communication', description: 'Configurable communication workflows' },
-        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
-      },
-      {
-        metric: 'Trading & Transaction Management',
-        metricKey: 'financial.metrics.tradingTransactions',
-        salesforce: { score: 8, label: 'Trading Integration', description: 'Trading platform integration and transaction management' },
-        hubspot: { score: 2, label: 'Not Available', description: 'No trading capabilities' },
-        zoho: { score: 5, label: 'Basic Trading', description: 'Simple transaction tracking' },
-        freshworks: { score: 3, label: 'Not Available', description: 'No trading features' },
-        odoo: { score: 6, label: 'Custom Trading', description: 'Configurable trading workflows' },
-        salezbuzz: { score: 5, label: 'Basic Capabilities', description: 'SMB-focused solution with essential features' }
-      },
-      {
-        metric: 'Risk Assessment & Monitoring',
-        metricKey: 'financial.metrics.riskAssessment',
-        salesforce: { score: 9, label: 'Risk Suite', description: 'Complete risk assessment and monitoring' },
-        hubspot: { score: 3, label: 'Not Available', description: 'No risk management' },
-        zoho: { score: 6, label: 'Basic Risk', description: 'Simple risk tracking' },
-        freshworks: { score: 4, label: 'Limited', description: 'Basic risk management' },
-        odoo: { score: 7, label: 'Risk Module', description: 'Configurable risk management' },
-        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
-      },
-      {
-        metric: 'Client Portal & Self-Service',
-        metricKey: 'financial.metrics.clientPortal',
-        salesforce: { score: 10, label: 'Portal Suite', description: 'Complete client self-service portal' },
-        hubspot: { score: 6, label: 'Basic Portal', description: 'Simple client portal' },
-        zoho: { score: 7, label: 'Good Portal', description: 'Client self-service portal' },
-        freshworks: { score: 6, label: 'Support Portal', description: 'Support-focused client portal' },
-        odoo: { score: 8, label: 'Custom Portal', description: 'Configurable client portal' },
-        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
-      },
-      {
-        metric: 'Compliance Audit & Documentation',
-        metricKey: 'financial.metrics.complianceAudit',
-        salesforce: { score: 9, label: 'Audit Suite', description: 'Complete compliance audit and documentation' },
-        hubspot: { score: 3, label: 'Not Available', description: 'No audit capabilities' },
-        zoho: { score: 5, label: 'Basic Audit', description: 'Simple audit tracking' },
-        freshworks: { score: 4, label: 'Limited', description: 'Basic documentation' },
-        odoo: { score: 7, label: 'Custom Audit', description: 'Configurable audit workflows' },
-        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
-      },
-      {
-        metric: 'Multi-Currency & International Banking',
-        metricKey: 'financial.metrics.multiCurrency',
-        salesforce: { score: 8, label: 'Currency Suite', description: 'Multi-currency and international banking support' },
-        hubspot: { score: 3, label: 'Not Available', description: 'No currency features' },
-        zoho: { score: 6, label: 'Basic Currency', description: 'Simple currency tracking' },
-        freshworks: { score: 3, label: 'Not Available', description: 'No currency capabilities' },
-        odoo: { score: 8, label: 'Currency Module', description: 'Configurable multi-currency support' },
-        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
+        metric: 'External Broker Enablement',
+        metricKey: 'insurance.metrics.brokerApp',
+        salesforce: { score: 10, label: 'Dedicated Mobile App', description: 'Empower external brokers with a dedicated mobile app for leads and policies' },
+        hubspot: { score: 5, label: 'Standard App', description: 'Generic mobile app only' },
+        zoho: { score: 6, label: 'Basic App', description: 'Standard mobile access' },
+        freshworks: { score: 4, label: 'Limited App', description: 'Basic mobile CRM' },
+        odoo: { score: 5, label: 'Responsive Web', description: 'Mobile responsive interface' },
+        salezbuzz: { score: 4, label: 'Basic App', description: 'Standard mobile features' }
       }
     ]
   },
@@ -2788,6 +2637,238 @@ export const industries: IndustryData[] = [
       }
     ]
   }
+,
+  {
+    id: 'financial-services',
+    name: 'Financial Services',
+    shortName: 'Financial Services',
+    icon: CreditCard,
+    gradient: 'from-emerald-500 to-teal-600',
+    description: 'Compliance-focused solutions for banking, insurance, and wealth management organizations.',
+    recommendedProducts: ['financial-services-cloud', 'sales-cloud', 'service-cloud', 'marketing-cloud', 'data-cloud', 'informatica'],
+    useCases: [
+      'Client Relationship Management',
+      'Wealth Management & Advisory',
+      'Insurance Policy Management',
+      'Compliance & Risk Management',
+      'Digital Banking Services'
+    ],
+    successMetrics: [
+      { value: '45%', description: 'improvement in client satisfaction' },
+      { value: '30%', description: 'increase in cross-selling' },
+      { value: '60%', description: 'faster loan processing' },
+      { value: '25%', description: 'reduction in compliance costs' }
+    ],
+    keyChallenges: [
+      'Regulatory compliance requirements',
+      'Client data security',
+      'Complex product offerings',
+      'Digital transformation needs'
+    ],
+    painPoints: [
+      'Complex regulatory compliance requirements',
+      'Poor client relationship management',
+      'Manual wealth management processes',
+      'Inefficient risk assessment and reporting'
+    ],
+    integrations: [
+      'SAP Banking',
+      'Oracle Financial Services',
+      'FISERV',
+      'Fiserv',
+      'Temenos'
+    ],
+    dataSources: [
+      'Core banking systems',
+      'Investment platforms',
+      'Risk management systems',
+      'Compliance databases'
+    ],
+    marketSize: '$2.5 trillion globally',
+    growthRate: '5.5% annually',
+    comparisonMetrics: [
+      {
+        metric: 'Client Relationship Management & Onboarding',
+        metricKey: 'financial.metrics.clientOnboarding',
+        salesforce: { score: 10, label: 'Full Onboarding Suite', description: 'Complete client onboarding with KYC/AML' },
+        hubspot: { score: 6, label: 'Basic CRM', description: 'Simple contact management' },
+        zoho: { score: 7, label: 'Good CRM', description: 'Client relationship management' },
+        freshworks: { score: 5, label: 'Limited', description: 'Basic contact management' },
+        odoo: { score: 8, label: 'Custom CRM', description: 'Configurable client management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
+      },
+      {
+        metric: 'Wealth Management & Portfolio Tracking',
+        metricKey: 'financial.metrics.wealthManagement',
+        salesforce: { score: 9, label: 'Wealth Suite', description: 'Complete wealth management and portfolio tracking' },
+        hubspot: { score: 3, label: 'Not Available', description: 'No wealth management' },
+        zoho: { score: 5, label: 'Basic Tracking', description: 'Simple portfolio tracking' },
+        freshworks: { score: 3, label: 'Not Available', description: 'No wealth features' },
+        odoo: { score: 7, label: 'Custom Wealth', description: 'Configurable wealth management' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
+      },
+      {
+        metric: 'Regulatory Compliance & Risk Management',
+        metricKey: 'financial.metrics.regulatoryCompliance',
+        salesforce: { score: 10, label: 'Compliance Suite', description: 'Complete regulatory compliance and risk management' },
+        hubspot: { score: 3, label: 'Not Available', description: 'No compliance features' },
+        zoho: { score: 6, label: 'Basic Compliance', description: 'Simple compliance tracking' },
+        freshworks: { score: 4, label: 'Limited', description: 'Basic audit trails' },
+        odoo: { score: 7, label: 'Custom Compliance', description: 'Configurable compliance workflows' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
+      },
+      {
+        metric: 'Loan Processing & Credit Management',
+        metricKey: 'financial.metrics.loanProcessing',
+        salesforce: { score: 9, label: 'Loan Suite', description: 'Complete loan processing and credit management' },
+        hubspot: { score: 3, label: 'Not Available', description: 'No loan management' },
+        zoho: { score: 6, label: 'Basic Loans', description: 'Simple loan tracking' },
+        freshworks: { score: 4, label: 'Limited', description: 'Basic case management' },
+        odoo: { score: 8, label: 'Loan Module', description: 'Configurable loan management' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
+      },
+      {
+        metric: 'Insurance Policy Management',
+        metricKey: 'financial.metrics.insurancePolicies',
+        salesforce: { score: 9, label: 'Insurance Suite', description: 'Complete insurance policy lifecycle management' },
+        hubspot: { score: 3, label: 'Not Available', description: 'No insurance features' },
+        zoho: { score: 6, label: 'Basic Policies', description: 'Simple policy tracking' },
+        freshworks: { score: 4, label: 'Limited', description: 'Basic case management' },
+        odoo: { score: 7, label: 'Policy Module', description: 'Configurable policy management' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
+      },
+      {
+        metric: 'Anti-Money Laundering (AML) & KYC',
+        metricKey: 'financial.metrics.amlKyc',
+        salesforce: { score: 10, label: 'AML/KYC Suite', description: 'Complete AML and KYC compliance management' },
+        hubspot: { score: 2, label: 'Not Available', description: 'No AML/KYC capabilities' },
+        zoho: { score: 4, label: 'Basic KYC', description: 'Simple identity verification' },
+        freshworks: { score: 3, label: 'Not Available', description: 'No compliance features' },
+        odoo: { score: 6, label: 'Custom KYC', description: 'Configurable KYC workflows' },
+        salezbuzz: { score: 5, label: 'Basic Capabilities', description: 'SMB-focused solution with essential features' }
+      },
+      {
+        metric: 'Investment Advisory & Financial Planning',
+        metricKey: 'financial.metrics.investmentAdvisory',
+        salesforce: { score: 8, label: 'Advisory Tools', description: 'Investment advisory and financial planning tools' },
+        hubspot: { score: 3, label: 'Not Available', description: 'No advisory features' },
+        zoho: { score: 5, label: 'Basic Planning', description: 'Simple financial planning' },
+        freshworks: { score: 3, label: 'Not Available', description: 'No advisory capabilities' },
+        odoo: { score: 6, label: 'Custom Advisory', description: 'Configurable advisory tools' },
+        salezbuzz: { score: 5, label: 'Basic Capabilities', description: 'SMB-focused solution with essential features' }
+      },
+      {
+        metric: 'Digital Banking & Mobile Services',
+        metricKey: 'financial.metrics.digitalBanking',
+        salesforce: { score: 9, label: 'Digital Suite', description: 'Complete digital banking and mobile services' },
+        hubspot: { score: 4, label: 'Not Available', description: 'No banking features' },
+        zoho: { score: 6, label: 'Basic Mobile', description: 'Simple mobile interface' },
+        freshworks: { score: 4, label: 'Limited', description: 'Basic mobile access' },
+        odoo: { score: 7, label: 'Custom Mobile', description: 'Configurable mobile banking' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
+      },
+      {
+        metric: 'Fraud Detection & Security',
+        metricKey: 'financial.metrics.fraudDetection',
+        salesforce: { score: 9, label: 'Security Suite', description: 'Advanced fraud detection and security management' },
+        hubspot: { score: 3, label: 'Not Available', description: 'No fraud detection' },
+        zoho: { score: 5, label: 'Basic Security', description: 'Simple security tracking' },
+        freshworks: { score: 4, label: 'Limited', description: 'Basic security features' },
+        odoo: { score: 6, label: 'Custom Security', description: 'Configurable security workflows' },
+        salezbuzz: { score: 5, label: 'Basic Capabilities', description: 'SMB-focused solution with essential features' }
+      },
+      {
+        metric: 'Customer Onboarding & KYC Automation',
+        metricKey: 'financial.metrics.customerOnboarding',
+        salesforce: { score: 10, label: 'Automated Onboarding', description: 'AI-powered customer onboarding and KYC automation' },
+        hubspot: { score: 4, label: 'Not Available', description: 'No onboarding automation' },
+        zoho: { score: 6, label: 'Basic Onboarding', description: 'Simple customer setup' },
+        freshworks: { score: 4, label: 'Limited', description: 'Basic customer management' },
+        odoo: { score: 7, label: 'Custom Onboarding', description: 'Configurable onboarding workflows' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
+      },
+      {
+        metric: 'Investment Performance Analytics',
+        metricKey: 'financial.metrics.investmentAnalytics',
+        salesforce: { score: 10, label: 'AI Analytics', description: 'Einstein Analytics for investment performance' },
+        hubspot: { score: 4, label: 'Not Available', description: 'No investment analytics' },
+        zoho: { score: 6, label: 'Basic Analytics', description: 'Simple performance tracking' },
+        freshworks: { score: 4, label: 'Limited', description: 'Basic reporting' },
+        odoo: { score: 7, label: 'Custom Analytics', description: 'Configurable investment analytics' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
+      },
+      {
+        metric: 'Regulatory Reporting & Documentation',
+        metricKey: 'financial.metrics.regulatoryReporting',
+        salesforce: { score: 9, label: 'Reporting Suite', description: 'Complete regulatory reporting and documentation' },
+        hubspot: { score: 3, label: 'Not Available', description: 'No regulatory reporting' },
+        zoho: { score: 5, label: 'Basic Reporting', description: 'Simple report generation' },
+        freshworks: { score: 4, label: 'Limited', description: 'Basic document management' },
+        odoo: { score: 7, label: 'Custom Reporting', description: 'Configurable reporting workflows' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
+      },
+      {
+        metric: 'Client Communication & Document Management',
+        metricKey: 'financial.metrics.clientCommunication',
+        salesforce: { score: 9, label: 'Communication Suite', description: 'Complete client communication and document management' },
+        hubspot: { score: 7, label: 'Good Communication', description: 'Email and communication tools' },
+        zoho: { score: 7, label: 'Good Communication', description: 'Client communication management' },
+        freshworks: { score: 6, label: 'Communication Focus', description: 'Communication and support tools' },
+        odoo: { score: 8, label: 'Custom Communication', description: 'Configurable communication workflows' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
+      },
+      {
+        metric: 'Trading & Transaction Management',
+        metricKey: 'financial.metrics.tradingTransactions',
+        salesforce: { score: 8, label: 'Trading Integration', description: 'Trading platform integration and transaction management' },
+        hubspot: { score: 2, label: 'Not Available', description: 'No trading capabilities' },
+        zoho: { score: 5, label: 'Basic Trading', description: 'Simple transaction tracking' },
+        freshworks: { score: 3, label: 'Not Available', description: 'No trading features' },
+        odoo: { score: 6, label: 'Custom Trading', description: 'Configurable trading workflows' },
+        salezbuzz: { score: 5, label: 'Basic Capabilities', description: 'SMB-focused solution with essential features' }
+      },
+      {
+        metric: 'Risk Assessment & Monitoring',
+        metricKey: 'financial.metrics.riskAssessment',
+        salesforce: { score: 9, label: 'Risk Suite', description: 'Complete risk assessment and monitoring' },
+        hubspot: { score: 3, label: 'Not Available', description: 'No risk management' },
+        zoho: { score: 6, label: 'Basic Risk', description: 'Simple risk tracking' },
+        freshworks: { score: 4, label: 'Limited', description: 'Basic risk management' },
+        odoo: { score: 7, label: 'Risk Module', description: 'Configurable risk management' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
+      },
+      {
+        metric: 'Client Portal & Self-Service',
+        metricKey: 'financial.metrics.clientPortal',
+        salesforce: { score: 10, label: 'Portal Suite', description: 'Complete client self-service portal' },
+        hubspot: { score: 6, label: 'Basic Portal', description: 'Simple client portal' },
+        zoho: { score: 7, label: 'Good Portal', description: 'Client self-service portal' },
+        freshworks: { score: 6, label: 'Support Portal', description: 'Support-focused client portal' },
+        odoo: { score: 8, label: 'Custom Portal', description: 'Configurable client portal' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
+      },
+      {
+        metric: 'Compliance Audit & Documentation',
+        metricKey: 'financial.metrics.complianceAudit',
+        salesforce: { score: 9, label: 'Audit Suite', description: 'Complete compliance audit and documentation' },
+        hubspot: { score: 3, label: 'Not Available', description: 'No audit capabilities' },
+        zoho: { score: 5, label: 'Basic Audit', description: 'Simple audit tracking' },
+        freshworks: { score: 4, label: 'Limited', description: 'Basic documentation' },
+        odoo: { score: 7, label: 'Custom Audit', description: 'Configurable audit workflows' },
+        salezbuzz: { score: 6, label: 'Decent Features', description: 'SMB-focused solution with essential features' }
+      },
+      {
+        metric: 'Multi-Currency & International Banking',
+        metricKey: 'financial.metrics.multiCurrency',
+        salesforce: { score: 8, label: 'Currency Suite', description: 'Multi-currency and international banking support' },
+        hubspot: { score: 3, label: 'Not Available', description: 'No currency features' },
+        zoho: { score: 6, label: 'Basic Currency', description: 'Simple currency tracking' },
+        freshworks: { score: 3, label: 'Not Available', description: 'No currency capabilities' },
+        odoo: { score: 8, label: 'Currency Module', description: 'Configurable multi-currency support' },
+        salezbuzz: { score: 7, label: 'Good Capabilities', description: 'SMB-focused solution with essential features' }
+      }
+    ]
+  },
 ];
 
 export const getIndustryById = (id: string): IndustryData | undefined => {
