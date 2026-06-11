@@ -3457,6 +3457,12 @@ const SalesforcePower = () => {
                       title: 'Automated Renewals',
                       description: 'Set up intelligent automation and timely reminders for upcoming policy renewals, ensuring you never miss an opportunity to retain a client.',
                       gradient: 'from-orange-500/20 to-red-500/20'
+                    },
+                    {
+                      icon: Shield,
+                      title: 'Regulatory Compliance & Auditing',
+                      description: 'Ensure full adherence to local and international insurance regulations with automated compliance checks, audit trails, and secure document management.',
+                      gradient: 'from-amber-500/20 to-yellow-500/20'
                     }
                   ].map((feature, idx) => (
                     <motion.div

@@ -15,6 +15,7 @@ export const getClientsByIndustry = (selectedIndustry: string): ClientInfo[] => 
     'manufacturing': ['Manufacturing', 'Industrial'],
     'telecommunications': ['Telecommunications', 'Telecom'],
     'financial-services': ['Fintech', 'Banking', 'Financial Services', 'Insurance'],
+    'insurance': ['Insurance', 'Brokerage', 'Financial Services'],
     'retail-b2c': ['Retail', 'E-commerce'],
     'b2b-commerce': ['B2B', 'Distribution', 'Wholesale'],
     'professional-services': ['Professional Services', 'Consulting', 'Technology', 'Education'],

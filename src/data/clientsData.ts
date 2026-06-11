@@ -88,9 +88,16 @@ export const clientsData: Record<string, ClientInfo> = {
   'Deraya': {
     id: 'deraya',
     name: 'Deraya',
-    industry: 'Professional Services',
+    industry: 'Insurance',
     description: 'Deraya is a professional services company specializing in brokerage and financial advisory services. They provide expert guidance and solutions to help clients achieve their financial and business objectives.',
     websiteUrl: undefined
+  },
+  'Tawuniya': {
+    id: 'tawuniya',
+    name: 'Tawuniya',
+    industry: 'Insurance',
+    description: 'Tawuniya is the pioneer of the insurance industry in Saudi Arabia, providing innovative and comprehensive insurance products and services.',
+    websiteUrl: 'https://www.tawuniya.com.sa'
   },
   'Dorra': {
     id: 'dorra',
