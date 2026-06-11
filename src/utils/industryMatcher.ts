@@ -48,7 +48,7 @@ const INDUSTRY_MAPPING: { [key: string]: string } = {
   'financial services': 'financial-services',
   'finance': 'financial-services',
   'banking': 'financial-services',
-  'insurance': 'financial-services',
+  'insurance': 'insurance',
   'investment management': 'financial-services',
 
   // Commerce Cloud (Retail/E-commerce)
@@ -216,7 +216,7 @@ export function matchIndustryFromUrl(industryParam: string | null): string | nul
     'bank': 'financial-services',
     'finance': 'financial-services',
     'financial': 'financial-services',
-    'insurance': 'financial-services',
+    'insurance': 'insurance',
     'investment': 'financial-services',
 
     'retail': 'commerce-cloud',
