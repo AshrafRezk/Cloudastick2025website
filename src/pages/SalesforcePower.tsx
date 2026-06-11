@@ -3457,6 +3457,12 @@ const SalesforcePower = () => {
                       title: 'Regulatory Compliance & Auditing',
                       description: 'Ensure full adherence to local and international insurance regulations with automated compliance checks, audit trails, and secure document management.',
                       gradient: 'from-amber-500/20 to-yellow-500/20'
+                    },
+                    {
+                      icon: Network,
+                      title: 'Business Line Segmentation',
+                      description: 'Intelligently split teams and focal areas under the same business line (e.g., Motor). Effectively manage distinct groups such as SMEs vs Individuals or Local vs International operations.',
+                      gradient: 'from-violet-500/20 to-fuchsia-500/20'
                     }
                   ].map((feature, idx) => (
                     <motion.div
