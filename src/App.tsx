@@ -44,6 +44,7 @@ import SalesVerticalDetail from "./pages/SalesVerticalDetail";
 import Profile from "./pages/Profile";
 import Certificate from "./pages/Certificate";
 import VerifyCertificate from "./pages/VerifyCertificate";
+import CustomerSurvey from "./pages/CustomerSurvey";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { SalesforceProvider } from "./contexts/SalesforceContext";
 import { PortalUserProvider } from "./contexts/PortalUserContext";
@@ -121,6 +122,9 @@ const App = () => {
 
                     {/* Special route for Project Team View (shareable customer page) - no standard startup or layout */}
                     <Route path="/project-team-view" element={<ProjectTeamView />} />
+
+                    {/* Special route for Customer Session Feedback Survey - no startup or layout */}
+                    <Route path="/survey" element={<CustomerSurvey />} />
 
                     {/* Special routes for Sales Portal - no standard startup or layout */}
                     <Route path="/sales" element={<SalesVerticals />} />
