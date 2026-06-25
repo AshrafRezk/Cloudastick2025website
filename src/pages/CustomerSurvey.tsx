@@ -888,7 +888,7 @@ const CustomerSurvey: React.FC = () => {
                             setRespondentName(e.target.value);
                             if (e.target.value.trim()) setNameError(false);
                           }}
-                          placeholder="e.g. Ahmed Al-Farsi"
+                          placeholder="e.g. John Philips"
                           className={`w-full px-4 py-2.5 rounded-xl text-sm text-white placeholder-gray-600 outline-none focus:ring-2 transition-all ${nameError ? 'ring-2 ring-red-500/50' : ''}`}
                           style={{
                             background: nameError ? 'rgba(239,68,68,0.05)' : 'rgba(255,255,255,0.06)',
@@ -912,7 +912,7 @@ const CustomerSurvey: React.FC = () => {
                             setRespondentEmail(e.target.value);
                             if (e.target.value.trim()) setEmailError(false);
                           }}
-                          placeholder="you@company.com"
+                          placeholder={`you@${accountNameParam ? accountNameParam.toLowerCase().replace(/[^a-z0-9]/g, '') + '.com' : 'company.com'}`}
                           className={`w-full px-4 py-2.5 rounded-xl text-sm text-white placeholder-gray-600 outline-none focus:ring-2 transition-all ${emailError ? 'ring-2 ring-red-500/50' : ''}`}
                           style={{
                             background: emailError ? 'rgba(239,68,68,0.05)' : 'rgba(255,255,255,0.06)',
