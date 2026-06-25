@@ -77,8 +77,8 @@ const RATING_FIELDS: RatingField[] = [
   },
   {
     key: 'overallSessionRating',
-    label: 'Overall Session',
-    description: 'Overall, how satisfied are you with this session?',
+    label: 'Overall Engagement/Session',
+    description: 'Overall, how satisfied are you with this engagement/session with Cloudastick?',
     icon: <Star className="w-5 h-5" />,
   },
 ];
@@ -89,6 +89,56 @@ const RATING_LABELS: Record<number, string> = {
   3: 'Acceptable',
   4: 'Good',
   5: 'Excellent',
+};
+
+const COMPANY_VALUES = [
+  'Reverence',
+  'Efficiency',
+  'Inclusion',
+  'Transparency',
+  'Consistency'
+];
+
+const RevolvingValues: React.FC = () => {
+  return (
+    <div className="fixed inset-0 pointer-events-none flex items-center justify-center overflow-hidden z-0 opacity-15 md:opacity-20">
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ repeat: Infinity, duration: 80, ease: 'linear' }}
+        className="relative flex items-center justify-center"
+      >
+        {COMPANY_VALUES.map((val, idx, arr) => {
+          const angle = (idx * 360) / arr.length;
+          return (
+            <div
+              key={val}
+              className="absolute flex items-center justify-center"
+              style={{ transform: `rotate(${angle}deg)` }}
+            >
+              <div className="-translate-y-[380px] sm:-translate-y-[450px] md:-translate-y-[550px]">
+                <motion.div
+                  animate={{ rotate: -360 }}
+                  transition={{ repeat: Infinity, duration: 80, ease: 'linear' }}
+                >
+                  <div style={{ transform: `rotate(${-angle}deg)` }}>
+                    <span
+                      className="text-5xl sm:text-7xl md:text-[100px] font-black uppercase tracking-[0.15em] text-transparent whitespace-nowrap"
+                      style={{
+                        WebkitTextStroke: '2px rgba(255,255,255,0.15)',
+                        textShadow: '0 0 30px rgba(255,255,255,0.05)',
+                      }}
+                    >
+                      {val}
+                    </span>
+                  </div>
+                </motion.div>
+              </div>
+            </div>
+          );
+        })}
+      </motion.div>
+    </div>
+  );
 };
 
 // ─── Helper: logo resolution ───────────────────────────────────────────────────
@@ -416,6 +466,9 @@ const CustomerSurvey: React.FC = () => {
   // Form state
   const [respondentName, setRespondentName] = useState('');
   const [respondentEmail, setRespondentEmail] = useState('');
+  const [nameError, setNameError] = useState(false);
+  const [emailError, setEmailError] = useState(false);
+
   const [ratings, setRatings] = useState<Record<string, number>>({
     businessUnderstandingRating: 0,
     businessImpactRating: 0,
@@ -426,6 +479,36 @@ const CustomerSurvey: React.FC = () => {
   const [ratingErrors, setRatingErrors] = useState<Record<string, boolean>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // Gimmick state
+  const [firstRatingVal, setFirstRatingVal] = useState<number | null>(null);
+  const [gimmickTriggered, setGimmickTriggered] = useState(false);
+  const [showGimmick, setShowGimmick] = useState(false);
+  const [gimmickMessage, setGimmickMessage] = useState('');
+
+  // ── Gimmick Effect ─────────────────────────────────────────────────────────
+
+  useEffect(() => {
+    if (firstRatingVal !== null && respondentName.trim() !== '' && !gimmickTriggered) {
+      setGimmickTriggered(true);
+      const timer = setTimeout(() => {
+        const nameTrimmed = respondentName.trim();
+        const firstName = nameTrimmed.split(/\s+/)[0];
+        
+        if (nameTrimmed.toLowerCase() === 'ashraf rezk') {
+          setGimmickMessage(`Thank you, Ashraf, we are glad we are making a food impression!`);
+        } else if (firstRatingVal >= 4) {
+          setGimmickMessage(`Thank you ${firstName}, we are glad we are making a good impression!`);
+        } else {
+          setGimmickMessage(`Thank you, ${firstName} We will definetly work on that moving forward!`);
+        }
+        setShowGimmick(true);
+
+        setTimeout(() => setShowGimmick(false), 5000);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [firstRatingVal, respondentName, gimmickTriggered]);
 
   // Thank-you state
   const [feedbackNumber, setFeedbackNumber] = useState('');
@@ -496,17 +579,31 @@ const CustomerSurvey: React.FC = () => {
     async (e: React.FormEvent) => {
       e.preventDefault();
 
+      let hasValidationErrors = false;
+
+      // Validate name and email
+      const nErr = !respondentName.trim();
+      const eErr = !respondentEmail.trim();
+      setNameError(nErr);
+      setEmailError(eErr);
+
+      if (nErr || eErr) {
+        hasValidationErrors = true;
+      }
+
       // Validate all 4 ratings
       const errors: Record<string, boolean> = {};
       RATING_FIELDS.forEach(({ key }) => {
         if (!ratings[key] || ratings[key] < 1) {
           errors[key] = true;
+          hasValidationErrors = true;
         }
       });
-      if (Object.keys(errors).length > 0) {
+
+      if (hasValidationErrors) {
         setRatingErrors(errors);
         // Scroll to first error
-        document.querySelector('[data-rating-error]')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.querySelector('[data-error="true"], [data-rating-error="true"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
 
@@ -585,6 +682,39 @@ const CustomerSurvey: React.FC = () => {
           fontFamily: "'Inter', 'system-ui', sans-serif",
         }}
       >
+        <RevolvingValues />
+
+        {/* ── GIMMICK TOAST ── */}
+        <AnimatePresence>
+          {showGimmick && (
+            <motion.div
+              initial={{ opacity: 0, y: 50, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.9 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+              className="fixed bottom-8 right-8 z-50 max-w-sm rounded-2xl p-4 shadow-2xl flex items-start gap-4 cursor-pointer"
+              onClick={() => setShowGimmick(false)}
+              style={{
+                background: 'rgba(20, 20, 30, 0.85)',
+                backdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                boxShadow: '0 10px 40px -10px rgba(0,255,255,0.3)',
+              }}
+            >
+              <div
+                className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+                style={{ background: 'linear-gradient(135deg, hsl(210 100% 50%), hsl(188 100% 42%))' }}
+              >
+                <Star className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h4 className="text-white font-bold text-sm mb-1">Feedback Registered!</h4>
+                <p className="text-gray-300 text-sm leading-tight">{gimmickMessage}</p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <AnimatePresence mode="wait">
           {/* ── LOADING ── */}
           {pageState === 'loading' && (
@@ -636,7 +766,7 @@ const CustomerSurvey: React.FC = () => {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="w-full max-w-2xl mb-8"
+                className="w-full max-w-2xl mb-8 relative z-10"
               >
                 <div
                   className="rounded-2xl px-6 py-5"
@@ -707,7 +837,7 @@ const CustomerSurvey: React.FC = () => {
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
-                className="w-full max-w-2xl"
+                className="w-full max-w-2xl relative z-10"
               >
                 <form onSubmit={handleSubmit} noValidate>
                   <div
@@ -719,52 +849,67 @@ const CustomerSurvey: React.FC = () => {
                     }}
                   >
                     {/* Intro */}
-                    <div>
-                      <h1 className="text-xl font-bold text-white mb-1">Share Your Feedback</h1>
-                      <p className="text-gray-400 text-sm">
-                        Your honest feedback helps us improve. This should take less than 2 minutes.
+                    <div className="mb-6">
+                      <h1 className="text-2xl font-bold text-white mb-3">Share Your Feedback</h1>
+                      <div className="p-4 rounded-xl mb-4" style={{ background: 'rgba(21, 191, 214, 0.1)', border: '1px solid rgba(21, 191, 214, 0.2)' }}>
+                        <p className="text-cyan-50 text-sm leading-relaxed font-medium">
+                          We need you to be completely honest with us—it’s the only way we can continuously improve. We care about your customer experience deeply, and your insights are invaluable to us!
+                        </p>
+                      </div>
+                      <p className="text-gray-400 text-xs">
+                        This should take less than 2 minutes.
                       </p>
                     </div>
 
-                    {/* ── Optional respondent fields ── */}
+                    {/* ── Required respondent fields ── */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
                           <User className="w-4 h-4 text-cyan-400" />
-                          Your Name <span className="text-gray-600 font-normal">(optional)</span>
+                          Your Name
                         </label>
                         <input
                           id="respondent-name"
                           type="text"
+                          data-error={nameError ? 'true' : undefined}
                           value={respondentName}
-                          onChange={(e) => setRespondentName(e.target.value)}
+                          onChange={(e) => {
+                            setRespondentName(e.target.value);
+                            if (e.target.value.trim()) setNameError(false);
+                          }}
                           placeholder="e.g. Ahmed Al-Farsi"
-                          className="w-full px-4 py-2.5 rounded-xl text-sm text-white placeholder-gray-600 outline-none focus:ring-2 transition-all"
+                          className={`w-full px-4 py-2.5 rounded-xl text-sm text-white placeholder-gray-600 outline-none focus:ring-2 transition-all ${nameError ? 'ring-2 ring-red-500/50' : ''}`}
                           style={{
-                            background: 'rgba(255,255,255,0.06)',
-                            border: '1px solid rgba(255,255,255,0.1)',
-                            '--tw-ring-color': 'hsl(188 100% 42% / 0.5)',
+                            background: nameError ? 'rgba(239,68,68,0.05)' : 'rgba(255,255,255,0.06)',
+                            border: nameError ? '1px solid rgba(239,68,68,0.3)' : '1px solid rgba(255,255,255,0.1)',
+                            '--tw-ring-color': nameError ? 'hsl(0 84% 60% / 0.5)' : 'hsl(188 100% 42% / 0.5)',
                           } as React.CSSProperties}
                         />
+                        {nameError && <p className="text-xs text-red-400">Please enter your name.</p>}
                       </div>
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
                           <Mail className="w-4 h-4 text-cyan-400" />
-                          Your Email <span className="text-gray-600 font-normal">(optional)</span>
+                          Your Email
                         </label>
                         <input
                           id="respondent-email"
                           type="email"
+                          data-error={emailError ? 'true' : undefined}
                           value={respondentEmail}
-                          onChange={(e) => setRespondentEmail(e.target.value)}
+                          onChange={(e) => {
+                            setRespondentEmail(e.target.value);
+                            if (e.target.value.trim()) setEmailError(false);
+                          }}
                           placeholder="you@company.com"
-                          className="w-full px-4 py-2.5 rounded-xl text-sm text-white placeholder-gray-600 outline-none focus:ring-2 transition-all"
+                          className={`w-full px-4 py-2.5 rounded-xl text-sm text-white placeholder-gray-600 outline-none focus:ring-2 transition-all ${emailError ? 'ring-2 ring-red-500/50' : ''}`}
                           style={{
-                            background: 'rgba(255,255,255,0.06)',
-                            border: '1px solid rgba(255,255,255,0.1)',
-                            '--tw-ring-color': 'hsl(188 100% 42% / 0.5)',
+                            background: emailError ? 'rgba(239,68,68,0.05)' : 'rgba(255,255,255,0.06)',
+                            border: emailError ? '1px solid rgba(239,68,68,0.3)' : '1px solid rgba(255,255,255,0.1)',
+                            '--tw-ring-color': emailError ? 'hsl(0 84% 60% / 0.5)' : 'hsl(188 100% 42% / 0.5)',
                           } as React.CSSProperties}
                         />
+                        {emailError && <p className="text-xs text-red-400">Please enter your email.</p>}
                       </div>
                     </div>
 
@@ -824,8 +969,17 @@ const CustomerSurvey: React.FC = () => {
                                   value={ratings[field.key]}
                                   hasError={hasError}
                                   onChange={(v) => {
+                                    if (!respondentName.trim()) {
+                                      setNameError(true);
+                                      document.querySelector('#respondent-name')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                      document.getElementById('respondent-name')?.focus();
+                                      return;
+                                    }
                                     setRatings((prev) => ({ ...prev, [field.key]: v }));
                                     setRatingErrors((prev) => ({ ...prev, [field.key]: false }));
+                                    if (firstRatingVal === null) {
+                                      setFirstRatingVal(v);
+                                    }
                                   }}
                                 />
                               </div>
@@ -929,7 +1083,7 @@ const CustomerSurvey: React.FC = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.6 }}
-                className="text-xs text-gray-700 mt-8"
+                className="text-xs text-gray-700 mt-8 relative z-10"
               >
                 © {new Date().getFullYear()} Cloudastick · cloudastick.org
               </motion.p>
