@@ -965,8 +965,8 @@ const CustomerSurvey: React.FC = () => {
                                 : 'bg-white/[0.03] border border-white/[0.06] hover:border-white/10'
                             }`}
                           >
-                            <div className="flex items-start justify-between gap-4 flex-wrap">
-                              <div className="flex items-start gap-3 flex-1 min-w-0">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                              <div className="flex items-start gap-3 flex-1 min-w-0 w-full">
                                 <div
                                   className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
                                   style={{
