@@ -3,6 +3,7 @@
  *
  * Standalone customer-facing survey page at /survey
  * URL: https://www.cloudastick.org/survey?token=...&accountName=...&projectName=...&consultantName=...&sessionType=...
+ * sessionType values: Demo | UAT | Training | Discovery | Project Status | Project Progress so far | Latest Go-Live
  *
  * Page states: loading → form | submitted | expired | invalid
  * BFF routes: /.netlify/functions/surveyContext  (GET)
