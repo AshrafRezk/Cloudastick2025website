@@ -231,14 +231,14 @@ const StarRating: React.FC<{
               onClick={() => onChange(star)}
               onMouseEnter={() => setHovered(star)}
               onMouseLeave={() => setHovered(0)}
-              whileHover={{ scale: 1.2 }}
-              whileTap={{ scale: 0.8, rotate: -15 }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
               className="focus:outline-none"
             >
               <Star
                 className={`w-9 h-9 transition-colors duration-150 ${
                   filled
-                    ? 'text-amber-400 fill-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]'
+                    ? 'text-amber-400 fill-amber-400'
                     : hasError
                     ? 'text-red-400/50'
                     : 'text-gray-600 hover:text-amber-300'
@@ -483,33 +483,36 @@ const CustomerSurvey: React.FC = () => {
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Gimmick state
-  const [firstRatingVal, setFirstRatingVal] = useState<number | null>(null);
-  const gimmickTriggeredRef = React.useRef(false);
+  const gimmickTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
   const [showGimmick, setShowGimmick] = useState(false);
   const [gimmickMessage, setGimmickMessage] = useState('');
 
   // ── Gimmick Effect ─────────────────────────────────────────────────────────
 
-  useEffect(() => {
-    if (firstRatingVal !== null && respondentName.trim() !== '' && !gimmickTriggeredRef.current) {
-      gimmickTriggeredRef.current = true;
-      setTimeout(() => {
-        const nameTrimmed = respondentName.trim();
-        const firstName = nameTrimmed.split(/\s+/)[0];
-        
-        if (nameTrimmed.toLowerCase() === 'ashraf rezk') {
-          setGimmickMessage(`Thank you, Ashraf, we are glad we are making a food impression!`);
-        } else if (firstRatingVal >= 4) {
-          setGimmickMessage(`Thank you ${firstName}, we are glad we are making a good impression!`);
-        } else {
-          setGimmickMessage(`Thank you, ${firstName} We will definetly work on that moving forward!`);
-        }
-        setShowGimmick(true);
+  const triggerGimmick = React.useCallback((val: number) => {
+    if (!respondentName.trim()) return;
 
-        setTimeout(() => setShowGimmick(false), 5000);
-      }, 1000);
+    if (gimmickTimeoutRef.current) {
+      clearTimeout(gimmickTimeoutRef.current);
     }
-  }, [firstRatingVal, respondentName]);
+
+    const nameTrimmed = respondentName.trim();
+    const firstName = nameTrimmed.split(/\s+/)[0];
+
+    if (nameTrimmed.toLowerCase() === 'ashraf rezk') {
+      setGimmickMessage(`Thank you, Ashraf, we are glad we are making a food impression!`);
+    } else if (val >= 4) {
+      setGimmickMessage(`Thank you ${firstName}, we are glad we are making a good impression!`);
+    } else {
+      setGimmickMessage(`Thank you, ${firstName}, We will definetly work on that moving forward!`);
+    }
+
+    setShowGimmick(true);
+
+    gimmickTimeoutRef.current = setTimeout(() => {
+      setShowGimmick(false);
+    }, 1500);
+  }, [respondentName]);
 
   // Thank-you state
   const [feedbackNumber, setFeedbackNumber] = useState('');
@@ -689,10 +692,10 @@ const CustomerSurvey: React.FC = () => {
         <AnimatePresence>
           {showGimmick && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.5, y: 100, rotate: -10 }}
-              animate={{ opacity: 1, scale: 1, y: 0, rotate: 0 }}
-              exit={{ opacity: 0, scale: 0.8, y: 50 }}
-              transition={{ type: 'spring', damping: 12, stiffness: 200 }}
+              initial={{ opacity: 0, scale: 0.8, y: 50 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 30 }}
+              transition={{ type: 'spring', damping: 18, stiffness: 350 }}
               className="fixed inset-x-0 top-1/4 mx-auto z-[100] max-w-md w-[90%] rounded-3xl p-8 shadow-2xl flex flex-col items-center text-center cursor-pointer overflow-hidden"
               onClick={() => setShowGimmick(false)}
               style={{
@@ -703,9 +706,9 @@ const CustomerSurvey: React.FC = () => {
               }}
             >
               <motion.div
-                initial={{ scale: 0, rotate: -180 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', damping: 15, stiffness: 300 }}
                 className="w-16 h-16 mb-4 rounded-full flex items-center justify-center shrink-0 relative z-10"
                 style={{ background: 'linear-gradient(135deg, hsl(210 100% 50%), hsl(188 100% 42%))', boxShadow: '0 0 30px rgba(21,191,214,0.6)' }}
               >
@@ -1001,9 +1004,7 @@ const CustomerSurvey: React.FC = () => {
                                     }
                                     setRatings((prev) => ({ ...prev, [field.key]: v }));
                                     setRatingErrors((prev) => ({ ...prev, [field.key]: false }));
-                                    if (firstRatingVal === null) {
-                                      setFirstRatingVal(v);
-                                    }
+                                    triggerGimmick(v);
                                   }}
                                 />
                               </div>
