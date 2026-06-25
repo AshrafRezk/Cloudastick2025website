@@ -862,13 +862,8 @@ const CustomerSurvey: React.FC = () => {
                   >
                     {/* Intro */}
                     <div className="mb-6">
-                      <h1 className="text-2xl font-bold text-white mb-3">Share Your Feedback</h1>
-                      <div className="p-4 rounded-xl mb-4" style={{ background: 'rgba(21, 191, 214, 0.1)', border: '1px solid rgba(21, 191, 214, 0.2)' }}>
-                        <p className="text-cyan-50 text-sm leading-relaxed font-medium">
-                          We need you to be completely honest with us—it’s the only way we can continuously improve. We care about your customer experience deeply, and your insights are invaluable to us!
-                        </p>
-                      </div>
-                      <p className="text-gray-400 text-xs">
+                      <h1 className="text-2xl font-bold text-white mb-1">Share Your Feedback</h1>
+                      <p className="text-gray-400 text-sm">
                         This should take less than 2 minutes.
                       </p>
                     </div>
@@ -924,6 +919,23 @@ const CustomerSurvey: React.FC = () => {
                         {emailError && <p className="text-xs text-red-400">Please enter your email.</p>}
                       </div>
                     </div>
+
+                    <AnimatePresence>
+                      {(respondentName.trim() !== '' && respondentEmail.trim() !== '') && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0, y: -10 }}
+                          animate={{ opacity: 1, height: 'auto', y: 0 }}
+                          exit={{ opacity: 0, height: 0, y: -10 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="p-4 rounded-xl mt-2 mb-2" style={{ background: 'rgba(21, 191, 214, 0.1)', border: '1px solid rgba(21, 191, 214, 0.2)' }}>
+                            <p className="text-cyan-50 text-sm leading-relaxed font-medium">
+                              Hello {respondentName.trim().split(/\s+/)[0]}, we need you to be completely honest with us, it is the only way we can continuously improve. We care about your customer experience deeply, and your insights are invaluable to us!
+                            </p>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
 
                     {/* ── Divider ── */}
                     <div className="h-px bg-white/5" />
