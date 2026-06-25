@@ -217,12 +217,15 @@ const StarRating: React.FC<{
   hasError: boolean;
 }> = ({ value, onChange, hasError }) => {
   const [hovered, setHovered] = useState(0);
+  const [animatingValue, setAnimatingValue] = useState(0);
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex gap-1">
+      <div className="flex gap-1" onMouseLeave={() => setHovered(0)}>
         {[1, 2, 3, 4, 5].map((star) => {
           const filled = star <= (hovered || value);
+          const isAnimating = animatingValue > 0 && star <= animatingValue;
+
           return (
             <motion.button
               key={star}
@@ -233,17 +236,28 @@ const StarRating: React.FC<{
                   navigator.vibrate(50);
                 }
                 onChange(star);
+                setAnimatingValue(star);
+                setTimeout(() => setAnimatingValue(0), 600);
               }}
               onMouseEnter={() => setHovered(star)}
-              onMouseLeave={() => setHovered(0)}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
+              animate={
+                isAnimating
+                  ? { scale: [1, 1.4, 1], y: [0, -8, 0], rotate: [0, 15, -10, 0] }
+                  : { scale: 1, y: 0, rotate: 0 }
+              }
+              transition={{
+                duration: 0.5,
+                delay: isAnimating ? star * 0.04 : 0,
+                ease: 'easeInOut'
+              }}
+              whileHover={{ scale: 1.15 }}
+              whileTap={{ scale: 0.9 }}
               className="focus:outline-none"
             >
               <Star
-                className={`w-9 h-9 transition-colors duration-150 ${
+                className={`w-9 h-9 transition-colors duration-200 ${
                   filled
-                    ? 'text-amber-400 fill-amber-400'
+                    ? 'text-amber-400 fill-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]'
                     : hasError
                     ? 'text-red-400/50'
                     : 'text-gray-600 hover:text-amber-300'
