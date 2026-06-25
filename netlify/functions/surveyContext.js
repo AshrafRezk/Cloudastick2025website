@@ -2,12 +2,21 @@
  * BFF proxy for Customer Feedback Survey — GET context
  *
  * Browser calls:  GET /.netlify/functions/surveyContext?token=...
- * This function:  GET https://...salesforce.com/.../context?token=...
- *                 with X-Cloudastick-Api-Key header (never exposed to browser)
+ * This function:
+ *   1. Gets a Salesforce OAuth bearer token (client credentials)
+ *   2. Calls Salesforce GET .../context?token=...
+ *      with BOTH: Authorization: Bearer {token}  AND  X-Cloudastick-Api-Key
+ *
+ * Required env vars (all already configured in Netlify):
+ *   SALESFORCE_CLIENT_ID, SALESFORCE_CLIENT_SECRET, SALESFORCE_TOKEN_URL
+ *   SALESFORCE_SURVEY_API_BASE_URL, CLOUDASTICK_SURVEY_API_KEY
  */
 
-const SF_BASE = process.env.SALESFORCE_SURVEY_API_BASE_URL;
-const API_KEY = process.env.CLOUDASTICK_SURVEY_API_KEY;
+const SF_BASE    = process.env.SALESFORCE_SURVEY_API_BASE_URL;
+const API_KEY    = process.env.CLOUDASTICK_SURVEY_API_KEY;
+const CLIENT_ID  = process.env.SALESFORCE_CLIENT_ID;
+const CLIENT_SECRET = process.env.SALESFORCE_CLIENT_SECRET;
+const TOKEN_URL  = process.env.SALESFORCE_TOKEN_URL;
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -15,6 +24,29 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Headers': 'Content-Type',
   'Content-Type': 'application/json',
 };
+
+/** Obtain a Salesforce OAuth access token via client credentials */
+async function getSalesforceToken() {
+  if (!CLIENT_ID || !CLIENT_SECRET || !TOKEN_URL) {
+    throw new Error('Missing Salesforce OAuth env vars (CLIENT_ID / CLIENT_SECRET / TOKEN_URL)');
+  }
+  const form = new URLSearchParams();
+  form.append('grant_type', 'client_credentials');
+  form.append('client_id', CLIENT_ID);
+  form.append('client_secret', CLIENT_SECRET);
+
+  const res = await fetch(TOKEN_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: form.toString(),
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Salesforce OAuth failed: ${res.status} ${err}`);
+  }
+  const data = await res.json();
+  return data.access_token;
+}
 
 exports.handler = async (event) => {
   // Handle preflight
@@ -30,9 +62,9 @@ exports.handler = async (event) => {
     };
   }
 
-  // Validate server-side env vars
+  // Validate survey env vars
   if (!SF_BASE || !API_KEY) {
-    console.error('surveyContext: Missing SALESFORCE_SURVEY_API_BASE_URL or CLOUDASTICK_SURVEY_API_KEY env vars');
+    console.error('surveyContext: Missing SALESFORCE_SURVEY_API_BASE_URL or CLOUDASTICK_SURVEY_API_KEY');
     return {
       statusCode: 500,
       headers: CORS_HEADERS,
@@ -41,7 +73,6 @@ exports.handler = async (event) => {
   }
 
   const token = event.queryStringParameters && event.queryStringParameters.token;
-
   if (!token) {
     return {
       statusCode: 400,
@@ -51,17 +82,24 @@ exports.handler = async (event) => {
   }
 
   try {
+    // Step 1 — get Salesforce OAuth bearer token
+    const accessToken = await getSalesforceToken();
+
+    // Step 2 — call Salesforce with BOTH auth headers
     const sfUrl = `${SF_BASE}/context?token=${encodeURIComponent(token)}`;
+    console.log(`surveyContext: calling ${sfUrl}`);
 
     const sfRes = await fetch(sfUrl, {
       method: 'GET',
       headers: {
+        'Authorization': `Bearer ${accessToken}`,
         'X-Cloudastick-Api-Key': API_KEY,
         'Accept': 'application/json',
       },
     });
 
     const body = await sfRes.text();
+    console.log(`surveyContext: Salesforce responded ${sfRes.status}`);
 
     return {
       statusCode: sfRes.status,
@@ -69,7 +107,7 @@ exports.handler = async (event) => {
       body,
     };
   } catch (err) {
-    console.error('surveyContext: Salesforce fetch failed:', err);
+    console.error('surveyContext: error:', err.message);
     return {
       statusCode: 502,
       headers: CORS_HEADERS,
