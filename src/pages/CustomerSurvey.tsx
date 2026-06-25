@@ -228,7 +228,12 @@ const StarRating: React.FC<{
               key={star}
               type="button"
               aria-label={`Rate ${star} out of 5`}
-              onClick={() => onChange(star)}
+              onClick={() => {
+                if (typeof navigator !== 'undefined' && navigator.vibrate) {
+                  navigator.vibrate(50);
+                }
+                onChange(star);
+              }}
               onMouseEnter={() => setHovered(star)}
               onMouseLeave={() => setHovered(0)}
               whileHover={{ scale: 1.1 }}
@@ -688,44 +693,26 @@ const CustomerSurvey: React.FC = () => {
       >
         <RevolvingValues />
 
-        {/* ── GIMMICK TOAST ── */}
+        {/* ── NON-DISRUPTIVE GIMMICK TOAST ── */}
         <AnimatePresence>
           {showGimmick && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.8, y: 50 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 30 }}
-              transition={{ type: 'spring', damping: 18, stiffness: 350 }}
-              className="fixed inset-x-0 top-1/4 mx-auto z-[100] max-w-md w-[90%] rounded-3xl p-8 shadow-2xl flex flex-col items-center text-center cursor-pointer overflow-hidden"
-              onClick={() => setShowGimmick(false)}
+              initial={{ opacity: 0, y: -50, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.9 }}
+              transition={{ type: 'spring', damping: 15, stiffness: 300 }}
+              className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] pointer-events-none flex items-center gap-3 rounded-full px-5 py-3 shadow-lg"
               style={{
-                background: 'linear-gradient(135deg, rgba(20, 20, 30, 0.95), rgba(15, 15, 20, 0.95))',
-                backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(21, 191, 214, 0.4)',
-                boxShadow: '0 20px 60px -15px rgba(21,191,214,0.4), 0 0 40px rgba(21,191,214,0.2)',
+                background: 'rgba(20, 20, 30, 0.9)',
+                backdropFilter: 'blur(12px)',
+                border: '1px solid rgba(21, 191, 214, 0.3)',
+                boxShadow: '0 8px 32px rgba(21,191,214,0.2)',
               }}
             >
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: 'spring', damping: 15, stiffness: 300 }}
-                className="w-16 h-16 mb-4 rounded-full flex items-center justify-center shrink-0 relative z-10"
-                style={{ background: 'linear-gradient(135deg, hsl(210 100% 50%), hsl(188 100% 42%))', boxShadow: '0 0 30px rgba(21,191,214,0.6)' }}
-              >
-                <Star className="w-8 h-8 text-white fill-white" />
-              </motion.div>
-              <h4 className="text-white font-black text-2xl mb-3 tracking-wide uppercase text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 relative z-10">
-                Feedback Registered!
-              </h4>
-              <p className="text-gray-200 text-lg leading-snug font-medium relative z-10">
+              <Star className="w-5 h-5 text-amber-400 fill-amber-400 shrink-0" />
+              <p className="text-gray-100 text-sm font-medium m-0 whitespace-nowrap">
                 {gimmickMessage}
               </p>
-              <motion.div
-                 className="absolute inset-0 rounded-3xl border-[3px] border-cyan-400"
-                 initial={{ opacity: 1, scale: 1 }}
-                 animate={{ opacity: 0, scale: 1.05 }}
-                 transition={{ duration: 1.5, repeat: Infinity }}
-              />
             </motion.div>
           )}
         </AnimatePresence>
