@@ -224,25 +224,27 @@ const StarRating: React.FC<{
         {[1, 2, 3, 4, 5].map((star) => {
           const filled = star <= (hovered || value);
           return (
-            <button
+            <motion.button
               key={star}
               type="button"
               aria-label={`Rate ${star} out of 5`}
               onClick={() => onChange(star)}
               onMouseEnter={() => setHovered(star)}
               onMouseLeave={() => setHovered(0)}
-              className="focus:outline-none transition-transform duration-150 hover:scale-110 active:scale-95"
+              whileHover={{ scale: 1.2 }}
+              whileTap={{ scale: 0.8, rotate: -15 }}
+              className="focus:outline-none"
             >
               <Star
                 className={`w-9 h-9 transition-colors duration-150 ${
                   filled
-                    ? 'text-amber-400 fill-amber-400'
+                    ? 'text-amber-400 fill-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]'
                     : hasError
                     ? 'text-red-400/50'
                     : 'text-gray-600 hover:text-amber-300'
                 }`}
               />
-            </button>
+            </motion.button>
           );
         })}
       </div>
@@ -482,16 +484,16 @@ const CustomerSurvey: React.FC = () => {
 
   // Gimmick state
   const [firstRatingVal, setFirstRatingVal] = useState<number | null>(null);
-  const [gimmickTriggered, setGimmickTriggered] = useState(false);
+  const gimmickTriggeredRef = React.useRef(false);
   const [showGimmick, setShowGimmick] = useState(false);
   const [gimmickMessage, setGimmickMessage] = useState('');
 
   // ── Gimmick Effect ─────────────────────────────────────────────────────────
 
   useEffect(() => {
-    if (firstRatingVal !== null && respondentName.trim() !== '' && !gimmickTriggered) {
-      setGimmickTriggered(true);
-      const timer = setTimeout(() => {
+    if (firstRatingVal !== null && respondentName.trim() !== '' && !gimmickTriggeredRef.current) {
+      gimmickTriggeredRef.current = true;
+      setTimeout(() => {
         const nameTrimmed = respondentName.trim();
         const firstName = nameTrimmed.split(/\s+/)[0];
         
@@ -505,10 +507,9 @@ const CustomerSurvey: React.FC = () => {
         setShowGimmick(true);
 
         setTimeout(() => setShowGimmick(false), 5000);
-      }, 2000);
-      return () => clearTimeout(timer);
+      }, 1000);
     }
-  }, [firstRatingVal, respondentName, gimmickTriggered]);
+  }, [firstRatingVal, respondentName]);
 
   // Thank-you state
   const [feedbackNumber, setFeedbackNumber] = useState('');
@@ -688,29 +689,40 @@ const CustomerSurvey: React.FC = () => {
         <AnimatePresence>
           {showGimmick && (
             <motion.div
-              initial={{ opacity: 0, y: 50, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.9 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-              className="fixed bottom-8 right-8 z-50 max-w-sm rounded-2xl p-4 shadow-2xl flex items-start gap-4 cursor-pointer"
+              initial={{ opacity: 0, scale: 0.5, y: 100, rotate: -10 }}
+              animate={{ opacity: 1, scale: 1, y: 0, rotate: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: 50 }}
+              transition={{ type: 'spring', damping: 12, stiffness: 200 }}
+              className="fixed inset-x-0 top-1/4 mx-auto z-[100] max-w-md w-[90%] rounded-3xl p-8 shadow-2xl flex flex-col items-center text-center cursor-pointer overflow-hidden"
               onClick={() => setShowGimmick(false)}
               style={{
-                background: 'rgba(20, 20, 30, 0.85)',
+                background: 'linear-gradient(135deg, rgba(20, 20, 30, 0.95), rgba(15, 15, 20, 0.95))',
                 backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                boxShadow: '0 10px 40px -10px rgba(0,255,255,0.3)',
+                border: '1px solid rgba(21, 191, 214, 0.4)',
+                boxShadow: '0 20px 60px -15px rgba(21,191,214,0.4), 0 0 40px rgba(21,191,214,0.2)',
               }}
             >
-              <div
-                className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
-                style={{ background: 'linear-gradient(135deg, hsl(210 100% 50%), hsl(188 100% 42%))' }}
+              <motion.div
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+                className="w-16 h-16 mb-4 rounded-full flex items-center justify-center shrink-0 relative z-10"
+                style={{ background: 'linear-gradient(135deg, hsl(210 100% 50%), hsl(188 100% 42%))', boxShadow: '0 0 30px rgba(21,191,214,0.6)' }}
               >
-                <Star className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h4 className="text-white font-bold text-sm mb-1">Feedback Registered!</h4>
-                <p className="text-gray-300 text-sm leading-tight">{gimmickMessage}</p>
-              </div>
+                <Star className="w-8 h-8 text-white fill-white" />
+              </motion.div>
+              <h4 className="text-white font-black text-2xl mb-3 tracking-wide uppercase text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 relative z-10">
+                Feedback Registered!
+              </h4>
+              <p className="text-gray-200 text-lg leading-snug font-medium relative z-10">
+                {gimmickMessage}
+              </p>
+              <motion.div
+                 className="absolute inset-0 rounded-3xl border-[3px] border-cyan-400"
+                 initial={{ opacity: 1, scale: 1 }}
+                 animate={{ opacity: 0, scale: 1.05 }}
+                 transition={{ duration: 1.5, repeat: Infinity }}
+              />
             </motion.div>
           )}
         </AnimatePresence>
