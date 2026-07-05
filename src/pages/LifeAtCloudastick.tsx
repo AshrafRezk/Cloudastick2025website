@@ -140,7 +140,10 @@ const CultureSection = () => {
                         We foster an environment of continuous learning, deep collaboration, and unwavering support. 
                         Whether we are working remotely or celebrating in the office, we are united by shared values.
                     </p>
-                    <Button className="bg-cyan-500 hover:bg-cyan-600 text-black px-8 py-6 rounded-full text-lg">
+                    <Button 
+                        onClick={() => window.open('https://www.cloudastick.com/careers', '_blank')}
+                        className="bg-cyan-500 hover:bg-cyan-600 text-black px-8 py-6 rounded-full text-lg"
+                    >
                         Explore Open Roles <ArrowRight className="ml-2 h-5 w-5" />
                     </Button>
                 </div>
@@ -412,7 +415,10 @@ const TeamsSection = () => {
             </div>
             
             <div className="text-center pt-8">
-                <Button className="bg-cyan-500 hover:bg-cyan-600 text-black px-8 py-6 rounded-full text-lg">
+                <Button 
+                    onClick={() => window.open('https://www.cloudastick.com/careers', '_blank')}
+                    className="bg-cyan-500 hover:bg-cyan-600 text-black px-8 py-6 rounded-full text-lg"
+                >
                     View Open Roles Across Teams <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
             </div>
