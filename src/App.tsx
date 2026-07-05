@@ -4,47 +4,49 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { HelmetProvider } from "react-helmet-async";
 import Layout from "./components/Layout";
 import StartupSequence from "./components/StartupSequence";
-import Home from "./pages/Home";
-import About from "./pages/About";
-import Services from "./pages/Services";
-import Clients from "./pages/Clients";
-import Feedback from "./pages/Feedback";
-import Contact from "./pages/Contact";
-import Learn from "./pages/Learn";
-import NotFound from "./pages/NotFound";
-import TarwtlLeadCapture from "./pages/TarwtlLeadCapture";
-import TarwtlLeadSuccess from "./pages/TarwtlLeadSuccess";
-import MemarLeadCapture from "./pages/MemarLeadCapture";
-import MemarLeadSuccess from "./pages/MemarLeadSuccess";
-import CityscapeStart from "./pages/CityscapeStart";
-import CityscapeLeadCapture from "./pages/CityscapeLeadCapture";
-import CityscapeLeadSuccess from "./pages/CityscapeLeadSuccess";
-import SoueastLeadCapture from "./pages/SoueastLeadCapture";
-import SoueastLeadSuccess from "./pages/SoueastLeadSuccess";
-import SoueastComparison from "./pages/SoueastComparison";
-import SalesforceApps from "./pages/SalesforceApps";
-import SalesforcePower from "./pages/SalesforcePower";
-import SalesforcePowerLeadCapture from "./pages/SalesforcePowerLeadCapture";
-import SalesforcePowerSuccess from "./pages/SalesforcePowerSuccess";
-import SalesforceComparisonTable from "./pages/SalesforceComparisonTable";
-import CaptureIntelligence from "./pages/CaptureIntelligence";
-import BlogDetail from "./pages/BlogDetail";
-import Blogs from "./pages/Blogs";
-import Merchandise from "./pages/Merchandise";
-import ProjectTeam from "./pages/ProjectTeam";
-import ProjectTeamAdmin from "./pages/ProjectTeamAdmin";
-import ProjectTeamView from "./pages/ProjectTeamView";
-import SalesVerticals from "./pages/SalesVerticals";
-import Careers from "./pages/Careers";
-import SalesVerticalDetail from "./pages/SalesVerticalDetail";
-import Profile from "./pages/Profile";
-import Certificate from "./pages/Certificate";
-import VerifyCertificate from "./pages/VerifyCertificate";
-import CustomerSurvey from "./pages/CustomerSurvey";
+import PageLoader from "./components/PageLoader";
+const Home = lazy(() => import("./pages/Home"));
+const About = lazy(() => import("./pages/About"));
+const Services = lazy(() => import("./pages/Services"));
+const Clients = lazy(() => import("./pages/Clients"));
+const Feedback = lazy(() => import("./pages/Feedback"));
+const Contact = lazy(() => import("./pages/Contact"));
+const Learn = lazy(() => import("./pages/Learn"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const TarwtlLeadCapture = lazy(() => import("./pages/TarwtlLeadCapture"));
+const TarwtlLeadSuccess = lazy(() => import("./pages/TarwtlLeadSuccess"));
+const MemarLeadCapture = lazy(() => import("./pages/MemarLeadCapture"));
+const MemarLeadSuccess = lazy(() => import("./pages/MemarLeadSuccess"));
+const CityscapeStart = lazy(() => import("./pages/CityscapeStart"));
+const CityscapeLeadCapture = lazy(() => import("./pages/CityscapeLeadCapture"));
+const CityscapeLeadSuccess = lazy(() => import("./pages/CityscapeLeadSuccess"));
+const SoueastLeadCapture = lazy(() => import("./pages/SoueastLeadCapture"));
+const SoueastLeadSuccess = lazy(() => import("./pages/SoueastLeadSuccess"));
+const SoueastComparison = lazy(() => import("./pages/SoueastComparison"));
+const SalesforceApps = lazy(() => import("./pages/SalesforceApps"));
+const SalesforcePower = lazy(() => import("./pages/SalesforcePower"));
+const SalesforcePowerLeadCapture = lazy(() => import("./pages/SalesforcePowerLeadCapture"));
+const SalesforcePowerSuccess = lazy(() => import("./pages/SalesforcePowerSuccess"));
+const SalesforceComparisonTable = lazy(() => import("./pages/SalesforceComparisonTable"));
+const CaptureIntelligence = lazy(() => import("./pages/CaptureIntelligence"));
+const BlogDetail = lazy(() => import("./pages/BlogDetail"));
+const Blogs = lazy(() => import("./pages/Blogs"));
+const Merchandise = lazy(() => import("./pages/Merchandise"));
+const ProjectTeam = lazy(() => import("./pages/ProjectTeam"));
+const ProjectTeamAdmin = lazy(() => import("./pages/ProjectTeamAdmin"));
+const ProjectTeamView = lazy(() => import("./pages/ProjectTeamView"));
+const SalesVerticals = lazy(() => import("./pages/SalesVerticals"));
+const Careers = lazy(() => import("./pages/Careers"));
+const SalesVerticalDetail = lazy(() => import("./pages/SalesVerticalDetail"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Certificate = lazy(() => import("./pages/Certificate"));
+const VerifyCertificate = lazy(() => import("./pages/VerifyCertificate"));
+const CustomerSurvey = lazy(() => import("./pages/CustomerSurvey"));
+const LifeAtCloudastick = lazy(() => import("./pages/LifeAtCloudastick"));
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { SalesforceProvider } from "./contexts/SalesforceContext";
 import { PortalUserProvider } from "./contexts/PortalUserContext";
@@ -91,7 +93,8 @@ const App = () => {
                 <Sonner />
                 <BrowserRouter>
                   <ScrollToTop />
-                  <Routes>
+                  <Suspense fallback={<PageLoader />}>
+                    <Routes>
                     {/* Special routes for Tarwtl - no standard startup or layout */}
                     <Route path="/tarwtl" element={<TarwtlLeadCapture />} />
                     <Route path="/tarwtl-lead-capture" element={<TarwtlLeadCapture />} />
@@ -157,13 +160,15 @@ const App = () => {
                               <Route path="/intelligence-capture" element={<CaptureIntelligence />} />
                               <Route path="/blogs" element={<Blogs />} />
                               <Route path="/blog/:slug" element={<BlogDetail />} />
+                              <Route path="/life" element={<LifeAtCloudastick />} />
                               <Route path="*" element={<NotFound />} />
                             </Routes>
                           </Layout>
                         )}
                       </>
                     } />
-                  </Routes>
+                    </Routes>
+                  </Suspense>
                 </BrowserRouter>
               </PortalUserProvider>
             </SalesforceProvider>

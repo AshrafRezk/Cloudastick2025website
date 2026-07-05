@@ -33,9 +33,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   // Items to show in "More" dropdown
   const moreNavItems: { name: string; path: string; isIcon?: boolean }[] = [
-    { name: t('nav.services'), path: "/services" },
-    { name: t('nav.learn'), path: "/learn" },
-    { name: t('nav.merchandise'), path: "/merchandise" },
+    { name: t('nav.services') || 'Services', path: "/services" },
+    { name: t('nav.learn') || 'Learn', path: "/learn" },
+    { name: t('nav.merchandise') || 'Merchandise', path: "/merchandise" },
+    { name: t('nav.life') || 'Life at Cloudastick', path: "/life" },
   ];
 
   // All items for mobile menu
