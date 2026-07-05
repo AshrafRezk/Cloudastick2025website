@@ -17,10 +17,13 @@ import {
     Code,
     PhoneCall,
     Kanban,
-    Clock
+    Clock,
+    Eye,
+    Shield
 } from 'lucide-react';
 import { Card, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const tabs = [
     { id: 'culture', label: 'Culture' },
@@ -120,11 +123,14 @@ const LifeAtCloudastick = () => {
 };
 
 const CultureSection = () => {
+    const { t } = useLanguage();
+
     const values = [
-        { icon: Users, title: 'Inclusivity', desc: 'We believe that diverse perspectives drive innovation. Everyone has a seat at the table.' },
-        { icon: Zap, title: 'Innovation', desc: 'We empower our teams to experiment, take risks, and redefine what is possible in tech.' },
-        { icon: Globe, title: 'Global Impact', desc: 'Our solutions reach across borders. The work you do here ripples out into the real world.' },
-        { icon: Target, title: 'Ownership', desc: 'We trust our people. Take charge of your projects and steer them to success.' },
+        { icon: Heart, title: t('about.values.reverence'), desc: t('about.values.reverence.desc') },
+        { icon: Zap, title: t('about.values.efficiency'), desc: t('about.values.efficiency.desc') },
+        { icon: Users, title: t('about.values.inclusion'), desc: t('about.values.inclusion.desc') },
+        { icon: Eye, title: t('about.values.transparency'), desc: t('about.values.transparency.desc') },
+        { icon: Shield, title: t('about.values.consistency'), desc: t('about.values.consistency.desc') },
     ];
 
     return (
@@ -155,7 +161,7 @@ const CultureSection = () => {
 
             <div>
                 <h3 className="text-2xl md:text-4xl font-bold mb-12 text-center text-white">Our Core Values</h3>
-                <div className="grid md:grid-cols-4 gap-6">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {values.map((val, i) => (
                         <Card key={i} className="bg-white/5 border-white/10 hover:bg-white/10 transition-colors">
                             <CardContent className="p-8">
