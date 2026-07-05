@@ -92,6 +92,7 @@ const translations = {
     'nav.feedback': 'Feedback',
     'nav.contact': 'Contact',
     'nav.more': 'More',
+    'nav.life': 'Life at Cloudastick',
     
     // Home Page
     'home.hero.title': 'Transform Your Business with Salesforce',
@@ -585,6 +586,7 @@ const translations = {
     'nav.feedback': 'التقييمات',
     'nav.contact': 'اتصل بنا',
     'nav.more': 'المزيد',
+    'nav.life': 'الحياة في Cloudastick',
     
     // Home Page
     'home.hero.title': 'حوّل عملك مع Salesforce',
