@@ -16,7 +16,8 @@ import {
     Star,
     Code,
     PhoneCall,
-    Kanban
+    Kanban,
+    Clock
 } from 'lucide-react';
 import { Card, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
@@ -171,11 +172,11 @@ const CultureSection = () => {
 
 const HowWeHireSection = () => {
     const steps = [
-        { icon: Briefcase, title: 'Apply', desc: 'Submit your resume and portfolio. We look for passion, curiosity, and alignment with our values.' },
-        { icon: MessageCircle, title: 'Initial Chat', desc: 'A casual conversation with our recruiting team to learn about your goals and share our vision.' },
-        { icon: Zap, title: 'Technical/Skills Assessment', desc: 'Show us what you can do. We focus on real-world problem-solving rather than trick questions.' },
-        { icon: Users, title: 'Team Interviews', desc: 'Meet your future colleagues and leaders. This is your chance to interview us, too.' },
-        { icon: Award, title: 'Offer & Onboarding', desc: 'Welcome to the team! We provide a seamless onboarding experience to set you up for success.' },
+        { icon: MessageCircle, title: 'Screening', desc: 'An initial conversation with our recruiting team to learn about your background, goals, and alignment with our values.' },
+        { icon: Zap, title: 'Use Case Implementation', desc: 'Show us what you can do! You will be given a real-world use case and have 5 days to implement your solution.', highlight: '5 days' },
+        { icon: Code, title: 'Technical Interview', desc: 'A deep dive into your technical skills, problem-solving approach, and the thought process behind your use case implementation.' },
+        { icon: Users, title: 'Final Interview', desc: 'Meet with leadership and key team members to ensure mutual fit and discuss your future at Cloudastick.' },
+        { icon: Award, title: 'Acceptance / Next Steps', desc: 'Welcome aboard! We will discuss your offer and outline the onboarding process to set you up for success.' },
     ];
 
     return (
@@ -200,7 +201,13 @@ const HowWeHireSection = () => {
                                 <Card className="bg-white/5 border-white/10 w-full hover:border-cyan-500/50 transition-colors">
                                     <CardContent className="p-8">
                                         <h4 className="text-xl font-bold text-white mb-2">{step.title}</h4>
-                                        <p className="text-gray-400">{step.desc}</p>
+                                        <p className="text-gray-400 mb-3">{step.desc}</p>
+                                        {step.highlight && (
+                                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-500/10 text-yellow-500 text-sm font-medium border border-yellow-500/20">
+                                                <Clock className="h-4 w-4" />
+                                                {step.highlight}
+                                            </span>
+                                        )}
                                     </CardContent>
                                 </Card>}
                             </div>
@@ -216,7 +223,13 @@ const HowWeHireSection = () => {
                                 <Card className="bg-white/5 border-white/10 w-full hover:border-cyan-500/50 transition-colors">
                                     <CardContent className="p-8">
                                         <h4 className="text-xl font-bold text-white mb-2">{step.title}</h4>
-                                        <p className="text-gray-400">{step.desc}</p>
+                                        <p className="text-gray-400 mb-3">{step.desc}</p>
+                                        {step.highlight && (
+                                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-500/10 text-yellow-500 text-sm font-medium border border-yellow-500/20">
+                                                <Clock className="h-4 w-4" />
+                                                {step.highlight}
+                                            </span>
+                                        )}
                                     </CardContent>
                                 </Card>}
                             </div>
@@ -317,7 +330,10 @@ const AcademySection = () => {
             </div>
 
             <div className="text-center pt-12">
-                <Button className="bg-white text-black hover:bg-gray-200 px-8 py-6 rounded-full text-lg shadow-[0_0_30px_rgba(255,255,255,0.1)]">
+                <Button 
+                    onClick={() => window.open('https://wa.me/201282001662?text=Hi%20Mariam%2C%20I%20would%20like%20to%20join%20the%20Cloudastick%20Academy%20waitlist!', '_blank')}
+                    className="bg-white text-black hover:bg-gray-200 px-8 py-6 rounded-full text-lg shadow-[0_0_30px_rgba(255,255,255,0.1)]"
+                >
                     Join the Academy Waitlist
                 </Button>
             </div>
