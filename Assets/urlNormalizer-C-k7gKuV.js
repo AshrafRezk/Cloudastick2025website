@@ -1,0 +1,1 @@
+const r=e=>{if(!e||!e.trim())return{display:"",domain:"",fullUrl:""};let l=e.trim().toLowerCase();return l=l.replace(/^https?:\/\//,""),l.startsWith("www."),l=l.replace(/^www\./,""),l=l.split("/")[0],l=l.replace(/\.+$/,""),l.includes(".")?{display:l,domain:l,fullUrl:`https://www.${l}`}:{display:l,domain:l,fullUrl:""}};export{r as n};
