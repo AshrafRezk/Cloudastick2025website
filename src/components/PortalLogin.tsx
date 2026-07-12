@@ -4,6 +4,7 @@ import { LogIn, Loader2, AlertCircle, Award } from 'lucide-react';
 import { usePortalUser } from '../contexts/PortalUserContext';
 import Button from './Button';
 import { Input } from './ui/input';
+import { Link } from 'react-router-dom';
 
 const PortalLogin = () => {
   const { login, isLoading, error } = usePortalUser();
@@ -134,6 +135,14 @@ const PortalLogin = () => {
                   className="w-full h-11 sm:h-12 lg:h-14 xl:h-16 text-base sm:text-lg lg:text-xl px-4 lg:px-6 xl:px-7 rounded-xl border-2 border-border/50 focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/20 transition-all duration-300 hover:border-brand-primary/50 bg-background/50 backdrop-blur-sm"
                   autoComplete="current-password"
                 />
+                <div className="flex justify-end mt-2">
+                  <Link
+                    to="/forgot-password"
+                    className="text-sm font-medium text-brand-primary hover:text-brand-secondary transition-colors"
+                  >
+                    Forgot Password?
+                  </Link>
+                </div>
               </motion.div>
 
               {displayError && (

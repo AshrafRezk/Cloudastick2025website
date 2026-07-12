@@ -17,6 +17,8 @@ const Feedback = lazy(() => import("./pages/Feedback"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Learn = lazy(() => import("./pages/Learn"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const TarwtlLeadCapture = lazy(() => import("./pages/TarwtlLeadCapture"));
 const TarwtlLeadSuccess = lazy(() => import("./pages/TarwtlLeadSuccess"));
 const MemarLeadCapture = lazy(() => import("./pages/MemarLeadCapture"));
@@ -147,6 +149,8 @@ const App = () => {
                               <Route path="/feedback" element={<Feedback />} />
                               <Route path="/contact" element={<Contact />} />
                               <Route path="/learn" element={<Learn />} />
+                              <Route path="/forgot-password" element={<ForgotPassword />} />
+                              <Route path="/reset-password" element={<ResetPassword />} />
                               <Route path="/profile" element={<Profile />} />
                               <Route path="/certificate/:id" element={<Certificate />} />
                               <Route path="/verify-certificate" element={<VerifyCertificate />} />
