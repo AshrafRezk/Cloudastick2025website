@@ -26,6 +26,7 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number | null>(null);
+  const youtubeIframeRef = useRef<HTMLIFrameElement>(null);
 
   const material = instance?.material;
 
@@ -211,12 +212,48 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
     }
   };
 
+  // YouTube progress tracking via postMessage
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      // Ensure the message is from YouTube
+      if (typeof event.origin === 'string' && !event.origin.includes('youtube.com')) return;
+      
+      try {
+        const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+        if (data.event === 'infoDelivery' && data.info) {
+          // PlayerState: 0 = ended, 1 = playing, 2 = paused
+          if (data.info.playerState === 0) {
+            if (!isCompleted && !isUpdating) {
+               console.log("YouTube video ended automatically marking complete.");
+               handleUpdateProgress(100);
+            }
+          } else if (data.info.playerState === 1) {
+            if (!isTracking) startTracking();
+          } else if (data.info.playerState === 2) {
+            stopTracking();
+          }
+        }
+      } catch (e) {
+        // ignore parse errors
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [isCompleted, isUpdating, isTracking]);
+
+  const handleYoutubeLoad = () => {
+    if (youtubeIframeRef.current?.contentWindow) {
+      youtubeIframeRef.current.contentWindow.postMessage(JSON.stringify({ event: 'listening' }), '*');
+    }
+  };
+
   if (!material || !instance) {
     return null;
   }
 
   const isPDF = material.materialType === 'PDF';
-  const isVideo = material.materialType === 'Video';
+  const isVideo = material.materialType === 'Video' || material.materialType === 'Audio';
   const isQuiz = material.materialType === 'Quiz';
   const materialUrl = material.materialUrl;
 
@@ -261,6 +298,16 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
     return url;
   };
 
+  const getYouTubeUrl = (url: string) => {
+    let embedUrl = url.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/');
+    if (embedUrl.includes('?')) {
+      embedUrl += '&enablejsapi=1';
+    } else {
+      embedUrl += '?enablejsapi=1';
+    }
+    return embedUrl;
+  };
+
   const embeddableUrl = getEmbeddableUrl(materialUrl);
 
   return (
@@ -301,38 +348,6 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
               <Progress value={progress} className="h-2" />
             </div>
 
-            {/* Manual Progress Control - Show for all materials (can create instances for child materials) */}
-            {!isCompleted && (
-              <div className="space-y-3 p-4 bg-muted/30 rounded-lg border border-border">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-foreground font-medium">Update Progress Manually</span>
-                  <span className="text-muted-foreground">{manualProgress[0]}%</span>
-                </div>
-                <Slider
-                  value={manualProgress}
-                  onValueChange={setManualProgress}
-                  max={100}
-                  min={0}
-                  step={1}
-                  className="w-full"
-                />
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleSaveManualProgress}
-                    disabled={isUpdating || manualProgress[0] === progress}
-                    className="flex items-center gap-2"
-                  >
-                    <Save className="w-4 h-4" />
-                    {isUpdating ? 'Saving...' : 'Save Progress'}
-                  </Button>
-                  <span className="text-xs text-muted-foreground">
-                    Set your progress from 0% to 100%
-                  </span>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Material Content */}
@@ -353,11 +368,13 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
                 {materialUrl && (materialUrl.includes('youtube.com') || materialUrl.includes('youtu.be')) ? (
                   <div className="aspect-video">
                     <iframe
-                      src={materialUrl.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
+                      ref={youtubeIframeRef}
+                      src={getYouTubeUrl(materialUrl)}
                       className="w-full h-full border-0"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
                       title={material.title}
+                      onLoad={handleYoutubeLoad}
                     />
                   </div>
                 ) : embeddableUrl && embeddableUrl.includes('drive.google.com') ? (
@@ -377,8 +394,14 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
                     className="w-full"
                     onPlay={() => !isTracking && startTracking()}
                     onPause={() => stopTracking()}
+                    onEnded={() => {
+                      stopTracking();
+                      if (!isCompleted && !isUpdating) {
+                         handleUpdateProgress(100);
+                      }
+                    }}
                   >
-                    Your browser does not support the video tag.
+                    Your browser does not support the video/audio tag.
                   </video>
                 )}
               </div>
