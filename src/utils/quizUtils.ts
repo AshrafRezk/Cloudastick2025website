@@ -30,19 +30,21 @@ export const parseQuizQuestions = (jsonString: string | null | undefined): QuizD
         
         if (Array.isArray(q.correctAnswer)) {
           normalizedCorrectAnswer = q.correctAnswer.map((a: any) => {
-            if (typeof a === 'string') {
-              const optionIndex = q.options?.indexOf(a);
-              if (optionIndex !== undefined && optionIndex !== -1) {
-                return optionIndex;
-              }
-              if (!isNaN(Number(a)) && String(a).trim() !== '') {
-                return Number(a);
-              }
+            const optionIndex = q.options?.findIndex((opt: any) => 
+              opt === a || String(opt).trim().toLowerCase() === String(a).trim().toLowerCase()
+            );
+            if (optionIndex !== undefined && optionIndex !== -1) {
+              return optionIndex;
+            }
+            if (!isNaN(Number(a)) && String(a).trim() !== '') {
+              return Number(a);
             }
             return a;
           });
-        } else if (typeof q.correctAnswer === 'string') {
-          const optionIndex = q.options?.indexOf(q.correctAnswer);
+        } else {
+          const optionIndex = q.options?.findIndex((opt: any) => 
+            opt === q.correctAnswer || String(opt).trim().toLowerCase() === String(q.correctAnswer).trim().toLowerCase()
+          );
           if (optionIndex !== undefined && optionIndex !== -1) {
             normalizedCorrectAnswer = optionIndex;
           } else if (!isNaN(Number(q.correctAnswer)) && String(q.correctAnswer).trim() !== '') {
