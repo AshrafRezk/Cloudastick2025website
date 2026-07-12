@@ -86,16 +86,27 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
     newProgress: number,
     status: 'Not Started' | 'In Progress' | 'Completed'
   ) => {
-    if (!instance || !instance.id || isUpdating) return;
+    if (!instance || isUpdating) return;
 
     try {
       setIsUpdating(true);
-      await updateProgress({
-        instanceId: instance.id,
+      const isCompositeId = typeof instance.id === 'string' && instance.id.includes('-') && instance.id.length > 18;
+      
+      const payload: any = {
         progress: newProgress,
         status,
         startedOn: instance.startedOn || new Date().toISOString(),
-      });
+      };
+      
+      if (isCompositeId || !instance.id) {
+        if (!user || !material) return;
+        payload.contactId = user.id;
+        payload.learningMaterialId = material.id;
+      } else {
+        payload.instanceId = instance.id;
+      }
+
+      await updateProgress(payload);
     } catch (error) {
       console.error('Failed to update progress:', error);
     } finally {
@@ -187,8 +198,10 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
   const handleStartMaterial = async () => {
     if (!instance || !material || !user) return;
 
-    // If no instance exists, create one
-    if (!instance.id && material.id) {
+    const isCompositeId = typeof instance.id === 'string' && instance.id.includes('-') && instance.id.length > 18;
+
+    // If no instance exists or it's a composite ID, create one
+    if (isCompositeId || !instance.id) {
       try {
         setIsUpdating(true);
         await updateProgress({
@@ -205,10 +218,19 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
       } finally {
         setIsUpdating(false);
       }
-    } else if (instance.id) {
+    } else {
       // Update existing instance
       await updateProgressAsync(0, 'In Progress');
       startTracking();
+    }
+  };
+
+  const handleAutoStart = () => {
+    const isCompositeId = typeof instance?.id === 'string' && instance.id.includes('-');
+    if ((!instance?.id || instance.status === 'Not Started' || isCompositeId) && !isUpdating && !isCompleted) {
+      updateProgressAsync(0, 'In Progress').then(() => {
+        if (!isTracking) startTracking();
+      });
     }
   };
 
@@ -366,7 +388,7 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
             ) : isVideo ? (
               <div className="w-full">
                 {materialUrl && (materialUrl.includes('youtube.com') || materialUrl.includes('youtu.be')) ? (
-                  <div className="aspect-video">
+                  <div className="aspect-video" onMouseEnter={handleAutoStart}>
                     <iframe
                       ref={youtubeIframeRef}
                       src={getYouTubeUrl(materialUrl)}
@@ -378,7 +400,7 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
                     />
                   </div>
                 ) : embeddableUrl && embeddableUrl.includes('drive.google.com') ? (
-                  <div className="aspect-video">
+                  <div className="aspect-video" onMouseEnter={handleAutoStart}>
                     <iframe
                       src={embeddableUrl}
                       className="w-full h-full border-0"
@@ -422,25 +444,15 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
 
           {/* Action Buttons */}
           <div className="flex items-center justify-between gap-4">
-            {!instance.id || instance.status === 'Not Started' ? (
-              <Button
-                variant="primary"
-                onClick={handleStartMaterial}
-                disabled={isUpdating}
-                className="flex items-center gap-2"
-              >
-                <Play className="w-4 h-4" />
-                Start Learning
-              </Button>
-            ) : !isCompleted ? (
+            {!isCompleted ? (
               <Button
                 variant="primary"
                 onClick={handleMarkComplete}
-                disabled={isUpdating || isCompleted}
+                disabled={isUpdating}
                 className="flex items-center gap-2"
               >
                 <CheckCircle2 className="w-4 h-4" />
-                {isUpdating ? 'Marking...' : 'Mark as Complete'}
+                {isUpdating ? 'Processing...' : 'Mark as Complete'}
               </Button>
             ) : (
               <div className="flex items-center gap-2 text-green-500">
