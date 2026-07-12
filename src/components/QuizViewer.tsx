@@ -144,14 +144,12 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
 
   // Time tracking
   useEffect(() => {
-    if (!isStarted || isCompleted) return;
+    // Only track time if started, not completed, and we have a start time
+    if (!isStarted || isCompleted || !startTime) return;
 
-    setStartTime(Date.now());
     timeTrackingRef.current = setInterval(() => {
-      if (startTime) {
-        const elapsed = (Date.now() - startTime) / 1000 / 60; // minutes
-        setTimeTaken(elapsed);
-      }
+      const elapsed = (Date.now() - startTime) / 1000 / 60; // minutes
+      setTimeTaken(elapsed);
     }, 1000);
 
     return () => {

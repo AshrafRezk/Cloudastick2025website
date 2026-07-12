@@ -7,7 +7,7 @@ import Button from './Button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Progress } from './ui/progress';
 import { Slider } from './ui/slider';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import QuizViewer from './QuizViewer';
 
 interface MaterialViewerProps {
@@ -340,6 +340,7 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden flex flex-col p-0">
         <DialogHeader className="px-6 pt-6 pb-4 border-b">
           <DialogTitle className="text-2xl mb-2">{material.title}</DialogTitle>
+          <DialogDescription className="sr-only">Learning Material Viewer</DialogDescription>
           {material.description && (
             <p className="text-sm text-muted-foreground mb-3">{material.description}</p>
           )}
