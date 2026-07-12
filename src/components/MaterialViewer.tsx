@@ -52,11 +52,14 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
 
   const startTracking = () => {
     if (isTracking || !material || isCompleted || !instance?.id) return;
+    
+    // Do not run time-based tracking for Quizzes (they have their own completion logic)
+    if (material.materialType === 'Quiz') return;
 
     setIsTracking(true);
     startTimeRef.current = Date.now();
 
-    // Update progress every 10 seconds based on viewing time
+    // Update visual progress every 10 seconds, but do NOT spam Salesforce API
     intervalRef.current = setInterval(() => {
       if (!material || !startTimeRef.current) return;
 
@@ -68,7 +71,7 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
         const newProgress = Math.min(100, Math.round((elapsed / material.duration) * 100));
         if (newProgress > progress) {
           setProgress(newProgress);
-          updateProgressAsync(newProgress, 'In Progress');
+          // Removed updateProgressAsync to prevent Salesforce API spam / background refreshing
         }
       }
     }, 10000); // Update every 10 seconds
