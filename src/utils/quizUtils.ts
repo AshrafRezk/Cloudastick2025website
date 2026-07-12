@@ -24,15 +24,42 @@ export const parseQuizQuestions = (jsonString: string | null | undefined): QuizD
       version: parsed.version || '1.0',
       totalQuestions: parsed.totalQuestions || parsed.questions.length,
       totalPoints: parsed.totalPoints || parsed.questions.reduce((sum: number, q: any) => sum + (q.points || 1), 0),
-      questions: parsed.questions.map((q: any) => ({
-        id: q.id || `q${Math.random().toString(36).substr(2, 9)}`,
-        question: q.question || '',
-        type: q.type || 'single-choice',
-        options: q.options || [],
-        correctAnswer: q.correctAnswer,
-        points: q.points || 1,
-        explanation: q.explanation,
-      })),
+      questions: parsed.questions.map((q: any) => {
+        // Normalize correctAnswer to handle string numbers and option text
+        let normalizedCorrectAnswer = q.correctAnswer;
+        
+        if (Array.isArray(q.correctAnswer)) {
+          normalizedCorrectAnswer = q.correctAnswer.map((a: any) => {
+            if (typeof a === 'string') {
+              const optionIndex = q.options?.indexOf(a);
+              if (optionIndex !== undefined && optionIndex !== -1) {
+                return optionIndex;
+              }
+              if (!isNaN(Number(a)) && String(a).trim() !== '') {
+                return Number(a);
+              }
+            }
+            return a;
+          });
+        } else if (typeof q.correctAnswer === 'string') {
+          const optionIndex = q.options?.indexOf(q.correctAnswer);
+          if (optionIndex !== undefined && optionIndex !== -1) {
+            normalizedCorrectAnswer = optionIndex;
+          } else if (!isNaN(Number(q.correctAnswer)) && String(q.correctAnswer).trim() !== '') {
+            normalizedCorrectAnswer = Number(q.correctAnswer);
+          }
+        }
+
+        return {
+          id: q.id || `q${Math.random().toString(36).substring(2, 11)}`,
+          question: q.question || '',
+          type: q.type || 'single-choice',
+          options: q.options || [],
+          correctAnswer: normalizedCorrectAnswer,
+          points: typeof q.points === 'string' && !isNaN(Number(q.points)) ? Number(q.points) : (q.points || 1),
+          explanation: q.explanation,
+        };
+      }),
     };
   } catch (error) {
     console.error('Failed to parse quiz questions:', error);
