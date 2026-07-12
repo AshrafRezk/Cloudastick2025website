@@ -338,12 +338,18 @@ const AcademySection = () => {
                 </div>
             </div>
 
-            <div className="text-center pt-12">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-12">
                 <Button 
                     onClick={() => window.open('https://wa.me/201282001662?text=Hi%20Mariam%2C%20I%20would%20like%20to%20join%20the%20Cloudastick%20Academy%20waitlist!', '_blank')}
-                    className="bg-white text-black hover:bg-gray-200 px-8 py-6 rounded-full text-lg shadow-[0_0_30px_rgba(255,255,255,0.1)]"
+                    className="bg-white/10 text-white border border-white/20 hover:bg-white/20 px-8 py-6 rounded-full text-lg transition-colors"
                 >
-                    Join the Academy Waitlist
+                    Join Waitlist on WhatsApp
+                </Button>
+                <Button 
+                    onClick={() => window.open('https://www.cloudastick.com/CareerDetails/cloudastick_academy_associate', '_blank')}
+                    className="bg-cyan-500 text-black hover:bg-cyan-600 px-8 py-6 rounded-full text-lg shadow-[0_0_30px_rgba(6,182,212,0.3)] transition-all"
+                >
+                    Apply Now
                 </Button>
             </div>
         </div>
