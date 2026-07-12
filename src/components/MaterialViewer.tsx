@@ -403,14 +403,31 @@ const MaterialViewer = ({ instance, isOpen, onClose }: MaterialViewerProps) => {
                     />
                   </div>
                 ) : embeddableUrl && embeddableUrl.includes('drive.google.com') ? (
-                  <div className="aspect-video" onMouseEnter={handleAutoStart}>
-                    <iframe
-                      src={embeddableUrl}
-                      className="w-full h-full border-0"
-                      allow="autoplay"
-                      allowFullScreen
-                      title={material.title}
-                    />
+                  <div className="space-y-2">
+                    <div className="aspect-video" onMouseEnter={handleAutoStart}>
+                      <iframe
+                        src={embeddableUrl}
+                        className="w-full h-full border-0 rounded-md"
+                        allow="autoplay; encrypted-media"
+                        allowFullScreen
+                        title={material.title}
+                      />
+                    </div>
+                    <div className="text-center mt-2 pb-2">
+                      <p className="text-sm text-muted-foreground mb-2">Video not loading or asking to sign in?</p>
+                      <a 
+                        href={materialUrl || embeddableUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
+                        onClick={(e) => {
+                          // Still trigger auto start if they click the external link
+                          handleAutoStart();
+                        }}
+                      >
+                        Open Video in New Tab
+                      </a>
+                    </div>
                   </div>
                 ) : (
                   <video
