@@ -1044,7 +1044,9 @@ const SalesforcePower = () => {
         setGenericIndustryData(null);
       } else {
         // No match found, create generic industry data
-        const decodedIndustry = decodeURIComponent(industryParam);
+        let decodedIndustry = decodeURIComponent(industryParam);
+        // If the URL comes with a dash, ignore it (replace with space)
+        decodedIndustry = decodedIndustry.replace(/-/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
         const genericData = createGenericIndustryData(decodedIndustry);
         setGenericIndustryData(genericData);
         setSelectedIndustry(null);
