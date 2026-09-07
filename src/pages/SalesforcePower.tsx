@@ -1541,11 +1541,85 @@ const SalesforcePower = () => {
             console.error(e);
           }
         }
-        return;
       }
-
       // If we don't have a specific modules vertical selected yet, we can't fetch modules
       if (!modulesVerticalId) {
+        // Check for hardcoded water-irrigation modules if API fails or is unavailable
+        const loadWaterIrrigationMock = () => {
+          setModulesLoading(true);
+          const mockModules: VerticalModule[] = [
+            {
+              id: 'mod-wi-1',
+              name: 'Project Intelligence & Specification',
+              featureList: 'Manage specification influence; track relationships with Developers, Consultants, and Contractors on a single Mega-Project record; track Specification Status.',
+              priority: 1,
+              cloudastickEdge: 'Custom Project objects pre-linked to multiple Opportunities and stakeholder Accounts.',
+              verticalId: 'water-irrigation',
+              verticalName: 'Water Supply & Irrigation Systems'
+            },
+            {
+              id: 'mod-wi-2',
+              name: 'BOM & Margin Governance',
+              featureList: 'Dynamic discount approvals tied to actual landed costs; 4-tier margin approval logic (<15%, 15-20%, 20-25%, >25%).',
+              priority: 1,
+              cloudastickEdge: 'Automated CPQ-style margin calculations without complex custom coding.',
+              verticalId: 'water-irrigation',
+              verticalName: 'Water Supply & Irrigation Systems'
+            },
+            {
+              id: 'mod-wi-3',
+              name: 'Odoo ERP Integration',
+              featureList: 'Real-time sync of SKU stock, purchase costs, and finance from Odoo; orders flow back to Odoo once Won.',
+              priority: 2,
+              cloudastickEdge: 'Pre-built MuleSoft/API connectors specifically for Odoo inventory objects.',
+              verticalId: 'water-irrigation',
+              verticalName: 'Water Supply & Irrigation Systems'
+            },
+            {
+              id: 'mod-wi-4',
+              name: 'Multi-Team Opportunity Execution',
+              featureList: 'Assign multiple roles (Consultant Sales, Contractor Sales, Tech Engineer) to a single commercial outcome.',
+              priority: 2,
+              cloudastickEdge: 'Advanced Opportunity Team structures that prevent fragmented sales data.',
+              verticalId: 'water-irrigation',
+              verticalName: 'Water Supply & Irrigation Systems'
+            }
+          ];
+          
+          setModulesVerticalData({
+            id: 'water-irrigation',
+            name: 'Water Supply & Irrigation Systems',
+            type: 'Water Supply & Irrigation Systems',
+            modules: mockModules
+          });
+          setModules(mockModules);
+          setSelectedModuleIds(new Set(mockModules.map(m => m.id)));
+          setModulesLoading(false);
+        };
+
+        if (!authData?.access_token || !authData?.instance_url) {
+          if (selectedIndustry === 'water-irrigation') {
+            loadWaterIrrigationMock();
+            return;
+          }
+          
+          if (selectedIndustry) {
+            const sfId = getSalesforceVerticalId(selectedIndustry);
+            if (sfId) {
+              setModulesVerticalId(sfId);
+              return; // Next render will fetch
+            }
+          }
+          if (allVerticals.length > 0) {
+            setModulesVerticalId(allVerticals[0].id);
+            return; // Next render will fetch
+          }
+
+          setModules([]); // Clear modules if no vertical selected
+          setModulesVerticalData(null);
+          return;
+        }
+
         // If we have verticals but no ID, try to set it one last time (race condition guard)
         if (selectedIndustry) {
           const sfId = getSalesforceVerticalId(selectedIndustry);
@@ -1566,6 +1640,62 @@ const SalesforcePower = () => {
 
       try {
         setModulesLoading(true);
+        if (selectedIndustry === 'water-irrigation' && !modulesVerticalId) {
+          const loadWaterIrrigationMock = () => {
+            setModulesLoading(true);
+            const mockModules: VerticalModule[] = [
+              {
+                id: 'mod-wi-1',
+                name: 'Project Intelligence & Specification',
+                featureList: 'Manage specification influence; track relationships with Developers, Consultants, and Contractors on a single Mega-Project record; track Specification Status.',
+                priority: 1,
+                cloudastickEdge: 'Custom Project objects pre-linked to multiple Opportunities and stakeholder Accounts.',
+                verticalId: 'water-irrigation',
+                verticalName: 'Water Supply & Irrigation Systems'
+              },
+              {
+                id: 'mod-wi-2',
+                name: 'BOM & Margin Governance',
+                featureList: 'Dynamic discount approvals tied to actual landed costs; 4-tier margin approval logic (<15%, 15-20%, 20-25%, >25%).',
+                priority: 1,
+                cloudastickEdge: 'Automated CPQ-style margin calculations without complex custom coding.',
+                verticalId: 'water-irrigation',
+                verticalName: 'Water Supply & Irrigation Systems'
+              },
+              {
+                id: 'mod-wi-3',
+                name: 'Odoo ERP Integration',
+                featureList: 'Real-time sync of SKU stock, purchase costs, and finance from Odoo; orders flow back to Odoo once Won.',
+                priority: 2,
+                cloudastickEdge: 'Pre-built MuleSoft/API connectors specifically for Odoo inventory objects.',
+                verticalId: 'water-irrigation',
+                verticalName: 'Water Supply & Irrigation Systems'
+              },
+              {
+                id: 'mod-wi-4',
+                name: 'Multi-Team Opportunity Execution',
+                featureList: 'Assign multiple roles (Consultant Sales, Contractor Sales, Tech Engineer) to a single commercial outcome.',
+                priority: 2,
+                cloudastickEdge: 'Advanced Opportunity Team structures that prevent fragmented sales data.',
+                verticalId: 'water-irrigation',
+                verticalName: 'Water Supply & Irrigation Systems'
+              }
+            ];
+            
+            setModulesVerticalData({
+              id: 'water-irrigation',
+              name: 'Water Supply & Irrigation Systems',
+              type: 'Water Supply & Irrigation Systems',
+              modules: mockModules
+            });
+            setModules(mockModules);
+            setSelectedModuleIds(new Set(mockModules.map(m => m.id)));
+            setModulesLoading(false);
+          };
+          loadWaterIrrigationMock();
+          return;
+        }
+        
         const data = await fetchVerticalById(
           authData.access_token,
           authData.instance_url,
@@ -1590,6 +1720,64 @@ const SalesforcePower = () => {
         }
       } catch (error) {
         console.error('Error fetching modules:', error);
+        
+        // Fallback to mock if API fails for water-irrigation
+        if (selectedIndustry === 'water-irrigation') {
+          const loadWaterIrrigationMock = () => {
+            setModulesLoading(true);
+            const mockModules: VerticalModule[] = [
+              {
+                id: 'mod-wi-1',
+                name: 'Project Intelligence & Specification',
+                featureList: 'Manage specification influence; track relationships with Developers, Consultants, and Contractors on a single Mega-Project record; track Specification Status.',
+                priority: 1,
+                cloudastickEdge: 'Custom Project objects pre-linked to multiple Opportunities and stakeholder Accounts.',
+                verticalId: 'water-irrigation',
+                verticalName: 'Water Supply & Irrigation Systems'
+              },
+              {
+                id: 'mod-wi-2',
+                name: 'BOM & Margin Governance',
+                featureList: 'Dynamic discount approvals tied to actual landed costs; 4-tier margin approval logic (<15%, 15-20%, 20-25%, >25%).',
+                priority: 1,
+                cloudastickEdge: 'Automated CPQ-style margin calculations without complex custom coding.',
+                verticalId: 'water-irrigation',
+                verticalName: 'Water Supply & Irrigation Systems'
+              },
+              {
+                id: 'mod-wi-3',
+                name: 'Odoo ERP Integration',
+                featureList: 'Real-time sync of SKU stock, purchase costs, and finance from Odoo; orders flow back to Odoo once Won.',
+                priority: 2,
+                cloudastickEdge: 'Pre-built MuleSoft/API connectors specifically for Odoo inventory objects.',
+                verticalId: 'water-irrigation',
+                verticalName: 'Water Supply & Irrigation Systems'
+              },
+              {
+                id: 'mod-wi-4',
+                name: 'Multi-Team Opportunity Execution',
+                featureList: 'Assign multiple roles (Consultant Sales, Contractor Sales, Tech Engineer) to a single commercial outcome.',
+                priority: 2,
+                cloudastickEdge: 'Advanced Opportunity Team structures that prevent fragmented sales data.',
+                verticalId: 'water-irrigation',
+                verticalName: 'Water Supply & Irrigation Systems'
+              }
+            ];
+            
+            setModulesVerticalData({
+              id: 'water-irrigation',
+              name: 'Water Supply & Irrigation Systems',
+              type: 'Water Supply & Irrigation Systems',
+              modules: mockModules
+            });
+            setModules(mockModules);
+            setSelectedModuleIds(new Set(mockModules.map(m => m.id)));
+            setModulesLoading(false);
+          };
+          loadWaterIrrigationMock();
+          return;
+        }
+
         toast({
           title: "Error",
           description: "Failed to load modules. Please try again.",
@@ -1601,7 +1789,7 @@ const SalesforcePower = () => {
     };
 
     fetchModules();
-  }, [showModulesSection, modulesVerticalId, authData, allVerticals, getSalesforceVerticalId, selectedIndustry]); // Depend on modulesVerticalId instead of selectedIndustryData
+  }, [showModulesSection, modulesVerticalId, authData, allVerticals, getSalesforceVerticalId, selectedIndustry]);
 
   // Check if current industry is retail/commerce related
   const isRetailOrCommerce = useMemo(() => {
@@ -1932,8 +2120,8 @@ const SalesforcePower = () => {
                     }
                   </p>
 
-                  {/* Try Demo Button - Only show for Real Estate */}
-                  {selectedIndustry === 'real-estate' && (
+                  {/* Try Demo Button - Only show for Real Estate & Water Irrigation */}
+                  {(selectedIndustry === 'real-estate' || selectedIndustry === 'water-irrigation') && (
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -1958,7 +2146,7 @@ const SalesforcePower = () => {
                       transition={{ duration: 0.8, delay: 0.3 }}
                       className="mb-8"
                     >
-                      <div className={`grid grid-cols-1 ${companyName ? 'sm:grid-cols-2' : ''} gap-4 max-w-4xl mx-auto`}>
+                      <div className={`grid grid-cols-1 ${companyName ? 'md:grid-cols-3' : ''} gap-4 max-w-5xl mx-auto`}>
                         {/* Company Website Input with Analyze Button */}
                         <div className="flex-1">
                           <div className="flex gap-3">
@@ -2020,6 +2208,27 @@ const SalesforcePower = () => {
                             />
                             <p className="text-xs text-cyan-400 mt-2 text-center sm:text-left">
                               ✏️ Edit if name is incorrect
+                            </p>
+                          </motion.div>
+                        )}
+
+                        {/* Logo URL Override Input */}
+                        {companyName && (
+                          <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.3, delay: 0.1 }}
+                            className="flex-1"
+                          >
+                            <input
+                              type="text"
+                              placeholder="Logo URL Override (Optional)"
+                              value={companyLogo || ''}
+                              onChange={(e) => setCompanyLogo(e.target.value)}
+                              className="w-full px-6 py-4 bg-gray-800/50 backdrop-blur-sm border border-cyan-500 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all duration-300 text-center sm:text-left"
+                            />
+                            <p className="text-xs text-cyan-400 mt-2 text-center sm:text-left">
+                              🖼️ Override missing logo
                             </p>
                           </motion.div>
                         )}

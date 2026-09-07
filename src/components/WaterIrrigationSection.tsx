@@ -1,61 +1,75 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Target, Zap, LayoutTemplate, Smartphone, Droplet, Box, PenTool, CheckCircle, Search, Wrench, Sprout, Wind, ArrowRight, Sun, Settings } from 'lucide-react';
+import { Target, Zap, LayoutTemplate, Smartphone, Droplet, Box, PenTool, CheckCircle, Search, Wrench, Sprout, Wind, ArrowRight, Sun, Settings, Database, Users, ShieldCheck, Activity } from 'lucide-react';
 import AnimatedSection from './AnimatedSection';
 
 const WaterIrrigationSection = () => {
     return (
         <div className="space-y-24 py-12">
-            {/* Project Pipeline Section */}
+            {/* Executive Dashboard Section */}
             <section className="relative overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <AnimatedSection className="text-center mb-16">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/20 rounded-full text-blue-300 text-sm font-medium mb-6 border border-blue-500/30">
-                            <Droplet className="w-4 h-4" />
-                            <span>End-to-End Project Execution</span>
+                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/20 rounded-full text-green-300 text-sm font-medium mb-6 border border-green-500/30">
+                            <Sprout className="w-4 h-4" />
+                            <span>Specification Selling & Project Intelligence</span>
                         </div>
                         <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-                            Water Supply & <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Irrigation Systems</span>
+                            Water Supply & <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-400">Irrigation Systems</span>
                         </h2>
                         <p className="text-gray-300 text-lg max-w-4xl mx-auto leading-relaxed">
-                            A complete solution tailored for compounds and large real estate projects (like Sodic, Mountain View, Taj Sultan). Manage complex tenders, intricate quoting processes, and end-to-end material supply using Salesforce.
+                            Transition from simple quoting to complex specification selling. Manage years-long mega-projects, influence consultants, and orchestrate multiple sales teams from discovery to installation.
                         </p>
                     </AnimatedSection>
 
-                    <div className="grid md:grid-cols-2 gap-12 items-center">
+                    <div className="grid lg:grid-cols-2 gap-12 items-center">
                         <motion.div
                             initial={{ opacity: 0, x: -30 }}
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.8 }}
+                            className="space-y-6"
                         >
-                            <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                                <Box className="w-8 h-8 text-blue-400" />
-                                The Material Pipeline
+                            <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
+                                <Activity className="w-8 h-8 text-green-400" />
+                                The Mega-Project View
                             </h3>
                             <p className="text-gray-300 leading-relaxed mb-6">
-                                Streamline your catalogs and BOMs across the entire project lifecycle, from initial water sourcing to landscape maintenance.
+                                A single unified view for executive leadership. Track the entire ecosystem of a massive development before the final contractor is even selected.
                             </p>
 
-                            <div className="space-y-4">
-                                {[
-                                    { icon: Zap, title: "1. Get the Water There", text: "DAB (Pumps) → DVD (Valves) → Viking Johnson (Couplings)" },
-                                    { icon: Droplet, title: "2. Distribute the Water", text: "Elysee (Pipes/fittings) → Rivulis (Drip irrigation)" },
-                                    { icon: Sprout, title: "3. Irrigate Landscape", text: "Hunter (Sprinklers, controllers, valves)" },
-                                    { icon: LayoutTemplate, title: "4. Landscape Extras", text: "FX Luminaire (Lighting) → ZinCo (Green roofs) → Aquatronic" },
-                                    { icon: Wind, title: "5. Outdoor Environment", text: "Metalco (Urban furniture) → MyEquilibria (Outdoor fitness)" },
-                                    { icon: Wrench, title: "6. Maintenance", text: "STIGA (Mowers & landscaping machinery)" }
-                                ].map((item, index) => (
-                                    <div key={index} className="flex items-start gap-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:border-blue-500/30 transition-colors">
-                                        <div className="p-2 bg-blue-500/20 rounded-lg shrink-0">
-                                            <item.icon className="w-5 h-5 text-blue-400" />
-                                        </div>
-                                        <div>
-                                            <h4 className="text-white font-semibold text-sm">{item.title}</h4>
-                                            <span className="text-gray-400 text-sm">{item.text}</span>
-                                        </div>
+                            <div className="bg-gray-800/80 rounded-2xl p-6 border border-white/10 shadow-xl space-y-4">
+                                <div className="border-b border-gray-700 pb-4 mb-4">
+                                    <h4 className="text-xl font-bold text-cyan-400">New Cairo Mega Development</h4>
+                                    <p className="text-sm text-gray-400 mt-1">Project Value Potential: EGP 150M</p>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <span className="text-gray-500 block">Developer</span>
+                                        <span className="text-white font-medium">Mega Real Estate Co.</span>
                                     </div>
-                                ))}
+                                    <div>
+                                        <span className="text-gray-500 block">Main Consultant</span>
+                                        <span className="text-white font-medium">Global Consultants Inc.</span>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500 block">Specification Status</span>
+                                        <span className="text-green-400 font-medium">Pumps Approved / Irrigation Pending</span>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500 block">Main Contractor</span>
+                                        <span className="text-white font-medium">Premier Construction (Tender)</span>
+                                    </div>
+                                </div>
+                                <div className="mt-4 bg-black/30 rounded-xl p-4">
+                                    <span className="text-gray-500 block text-sm mb-2">Assigned Opportunity Teams</span>
+                                    <div className="flex flex-wrap gap-2">
+                                        <span className="px-2 py-1 bg-blue-500/20 text-blue-300 rounded text-xs">Consultant Sales</span>
+                                        <span className="px-2 py-1 bg-purple-500/20 text-purple-300 rounded text-xs">Developer Sales</span>
+                                        <span className="px-2 py-1 bg-orange-500/20 text-orange-300 rounded text-xs">Technical Engineer</span>
+                                        <span className="px-2 py-1 bg-green-500/20 text-green-300 rounded text-xs">Contractor Sales</span>
+                                    </div>
+                                </div>
                             </div>
                         </motion.div>
 
@@ -64,45 +78,123 @@ const WaterIrrigationSection = () => {
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.8 }}
-                            className="relative"
                         >
-                            <div className="aspect-square rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-gradient-to-br from-gray-900 to-gray-800 p-8 flex items-center justify-center">
-                                <div className="relative w-full h-full flex flex-col justify-between">
-                                    <div className="absolute inset-0 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
-                                    
-                                    <div className="space-y-6 relative z-10">
-                                        <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 border border-blue-500/30 shadow-lg">
-                                            <div className="flex items-center justify-between mb-4">
-                                                <h4 className="text-xl font-bold text-white">Sales Cloud CPQ</h4>
-                                                <PenTool className="w-6 h-6 text-blue-400" />
-                                            </div>
-                                            <p className="text-sm text-gray-300">Generate complex quotes for massive compound tenders instantly. Combine Pumps, Pipes, and Irrigation Controllers into unified BOMs.</p>
-                                        </div>
+                            <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                                <Target className="w-8 h-8 text-blue-400" />
+                                The Specification Lifecycle
+                            </h3>
+                            <p className="text-gray-300 leading-relaxed mb-6">
+                                Selling starts years before a quote is requested. Track specification influence and get your brands hardcoded into the project requirements.
+                            </p>
 
-                                        <div className="flex justify-center">
-                                            <ArrowRight className="w-6 h-6 text-gray-500 rotate-90" />
-                                        </div>
-
-                                        <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 border border-cyan-500/30 shadow-lg">
-                                            <div className="flex items-center justify-between mb-4">
-                                                <h4 className="text-xl font-bold text-white">Experience Cloud</h4>
-                                                <Search className="w-6 h-6 text-cyan-400" />
-                                            </div>
-                                            <p className="text-sm text-gray-300">Client portal for real estate developers to track project phases, material delivery status, and submit service requests.</p>
-                                        </div>
-
-                                        <div className="flex justify-center">
-                                            <ArrowRight className="w-6 h-6 text-gray-500 rotate-90" />
-                                        </div>
-
-                                        <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-6 border border-teal-500/30 shadow-lg">
-                                            <div className="flex items-center justify-between mb-4">
-                                                <h4 className="text-xl font-bold text-white">Service Cloud & FSM</h4>
-                                                <Wrench className="w-6 h-6 text-teal-400" />
-                                            </div>
-                                            <p className="text-sm text-gray-300">After-sales maintenance tracking. Dispatch field service teams for pump repairs or irrigation system checkups.</p>
+                            <div className="relative border-l-2 border-gray-700 ml-4 space-y-6">
+                                {[
+                                    { phase: "Early Influence", steps: ["Project Identified", "Consultant Engaged", "Specification in Progress"] },
+                                    { phase: "Hardcoding the Brand", steps: ["Specified", "Developer Approved"], highlight: true },
+                                    { phase: "Commercial Execution", steps: ["Contractor Identified", "RFQ Received", "Quotation Submitted"] },
+                                    { phase: "Closing", steps: ["Commercial Negotiation", "Won/Lost", "Installation", "After-Sales"] }
+                                ].map((stage, idx) => (
+                                    <div key={idx} className="relative pl-6">
+                                        <div className={`absolute -left-[9px] top-1 w-4 h-4 rounded-full border-4 border-gray-900 ${stage.highlight ? 'bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.8)]' : 'bg-gray-600'}`} />
+                                        <h4 className={`font-bold ${stage.highlight ? 'text-cyan-400' : 'text-white'}`}>{stage.phase}</h4>
+                                        <div className="mt-2 flex flex-wrap gap-2">
+                                            {stage.steps.map((step, stepIdx) => (
+                                                <span key={stepIdx} className="text-xs px-2 py-1 bg-white/5 border border-white/10 rounded-md text-gray-400">
+                                                    {step}
+                                                </span>
+                                            ))}
                                         </div>
                                     </div>
+                                ))}
+                            </div>
+                        </motion.div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Product & Margin Governance */}
+            <section className="relative overflow-hidden bg-gray-900/50 py-16 border-y border-white/5">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <AnimatedSection className="text-center mb-16">
+                        <h2 className="text-3xl font-bold text-white mb-6">
+                            Intelligent <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Catalog & Margin Governance</span>
+                        </h2>
+                        <p className="text-gray-300 max-w-3xl mx-auto leading-relaxed">
+                            Structure international brands with deep SKU-level cost tracking, and enforce strict margin-based approval workflows for the commercial team.
+                        </p>
+                    </AnimatedSection>
+                    
+                    <div className="grid md:grid-cols-2 gap-8">
+                        <motion.div 
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.6 }}
+                            className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 border border-white/10"
+                        >
+                            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                                <Database className="w-6 h-6 text-blue-400" />
+                                4-Tier Data Architecture
+                            </h3>
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-3 text-gray-300">
+                                    <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-lg text-sm font-medium">1. Supplier</span>
+                                    <ArrowRight className="w-4 h-4 text-gray-600" />
+                                    <span>International Manufacturer</span>
+                                </div>
+                                <div className="flex items-center gap-3 text-gray-300">
+                                    <span className="px-3 py-1 bg-cyan-500/20 text-cyan-400 rounded-lg text-sm font-medium">2. Brand</span>
+                                    <ArrowRight className="w-4 h-4 text-gray-600" />
+                                    <span>Brand Name</span>
+                                </div>
+                                <div className="flex items-center gap-3 text-gray-300">
+                                    <span className="px-3 py-1 bg-teal-500/20 text-teal-400 rounded-lg text-sm font-medium">3. Family</span>
+                                    <ArrowRight className="w-4 h-4 text-gray-600" />
+                                    <span>Irrigation / Pumps / Couplings</span>
+                                </div>
+                                <div className="flex items-center gap-3 text-gray-300">
+                                    <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-lg text-sm font-medium">4. SKU</span>
+                                    <ArrowRight className="w-4 h-4 text-gray-600" />
+                                    <span>Specific Model</span>
+                                </div>
+                                <div className="mt-6 pt-6 border-t border-gray-700">
+                                    <p className="text-sm text-gray-400">
+                                        Every SKU tracks: Source Country • Currency • Local Inventory • Purchase Cost • Landed Cost • List Price • Target Margin • Legal Entity (e.g. Egypt vs KSA)
+                                    </p>
+                                </div>
+                            </div>
+                        </motion.div>
+
+                        <motion.div 
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.6, delay: 0.2 }}
+                            className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 border border-white/10"
+                        >
+                            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                                <ShieldCheck className="w-6 h-6 text-purple-400" />
+                                Automated Margin Approvals
+                            </h3>
+                            <p className="text-sm text-gray-400 mb-6">
+                                Salesforce calculates: Purchase Cost + Landed Cost = Cost Basis → Customer Price → Gross Profit → Gross Margin %.
+                            </p>
+                            <div className="space-y-3">
+                                <div className="flex items-center justify-between p-3 bg-green-500/10 border border-green-500/20 rounded-xl">
+                                    <span className="text-green-400 font-bold">Margin ≥ 25%</span>
+                                    <span className="text-gray-300 text-sm">Auto-Approved (Salesperson)</span>
+                                </div>
+                                <div className="flex items-center justify-between p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-xl">
+                                    <span className="text-yellow-400 font-bold">20% – 25%</span>
+                                    <span className="text-gray-300 text-sm">Sales Manager Approval</span>
+                                </div>
+                                <div className="flex items-center justify-between p-3 bg-orange-500/10 border border-orange-500/20 rounded-xl">
+                                    <span className="text-orange-400 font-bold">15% – 20%</span>
+                                    <span className="text-gray-300 text-sm">Commercial / CFO Approval</span>
+                                </div>
+                                <div className="flex items-center justify-between p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
+                                    <span className="text-red-400 font-bold">&lt; 15%</span>
+                                    <span className="text-gray-300 text-sm">Executive Approval / Blocked</span>
                                 </div>
                             </div>
                         </motion.div>
@@ -110,68 +202,45 @@ const WaterIrrigationSection = () => {
                 </div>
             </section>
 
-            {/* Catalog Categories Section */}
-            <section className="relative overflow-hidden bg-gray-900/50 py-16 border-y border-white/5">
+            {/* Systems Architecture */}
+            <section className="relative overflow-hidden py-16">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <AnimatedSection className="text-center mb-12">
                         <h2 className="text-3xl font-bold text-white mb-6">
-                            Mastering the <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Complete Catalog</span>
+                            Best-in-Class <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">Systems Architecture</span>
                         </h2>
-                        <p className="text-gray-300 max-w-3xl mx-auto leading-relaxed">
-                            Salesforce seamlessly unifies quoting, inventory visibility, and maintenance across all your diverse business units.
-                        </p>
                     </AnimatedSection>
                     
-                    <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-6">
-                        {[
-                            {
-                                icon: Settings, title: "MEP",
-                                colorClass: "border-blue-500", bgClass: "bg-blue-500/20", textClass: "text-blue-400", dotClass: "text-blue-500",
-                                items: ["Pumps", "Booster Systems", "Valves", "Couplings", "Flange Adaptors", "Water/Wastewater Components"]
-                            },
-                            {
-                                icon: Droplet, title: "Irrigation",
-                                colorClass: "border-cyan-500", bgClass: "bg-cyan-500/20", textClass: "text-cyan-400", dotClass: "text-cyan-500",
-                                items: ["Sprinklers", "Rotors", "Spray Heads", "Dripline", "Controllers", "Solenoid Valves", "Filters"]
-                            },
-                            {
-                                icon: Sprout, title: "Agriculture",
-                                colorClass: "border-green-500", bgClass: "bg-green-500/20", textClass: "text-green-400", dotClass: "text-green-500",
-                                items: ["Drip Irrigation", "Filtration", "Fertigation", "Agricultural Sprinklers"]
-                            },
-                            {
-                                icon: Sun, title: "Landscape",
-                                colorClass: "border-orange-500", bgClass: "bg-orange-500/20", textClass: "text-orange-400", dotClass: "text-orange-500",
-                                items: ["Landscape Lighting", "Green Roof Systems", "Water Features", "Urban Furniture", "Garden Machinery"]
-                            },
-                            {
-                                icon: Wrench, title: "Services",
-                                colorClass: "border-purple-500", bgClass: "bg-purple-500/20", textClass: "text-purple-400", dotClass: "text-purple-500",
-                                items: ["Design", "Engineering", "Installation", "Testing & Commissioning", "Plantation", "Maintenance"]
-                            }
-                        ].map((category, idx) => (
-                            <motion.div 
-                                key={idx}
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.5, delay: idx * 0.1 }}
-                                className={`bg-gray-800/80 rounded-2xl p-6 border-t-4 ${category.colorClass} shadow-xl hover:bg-gray-800 transition-colors`}
-                            >
-                                <div className={`w-12 h-12 ${category.bgClass} rounded-xl flex items-center justify-center mb-4`}>
-                                    <category.icon className={`w-6 h-6 ${category.textClass}`} />
-                                </div>
-                                <h3 className="text-xl font-bold text-white mb-4">{category.title}</h3>
-                                <ul className="space-y-2">
-                                    {category.items.map((item, itemIdx) => (
-                                        <li key={itemIdx} className="text-sm text-gray-400 flex items-start gap-2">
-                                            <span className={`${category.dotClass} mt-1`}>•</span>
-                                            {item}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </motion.div>
-                        ))}
+                    <div className="grid md:grid-cols-2 gap-8 items-stretch">
+                        <div className="bg-gray-800/60 rounded-2xl p-8 border border-blue-500/30 flex flex-col items-center text-center">
+                            <div className="w-16 h-16 bg-blue-500/20 rounded-2xl flex items-center justify-center mb-6">
+                                <Users className="w-8 h-8 text-blue-400" />
+                            </div>
+                            <h3 className="text-2xl font-bold text-white mb-4">Salesforce CRM</h3>
+                            <p className="text-gray-300 mb-6 flex-grow">
+                                Accounts • Contacts • Mega-Projects • Stakeholder Maps • Sales Execution • Specifications • Opportunities • Activities • CPQ Quotes • Margin Approvals
+                            </p>
+                            <span className="px-4 py-2 bg-blue-500/20 text-blue-300 rounded-full text-sm font-medium">Front-Office Engine</span>
+                        </div>
+
+                        <div className="hidden md:flex items-center justify-center absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 mt-12">
+                            <div className="bg-gray-900 p-2 rounded-full border border-gray-700 flex flex-col items-center gap-2">
+                                <ArrowRight className="w-6 h-6 text-gray-500" />
+                                <span className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">API Sync</span>
+                                <ArrowRight className="w-6 h-6 text-gray-500 rotate-180" />
+                            </div>
+                        </div>
+
+                        <div className="bg-gray-800/60 rounded-2xl p-8 border border-purple-500/30 flex flex-col items-center text-center">
+                            <div className="w-16 h-16 bg-purple-500/20 rounded-2xl flex items-center justify-center mb-6">
+                                <Box className="w-8 h-8 text-purple-400" />
+                            </div>
+                            <h3 className="text-2xl font-bold text-white mb-4">ERP (Odoo / SAP)</h3>
+                            <p className="text-gray-300 mb-6 flex-grow">
+                                Inventory Source of Truth • Real-time SKU Stock • Purchasing Cost • Standard Costing • Finance & Accounting • Warehouse Management
+                            </p>
+                            <span className="px-4 py-2 bg-purple-500/20 text-purple-300 rounded-full text-sm font-medium">Back-Office Engine</span>
+                        </div>
                     </div>
                 </div>
             </section>
