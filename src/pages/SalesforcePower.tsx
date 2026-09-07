@@ -1443,13 +1443,29 @@ const SalesforcePower = () => {
   // Fetch all verticals once on mount/auth
   useEffect(() => {
     const loadVerticals = async () => {
-      if (!authData?.access_token || !authData?.instance_url || allVerticals.length > 0) return;
+      if (allVerticals.length > 0) return;
+
+      const mockWaterIrrigation = {
+        id: 'water-irrigation',
+        name: 'Water Supply & Irrigation Systems',
+        type: 'Water Supply & Irrigation Systems'
+      };
+
+      if (!authData?.access_token || !authData?.instance_url) {
+        setAllVerticals([mockWaterIrrigation]);
+        return;
+      }
 
       try {
         const data = await fetchAllVerticals(authData.access_token, authData.instance_url);
-        setAllVerticals(data);
+        if (!data.some((v: any) => v.id === 'water-irrigation')) {
+          setAllVerticals([...data, mockWaterIrrigation]);
+        } else {
+          setAllVerticals(data);
+        }
       } catch (err) {
         console.error("Error pre-loading verticals", err);
+        setAllVerticals([mockWaterIrrigation]);
       }
     };
     loadVerticals();
@@ -1527,13 +1543,18 @@ const SalesforcePower = () => {
   // Fetch Modules Data independently
   useEffect(() => {
     const fetchModules = async () => {
-      // If we are not showing modules, or don't have auth, return
-      if (!showModulesSection || !authData?.access_token || !authData?.instance_url) {
+      // If we are not showing modules, return
+      if (!showModulesSection) {
+        return;
+      }
+
+      // If no auth and we are not explicitly loading the water-irrigation mock, return
+      if ((!authData?.access_token || !authData?.instance_url) && selectedIndustry !== 'water-irrigation' && modulesVerticalId !== 'water-irrigation') {
         return;
       }
 
       // If we don't have verticals list yet, fetch it
-      if (allVerticals.length === 0) {
+      if (allVerticals.length === 0 && authData?.access_token && authData?.instance_url) {
         if (!modulesLoading) {
           try {
             const data = await fetchAllVerticals(authData.access_token, authData.instance_url);
@@ -1594,6 +1615,7 @@ const SalesforcePower = () => {
             type: 'Water Supply & Irrigation Systems',
             modules: mockModules
           });
+          setModulesVerticalId('water-irrigation');
           setModules(mockModules);
           setSelectedModuleIds(new Set(mockModules.map(m => m.id)));
           setModulesLoading(false);
@@ -1642,7 +1664,7 @@ const SalesforcePower = () => {
 
       try {
         setModulesLoading(true);
-        if (selectedIndustry === 'water-irrigation' && !modulesVerticalId) {
+        if (modulesVerticalId === 'water-irrigation') {
           const loadWaterIrrigationMock = () => {
             setModulesLoading(true);
             const mockModules: VerticalModule[] = [
@@ -1772,6 +1794,7 @@ const SalesforcePower = () => {
               type: 'Water Supply & Irrigation Systems',
               modules: mockModules
             });
+            setModulesVerticalId('water-irrigation');
             setModules(mockModules);
             setSelectedModuleIds(new Set(mockModules.map(m => m.id)));
             setModulesLoading(false);
