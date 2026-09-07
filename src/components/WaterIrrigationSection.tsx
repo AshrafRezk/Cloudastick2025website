@@ -62,12 +62,6 @@ const WaterIrrigationSection = () => {
                                     </div>
                                 </div>
                                 <div className="mt-4 bg-black/30 rounded-xl p-4">
-                                    <span className="text-gray-500 block text-sm mb-2">Project Types</span>
-                                    <div className="flex flex-wrap gap-2 mb-4">
-                                        <span className="px-2 py-1 bg-teal-500/20 text-teal-300 border border-teal-500/30 rounded text-xs">1. Under Design</span>
-                                        <span className="px-2 py-1 bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 rounded text-xs">2. Under Construction</span>
-                                        <span className="px-2 py-1 bg-green-500/20 text-green-300 border border-green-500/30 rounded text-xs">3. Maintenance (FM Team)</span>
-                                    </div>
                                     <span className="text-gray-500 block text-sm mb-2">Key Project Stakeholders</span>
                                     <div className="flex flex-wrap gap-2 mb-4">
                                         <span className="px-2 py-1 bg-purple-500/20 text-purple-300 rounded text-xs">Landscape Design Consultant</span>
@@ -121,6 +115,115 @@ const WaterIrrigationSection = () => {
                                         </div>
                                     </div>
                                 ))}
+                            </div>
+                        </motion.div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Project & Customer Intelligence Infographic */}
+            <section className="relative overflow-hidden py-16 bg-gray-900/30 border-y border-white/5">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <AnimatedSection className="text-center mb-16">
+                        <h2 className="text-3xl font-bold text-white mb-6">
+                            Intelligent <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-400">Project & Customer Tracking</span>
+                        </h2>
+                        <p className="text-gray-300 max-w-3xl mx-auto leading-relaxed">
+                            A clear, structured view of your entire business landscape, powered by automated tracking and real-time notifications.
+                        </p>
+                    </AnimatedSection>
+                    
+                    <div className="grid md:grid-cols-3 gap-6">
+                        {/* 4 Kinds of Projects */}
+                        <motion.div 
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.6 }}
+                            className="bg-[#fff9c4] rounded-2xl p-8 border border-yellow-200/50 shadow-xl"
+                        >
+                            <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                                <LayoutTemplate className="w-6 h-6 text-yellow-600" />
+                                4 Different Kinds of Projects
+                            </h3>
+                            <ul className="space-y-4 text-gray-800 font-medium text-lg">
+                                <li className="flex items-center gap-3">
+                                    <div className="w-2 h-2 rounded-full bg-yellow-600"></div>
+                                    Under Design Opp
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <div className="w-2 h-2 rounded-full bg-yellow-600"></div>
+                                    Mobilisation/Tender Opp
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <div className="w-2 h-2 rounded-full bg-yellow-600"></div>
+                                    Under Construction Opp
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <div className="w-2 h-2 rounded-full bg-yellow-600"></div>
+                                    FM Opp
+                                </li>
+                            </ul>
+                        </motion.div>
+
+                        {/* Types of Customers */}
+                        <motion.div 
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.6, delay: 0.1 }}
+                            className="bg-[#fff9c4] rounded-2xl p-8 border border-yellow-200/50 shadow-xl"
+                        >
+                            <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                                <Users className="w-6 h-6 text-yellow-600" />
+                                Types of Customers
+                            </h3>
+                            <ul className="space-y-4 text-gray-800 font-medium text-lg">
+                                <li className="flex items-center gap-3">
+                                    <div className="w-2 h-2 rounded-full bg-yellow-600"></div>
+                                    Construction Company
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <div className="w-2 h-2 rounded-full bg-yellow-600"></div>
+                                    Academy applicant
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <div className="w-2 h-2 rounded-full bg-yellow-600"></div>
+                                    Business Contacts
+                                </li>
+                            </ul>
+                        </motion.div>
+
+                        {/* Notifications & Automations */}
+                        <motion.div 
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.6, delay: 0.2 }}
+                            className="bg-gradient-to-br from-indigo-900 to-blue-900 rounded-2xl p-8 border border-blue-500/30 shadow-xl text-white"
+                        >
+                            <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+                                <Zap className="w-6 h-6 text-yellow-400" />
+                                Automations & Alerts
+                            </h3>
+                            <p className="text-blue-100 mb-6 leading-relaxed">
+                                Salesforce automatically tracks stakeholder and project changes.
+                            </p>
+                            <div className="space-y-4">
+                                <div className="bg-white/10 p-4 rounded-xl border border-white/10">
+                                    <div className="flex items-center gap-2 text-yellow-300 font-medium mb-2">
+                                        <Activity className="w-4 h-4" />
+                                        Project Changes
+                                    </div>
+                                    <p className="text-sm text-blue-50">Get instant alerts when a project transitions from Tender to Under Construction.</p>
+                                </div>
+                                <div className="bg-white/10 p-4 rounded-xl border border-white/10">
+                                    <div className="flex items-center gap-2 text-yellow-300 font-medium mb-2">
+                                        <Users className="w-4 h-4" />
+                                        Stakeholder Movement
+                                    </div>
+                                    <p className="text-sm text-blue-50">Track when a key contact moves from one project to another, or from Zone A to Zone B.</p>
+                                </div>
                             </div>
                         </motion.div>
                     </div>
