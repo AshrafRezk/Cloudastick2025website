@@ -140,27 +140,27 @@ const WaterIrrigationSection = () => {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.6 }}
-                            className="bg-[#fff9c4] rounded-2xl p-8 border border-yellow-200/50 shadow-xl"
+                            className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 border border-white/10 shadow-xl"
                         >
-                            <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                                <LayoutTemplate className="w-6 h-6 text-yellow-600" />
+                            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                                <LayoutTemplate className="w-6 h-6 text-cyan-400" />
                                 4 Different Kinds of Projects
                             </h3>
-                            <ul className="space-y-4 text-gray-800 font-medium text-lg">
+                            <ul className="space-y-4 text-gray-300 font-medium text-lg">
                                 <li className="flex items-center gap-3">
-                                    <div className="w-2 h-2 rounded-full bg-yellow-600"></div>
+                                    <div className="w-2 h-2 rounded-full bg-cyan-400"></div>
                                     Under Design Opp
                                 </li>
                                 <li className="flex items-center gap-3">
-                                    <div className="w-2 h-2 rounded-full bg-yellow-600"></div>
+                                    <div className="w-2 h-2 rounded-full bg-cyan-400"></div>
                                     Mobilisation/Tender Opp
                                 </li>
                                 <li className="flex items-center gap-3">
-                                    <div className="w-2 h-2 rounded-full bg-yellow-600"></div>
+                                    <div className="w-2 h-2 rounded-full bg-cyan-400"></div>
                                     Under Construction Opp
                                 </li>
                                 <li className="flex items-center gap-3">
-                                    <div className="w-2 h-2 rounded-full bg-yellow-600"></div>
+                                    <div className="w-2 h-2 rounded-full bg-cyan-400"></div>
                                     FM Opp
                                 </li>
                             </ul>
@@ -172,23 +172,23 @@ const WaterIrrigationSection = () => {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.6, delay: 0.1 }}
-                            className="bg-[#fff9c4] rounded-2xl p-8 border border-yellow-200/50 shadow-xl"
+                            className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 border border-white/10 shadow-xl"
                         >
-                            <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                                <Users className="w-6 h-6 text-yellow-600" />
+                            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                                <Users className="w-6 h-6 text-purple-400" />
                                 Types of Customers
                             </h3>
-                            <ul className="space-y-4 text-gray-800 font-medium text-lg">
+                            <ul className="space-y-4 text-gray-300 font-medium text-lg">
                                 <li className="flex items-center gap-3">
-                                    <div className="w-2 h-2 rounded-full bg-yellow-600"></div>
+                                    <div className="w-2 h-2 rounded-full bg-purple-400"></div>
                                     Construction Company
                                 </li>
                                 <li className="flex items-center gap-3">
-                                    <div className="w-2 h-2 rounded-full bg-yellow-600"></div>
+                                    <div className="w-2 h-2 rounded-full bg-purple-400"></div>
                                     Academy applicant
                                 </li>
                                 <li className="flex items-center gap-3">
-                                    <div className="w-2 h-2 rounded-full bg-yellow-600"></div>
+                                    <div className="w-2 h-2 rounded-full bg-purple-400"></div>
                                     Business Contacts
                                 </li>
                             </ul>
