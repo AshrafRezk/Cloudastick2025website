@@ -3,10 +3,11 @@
  * Public page to view certificates by certificate ID
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Share2, CheckCircle2, Loader2, AlertCircle, Linkedin } from 'lucide-react';
+import { Share2, CheckCircle2, Loader2, AlertCircle, Linkedin, Download } from 'lucide-react';
+import html2canvas from 'html2canvas';
 import { Helmet } from 'react-helmet-async';
 import { getCertificate } from '../services/certificateService';
 import { type Certificate } from '../services/learningService';
@@ -22,6 +23,8 @@ const Certificate = () => {
   const [certificate, setCertificate] = useState<Certificate | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const certificateRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchCertificate = async () => {
@@ -52,6 +55,43 @@ const Certificate = () => {
   }, [id]);
 
 
+
+  const handleDownload = async () => {
+    if (!certificate || !certificateRef.current) return;
+    
+    try {
+      setIsDownloading(true);
+      const canvas = await html2canvas(certificateRef.current, {
+        scale: 2, // High resolution
+        useCORS: true, // Handle cross-origin images (like the logo)
+        backgroundColor: '#ffffff'
+      });
+      
+      const image = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      
+      const formattedDate = new Date().toISOString().split('T')[0];
+      const safeName = certificate.contactName.replace(/[^a-zA-Z0-9]/g, '_');
+      link.download = `${safeName}_Certificate_${certificate.certificateId}_${formattedDate}.png`;
+      
+      link.href = image;
+      link.click();
+      
+      toast({
+        title: 'Download Started',
+        description: 'Your certificate has been downloaded.',
+      });
+    } catch (err) {
+      console.error('Error generating certificate image:', err);
+      toast({
+        title: 'Download Failed',
+        description: 'There was an error generating your certificate image.',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   const handleShareLinkedIn = async () => {
     if (!certificate) return;
@@ -157,7 +197,16 @@ const Certificate = () => {
             <CheckCircle2 className="h-5 w-5 text-green-500" />
             <span className="text-sm text-muted-foreground">Verified Certificate</span>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap justify-end">
+            <Button 
+              variant="outline" 
+              onClick={handleDownload} 
+              size="sm" 
+              disabled={isDownloading}
+            >
+              {isDownloading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
+              Download
+            </Button>
             <Button variant="outline" onClick={handleShareLinkedIn} size="sm" className="bg-[#0077b5] text-white hover:bg-[#006699] border-none group">
               <Linkedin className="h-4 w-4 mr-2" />
               Share on LinkedIn
@@ -176,7 +225,7 @@ const Certificate = () => {
           transition={{ duration: 0.3 }}
           className="bg-white rounded-lg shadow-xl overflow-hidden"
         >
-          <div className="p-4 print:p-0">
+          <div className="p-4 print:p-0" ref={certificateRef}>
             <CertificateViewer certificate={certificate} showVerificationCode={true} />
           </div>
         </motion.div>

@@ -62,6 +62,12 @@ const WaterIrrigationSection = () => {
                                     </div>
                                 </div>
                                 <div className="mt-4 bg-black/30 rounded-xl p-4">
+                                    <span className="text-gray-500 block text-sm mb-2">Project Types</span>
+                                    <div className="flex flex-wrap gap-2 mb-4">
+                                        <span className="px-2 py-1 bg-teal-500/20 text-teal-300 border border-teal-500/30 rounded text-xs">1. Under Design</span>
+                                        <span className="px-2 py-1 bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 rounded text-xs">2. Under Construction</span>
+                                        <span className="px-2 py-1 bg-green-500/20 text-green-300 border border-green-500/30 rounded text-xs">3. Maintenance (FM Team)</span>
+                                    </div>
                                     <span className="text-gray-500 block text-sm mb-2">Assigned Opportunity Teams</span>
                                     <div className="flex flex-wrap gap-2">
                                         <span className="px-2 py-1 bg-blue-500/20 text-blue-300 rounded text-xs">Consultant Sales</span>
@@ -81,14 +87,15 @@ const WaterIrrigationSection = () => {
                         >
                             <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                                 <Target className="w-8 h-8 text-blue-400" />
-                                The Specification Lifecycle
+                                The Specification Lifecycle & Leads
                             </h3>
                             <p className="text-gray-300 leading-relaxed mb-6">
-                                Selling starts years before a quote is requested. Track specification influence and get your brands hardcoded into the project requirements.
+                                Selling starts years before a quote is requested. Track specification influence, monitor lead generation from marketing campaigns, and map contact movement across developers to open new channels.
                             </p>
 
                             <div className="relative border-l-2 border-gray-700 ml-4 space-y-6">
                                 {[
+                                    { phase: "Marketing & Lead Gen", steps: ["Campaign Tracking", "Lead Qualification", "Developer Network Mapping"] },
                                     { phase: "Early Influence", steps: ["Project Identified", "Consultant Engaged", "Specification in Progress"] },
                                     { phase: "Hardcoding the Brand", steps: ["Specified", "Developer Approved"], highlight: true },
                                     { phase: "Commercial Execution", steps: ["Contractor Identified", "RFQ Received", "Quotation Submitted"] },
@@ -218,7 +225,7 @@ const WaterIrrigationSection = () => {
                             </div>
                             <h3 className="text-2xl font-bold text-white mb-4">Salesforce CRM</h3>
                             <p className="text-gray-300 mb-6 flex-grow">
-                                Accounts • Contacts • Mega-Projects • Stakeholder Maps • Sales Execution • Specifications • Opportunities • Activities • CPQ Quotes • Margin Approvals
+                                Comprehensive Account Tracking (Consumers, Developers, Academic, Consultants, Contractors) • Mega-Projects • Stakeholder Maps • Sales Execution • Specifications • Opportunities • CPQ Quotes • Margin Approvals
                             </p>
                             <span className="px-4 py-2 bg-blue-500/20 text-blue-300 rounded-full text-sm font-medium">Front-Office Engine</span>
                         </div>

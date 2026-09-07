@@ -611,15 +611,16 @@ const QuizViewer = ({ instance, isOpen, onClose }: QuizViewerProps) => {
             </CardHeader>
             <CardContent>
               <RadioGroup
-                value={currentAnswer !== undefined ? currentAnswer.toString() : undefined}
+                key={currentQuestion.id}
+                value={currentAnswer !== undefined ? currentAnswer.toString() : ""}
                 onValueChange={(value) => handleAnswerChange(currentQuestion.id, parseInt(value))}
               >
                 <div className="space-y-3">
                   {currentQuestion.options.map((option, index) => (
                     <div key={index} className="flex items-center space-x-2">
-                      <RadioGroupItem value={index.toString()} id={`option-${index}`} />
+                      <RadioGroupItem value={index.toString()} id={`q-${currentQuestion.id}-option-${index}`} />
                       <Label
-                        htmlFor={`option-${index}`}
+                        htmlFor={`q-${currentQuestion.id}-option-${index}`}
                         className="flex-1 cursor-pointer p-3 rounded border hover:bg-muted/50 transition-colors"
                       >
                         {option}

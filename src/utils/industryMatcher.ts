@@ -145,6 +145,14 @@ const INDUSTRY_MAPPING: { [key: string]: string } = {
   'printing': 'printing-industries',
   'printing industries': 'printing-industries',
   'printing-industries': 'printing-industries',
+  
+  // Water & Irrigation
+  'water': 'water-irrigation',
+  'irrigation': 'water-irrigation',
+  'water and irrigation': 'water-irrigation',
+  'water irrigation': 'water-irrigation',
+  'water supply and irrigation systems': 'water-irrigation',
+  'water-irrigation': 'water-irrigation',
 };
 
 /**
@@ -264,6 +272,9 @@ export function matchIndustryFromUrl(industryParam: string | null): string | nul
     'government': 'government',
     'public sector': 'government',
     'printing': 'printing-industries',
+
+    'water': 'water-irrigation',
+    'irrigation': 'water-irrigation',
   };
 
   for (const [keyword, industryId] of Object.entries(keywords)) {

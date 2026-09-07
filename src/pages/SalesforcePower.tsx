@@ -1574,7 +1574,7 @@ const SalesforcePower = () => {
             {
               id: 'mod-wi-1',
               name: 'Project Intelligence & Specification',
-              featureList: 'Manage specification influence; track relationships with Developers, Consultants, and Contractors on a single Mega-Project record; track Specification Status.',
+              featureList: 'Manage specification influence; track relationships with Developers, Consultants, and Contractors on a single Mega-Project record. Track projects across stages: 1. Under design, 2. Under construction, 3. Maintenance (FM team).',
               priority: 1,
               cloudastickEdge: 'Custom Project objects pre-linked to multiple Opportunities and stakeholder Accounts.',
               verticalId: 'water-irrigation',
@@ -1604,6 +1604,15 @@ const SalesforcePower = () => {
               featureList: 'Assign multiple roles (Consultant Sales, Contractor Sales, Tech Engineer) to a single commercial outcome.',
               priority: 2,
               cloudastickEdge: 'Advanced Opportunity Team structures that prevent fragmented sales data.',
+              verticalId: 'water-irrigation',
+              verticalName: 'Water Supply & Irrigation Systems'
+            },
+            {
+              id: 'mod-wi-5',
+              name: 'Advanced Lead & Campaign Tracking',
+              featureList: 'Track leads and marketing campaigns across channels. Monitor contact movement between developers to maintain relationships and open new channels.',
+              priority: 3,
+              cloudastickEdge: 'Cross-developer contact tracking to leverage existing relationships in new projects.',
               verticalId: 'water-irrigation',
               verticalName: 'Water Supply & Irrigation Systems'
             }
@@ -1753,7 +1762,7 @@ const SalesforcePower = () => {
               {
                 id: 'mod-wi-1',
                 name: 'Project Intelligence & Specification',
-                featureList: 'Manage specification influence; track relationships with Developers, Consultants, and Contractors on a single Mega-Project record; track Specification Status.',
+                featureList: 'Manage specification influence; track relationships with Developers, Consultants, and Contractors on a single Mega-Project record. Track projects across stages: 1. Under design, 2. Under construction, 3. Maintenance (FM team).',
                 priority: 1,
                 cloudastickEdge: 'Custom Project objects pre-linked to multiple Opportunities and stakeholder Accounts.',
                 verticalId: 'water-irrigation',
@@ -1783,6 +1792,15 @@ const SalesforcePower = () => {
                 featureList: 'Assign multiple roles (Consultant Sales, Contractor Sales, Tech Engineer) to a single commercial outcome.',
                 priority: 2,
                 cloudastickEdge: 'Advanced Opportunity Team structures that prevent fragmented sales data.',
+                verticalId: 'water-irrigation',
+                verticalName: 'Water Supply & Irrigation Systems'
+              },
+              {
+                id: 'mod-wi-5',
+                name: 'Advanced Lead & Campaign Tracking',
+                featureList: 'Track leads and marketing campaigns across channels. Monitor contact movement between developers to maintain relationships and open new channels.',
+                priority: 3,
+                cloudastickEdge: 'Cross-developer contact tracking to leverage existing relationships in new projects.',
                 verticalId: 'water-irrigation',
                 verticalName: 'Water Supply & Irrigation Systems'
               }
