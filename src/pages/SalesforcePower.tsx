@@ -81,6 +81,7 @@ import TechSaSection from '../components/TechSaSection';
 import AmadeusSection from '../components/AmadeusSection';
 import FleetManagementSection from '../components/FleetManagementSection';
 import PharmaSections from '../components/PharmaSections';
+import WaterIrrigationSection from '../components/WaterIrrigationSection';
 import InvestmentPlanSection from '../components/InvestmentPlanSection';
 import ModulesSection from '../components/ModulesSection';
 import PrintingBusinessFlow from '../components/PrintingBusinessFlow';
@@ -4079,6 +4080,13 @@ const SalesforcePower = () => {
           {
             selectedIndustry === 'printing-industries' && (
               <PrintingBusinessFlow companyName={companyName} />
+            )
+          }
+
+          {/* Water Supply & Irrigation Specific Sections */}
+          {
+            selectedIndustry === 'water-irrigation' && (
+              <WaterIrrigationSection />
             )
           }
 

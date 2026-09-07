@@ -15,7 +15,8 @@ import {
   Wrench,
   Shield,
   Printer,
-  Layers
+  Layers,
+  Droplet
 } from 'lucide-react';
 
 export interface IndustryData {
@@ -47,6 +48,86 @@ export interface IndustryData {
 }
 
 export const industries: IndustryData[] = [
+  {
+    id: 'water-irrigation',
+    name: 'Water Supply & Irrigation Systems',
+    shortName: 'Water & Irrigation',
+    icon: Droplet,
+    gradient: 'from-blue-500 to-cyan-600',
+    description: 'Specialized solutions for water supply, irrigation, MEP, and landscaping for large-scale real estate projects and compounds.',
+    recommendedProducts: ['sales-cloud', 'service-cloud', 'field-service-cloud', 'manufacturing-cloud', 'experience-cloud'],
+    useCases: [
+      'Tender & Quote Management for Real Estate Compounds',
+      'MEP & Irrigation Materials Supply Chain',
+      'After-Sales & Maintenance Service',
+      'Project-based Material Distribution (Pumps, Pipes, Valves)',
+      'Landscape & Outdoor Environment Contracts'
+    ],
+    successMetrics: [
+      { value: '35%', description: 'increase in tender win rate' },
+      { value: '40%', description: 'faster quotation turnaround' },
+      { value: '50%', description: 'improvement in after-sales response time' },
+      { value: '25%', description: 'reduction in inventory holding costs' }
+    ],
+    keyChallenges: [
+      'Complex quoting for large compounds (Sodic, Mountain View, Taj Sultan)',
+      'Managing diverse catalogs (Pumps to Urban Furniture)',
+      'Coordinating delivery with real estate project phases',
+      'After-sales maintenance for installed systems'
+    ],
+    marketSize: '$150 Billion globally',
+    growthRate: '8.5% annually',
+    painPoints: [
+      'Fragmented quoting processes for complex tenders',
+      'Lack of visibility in project-based material delivery',
+      'Disconnect between sales and field service/maintenance',
+      'Managing multiple supplier catalogs (DAB, Hunter, Elysee)'
+    ],
+    integrations: [
+      'ERP Systems for Inventory (Odoo, SAP)',
+      'AutoCAD / Design Software for Landscape',
+      'BIM (Building Information Modeling) Tools',
+      'Supplier Portals'
+    ],
+    dataSources: [
+      'Product Catalogs (Pumps, Pipes, Sprinklers)',
+      'Project Phase Data from Real Estate Developers',
+      'Field Service Maintenance Logs',
+      'Supplier Pricing Feeds'
+    ],
+    comparisonMetrics: [
+      {
+        metric: 'Tender & Quote Management (Complex BOMs)',
+        metricKey: 'water.metrics.tenderQuote',
+        salesforce: { score: 10, label: 'Advanced CPQ', description: 'Handles complex Bill of Materials, project phases, and multi-supplier quoting seamlessly.' },
+        hubspot: { score: 4, label: 'Basic Quotes', description: 'Simple quoting, struggles with complex project BOMs.' },
+        zoho: { score: 6, label: 'Standard CPQ', description: 'Moderate capability for BOMs and quotes.' },
+        freshworks: { score: 4, label: 'Basic CPQ', description: 'Limited complex quoting capabilities.' },
+        odoo: { score: 8, label: 'Strong ERP Quoting', description: 'Good native integration with inventory.' },
+        salezbuzz: { score: 5, label: 'Basic Tender', description: 'Basic quoting capabilities.' }
+      },
+      {
+        metric: 'After-Sales & Maintenance (Field Service)',
+        metricKey: 'water.metrics.afterSales',
+        salesforce: { score: 10, label: 'Field Service Lightning', description: 'AI-optimized routing, offline mobile app, and asset tracking for maintenance.' },
+        hubspot: { score: 3, label: 'Basic Ticketing', description: 'No true field service capabilities.' },
+        zoho: { score: 7, label: 'Zoho FSM', description: 'Good field service tracking.' },
+        freshworks: { score: 5, label: 'Service Focus', description: 'Ticketing with some SLA tracking.' },
+        odoo: { score: 8, label: 'FSM Module', description: 'Integrated field service and inventory.' },
+        salezbuzz: { score: 5, label: 'Basic Maintenance', description: 'Simple tracking.' }
+      },
+      {
+        metric: 'Real Estate Developer Portal (Experience Cloud)',
+        metricKey: 'water.metrics.developerPortal',
+        salesforce: { score: 10, label: 'Full Experience', description: 'Self-service portal for developers to track project phases, orders, and maintenance.' },
+        hubspot: { score: 4, label: 'Basic Portal', description: 'Limited customer portal features.' },
+        zoho: { score: 6, label: 'Standard Portal', description: 'Good basic portal.' },
+        freshworks: { score: 4, label: 'Support Portal', description: 'Focuses on tickets.' },
+        odoo: { score: 7, label: 'Customer Portal', description: 'Good visibility into orders and invoices.' },
+        salezbuzz: { score: 4, label: 'Limited Portal', description: 'Basic tracking.' }
+      }
+    ]
+  },
   {
     id: 'real-estate',
     name: 'Real Estate',
