@@ -16,7 +16,8 @@ import {
   Shield,
   Printer,
   Layers,
-  Droplet
+  Droplet,
+  Sprout
 } from 'lucide-react';
 
 export interface IndustryData {
@@ -52,8 +53,8 @@ export const industries: IndustryData[] = [
     id: 'water-irrigation',
     name: 'Water Supply & Irrigation Systems',
     shortName: 'Water & Irrigation',
-    icon: Droplet,
-    gradient: 'from-blue-500 to-cyan-600',
+    icon: Sprout,
+    gradient: 'from-green-500 to-blue-500',
     description: 'Specialized solutions for water supply, irrigation, MEP, and landscaping for large-scale real estate projects and compounds.',
     recommendedProducts: ['sales-cloud', 'service-cloud', 'field-service-cloud', 'manufacturing-cloud', 'experience-cloud'],
     useCases: [
@@ -2983,7 +2984,7 @@ export const industries: IndustryData[] = [
 ];
 
 export const getIndustryById = (id: string): IndustryData | undefined => {
-  return industries.find(industry => industry.id === id);
+  return industries.find(industry => industry.id.toLowerCase() === id.toLowerCase());
 };
 
 export const getIndustriesByCategory = (category: string): IndustryData[] => {
