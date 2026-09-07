@@ -200,29 +200,61 @@ const WaterIrrigationSection = () => {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.6, delay: 0.2 }}
-                            className="bg-gradient-to-br from-indigo-900 to-blue-900 rounded-2xl p-8 border border-blue-500/30 shadow-xl text-white"
+                            className="bg-gradient-to-br from-indigo-900 to-blue-900 rounded-2xl p-6 border border-blue-500/30 shadow-xl text-white"
                         >
-                            <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+                            <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
                                 <Zap className="w-6 h-6 text-yellow-400" />
                                 Automations & Alerts
                             </h3>
-                            <p className="text-blue-100 mb-6 leading-relaxed">
-                                Salesforce automatically tracks stakeholder and project changes.
+                            <p className="text-blue-100 text-sm mb-4 leading-relaxed">
+                                Get instant alerts when project attributes or stakeholders shift across projects and zones.
                             </p>
+                            
                             <div className="space-y-4">
-                                <div className="bg-white/10 p-4 rounded-xl border border-white/10">
-                                    <div className="flex items-center gap-2 text-yellow-300 font-medium mb-2">
-                                        <Activity className="w-4 h-4" />
-                                        Project Changes
+                                {/* Stakeholder Change Alert */}
+                                <div className="bg-white/5 p-4 rounded-xl border border-white/10 relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 p-1.5 bg-red-500/20 rounded-bl-lg border-b border-l border-red-500/30">
+                                        <Activity className="w-3 h-3 text-red-400 animate-pulse" />
                                     </div>
-                                    <p className="text-sm text-blue-50">Get instant alerts when a project transitions from Tender to Under Construction.</p>
+                                    <h4 className="text-sm font-semibold text-blue-200 mb-3">Stakeholder Change Alert</h4>
+                                    
+                                    <div className="flex items-center justify-between text-xs mb-2">
+                                        <span className="text-gray-400 font-medium">Main Contractor</span>
+                                        <span className="bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded border border-blue-500/30">Zone A</span>
+                                    </div>
+                                    
+                                    <div className="flex items-center gap-2">
+                                        <div className="flex-1 bg-red-500/10 border border-red-500/20 rounded p-1.5 text-center text-gray-400 line-through text-xs">
+                                            Contractor A
+                                        </div>
+                                        <ArrowRight className="w-3 h-3 text-gray-500 shrink-0" />
+                                        <div className="flex-1 bg-green-500/20 border border-green-500/30 rounded p-1.5 text-center text-green-300 font-bold text-xs">
+                                            Contractor B
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="bg-white/10 p-4 rounded-xl border border-white/10">
-                                    <div className="flex items-center gap-2 text-yellow-300 font-medium mb-2">
-                                        <Users className="w-4 h-4" />
-                                        Stakeholder Movement
+
+                                {/* Design Consultant Change Alert */}
+                                <div className="bg-white/5 p-4 rounded-xl border border-white/10 relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 p-1.5 bg-yellow-500/20 rounded-bl-lg border-b border-l border-yellow-500/30">
+                                        <Activity className="w-3 h-3 text-yellow-400 animate-pulse" />
                                     </div>
-                                    <p className="text-sm text-blue-50">Track when a key contact moves from one project to another, or from Zone A to Zone B.</p>
+                                    <h4 className="text-sm font-semibold text-blue-200 mb-3">Design Revision Alert</h4>
+                                    
+                                    <div className="flex items-center justify-between text-xs mb-2">
+                                        <span className="text-gray-400 font-medium">Design Consultant</span>
+                                        <span className="bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded border border-purple-500/30">Project Wide</span>
+                                    </div>
+                                    
+                                    <div className="flex items-center gap-2">
+                                        <div className="flex-1 bg-red-500/10 border border-red-500/20 rounded p-1.5 text-center text-gray-400 line-through text-xs">
+                                            Consultant X
+                                        </div>
+                                        <ArrowRight className="w-3 h-3 text-gray-500 shrink-0" />
+                                        <div className="flex-1 bg-green-500/20 border border-green-500/30 rounded p-1.5 text-center text-green-300 font-bold text-xs">
+                                            Consultant Y
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </motion.div>
