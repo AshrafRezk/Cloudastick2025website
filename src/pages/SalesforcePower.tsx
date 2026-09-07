@@ -1609,8 +1609,8 @@ const SalesforcePower = () => {
             },
             {
               id: 'mod-wi-5',
-              name: 'Advanced Lead & Campaign Tracking',
-              featureList: 'Track leads and marketing campaigns across channels. Monitor contact movement between developers to maintain relationships and open new channels.',
+              name: 'Advanced Lead & Network Tracking',
+              featureList: 'Track leads and campaigns across channels. Track project changes in real-time. Monitor when stakeholders move between projects or shift across different project zones to maintain relationships.',
               priority: 3,
               cloudastickEdge: 'Cross-developer contact tracking to leverage existing relationships in new projects.',
               verticalId: 'water-irrigation',
@@ -1797,8 +1797,8 @@ const SalesforcePower = () => {
               },
               {
                 id: 'mod-wi-5',
-                name: 'Advanced Lead & Campaign Tracking',
-                featureList: 'Track leads and marketing campaigns across channels. Monitor contact movement between developers to maintain relationships and open new channels.',
+                name: 'Advanced Lead & Network Tracking',
+                featureList: 'Track leads and campaigns across channels. Track project changes in real-time. Monitor when stakeholders move between projects or shift across different project zones to maintain relationships.',
                 priority: 3,
                 cloudastickEdge: 'Cross-developer contact tracking to leverage existing relationships in new projects.',
                 verticalId: 'water-irrigation',

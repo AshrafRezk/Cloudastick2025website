@@ -68,12 +68,20 @@ const WaterIrrigationSection = () => {
                                         <span className="px-2 py-1 bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 rounded text-xs">2. Under Construction</span>
                                         <span className="px-2 py-1 bg-green-500/20 text-green-300 border border-green-500/30 rounded text-xs">3. Maintenance (FM Team)</span>
                                     </div>
+                                    <span className="text-gray-500 block text-sm mb-2">Key Project Stakeholders</span>
+                                    <div className="flex flex-wrap gap-2 mb-4">
+                                        <span className="px-2 py-1 bg-purple-500/20 text-purple-300 rounded text-xs">Landscape Design Consultant</span>
+                                        <span className="px-2 py-1 bg-blue-500/20 text-blue-300 rounded text-xs">Supervision Consultant</span>
+                                        <span className="px-2 py-1 bg-orange-500/20 text-orange-300 rounded text-xs">General Contractor</span>
+                                        <span className="px-2 py-1 bg-green-500/20 text-green-300 rounded text-xs">Landscape Contractor</span>
+                                        <span className="px-2 py-1 bg-red-500/20 text-red-300 rounded text-xs">Supplier</span>
+                                    </div>
                                     <span className="text-gray-500 block text-sm mb-2">Assigned Opportunity Teams</span>
                                     <div className="flex flex-wrap gap-2">
-                                        <span className="px-2 py-1 bg-blue-500/20 text-blue-300 rounded text-xs">Consultant Sales</span>
-                                        <span className="px-2 py-1 bg-purple-500/20 text-purple-300 rounded text-xs">Developer Sales</span>
-                                        <span className="px-2 py-1 bg-orange-500/20 text-orange-300 rounded text-xs">Technical Engineer</span>
-                                        <span className="px-2 py-1 bg-green-500/20 text-green-300 rounded text-xs">Contractor Sales</span>
+                                        <span className="px-2 py-1 bg-indigo-500/20 text-indigo-300 rounded text-xs">Consultant Sales</span>
+                                        <span className="px-2 py-1 bg-pink-500/20 text-pink-300 rounded text-xs">Developer Sales</span>
+                                        <span className="px-2 py-1 bg-yellow-500/20 text-yellow-300 rounded text-xs">Technical Engineer</span>
+                                        <span className="px-2 py-1 bg-cyan-500/20 text-cyan-300 rounded text-xs">Contractor Sales</span>
                                     </div>
                                 </div>
                             </div>
@@ -90,7 +98,7 @@ const WaterIrrigationSection = () => {
                                 The Specification Lifecycle & Leads
                             </h3>
                             <p className="text-gray-300 leading-relaxed mb-6">
-                                Selling starts years before a quote is requested. Track specification influence, monitor lead generation from marketing campaigns, and map contact movement across developers to open new channels.
+                                Selling starts years before a quote is requested. Track specification influence, monitor lead generation from marketing campaigns, track project changes in real-time, and map contact movement across developers or project zones to open new channels.
                             </p>
 
                             <div className="relative border-l-2 border-gray-700 ml-4 space-y-6">
