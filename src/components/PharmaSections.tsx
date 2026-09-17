@@ -406,24 +406,24 @@ const PharmaSections = () => {
                             transition={{ duration: 0.8 }}
                         >
                             <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500/20 rounded-full text-amber-300 text-sm font-medium mb-6 border border-amber-500/30">
-                                <MapPin className="w-4 h-4" />
+                                <TrendingUp className="w-4 h-4" />
                                 <span>Absolute Physician Movement</span>
                             </div>
                             <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-                                Track HCP Mobility & <br />
+                                True ROI: <br />
                                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-400">
-                                    Affiliation Changes
+                                    Classification vs. Sales
                                 </span>
                             </h2>
                             <p className="text-gray-300 text-lg leading-relaxed mb-8">
-                                Salesforce seamlessly captures absolute physician movement across hospitals, clinics, and new affiliations in real-time. Ensure your reps always know exactly where to engage and never lose track of key stakeholders.
+                                Absolute physician movement isn't about geography—it's about <strong className="text-white">Classification vs. Sales</strong>.
+                                Salesforce seamlessly captures the true ROI of promotional activities by verifying classification changes against actual sales data.
                             </p>
-                            <ul className="space-y-4">
+                            <ul className="space-y-4 mb-8">
                                 {[
-                                    "Real-time location and affiliation updates",
-                                    "Multi-facility schedule mapping for precise engagement",
-                                    "Automated territory realignment alerts",
-                                    "Historical movement tracking and relationship graphing"
+                                    "Track classification movement (e.g., Class B1 → A2 → A1) after RTDs or CLM e-Detailing.",
+                                    "Verify rep honesty by matching classification upgrades with actual distributor sales data.",
+                                    "Prove exact ROI on promotional spend (e.g. $200 RTD) by monitoring the resulting prescription uplift."
                                 ].map((item, index) => (
                                     <li key={index} className="flex items-center gap-3 text-gray-200">
                                         <span className="w-6 h-6 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-400 flex-shrink-0">
@@ -433,6 +433,23 @@ const PharmaSections = () => {
                                     </li>
                                 ))}
                             </ul>
+
+                            {/* Distributor Logos */}
+                            <div className="pt-6 border-t border-white/10">
+                                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Integrated with Top Distributors</p>
+                                <div className="flex flex-wrap items-center gap-6 md:gap-8 opacity-90">
+                                    <div className="flex flex-col">
+                                        <span className="text-2xl font-bold italic tracking-tighter text-blue-500">ibnsina pharma</span>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-xl font-bold text-teal-400 tracking-tight">PharmaOverseas</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <span className="w-6 h-6 bg-red-600 rounded-sm flex items-center justify-center"><span className="w-3 h-3 bg-white rounded-full"></span></span>
+                                        <span className="text-xl font-bold text-red-500">Al Masrya</span>
+                                    </div>
+                                </div>
+                            </div>
                         </motion.div>
 
                         <motion.div
@@ -440,40 +457,71 @@ const PharmaSections = () => {
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.8 }}
-                            className="relative"
+                            className="relative h-full"
                         >
-                            <div className="aspect-square sm:aspect-video rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-gradient-to-br from-amber-900/40 to-gray-900 p-8 flex items-center justify-center relative group">
+                            <div className="aspect-square sm:aspect-video rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-gradient-to-br from-amber-900/40 to-gray-900 p-8 flex flex-col relative group">
                                 <div className="absolute inset-0 bg-amber-500/10 blur-3xl rounded-full mix-blend-screen" />
                                 
-                                <div className="w-full relative z-10 p-6 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10">
+                                <div className="w-full relative z-10 flex flex-col h-full">
                                     <div className="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
                                         <div>
-                                            <h3 className="text-white font-bold text-lg">Dr. Sarah Jenkins</h3>
-                                            <p className="text-amber-400 text-sm">Cardiologist</p>
+                                            <h3 className="text-white font-bold text-lg">Dr. Ahmed Hassan</h3>
+                                            <p className="text-amber-400 text-sm">Classification vs. Sales ROI</p>
                                         </div>
-                                        <div className="bg-amber-500/20 text-amber-300 text-xs px-3 py-1 rounded-full border border-amber-500/30">
-                                            Moved Today
+                                        <div className="bg-emerald-500/20 text-emerald-300 text-xs px-3 py-1 rounded-full border border-emerald-500/30 flex items-center gap-1">
+                                            <TrendingUp className="w-3 h-3" />
+                                            Verifiable ROI
                                         </div>
                                     </div>
-                                    <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-white/20 before:to-transparent">
-                                        <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                                            <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white/50 bg-gray-900 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
-                                                <MapPin className="w-4 h-4 text-gray-400" />
-                                            </div>
-                                            <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl bg-white/5 border border-white/10 opacity-50">
-                                                <div className="text-xs text-gray-400">Previous (2022 - 2026)</div>
-                                                <div className="text-sm font-bold text-white">City General Hospital</div>
-                                            </div>
-                                        </div>
+
+                                    {/* Graph Area */}
+                                    <div className="flex-1 relative mt-4">
+                                        {/* Y-axis labels */}
+                                        <div className="absolute left-0 bottom-12 text-[10px] text-gray-500 font-bold -rotate-90 origin-bottom-left uppercase tracking-wider">Pharmacy Sales</div>
                                         
-                                        <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                                            <div className="flex items-center justify-center w-10 h-10 rounded-full border border-amber-500/50 bg-amber-900/50 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
-                                                <MapPin className="w-4 h-4 text-amber-400" />
-                                            </div>
-                                            <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl bg-amber-500/10 border border-amber-500/30">
-                                                <div className="text-xs text-amber-300 font-bold mb-1">New Primary Location</div>
-                                                <div className="text-sm font-bold text-white">Mercy Medical Center</div>
-                                                <div className="text-xs text-gray-300 mt-1">Schedule: Mon, Wed, Fri</div>
+                                        {/* The Sales Curve (SVG) */}
+                                        <div className="absolute inset-0 pl-8 pb-8 pt-4 pr-4">
+                                            <div className="w-full h-full border-l-2 border-b-2 border-white/10 relative">
+                                                <svg className="absolute inset-0 w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 100">
+                                                    <path d="M 0,90 Q 25,85 40,60 T 70,30 T 100,10" fill="none" stroke="rgba(251, 191, 36, 0.8)" strokeWidth="4" />
+                                                    <path d="M 0,90 Q 25,85 40,60 T 70,30 T 100,10 L 100,100 L 0,100 Z" fill="url(#salesGradient)" opacity="0.3" />
+                                                    <defs>
+                                                        <linearGradient id="salesGradient" x1="0" y1="0" x2="0" y2="1">
+                                                            <stop offset="0%" stopColor="rgba(251, 191, 36, 0.5)" />
+                                                            <stop offset="100%" stopColor="rgba(251, 191, 36, 0)" />
+                                                        </linearGradient>
+                                                    </defs>
+                                                </svg>
+
+                                                {/* Timeline Milestones */}
+                                                
+                                                {/* Point 1 */}
+                                                <div className="absolute flex flex-col items-center -translate-x-1/2 translate-y-1/2" style={{ left: '5%', bottom: '88%' }}>
+                                                    <div className="mb-2 bg-gray-900/80 backdrop-blur-sm text-xs p-2 rounded border border-white/10 whitespace-nowrap z-20 shadow-lg text-center">
+                                                        <div className="text-gray-400 mb-1">Baseline</div>
+                                                        <div className="text-white font-bold">Class B1</div>
+                                                    </div>
+                                                    <div className="w-3 h-3 rounded-full bg-gray-500 border-2 border-gray-900 z-10" />
+                                                </div>
+
+                                                {/* Point 2 */}
+                                                <div className="absolute flex flex-col items-center -translate-x-1/2 translate-y-1/2" style={{ left: '40%', bottom: '60%' }}>
+                                                    <div className="mb-2 bg-gray-900/80 backdrop-blur-sm text-xs p-2 rounded border border-blue-500/30 whitespace-nowrap z-20 shadow-lg text-center">
+                                                        <div className="text-blue-400 font-bold mb-1">RTD ($200)</div>
+                                                        <div className="text-white font-bold">Class A2</div>
+                                                    </div>
+                                                    <div className="w-4 h-4 rounded-full bg-blue-500 border-2 border-gray-900 z-10" />
+                                                </div>
+
+                                                {/* Point 3 */}
+                                                <div className="absolute flex flex-col items-center -translate-x-1/2 translate-y-1/2" style={{ left: '85%', bottom: '15%' }}>
+                                                    <div className="mb-2 bg-gray-900/80 backdrop-blur-sm text-xs p-2 rounded border border-amber-500/30 whitespace-nowrap z-20 shadow-lg text-center">
+                                                        <div className="text-emerald-400 font-bold mb-1">CLM + Samples</div>
+                                                        <div className="text-white font-bold">Class A1</div>
+                                                    </div>
+                                                    <div className="w-5 h-5 rounded-full bg-amber-500 border-2 border-gray-900 z-10 shadow-[0_0_15px_rgba(251,191,36,0.5)]" />
+                                                </div>
+
                                             </div>
                                         </div>
                                     </div>
