@@ -1506,14 +1506,29 @@ const SalesforcePower = () => {
     // 1. Get Industry Data to find the Name
     const industryData = industries.find(i => i.id === slug);
     if (!industryData) return null;
+    
+    // Mapping for common synonyms to ensure we match Salesforce verticals
+    const synonyms: Record<string, string[]> = {
+      'healthcare-life-sciences': ['healthcare', 'pharma', 'pharmaceutical', 'pharmaceuticals', 'health', 'healthcare & life sciences'],
+      'commerce-cloud': ['retail', 'commerce', 'ecommerce', 'e-commerce'],
+      'printing-industries': ['printing', 'print'],
+      'real-estate': ['real estate', 'property'],
+    };
+    
+    const possibleNames = [...(synonyms[slug] || []), industryData.name.toLowerCase(), slug.toLowerCase()];
 
     // 2. Find matching Vertical in allVerticals by Name or Type
-    const matchedVertical = allVerticals.find(v =>
-      (v.name && v.name.toLowerCase() === industryData.name.toLowerCase()) ||
-      (v.type && v.type.toLowerCase() === industryData.name.toLowerCase()) ||
-      // Also try matching against the slug itself if the name logic fails
-      (v.name && v.name.toLowerCase().replace(/\s+/g, '-') === slug)
-    );
+    const matchedVertical = allVerticals.find(v => {
+      const vName = (v.name || '').toLowerCase();
+      const vType = (v.type || '').toLowerCase();
+      const vSlug = vName.replace(/\s+/g, '-');
+      
+      return possibleNames.includes(vName) || 
+             possibleNames.includes(vType) || 
+             possibleNames.includes(vSlug) ||
+             (vName && vName.replace(/\s+/g, '-') === slug) ||
+             (vType && vType.replace(/\s+/g, '-') === slug);
+    });
 
     return matchedVertical ? matchedVertical.id : null;
   }, [allVerticals]);
@@ -1737,7 +1752,25 @@ const SalesforcePower = () => {
 
         if (data) {
           setModulesVerticalData(data);
-          const verticalModules = data.modules || [];
+          let verticalModules = data.modules || [];
+          
+          if (selectedIndustry === 'healthcare-life-sciences') {
+            const hasMarketing = verticalModules.some((m: any) => m.name.toLowerCase().includes('marketing cloud') || m.name.toLowerCase().includes('omnichannel journey'));
+            if (!hasMarketing) {
+              verticalModules = [
+                ...verticalModules,
+                {
+                  id: 'mod-pharma-marketing',
+                  name: 'Marketing Cloud for Healthcare',
+                  featureList: 'Orchestrate Email, WhatsApp, and SMS campaigns. Capture sentiment and intent data. Measure ROI on marketing campaigns and optimize intelligent patient and HCP journeys.',
+                  priority: 2,
+                  cloudastickEdge: 'Pre-built, compliant omnichannel journeys capturing real-time engagement and intent scoring.',
+                  verticalId: modulesVerticalId,
+                  verticalName: data.name || 'Healthcare & Life Sciences'
+                }
+              ];
+            }
+          }
 
           setModules(verticalModules);
 

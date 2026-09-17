@@ -496,6 +496,10 @@ const CustomerSurvey: React.FC = () => {
     consultantUnderstandingRating: 0,
     overallSessionRating: 0,
   });
+  const [whatWentWell, setWhatWentWell] = useState('');
+  const [whatCouldGoBetter, setWhatCouldGoBetter] = useState('');
+  const [whatWentWellError, setWhatWentWellError] = useState(false);
+  const [whatCouldGoBetterError, setWhatCouldGoBetterError] = useState(false);
   const [customerFeedback, setCustomerFeedback] = useState('');
   const [ratingErrors, setRatingErrors] = useState<Record<string, boolean>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -623,6 +627,15 @@ const CustomerSurvey: React.FC = () => {
         }
       });
 
+      const wError = !whatWentWell.trim();
+      const cError = !whatCouldGoBetter.trim();
+      setWhatWentWellError(wError);
+      setWhatCouldGoBetterError(cError);
+
+      if (wError || cError) {
+        hasValidationErrors = true;
+      }
+
       if (hasValidationErrors) {
         setRatingErrors(errors);
         // Scroll to first error
@@ -643,6 +656,8 @@ const CustomerSurvey: React.FC = () => {
           businessImpactRating: ratings.businessImpactRating,
           consultantUnderstandingRating: ratings.consultantUnderstandingRating,
           overallSessionRating: ratings.overallSessionRating,
+          whatWentWell: whatWentWell.trim(),
+          whatCouldGoBetter: whatCouldGoBetter.trim(),
           ...(customerFeedback.trim() ? { customerFeedback: customerFeedback.trim() } : {}),
         };
 
@@ -1018,33 +1033,106 @@ const CustomerSurvey: React.FC = () => {
                     {/* ── Divider ── */}
                     <div className="h-px bg-white/5" />
 
-                    {/* ── Free-text comment ── */}
-                    <div className="space-y-2">
-                      <label
-                        htmlFor="customer-feedback"
-                        className="text-sm font-medium text-gray-300 flex items-center gap-2"
-                      >
-                        <MessageSquare className="w-4 h-4 text-cyan-400" />
-                        Additional Comments{' '}
-                        <span className="text-gray-600 font-normal">(optional)</span>
-                      </label>
-                      <textarea
-                        id="customer-feedback"
-                        value={customerFeedback}
-                        onChange={(e) => setCustomerFeedback(e.target.value)}
-                        rows={4}
-                        maxLength={32000}
-                        placeholder="Any specific thoughts, suggestions, or highlights from the session…"
-                        className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-gray-600 outline-none focus:ring-2 resize-none transition-all"
-                        style={{
-                          background: 'rgba(255,255,255,0.06)',
-                          border: '1px solid rgba(255,255,255,0.1)',
-                          '--tw-ring-color': 'hsl(188 100% 42% / 0.5)',
-                        } as React.CSSProperties}
-                      />
-                      <p className="text-xs text-gray-600 text-right">
-                        {customerFeedback.length.toLocaleString()} / 32,000
-                      </p>
+                    {/* ── Text Feedback ── */}
+                    <div className="space-y-6">
+                      {/* What went well? */}
+                      <div className="space-y-2">
+                        <label
+                          htmlFor="what-went-well"
+                          className="text-sm font-medium text-gray-300 flex items-center gap-2"
+                        >
+                          <CheckCircle2 className="w-4 h-4 text-cyan-400" />
+                          What went well? <span className="text-red-400">*</span>
+                        </label>
+                        <textarea
+                          id="what-went-well"
+                          data-error={whatWentWellError ? 'true' : undefined}
+                          value={whatWentWell}
+                          onChange={(e) => {
+                            setWhatWentWell(e.target.value);
+                            if (e.target.value.trim()) setWhatWentWellError(false);
+                          }}
+                          rows={3}
+                          maxLength={32000}
+                          placeholder="e.g. The UAT walkthrough was clear and the consultant knew our process..."
+                          className={`w-full px-4 py-3 rounded-xl text-sm text-white placeholder-gray-600 outline-none focus:ring-2 resize-none transition-all ${whatWentWellError ? 'ring-2 ring-red-500/50' : ''}`}
+                          style={{
+                            background: whatWentWellError ? 'rgba(239,68,68,0.05)' : 'rgba(255,255,255,0.06)',
+                            border: whatWentWellError ? '1px solid rgba(239,68,68,0.3)' : '1px solid rgba(255,255,255,0.1)',
+                            '--tw-ring-color': whatWentWellError ? 'hsl(0 84% 60% / 0.5)' : 'hsl(188 100% 42% / 0.5)',
+                          } as React.CSSProperties}
+                        />
+                        {whatWentWellError && <p className="text-xs text-red-400">Please let us know what went well.</p>}
+                        {!whatWentWellError && (
+                          <p className="text-xs text-gray-600 text-right">
+                            {whatWentWell.length.toLocaleString()} / 32,000
+                          </p>
+                        )}
+                      </div>
+
+                      {/* What could go better? */}
+                      <div className="space-y-2">
+                        <label
+                          htmlFor="what-could-go-better"
+                          className="text-sm font-medium text-gray-300 flex items-center gap-2"
+                        >
+                          <AlertTriangle className="w-4 h-4 text-cyan-400" />
+                          What could go better? <span className="text-red-400">*</span>
+                        </label>
+                        <textarea
+                          id="what-could-go-better"
+                          data-error={whatCouldGoBetterError ? 'true' : undefined}
+                          value={whatCouldGoBetter}
+                          onChange={(e) => {
+                            setWhatCouldGoBetter(e.target.value);
+                            if (e.target.value.trim()) setWhatCouldGoBetterError(false);
+                          }}
+                          rows={3}
+                          maxLength={32000}
+                          placeholder="e.g. We need more time on reporting edge cases next session..."
+                          className={`w-full px-4 py-3 rounded-xl text-sm text-white placeholder-gray-600 outline-none focus:ring-2 resize-none transition-all ${whatCouldGoBetterError ? 'ring-2 ring-red-500/50' : ''}`}
+                          style={{
+                            background: whatCouldGoBetterError ? 'rgba(239,68,68,0.05)' : 'rgba(255,255,255,0.06)',
+                            border: whatCouldGoBetterError ? '1px solid rgba(239,68,68,0.3)' : '1px solid rgba(255,255,255,0.1)',
+                            '--tw-ring-color': whatCouldGoBetterError ? 'hsl(0 84% 60% / 0.5)' : 'hsl(188 100% 42% / 0.5)',
+                          } as React.CSSProperties}
+                        />
+                        {whatCouldGoBetterError && <p className="text-xs text-red-400">Please let us know what could be improved.</p>}
+                        {!whatCouldGoBetterError && (
+                          <p className="text-xs text-gray-600 text-right">
+                            {whatCouldGoBetter.length.toLocaleString()} / 32,000
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Additional Comments */}
+                      <div className="space-y-2">
+                        <label
+                          htmlFor="customer-feedback"
+                          className="text-sm font-medium text-gray-300 flex items-center gap-2"
+                        >
+                          <MessageSquare className="w-4 h-4 text-cyan-400" />
+                          Additional Comments{' '}
+                          <span className="text-gray-600 font-normal">(optional)</span>
+                        </label>
+                        <textarea
+                          id="customer-feedback"
+                          value={customerFeedback}
+                          onChange={(e) => setCustomerFeedback(e.target.value)}
+                          rows={3}
+                          maxLength={32000}
+                          placeholder="Any specific thoughts, suggestions, or highlights from the session…"
+                          className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-gray-600 outline-none focus:ring-2 resize-none transition-all"
+                          style={{
+                            background: 'rgba(255,255,255,0.06)',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            '--tw-ring-color': 'hsl(188 100% 42% / 0.5)',
+                          } as React.CSSProperties}
+                        />
+                        <p className="text-xs text-gray-600 text-right">
+                          {customerFeedback.length.toLocaleString()} / 32,000
+                        </p>
+                      </div>
                     </div>
 
                     {/* ── Submit error ── */}
