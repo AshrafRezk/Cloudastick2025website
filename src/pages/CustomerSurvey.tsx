@@ -91,6 +91,14 @@ const RATING_LABELS: Record<number, string> = {
   5: 'Excellent',
 };
 
+/** Salesforce long-text maximum. Matches Customer_Session_Feedback__c. */
+const FEEDBACK_TEXT_MAX = 131072;
+
+function growFeedbackTextarea(el: HTMLTextAreaElement) {
+  el.style.height = 'auto';
+  el.style.height = `${Math.max(el.scrollHeight, 280)}px`;
+}
+
 const COMPANY_VALUES = [
   'Reverence',
   'Efficiency',
@@ -688,7 +696,7 @@ const CustomerSurvey: React.FC = () => {
         setIsSubmitting(false);
       }
     },
-    [tokenParam, respondentName, respondentEmail, ratings, customerFeedback]
+    [tokenParam, respondentName, respondentEmail, ratings, whatWentWell, whatCouldGoBetter, customerFeedback]
   );
 
   // ── Derived display values ─────────────────────────────────────────────────
@@ -1050,24 +1058,29 @@ const CustomerSurvey: React.FC = () => {
                           value={whatWentWell}
                           onChange={(e) => {
                             setWhatWentWell(e.target.value);
+                            growFeedbackTextarea(e.target);
                             if (e.target.value.trim()) setWhatWentWellError(false);
                           }}
-                          rows={3}
-                          maxLength={32000}
+                          rows={12}
+                          maxLength={FEEDBACK_TEXT_MAX}
                           placeholder="e.g. The UAT walkthrough was clear and the consultant knew our process..."
-                          className={`w-full px-4 py-3 rounded-xl text-sm text-white placeholder-gray-600 outline-none focus:ring-2 resize-none transition-all ${whatWentWellError ? 'ring-2 ring-red-500/50' : ''}`}
+                          className={`w-full min-h-[280px] px-4 py-3 rounded-xl text-sm leading-relaxed text-white placeholder-gray-600 outline-none focus:ring-2 resize-y transition-colors ${whatWentWellError ? 'ring-2 ring-red-500/50' : ''}`}
                           style={{
                             background: whatWentWellError ? 'rgba(239,68,68,0.05)' : 'rgba(255,255,255,0.06)',
                             border: whatWentWellError ? '1px solid rgba(239,68,68,0.3)' : '1px solid rgba(255,255,255,0.1)',
                             '--tw-ring-color': whatWentWellError ? 'hsl(0 84% 60% / 0.5)' : 'hsl(188 100% 42% / 0.5)',
                           } as React.CSSProperties}
                         />
-                        {whatWentWellError && <p className="text-xs text-red-400">Please let us know what went well.</p>}
-                        {!whatWentWellError && (
-                          <p className="text-xs text-gray-600 text-right">
-                            {whatWentWell.length.toLocaleString()} / 32,000
+                        <div className="flex items-center justify-between min-h-[20px] text-xs">
+                          {whatWentWellError ? (
+                            <p className="text-red-400 font-medium">Please let us know what went well.</p>
+                          ) : (
+                            <span />
+                          )}
+                          <p className="text-gray-500 font-mono text-right tabular-nums ml-auto">
+                            {whatWentWell.length.toLocaleString()} / {FEEDBACK_TEXT_MAX.toLocaleString()}
                           </p>
-                        )}
+                        </div>
                       </div>
 
                       {/* What could go better? */}
@@ -1085,24 +1098,29 @@ const CustomerSurvey: React.FC = () => {
                           value={whatCouldGoBetter}
                           onChange={(e) => {
                             setWhatCouldGoBetter(e.target.value);
+                            growFeedbackTextarea(e.target);
                             if (e.target.value.trim()) setWhatCouldGoBetterError(false);
                           }}
-                          rows={3}
-                          maxLength={32000}
+                          rows={12}
+                          maxLength={FEEDBACK_TEXT_MAX}
                           placeholder="e.g. We need more time on reporting edge cases next session..."
-                          className={`w-full px-4 py-3 rounded-xl text-sm text-white placeholder-gray-600 outline-none focus:ring-2 resize-none transition-all ${whatCouldGoBetterError ? 'ring-2 ring-red-500/50' : ''}`}
+                          className={`w-full min-h-[280px] px-4 py-3 rounded-xl text-sm leading-relaxed text-white placeholder-gray-600 outline-none focus:ring-2 resize-y transition-colors ${whatCouldGoBetterError ? 'ring-2 ring-red-500/50' : ''}`}
                           style={{
                             background: whatCouldGoBetterError ? 'rgba(239,68,68,0.05)' : 'rgba(255,255,255,0.06)',
                             border: whatCouldGoBetterError ? '1px solid rgba(239,68,68,0.3)' : '1px solid rgba(255,255,255,0.1)',
                             '--tw-ring-color': whatCouldGoBetterError ? 'hsl(0 84% 60% / 0.5)' : 'hsl(188 100% 42% / 0.5)',
                           } as React.CSSProperties}
                         />
-                        {whatCouldGoBetterError && <p className="text-xs text-red-400">Please let us know what could be improved.</p>}
-                        {!whatCouldGoBetterError && (
-                          <p className="text-xs text-gray-600 text-right">
-                            {whatCouldGoBetter.length.toLocaleString()} / 32,000
+                        <div className="flex items-center justify-between min-h-[20px] text-xs">
+                          {whatCouldGoBetterError ? (
+                            <p className="text-red-400 font-medium">Please let us know what could be improved.</p>
+                          ) : (
+                            <span />
+                          )}
+                          <p className="text-gray-500 font-mono text-right tabular-nums ml-auto">
+                            {whatCouldGoBetter.length.toLocaleString()} / {FEEDBACK_TEXT_MAX.toLocaleString()}
                           </p>
-                        )}
+                        </div>
                       </div>
 
                       {/* Additional Comments */}
@@ -1118,20 +1136,25 @@ const CustomerSurvey: React.FC = () => {
                         <textarea
                           id="customer-feedback"
                           value={customerFeedback}
-                          onChange={(e) => setCustomerFeedback(e.target.value)}
-                          rows={3}
-                          maxLength={32000}
+                          onChange={(e) => {
+                            setCustomerFeedback(e.target.value);
+                            growFeedbackTextarea(e.target);
+                          }}
+                          rows={12}
+                          maxLength={FEEDBACK_TEXT_MAX}
                           placeholder="Any specific thoughts, suggestions, or highlights from the session…"
-                          className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder-gray-600 outline-none focus:ring-2 resize-none transition-all"
+                          className="w-full min-h-[280px] px-4 py-3 rounded-xl text-sm leading-relaxed text-white placeholder-gray-600 outline-none focus:ring-2 resize-y transition-colors"
                           style={{
                             background: 'rgba(255,255,255,0.06)',
                             border: '1px solid rgba(255,255,255,0.1)',
                             '--tw-ring-color': 'hsl(188 100% 42% / 0.5)',
                           } as React.CSSProperties}
                         />
-                        <p className="text-xs text-gray-600 text-right">
-                          {customerFeedback.length.toLocaleString()} / 32,000
-                        </p>
+                        <div className="flex items-center justify-end min-h-[20px] text-xs">
+                          <p className="text-gray-500 font-mono text-right tabular-nums">
+                            {customerFeedback.length.toLocaleString()} / {FEEDBACK_TEXT_MAX.toLocaleString()}
+                          </p>
+                        </div>
                       </div>
                     </div>
 

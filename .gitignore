@@ -116,3 +116,6 @@ public/Assets/agrid-video.mp4
 # Local Netlify folder
 .netlify
 VAPID_KEYS.md
+
+# Salesforce local cache
+.sf/
