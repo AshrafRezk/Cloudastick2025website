@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { CheckCircle2, Car, Phone, Mail, ExternalLink, Table } from 'lucide-react';
+import { CheckCircle2, Car, Phone, Mail, ExternalLink, Table, Clock } from 'lucide-react';
 import { carModels, type CarModel } from '../utils/soueastData';
 
 const SoueastLeadSuccess: React.FC = () => {
@@ -372,9 +372,9 @@ const SoueastLeadSuccess: React.FC = () => {
               <div className="flex items-start gap-4 text-white/90">
                 <Phone className="w-5 h-5 text-[#ee7138] mt-1 flex-shrink-0" />
                 <div>
-                  <p className="font-semibold mb-1">Phone</p>
-                  <a href="tel:8003050060" className="text-white hover:text-[#ee7138] transition-colors text-lg font-medium">
-                    8003050060
+                  <p className="font-semibold mb-1">Call Center</p>
+                  <a href="tel:8001240602" className="text-white hover:text-[#ee7138] transition-colors text-lg font-medium">
+                    8001240602
                   </a>
                 </div>
               </div>
@@ -388,10 +388,11 @@ const SoueastLeadSuccess: React.FC = () => {
                 </div>
               </div>
               <div className="flex items-start gap-4 text-white/90 pt-2 border-t border-white/20">
-                <div className="w-5 h-5 flex-shrink-0"></div>
-                <div>
-                  <p className="font-semibold mb-1">Operating Hours</p>
-                  <p className="text-white/90">Sunday to Thursday, 9:00 AM – 5:30 PM</p>
+                <Clock className="w-5 h-5 text-[#ee7138] mt-1 flex-shrink-0" />
+                <div className="space-y-2">
+                  <p className="font-semibold">Operating Hours</p>
+                  <p className="text-white/90">Call Center: Saturday – Thursday, 9:00 AM – 7:00 PM</p>
+                  <p className="text-white/90">Showroom: Saturday – Thursday, 9:00 AM – 9:00 PM</p>
                 </div>
               </div>
             </div>
