@@ -9,7 +9,6 @@ import SoueastCarComparison from '../components/SoueastCarComparison';
 interface FormData {
   first_name: string;
   last_name: string;
-  email: string;
   mobile: string;
   budget: string;
   selectedCars: string[];
@@ -27,14 +26,13 @@ const SoueastLeadCapture: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
     first_name: '',
     last_name: '',
-    email: '',
     mobile: '',
     budget: '80000', // Default budget to show some cars initially
     selectedCars: [],
     preferredColors: [],
     description: '',
     lead_source: '',
-    branch: '',
+    branch: 'Riyadh',
     preferredContactMethod: '',
     subChannel: '',
     title: '',
@@ -67,15 +65,14 @@ const SoueastLeadCapture: React.FC = () => {
       formSubtitle: 'Fill in your details and we\'ll get back to you with the best offers',
       firstName: 'First Name',
       lastName: 'Last Name',
-      email: 'Email',
       mobile: 'Mobile',
       description: 'Additional Comments',
-      descriptionPlaceholder: 'Tell us about your preferences...',
+      descriptionHint: 'When do you expect to decide: within a week, within a month, or more than a month?',
+      descriptionPlaceholder: 'For example: within a month',
       submitButton: 'Submit Inquiry',
       submitButtonSubmitting: 'Submitting...',
       successMessage: 'Your details were sent successfully!',
       required: 'Required',
-      invalidEmail: 'Invalid email format',
       selectAtLeastOneCar: 'Please select at least one car',
       branch: 'Branch',
       branchPlaceholder: 'Select a branch',
@@ -96,15 +93,14 @@ const SoueastLeadCapture: React.FC = () => {
       formSubtitle: 'املأ بياناتك وسنتواصل معك بأفضل العروض',
       firstName: 'الاسم الأول',
       lastName: 'اسم العائلة',
-      email: 'البريد الإلكتروني',
       mobile: 'رقم الجوال',
       description: 'ملاحظات إضافية',
-      descriptionPlaceholder: 'أخبرنا عن تفضيلاتك...',
+      descriptionHint: 'متى تتوقع أن تقرر: خلال أسبوع، خلال شهر، أم أكثر من شهر؟',
+      descriptionPlaceholder: 'مثال: خلال شهر',
       submitButton: 'إرسال الاستفسار',
       submitButtonSubmitting: 'جاري الإرسال...',
       successMessage: 'تم إرسال بياناتك بنجاح!',
       required: 'مطلوب',
-      invalidEmail: 'صيغة البريد الإلكتروني غير صحيحة',
       selectAtLeastOneCar: 'يرجى اختيار سيارة واحدة على الأقل',
       branch: 'الفرع',
       branchPlaceholder: 'اختر الفرع',
@@ -290,10 +286,6 @@ User Agent: ${userAgent}`;
     
     if (!formData.first_name.trim()) newErrors.first_name = content[currentLanguage].required;
     if (!formData.last_name.trim()) newErrors.last_name = content[currentLanguage].required;
-    if (!formData.email.trim()) newErrors.email = content[currentLanguage].required;
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = content[currentLanguage].invalidEmail;
-    }
     if (!formData.mobile.trim()) newErrors.mobile = content[currentLanguage].required;
     if (formData.selectedCars.length === 0) {
       newErrors.selectedCars = content[currentLanguage].selectAtLeastOneCar;
@@ -376,7 +368,6 @@ User Agent: ${userAgent}`;
       addField('retURL', window.location.origin + '/soueast-success');
       addField('first_name', formData.first_name);
       addField('last_name', formData.last_name);
-      addField('email', formData.email);
       // Mobile number with country code (00966 for Saudi Arabia)
       const fullMobileNumber = formData.mobile ? `00966${formData.mobile}` : '';
       addField('mobile', fullMobileNumber);
@@ -928,26 +919,6 @@ User Agent: ${userAgent}`;
                   )}
                 </div>
 
-                {/* Email */}
-                <div>
-                  <label htmlFor="email" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
-                    {content[currentLanguage].email} *
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
-                    className={`w-full px-4 py-3 rounded-2xl border-2 ${errors.email ? 'border-red-300' : 'border-slate-200'} text-slate-900 placeholder-slate-400 bg-white focus:border-[#ee7138] focus:outline-none transition-colors duration-200 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`}
-                    dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
-                  />
-                  {errors.email && (
-                    <p className={`mt-1 text-sm text-red-600 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
-                      {errors.email}
-                    </p>
-                  )}
-                </div>
-
                 {/* Mobile */}
                 <div>
                   <label htmlFor="mobile" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
@@ -989,29 +960,12 @@ User Agent: ${userAgent}`;
                     {content[currentLanguage].branch}
                   </label>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    {['Riyadh', 'Jeddah', 'Dammam'].map((branch) => (
-                      <motion.button
-                        key={branch}
-                        type="button"
-                        onClick={() => {
-                          handleInputChange('branch', formData.branch === branch ? '' : branch);
-                          triggerHaptic(10);
-                          if (selection1Ref.current) {
-                            selection1Ref.current.currentTime = 0;
-                            selection1Ref.current.play().catch(() => {});
-                          }
-                        }}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        className={`px-6 py-4 rounded-2xl border-2 font-semibold transition-all duration-200 ${
-                          formData.branch === branch
-                            ? 'border-[#ee7138] bg-[#ee7138] text-white shadow-lg shadow-[#ee7138]/30'
-                            : 'border-slate-200 bg-white text-slate-700 hover:border-[#ee7138]/50 hover:bg-[#ee7138]/5'
-                        }`}
-                      >
-                        {branch}
-                      </motion.button>
-                    ))}
+                    <div
+                      aria-pressed="true"
+                      className="px-6 py-4 rounded-2xl border-2 border-[#ee7138] bg-[#ee7138] text-white font-semibold shadow-lg shadow-[#ee7138]/30 text-center"
+                    >
+                      Riyadh
+                    </div>
                   </div>
                 </div>
 
@@ -1051,9 +1005,12 @@ User Agent: ${userAgent}`;
 
                 {/* Description */}
                 <div className="md:col-span-2">
-                  <label htmlFor="description" className={`block text-sm font-semibold text-slate-700 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                  <label htmlFor="description" className={`block text-sm font-semibold text-slate-700 mb-1 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
                     {content[currentLanguage].description}
                   </label>
+                  <p className={`text-sm text-slate-600 mb-2 ${currentLanguage === 'ar' ? 'text-right' : 'text-left'}`} dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}>
+                    {content[currentLanguage].descriptionHint}
+                  </p>
                   <textarea
                     id="description"
                     value={formData.description}
